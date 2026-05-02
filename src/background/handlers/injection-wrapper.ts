@@ -18,6 +18,7 @@
 import type { InjectableScript } from "../../shared/injection-types";
 import { buildMarcoSdkScript } from "../marco-sdk-template";
 import { getActiveProjectId } from "../state-manager";
+import { logBgWarnSampled, BgLogTag } from "../bg-logger";
 
 /* ------------------------------------------------------------------ */
 /*  JSON Preamble Injection                                             */
