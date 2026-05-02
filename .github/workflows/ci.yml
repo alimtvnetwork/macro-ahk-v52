@@ -2198,6 +2198,88 @@ jobs:
           retention-days: 7
 
   # ════════════════════════════════════════════════════════════
+  # Job 6b: E2E-02 (Project CRUD) with extended timeouts + slow-step report
+  #
+  # Re-runs only `tests/e2e/e2e-02-project-crud.spec.ts` with a much
+  # larger per-test budget (3× the standard 60 s) so a slow CRUD step
+  # no longer fails the whole suite outright. The companion reporter
+  # `tests/e2e/reporters/slow-step-reporter.ts` flags every step that
+  # exceeds the original 60 s threshold (overridable via
+  # SLOW_STEP_THRESHOLD_MS) — both in the job log and as
+  # `::warning file=…,line=…::` annotations on the PR diff view, so
+  # creeping slowness shows up before it becomes a hard failure.
+  #
+  # `continue-on-error: true` keeps this job advisory: it surfaces
+  # slow steps without blocking merge while we triage them.
+  # ════════════════════════════════════════════════════════════
+  e2e-02-extended:
+    name: E2E-02 · Project CRUD (extended timeout, slow-step report)
+    needs: [build-extension, verify-built-manifest-csp]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --prefer-offline --no-frozen-lockfile
+
+      - name: Download built Chrome extension
+        uses: actions/download-artifact@v4
+        with:
+          name: chrome-extension-dist
+          path: dist/
+
+      - name: Install Playwright browsers (chromium + system deps)
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install xvfb
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
+      - name: Run E2E-02 with extended per-test timeout (180s) + slow-step reporter
+        env:
+          CI: 'true'
+          # 3× the default 60s budget — keeps the test passing while we
+          # surface which steps are slow via the reporter.
+          PLAYWRIGHT_TEST_TIMEOUT_MS: '180000'
+          # Threshold below which a step is considered fine. Anything
+          # ≥ this (default: original 60s budget) is flagged.
+          SLOW_STEP_THRESHOLD_MS: '60000'
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1280x800x24" \
+            pnpm exec playwright test tests/e2e/e2e-02-project-crud.spec.ts \
+              --timeout=180000 \
+              --reporter=list,./tests/e2e/reporters/slow-step-reporter.ts
+
+      - name: Upload Playwright artifacts (E2E-02 extended)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts-e2e-02-extended
+          path: test-results/artifacts
+          retention-days: 7
+
+  # ════════════════════════════════════════════════════════════
   # Registry-required build stubs.
   #
   # These jobs satisfy the strict standalone registry checker
