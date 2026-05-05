@@ -1,7 +1,8 @@
 # 44 — Skip e2e-02 React Options CRUD spec under deferred-workstreams
 
 **Date:** 2026-05-05
-**Status:** Decided (skipped, not deleted)
+**Status:** SUPERSEDED 2026-05-05 — user requested deterministic seeding
+instead of skip. See "Resolution" below.
 
 ## Context
 
@@ -46,6 +47,31 @@ logged in the local preview.
 
 Option 1. The Deferred Workstreams policy is unambiguous and the spec is
 small enough to keep around as a ready-to-revive harness once S-021 ships.
+
+## Resolution (2026-05-05, same day)
+
+User explicitly overrode the Deferred Workstreams skip with: *"Implement a
+deterministic onboarding-complete seeding flow (and verify it in-page
+before assertions) so the ProjectsListView always renders in CI."*
+
+Spec is now **un-skipped**. The race conditions that justified the skip
+are eliminated by a four-stage readiness gate in `openProjectsView`:
+
+1. **SW seed + read-back verification** in `beforeAll`
+   (`seedOnboardingFromServiceWorker`).
+2. **Page-side re-seed + read-back verification** on every page open
+   (`ensureOnboardingSeededFromPage`) — defeats MV3 SW teardown races.
+3. **Wait for `[Options] ── INTERACTIVE ──` console log** (the page's own
+   ground-truth signal that all `*Loading` flags resolved). Subscribed
+   BEFORE navigation. Falls back to a body-text probe to handle the case
+   where the log fires before our listener attached.
+4. **Wait for the "New Project" CTA**, with a `captureDiagnostic()`
+   snapshot dumped to stderr if it never appears (URL, hash, body text,
+   storage flag, visible headings, React-root presence) so the next CI
+   failure is self-explaining instead of a blind 3-min timeout.
+
+If a future CI run still fails, the diagnostic block tells us exactly
+which stage broke and what the page is showing — no more guessing.
 
 ## Re-enable steps
 

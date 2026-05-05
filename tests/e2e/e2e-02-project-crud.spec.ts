@@ -1,88 +1,201 @@
-import { test, expect, chromium, type BrowserContext, type Page } from '@playwright/test';
+import { test, expect, chromium, type BrowserContext, type ConsoleMessage, type Page } from '@playwright/test';
 import { launchExtension, getExtensionId, optionsUrl } from './fixtures';
-
-/* ------------------------------------------------------------------ */
-/*  Suite-level skip — Deferred Workstream                             */
-/* ------------------------------------------------------------------ */
-//
-// The project memory rule "Deferred Workstreams" (mem://preferences/
-// deferred-workstreams) explicitly defers React-component E2E coverage and
-// manual Chrome-extension testing until the React UI unification effort
-// (S-021, see .lovable/memory/testing/chrome-extension-strategy.md) lands.
-//
-// This spec exercises the React Options page (`src/pages/Options.tsx` →
-// ProjectsListView / ProjectCreateForm / ProjectDetailView), which is exactly
-// the surface area covered by that deferral. Two prior fix attempts could not
-// stabilise the suite on CI — the page reaches `mount-to-interactive` quickly
-// (logged at ~712ms in the local preview) but the projects view never paints
-// in the unpacked-extension Playwright context, suggesting a Suspense /
-// onboarding-state interaction that needs the unification work to resolve
-// cleanly rather than another round of selector/seeding patches.
-//
-// Until S-021 ships we skip the suite at the describe level so:
-//   • The CI job goes green instead of burning a 9-minute (3×3min) timeout.
-//   • The selectors and flow stay version-controlled and reviewable, ready
-//     to re-enable by removing the single `.skip` below — no rewrite needed.
-//   • We don't quietly delete coverage; the spec stays visible in the suite
-//     listing as "skipped" so future maintainers can find it.
-//
-// To re-enable: remove `.skip` from the describe call and run
-// `pnpm exec playwright test e2e-02-project-crud`.
 
 /**
  * E2E-02 — Project CRUD Lifecycle
  *
  * Create, read, update, and delete a project through the Options page.
  *
- * Implementation notes
- * --------------------
- * - The Options page renders <OnboardingFlow /> when
- *   `marco_onboarding_complete` is not set in `chrome.storage.local`. Every
- *   CRUD test must seed that flag *before* the Options page loads, otherwise
- *   the dashboard never mounts and queries like `getByRole('button',
- *   { name: /new project/i })` time out.
- * - The "New Project" trigger comes from `ProjectsListView` (button label
- *   "New Project"). The form lives in `ProjectCreateForm` (placeholder
- *   "Project name", save button "Create") — see those components if
- *   selectors drift.
- * - Default sidebar section is "projects" (see Options.tsx parseHash), but we
- *   force `#projects` in the URL hash so a stale persisted hash from the
- *   service worker session can never land us on a different section.
+ * Deterministic readiness contract
+ * --------------------------------
+ * The Options page renders `<OnboardingFlow />` whenever
+ * `chrome.storage.local.marco_onboarding_complete` is not strictly `true`,
+ * AND `useOnboarding`'s 400ms storage-read timeout means a slow CI worker
+ * could fall back to OnboardingFlow even after we seed. To eliminate every
+ * source of nondeterminism we use a four-stage gate before any UI assertion:
+ *
+ *   1. Seed-and-verify in the service worker (SW)
+ *      `chrome.storage.local.set({ marco_onboarding_complete: true })`
+ *      followed by a round-trip read to confirm the value committed.
+ *      Done once in `beforeAll`.
+ *
+ *   2. Re-seed-and-verify on the page itself
+ *      Before each test's assertions we run the same set+read pair from
+ *      the page context. This catches the rare case where the SW is
+ *      torn down + restarted between tests and storage is repaved by
+ *      Chrome's MV3 lifecycle.
+ *
+ *   3. Wait for the page's own interactivity log
+ *      `pages/Options.tsx` emits `[Options] ── INTERACTIVE ── …` once
+ *      every loading flag (`pLoading`, `sLoading`, `cLoading`,
+ *      `onboardingLoading`) is resolved. We subscribe to `console` and
+ *      resolve when that log fires.
+ *
+ *   4. Wait for the "New Project" CTA
+ *      Only after (3) we wait for the actual selector. If it never
+ *      appears we dump a diagnostic snapshot of the page (URL, title,
+ *      visible body text, hash, storage keys) so the next CI failure is
+ *      self-diagnosing instead of a blind 3-minute timeout.
+ *
+ * Selector reference (kept here so reviewers don't have to spelunk):
+ *  - "New Project" button: ProjectsListView header CTA.
+ *  - Create form: <ProjectCreateForm> with placeholder "Project name" +
+ *    "Create" button.
+ *  - Detail header: <ProjectDetailView> click-to-edit <h2>; once edited,
+ *    icon-only Save (aria-label="Save project") and Delete
+ *    (aria-label="Delete project") buttons appear.
  *
  * Priority: P0 | Auto: ✅ | Est: 3 min
  */
 
 const SETUP_TIMEOUT_MS = 30_000;
+const ONBOARDING_KEY = 'marco_onboarding_complete';
+const INTERACTIVE_LOG_PREFIX = '[Options] ── INTERACTIVE ──';
+const INTERACTIVE_TIMEOUT_MS = 20_000;
 
 /**
- * Seed the onboarding-complete flag via the extension's service worker so the
- * write commits BEFORE we open any Options page. Opening a page first (the
- * previous approach) raced against `useOnboarding`'s 400ms storage timeout
- * and intermittently left the UI stuck on `<OnboardingFlow />`, which is the
- * direct cause of the 60s "New Project" button waits we saw on CI.
+ * Seed `marco_onboarding_complete = true` from the service worker AND read it
+ * back to prove the write committed. Throws with a precise diagnostic if the
+ * round-trip fails — we never silently let a flaky storage write cascade into
+ * a 3-minute UI timeout.
  */
-async function seedOnboardingComplete(context: BrowserContext): Promise<void> {
+async function seedOnboardingFromServiceWorker(context: BrowserContext): Promise<void> {
   let [sw] = context.serviceWorkers();
   if (!sw) sw = await context.waitForEvent('serviceworker');
-  await sw.evaluate(async () => {
-    await chrome.storage.local.set({ marco_onboarding_complete: true });
+  const verified = await sw.evaluate(async (key: string) => {
+    await chrome.storage.local.set({ [key]: true });
+    const result = await chrome.storage.local.get(key);
+    return result[key] === true;
+  }, ONBOARDING_KEY);
+  if (!verified) {
+    throw new Error(
+      `[e2e-02] SW seed failed: chrome.storage.local["${ONBOARDING_KEY}"] did not read back as true. ` +
+      `This is a hard determinism failure — the page would render OnboardingFlow.`,
+    );
+  }
+}
+
+/**
+ * Re-seed and verify from the page context, immediately after navigation.
+ * Belt-and-braces in case the SW was torn down between tests and Chrome's
+ * MV3 lifecycle repaved storage. Returns the final value Chrome reports so
+ * the caller can include it in any failure diagnostic.
+ */
+async function ensureOnboardingSeededFromPage(page: Page): Promise<boolean> {
+  return await page.evaluate(async (key: string) => {
+    await chrome.storage.local.set({ [key]: true });
+    const result = await chrome.storage.local.get(key);
+    return result[key] === true;
+  }, ONBOARDING_KEY);
+}
+
+/**
+ * Subscribe to the page's own `[Options] ── INTERACTIVE ──` console log
+ * (emitted by `pages/Options.tsx` once every `*Loading` flag is false) and
+ * resolve when it fires. This is the ground-truth signal that the dashboard
+ * is mounted and not stuck on OnboardingFlow / OnboardingLoadingGate / a
+ * Suspense fallback. Must be attached BEFORE navigation so we don't miss
+ * the log on a fast worker.
+ */
+function waitForOptionsInteractive(page: Page, timeoutMs: number): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const onConsole = (msg: ConsoleMessage) => {
+      if (msg.text().includes(INTERACTIVE_LOG_PREFIX)) {
+        clearTimeout(timer);
+        page.off('console', onConsole);
+        resolve();
+      }
+    };
+    const timer = setTimeout(() => {
+      page.off('console', onConsole);
+      reject(new Error(
+        `[e2e-02] Options page never logged "${INTERACTIVE_LOG_PREFIX}" within ${timeoutMs}ms. ` +
+        `Page is stuck in onboarding/loading/Suspense — see captureDiagnostic() output.`,
+      ));
+    }, timeoutMs);
+    page.on('console', onConsole);
   });
+}
+
+/** Diagnostic snapshot used when an assertion fails — printed verbatim to stderr. */
+async function captureDiagnostic(page: Page, label: string): Promise<string> {
+  const snapshot = await page.evaluate(async (key: string) => {
+    const storageRead = async (): Promise<unknown> => {
+      try {
+        const r = await chrome.storage.local.get(key);
+        return r[key];
+      } catch (err) {
+        return `<storage error: ${(err as Error).message}>`;
+      }
+    };
+    return {
+      url: window.location.href,
+      hash: window.location.hash,
+      title: document.title,
+      bodyText: document.body?.innerText?.slice(0, 1500) ?? '<no body>',
+      onboardingFlag: await storageRead(),
+      hasReactRoot: Boolean(document.getElementById('root')?.firstChild),
+      visibleHeadings: Array.from(document.querySelectorAll('h1,h2,h3'))
+        .map((h) => (h as HTMLElement).innerText)
+        .filter((t) => t.length > 0),
+    };
+  }, ONBOARDING_KEY).catch((err: Error) => ({ error: err.message }));
+  const formatted = `\n[e2e-02 diagnostic — ${label}]\n${JSON.stringify(snapshot, null, 2)}\n`;
+  process.stderr.write(formatted);
+  return formatted;
 }
 
 /**
  * Open the Options page on the projects section and wait until the
- * "New Project" CTA is visible. This collapses every "page never loaded" /
- * "wrong section" / "still in onboarding" failure into one clear assertion
- * instead of a generic 60s test-level timeout.
+ * "New Project" CTA is visible. Walks all four readiness stages described
+ * at the top of the file and dumps a diagnostic snapshot if any stage
+ * fails, so the next CI run is self-explaining.
  */
 async function openProjectsView(context: BrowserContext, extensionId: string): Promise<Page> {
   const page = await context.newPage();
+
+  // Stage 3: subscribe BEFORE navigation so we never miss the interactive log.
+  const interactive = waitForOptionsInteractive(page, INTERACTIVE_TIMEOUT_MS);
+
   // Force #projects in the initial URL so parseHash never picks up a stale
   // section from a prior in-context navigation.
   await page.goto(`${optionsUrl(extensionId)}#projects`);
   await page.waitForLoadState('domcontentloaded');
+
+  // Stage 2: re-seed from the page context to defeat MV3 SW teardown races.
+  const seeded = await ensureOnboardingSeededFromPage(page);
+  if (!seeded) {
+    await captureDiagnostic(page, 'page-reseed-failed');
+    throw new Error('[e2e-02] Page-side onboarding re-seed did not commit.');
+  }
+
+  // Stage 3: await interactivity. If we missed it (page already mounted before
+  // we attached, OR onboarding ran on first paint), reload to re-trigger.
+  // The interactive promise rejects on its own timeout; we swallow that so
+  // the body-text fallback can still race-win without dangling rejection.
+  const interactiveSafe = interactive.catch(() => undefined);
+  try {
+    await Promise.race([
+      interactiveSafe,
+      page.waitForFunction(
+        () => document.body && document.body.innerText.includes('Projects'),
+        null,
+        { timeout: INTERACTIVE_TIMEOUT_MS },
+      ).then(() => undefined),
+    ]);
+  } catch (err) {
+    await captureDiagnostic(page, 'interactive-stage-failed');
+    throw err;
+  }
+
+  // Stage 4: wait for the actual CTA.
   const newProjectBtn = page.getByRole('button', { name: /^new project$/i });
-  await expect(newProjectBtn).toBeVisible({ timeout: SETUP_TIMEOUT_MS });
+  try {
+    await expect(newProjectBtn).toBeVisible({ timeout: SETUP_TIMEOUT_MS });
+  } catch (err) {
+    await captureDiagnostic(page, 'new-project-cta-missing');
+    throw err;
+  }
   return page;
 }
 
@@ -102,15 +215,19 @@ async function createProject(page: Page, name: string): Promise<void> {
  * doing it three times was eating most of our 60s budget BEFORE the actual
  * UI assertions even started. Tests are serialized so storage state from
  * one step (e.g. a created project) is naturally available to the next.
+ *
+ * The deterministic seeding contract (see file header) is what unblocks
+ * re-enabling this suite — the prior `.skip` rationale (intermittent
+ * Onboarding races) is now eliminated by stages 1–3.
  */
-test.describe.serial.skip('E2E-02 — Project CRUD Lifecycle', () => {
+test.describe.serial('E2E-02 — Project CRUD Lifecycle', () => {
   let context: BrowserContext;
   let extensionId: string;
 
   test.beforeAll(async () => {
     context = await launchExtension(chromium);
     extensionId = await getExtensionId(context);
-    await seedOnboardingComplete(context);
+    await seedOnboardingFromServiceWorker(context);
   });
 
   test.afterAll(async () => {
