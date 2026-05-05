@@ -27,20 +27,18 @@ import { launchExtension, getExtensionId, openOptions, optionsUrl } from './fixt
 const SETUP_TIMEOUT_MS = 30_000;
 
 /**
- * Seed the onboarding-complete flag in chrome.storage.local BEFORE the test's
- * Options page loads, so OnboardingFlow never renders.
- *
- * Uses chrome.storage.local.set's promise overload — the callback overload is
- * unavailable in MV3 service-worker contexts and would silently never resolve.
+ * Seed the onboarding-complete flag via the extension's service worker so the
+ * write commits BEFORE we open any Options page. Opening a page first (the
+ * previous approach) raced against `useOnboarding`'s 400ms storage timeout
+ * and intermittently left the UI stuck on `<OnboardingFlow />`, which is the
+ * direct cause of the 60s "New Project" button waits we saw on CI.
  */
-async function seedOnboardingComplete(context: BrowserContext, extensionId: string): Promise<void> {
-  const seedPage = await context.newPage();
-  await seedPage.goto(optionsUrl(extensionId));
-  await seedPage.waitForLoadState('domcontentloaded');
-  await seedPage.evaluate(async () => {
+async function seedOnboardingComplete(context: BrowserContext): Promise<void> {
+  let [sw] = context.serviceWorkers();
+  if (!sw) sw = await context.waitForEvent('serviceworker');
+  await sw.evaluate(async () => {
     await chrome.storage.local.set({ marco_onboarding_complete: true });
   });
-  await seedPage.close();
 }
 
 /**
@@ -50,8 +48,11 @@ async function seedOnboardingComplete(context: BrowserContext, extensionId: stri
  * instead of a generic 60s test-level timeout.
  */
 async function openProjectsView(context: BrowserContext, extensionId: string): Promise<Page> {
-  const page = await openOptions(context, extensionId);
-  await page.evaluate(() => { window.location.hash = '#projects'; });
+  const page = await context.newPage();
+  // Force #projects in the initial URL so parseHash never picks up a stale
+  // section from a prior in-context navigation.
+  await page.goto(`${optionsUrl(extensionId)}#projects`);
+  await page.waitForLoadState('domcontentloaded');
   const newProjectBtn = page.getByRole('button', { name: /^new project$/i });
   await expect(newProjectBtn).toBeVisible({ timeout: SETUP_TIMEOUT_MS });
   return page;
@@ -67,74 +68,94 @@ async function createProject(page: Page, name: string): Promise<void> {
   await expect(page.getByRole('button', { name: /^new project$/i })).toBeVisible({ timeout: 10_000 });
 }
 
-test.describe('E2E-02 — Project CRUD Lifecycle', () => {
-  test('create a new project', async () => {
-    const context = await launchExtension(chromium);
-    const extensionId = await getExtensionId(context);
-    await seedOnboardingComplete(context, extensionId);
-    const options = await openProjectsView(context, extensionId);
+/**
+ * Reuse a single persistent context across all three CRUD tests. Launching
+ * a fresh Chromium + loading the unpacked extension takes 8–15s on CI, and
+ * doing it three times was eating most of our 60s budget BEFORE the actual
+ * UI assertions even started. Tests are serialized so storage state from
+ * one step (e.g. a created project) is naturally available to the next.
+ */
+test.describe.serial('E2E-02 — Project CRUD Lifecycle', () => {
+  let context: BrowserContext;
+  let extensionId: string;
 
-    await createProject(options, 'Test Automation');
+  test.beforeAll(async () => {
+    context = await launchExtension(chromium);
+    extensionId = await getExtensionId(context);
+    await seedOnboardingComplete(context);
+  });
 
-    await expect(options.getByText('Test Automation').first()).toBeVisible({ timeout: 10_000 });
-
+  test.afterAll(async () => {
     await context.close();
+  });
+
+  test('create a new project', async () => {
+    const options = await openProjectsView(context, extensionId);
+    try {
+      await createProject(options, 'Test Automation');
+      await expect(options.getByText('Test Automation').first()).toBeVisible({ timeout: 10_000 });
+    } finally {
+      await options.close();
+    }
   });
 
   test('update project name', async () => {
-    const context = await launchExtension(chromium);
-    const extensionId = await getExtensionId(context);
-    await seedOnboardingComplete(context, extensionId);
     const options = await openProjectsView(context, extensionId);
+    try {
+      // Reuses the project created by the previous test (serial order).
+      const card = options.getByText('Test Automation').first();
+      await expect(card).toBeVisible({ timeout: 10_000 });
+      await card.click();
 
-    await createProject(options, 'Test Automation');
+      // ProjectDetailView renders the name as a click-to-edit <h2>; click it
+      // to mount the underlying <Input placeholder="Project name">.
+      const heading = options.getByRole('heading', { name: 'Test Automation' });
+      await expect(heading).toBeVisible({ timeout: 10_000 });
+      await heading.click();
 
-    // Navigate to project detail. The project card uses the same text as
-    // the H2 inside the detail view, so use .first() to disambiguate.
-    await options.getByText('Test Automation').first().click();
+      const nameInput = options.getByPlaceholder(/^project name$/i);
+      await expect(nameInput).toBeVisible({ timeout: 5_000 });
+      await nameInput.fill('Test Automation v2');
 
-    // ProjectDetailView renders the name as a click-to-edit <h2>. We must
-    // click it to mount the underlying <Input placeholder="Project name">
-    // — otherwise getByPlaceholder will time out.
-    const heading = options.getByRole('heading', { name: 'Test Automation' });
-    await expect(heading).toBeVisible({ timeout: 10_000 });
-    await heading.click();
+      // The save button is icon-only; its accessible name comes from
+      // aria-label="Save project" on IconButtonWithTooltip and only mounts
+      // once the form is dirty. We must click it BEFORE the input loses
+      // focus (which would close the editor) so we use Locator.click()
+      // directly without first blurring the input.
+      const saveBtn = options.getByRole('button', { name: /^save project$/i });
+      await expect(saveBtn).toBeVisible({ timeout: 5_000 });
+      await saveBtn.click();
 
-    const nameInput = options.getByPlaceholder(/^project name$/i);
-    await expect(nameInput).toBeVisible({ timeout: 5_000 });
-    await nameInput.clear();
-    await nameInput.fill('Test Automation v2');
-
-    await nameInput.press('Enter');
-    const saveBtn = options.getByRole('button', { name: /save project/i });
-    await expect(saveBtn).toBeVisible({ timeout: 5_000 });
-    await saveBtn.click();
-
-    await expect(options.getByText('Test Automation v2').first()).toBeVisible({ timeout: 10_000 });
-
-    await context.close();
+      await expect(options.getByText('Test Automation v2').first()).toBeVisible({ timeout: 10_000 });
+    } finally {
+      await options.close();
+    }
   });
 
   test('delete project cleans up storage', async () => {
-    const context = await launchExtension(chromium);
-    const extensionId = await getExtensionId(context);
-    await seedOnboardingComplete(context, extensionId);
     const options = await openProjectsView(context, extensionId);
+    try {
+      // Create a fresh disposable project so this test is independent of
+      // whatever state the update test left behind.
+      await createProject(options, 'Delete Me');
 
-    await createProject(options, 'Delete Me');
+      const card = options.getByText('Delete Me').first();
+      await expect(card).toBeVisible({ timeout: 10_000 });
+      await card.click();
 
-    await options.getByText('Delete Me').first().click();
+      // Icon-only delete trigger; aria-label="Delete project".
+      const deleteTrigger = options.getByRole('button', { name: /^delete project$/i });
+      await expect(deleteTrigger).toBeVisible({ timeout: 10_000 });
+      await deleteTrigger.click();
 
-    const deleteTrigger = options.getByRole('button', { name: /delete project/i });
-    await expect(deleteTrigger).toBeVisible({ timeout: 10_000 });
-    await deleteTrigger.click();
+      // AlertDialog confirm action — exact text is "Delete".
+      const confirmBtn = options.getByRole('button', { name: /^delete$/i });
+      await expect(confirmBtn).toBeVisible({ timeout: 5_000 });
+      await confirmBtn.click();
 
-    const confirmBtn = options.getByRole('button', { name: /^delete$/i });
-    await expect(confirmBtn).toBeVisible({ timeout: 5_000 });
-    await confirmBtn.click();
-
-    await expect(options.getByText('Delete Me')).not.toBeVisible({ timeout: 10_000 });
-
-    await context.close();
+      await expect(options.getByText('Delete Me')).not.toBeVisible({ timeout: 10_000 });
+    } finally {
+      await options.close();
+    }
   });
 });
