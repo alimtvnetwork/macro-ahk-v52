@@ -1,4 +1,4 @@
-import { test, expect, chromium, type BrowserContext, type Page } from '@playwright/test';
+import { test, expect, chromium, type BrowserContext, type ConsoleMessage, type Page } from '@playwright/test';
 import { launchExtension, getExtensionId, optionsUrl } from './fixtures';
 
 /**
@@ -99,6 +99,13 @@ async function ensureOnboardingSeededFromPage(page: Page): Promise<boolean> {
  */
 function waitForOptionsInteractive(page: Page, timeoutMs: number): Promise<void> {
   return new Promise<void>((resolve, reject) => {
+    const onConsole = (msg: ConsoleMessage) => {
+      if (msg.text().includes(INTERACTIVE_LOG_PREFIX)) {
+        clearTimeout(timer);
+        page.off('console', onConsole);
+        resolve();
+      }
+    };
     const timer = setTimeout(() => {
       page.off('console', onConsole);
       reject(new Error(
@@ -106,13 +113,6 @@ function waitForOptionsInteractive(page: Page, timeoutMs: number): Promise<void>
         `Page is stuck in onboarding/loading/Suspense — see captureDiagnostic() output.`,
       ));
     }, timeoutMs);
-    const onConsole = (msg: { text: () => string }) => {
-      if (msg.text().includes(INTERACTIVE_LOG_PREFIX)) {
-        clearTimeout(timer);
-        page.off('console', onConsole);
-        resolve();
-      }
-    };
     page.on('console', onConsole);
   });
 }
@@ -171,9 +171,12 @@ async function openProjectsView(context: BrowserContext, extensionId: string): P
 
   // Stage 3: await interactivity. If we missed it (page already mounted before
   // we attached, OR onboarding ran on first paint), reload to re-trigger.
+  // The interactive promise rejects on its own timeout; we swallow that so
+  // the body-text fallback can still race-win without dangling rejection.
+  const interactiveSafe = interactive.catch(() => undefined);
   try {
     await Promise.race([
-      interactive,
+      interactiveSafe,
       page.waitForFunction(
         () => document.body && document.body.innerText.includes('Projects'),
         null,
