@@ -1,5 +1,5 @@
 import { test, expect, chromium, type BrowserContext, type Page } from '@playwright/test';
-import { launchExtension, getExtensionId, openOptions, optionsUrl } from './fixtures';
+import { launchExtension, getExtensionId, optionsUrl } from './fixtures';
 
 /**
  * E2E-02 — Project CRUD Lifecycle
