@@ -237,6 +237,37 @@ jobs:
         run: node scripts/check-cicd-index-sync.mjs
 
   # ════════════════════════════════════════════════════════════
+  # Job 0a2c: Changelog entry guard — version-bump pre-merge check
+  #
+  # Asserts that `changelog.md` contains a heading entry for the
+  # current `EXTENSION_VERSION` declared in `src/shared/constants.ts`.
+  # Catches the recurring footgun where a version bump (manifest +
+  # constants + standalone instructions) lands without an accompanying
+  # changelog note, leaving users unable to discover what changed.
+  #
+  # Pure Node + repo files. No install needed, returns in <1s.
+  # Listed in build-extension's `needs:` so a missing entry blocks
+  # merge even if downstream builds re-pass.
+  # ════════════════════════════════════════════════════════════
+  changelog-entry:
+    name: Preflight · Changelog Entry For Current Version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Assert changelog.md has an entry for EXTENSION_VERSION
+        run: node scripts/check-changelog-entry.mjs
+
+  # ════════════════════════════════════════════════════════════
   # Job 0a3: PascalCase instruction migration — fast-fail guard
   #
   # Phase 2 of the instruction-manifest migration split the canonical
@@ -1807,7 +1838,7 @@ jobs:
   # ════════════════════════════════════════════════════════════
   build-extension:
     name: Build · Chrome Extension
-    needs: [spec-links, no-nested-template-literals, eslint-run-summary-types, contract-checkers-wired, cicd-index-sync, pascalcase-instruction-migration, report-standalone-registry, readme-conventions, typecheck-app, typecheck-standalone, lint-standalone, build-sdk, build-xpath, build-payment-banner-hider, build-macro-controller, build-prompts, casing-instruction-json]
+    needs: [spec-links, no-nested-template-literals, eslint-run-summary-types, contract-checkers-wired, cicd-index-sync, changelog-entry, pascalcase-instruction-migration, report-standalone-registry, readme-conventions, typecheck-app, typecheck-standalone, lint-standalone, build-sdk, build-xpath, build-payment-banner-hider, build-macro-controller, build-prompts, casing-instruction-json]
     runs-on: ubuntu-latest
     # `actions: read` is required for `gh api .../actions/runs/.../artifacts`
     # used by the "Resolve payment-banner-hider artifact URL + id" step.
