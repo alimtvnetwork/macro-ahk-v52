@@ -57,7 +57,7 @@ export function buildTitleRow(
   plCtx: PanelLayoutCtx,
 ): TitleRowResult {
   const titleRow = document.createElement('div');
-  titleRow.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:grab;user-select:none;padding:0 0 2px 0;';
+  titleRow.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:grab;user-select:none;padding:0 0 2px 0;flex-wrap:nowrap;white-space:nowrap;';
   titleRow.title = 'Drag to move, click to minimize/expand';
 
   const { elements, wsNameEl, authBadge, panelToggleSpan, hideBtn } = _buildTitleElements(deps, plCtx);
@@ -96,14 +96,14 @@ function _buildTitleElements(deps: PanelBuilderDeps, plCtx: PanelLayoutCtx) {
   const settingsBtn = buildSettingsButton();
 
   const panelToggleSpan = document.createElement('span');
-  panelToggleSpan.style.cssText = CssFragment.FontSize + tFontTiny + ';color:' + cNeutral500 + ';cursor:pointer;margin-right:4px;';
+  panelToggleSpan.style.cssText = CssFragment.FontSize + tFontTiny + ';color:' + cNeutral500 + ';cursor:pointer;margin-right:4px;white-space:nowrap;flex-shrink:0;';
   panelToggleSpan.textContent = plCtx.panelState === 'minimized' ? '[ + ]' : '[ - ]';
   panelToggleSpan.title = 'Minimize / Expand panel';
   panelToggleSpan.onclick = function(e: Event) { e.stopPropagation(); toggleMinimize(plCtx); };
   plCtx.panelToggleSpan = panelToggleSpan;
 
   const hideBtn = document.createElement('span');
-  hideBtn.style.cssText = CssFragment.FontSize + tFontTiny + ';color:' + cNeutral500 + ';cursor:pointer;';
+  hideBtn.style.cssText = CssFragment.FontSize + tFontTiny + ';color:' + cNeutral500 + ';cursor:pointer;white-space:nowrap;flex-shrink:0;';
   hideBtn.textContent = '[ x ]';
   hideBtn.title = 'Close and fully remove controller (re-inject to restore)';
   hideBtn.onclick = function(e: Event) { e.stopPropagation(); destroyPanel(); };
