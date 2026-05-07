@@ -18,6 +18,7 @@ import { moveToAdjacentWorkspace } from '../workspace-management';
 import { createMenuItem, createMenuSep, createSubmenu } from './menu-helpers';
 import { showAboutModal } from './about-modal';
 import { showChangelogModal } from './changelog-modal';
+import { showProjectsModal } from './projects-modal';
 import { resolveAutoAttachConfig, runAutoAttachGroup } from './auto-attach';
 import { logError } from '../error-utils';
 import { sendToExtension } from './prompt-manager';
@@ -79,6 +80,7 @@ export function buildHamburgerMenu(deps: MenuBuilderDeps): MenuBuilderResult {
   menuDropdown.appendChild(createMenuSep());
   menuDropdown.appendChild(createMenuItem(menuCtx, '📜', 'Changelog', 'View version history and recent changes', function() { showChangelogModal(); }));
   menuDropdown.appendChild(createMenuItem(menuCtx, '🗄️', 'Database', 'Browse project database tables and rows', function() { showDatabaseModal(); }));
+  menuDropdown.appendChild(createMenuItem(menuCtx, '📂', 'Projects', 'Show open Lovable projects grouped by workspace', function() { showProjectsModal(); }));
 
   _addAutoAttachSection(menuCtx, menuDropdown);
 
