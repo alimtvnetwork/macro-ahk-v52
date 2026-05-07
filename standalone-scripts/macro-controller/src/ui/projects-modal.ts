@@ -1,27 +1,26 @@
 /**
  * MacroLoop Controller — Projects Modal
  *
- * Floating popup (styled after bulk-rename) listing every currently open
- * Lovable project tab grouped by workspace. Data source: the existing
- * `GET_OPEN_LOVABLE_TABS` background handler — the macro-controller runs
- * in the MAIN world and cannot call `chrome.tabs` directly
- * (mem://architecture/injection-context-awareness).
+ * Floating popup (styled after bulk-rename) that lists every project per
+ * workspace by calling `marco.api.projects.list(wsId)`, then highlights
+ * the projects whose tab is currently open in Chrome (data sourced from
+ * the existing `GET_OPEN_LOVABLE_TABS` background handler — the
+ * macro-controller runs in the MAIN world and cannot call `chrome.tabs`
+ * directly, see mem://architecture/injection-context-awareness).
  *
- * Spec: prompts/04-projects-map-spec.md (Projects Map entry).
  * Standards applied:
+ *   - mem://constraints/no-retry-policy — single fetch per workspace; user
+ *     clicks Refresh to retry. Failures show inline per-row.
+ *   - mem://standards/error-logging-via-namespace-logger — uses `logError`.
  *   - mem://architecture/extension-error-management — failures surface as
- *     visible UI rows + activity-log entries via `logError`.
- *   - mem://standards/error-logging-via-namespace-logger — `logError` here
- *     is the macro-controller's namespace-bound logger wrapper.
- *   - mem://constraints/no-retry-policy — single fetch, no auto-retry;
- *     user clicks Refresh.
+ *     visible UI rows + activity-log entries.
  */
 
-import { cPanelBg, cPrimary, cPrimaryBgA, cPrimaryLighter, cPanelFgDim } from '../shared-state';
+import { cPanelBg, cPrimary, cPrimaryBgA, cPrimaryLighter, cPanelFgDim, loopCreditState, CREDIT_API_BASE } from '../shared-state';
 import { sendToExtension } from './prompt-loader';
 import { log } from '../logging';
 import { logError } from '../error-utils';
-import type { DraggableElement } from '../types';
+import type { DraggableElement, WorkspaceCredit } from '../types';
 
 const DIALOG_ID = 'marco-projects-modal';
 
@@ -34,7 +33,6 @@ interface OpenTabRow {
     readonly projectName: string | null;
     readonly detectedWorkspaceName: string | null;
     readonly detectedWorkspaceId: string | null;
-    readonly bindingSource: 'injection' | 'probe' | 'none';
 }
 
 interface OpenTabsResponse {
@@ -44,7 +42,24 @@ interface OpenTabsResponse {
     readonly errorMessage?: string;
 }
 
-/** Public entry — opens (or re-opens) the Projects popup. */
+interface ProjectEntry {
+    readonly id: string;
+    readonly name: string;
+}
+
+interface WorkspaceBlock {
+    readonly ws: WorkspaceCredit;
+    projects: ProjectEntry[] | null;
+    error: string | null;
+    loading: boolean;
+}
+
+/** Open tab info indexed by projectId AND by URL fragment for fallback matching. */
+interface OpenTabIndex {
+    byProjectId: Map<string, OpenTabRow>;
+    byUrlProjectId: Map<string, OpenTabRow>;
+}
+
 export function showProjectsModal(): void {
     removeProjectsModal();
 
@@ -54,7 +69,7 @@ export function showProjectsModal(): void {
 
     const body = document.createElement('div');
     body.style.cssText = 'padding:10px;max-height:60vh;overflow-y:auto;';
-    body.innerHTML = renderEmpty('Loading…');
+    body.innerHTML = renderEmpty('Loading workspaces…');
     panel.appendChild(body);
 
     const footer = createFooter(function () { void loadAndRender(body); });
@@ -72,22 +87,79 @@ export function removeProjectsModal(): void {
 }
 
 async function loadAndRender(body: HTMLElement): Promise<void> {
-    body.innerHTML = renderEmpty('Loading…');
+    body.innerHTML = renderEmpty('Loading workspaces…');
+
+    // 1. Snapshot known workspaces.
+    const workspaces = (loopCreditState.perWorkspace || []).slice();
+    if (workspaces.length === 0) {
+        body.innerHTML = renderEmpty('No workspaces loaded yet — open the workspace list first.');
+        return;
+    }
+
+    // 2. Build open-tab index (in parallel with fetches below).
+    const openTabsPromise = loadOpenTabIndex();
+
+    // 3. Initialise blocks (loading state) and render skeleton.
+    const blocks: WorkspaceBlock[] = workspaces.map(function (ws) {
+        return { ws, projects: null, error: null, loading: true };
+    });
+    const tabIndex = await openTabsPromise;
+    body.innerHTML = renderAll(blocks, tabIndex, null);
+    attachRowClicks(body);
+
+    // 4. Fetch each workspace's projects sequentially-ish but in parallel
+    //    (no retry per mem://constraints/no-retry-policy).
+    await Promise.all(workspaces.map(function (ws, i) {
+        return fetchProjects(ws.id).then(function (projects) {
+            blocks[i] = { ws, projects, error: null, loading: false };
+        }).catch(function (err: unknown) {
+            const msg = err instanceof Error ? err.message : String(err);
+            blocks[i] = { ws, projects: null, error: msg, loading: false };
+        }).then(function () {
+            // Re-render after each completes for incremental feedback.
+            body.innerHTML = renderAll(blocks, tabIndex, null);
+            attachRowClicks(body);
+        });
+    }));
+}
+
+async function loadOpenTabIndex(): Promise<OpenTabIndex> {
+    const idx: OpenTabIndex = { byProjectId: new Map(), byUrlProjectId: new Map() };
     try {
         const resp = await sendToExtension('GET_OPEN_LOVABLE_TABS', {}) as unknown as OpenTabsResponse;
-        if (!resp || resp.isOk === false) {
-            const reason = resp?.errorMessage ?? 'no response from background';
-            body.innerHTML = renderError(reason);
-            return;
-        }
+        if (!resp || resp.isOk === false) return idx;
         const tabs = Array.isArray(resp.tabs) ? resp.tabs : [];
-        body.innerHTML = renderGrouped(tabs, resp.capturedAt);
-        attachRowClicks(body);
+        for (const t of tabs) {
+            if (t.projectId) idx.byProjectId.set(t.projectId, t);
+            const urlPid = extractProjectIdFromUrl(t.url);
+            if (urlPid) idx.byUrlProjectId.set(urlPid, t);
+        }
     } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        logError('Projects', 'Load open tabs failed: ' + msg);
-        body.innerHTML = renderError(msg);
+        log('Projects: open-tabs probe failed: ' + String(e), 'warn');
     }
+    return idx;
+}
+
+async function fetchProjects(wsId: string): Promise<ProjectEntry[]> {
+    const sdk = window.marco;
+    if (!sdk || !sdk.api || !sdk.api.projects || typeof sdk.api.projects.list !== 'function') {
+        throw new Error('marco.api.projects.list unavailable — SDK out of date');
+    }
+    const resp = await sdk.api.projects.list(wsId, { baseUrl: CREDIT_API_BASE });
+    if (!resp.ok) {
+        const preview = JSON.stringify(resp.data).substring(0, 160);
+        logError('Projects', 'projects.list HTTP ' + resp.status + ' for ws=' + wsId + ': ' + preview);
+        throw new Error('HTTP ' + resp.status);
+    }
+    const data = resp.data as { projects?: Array<{ id?: string; name?: string }> };
+    const list = Array.isArray(data.projects) ? data.projects : [];
+    const out: ProjectEntry[] = [];
+    for (const p of list) {
+        const id = typeof p.id === 'string' ? p.id : '';
+        const name = typeof p.name === 'string' ? p.name : '';
+        if (id) out.push({ id, name: name || id });
+    }
+    return out;
 }
 
 function attachRowClicks(body: HTMLElement): void {
@@ -109,60 +181,78 @@ function renderEmpty(text: string): string {
     return '<div style="color:' + cPanelFgDim + ';font-size:11px;padding:6px;">' + escapeHtml(text) + '</div>';
 }
 
-function renderError(reason: string): string {
-    return '<div style="color:#fca5a5;font-size:11px;padding:6px;">⚠ ' + escapeHtml(reason) + '</div>';
-}
-
-function renderGrouped(tabs: ReadonlyArray<OpenTabRow>, capturedAt: string | undefined): string {
-    if (tabs.length === 0) {
-        return renderEmpty('No Lovable project tabs are open.');
-    }
-
-    const groups = new Map<string, OpenTabRow[]>();
-    for (const t of tabs) {
-        const key = t.detectedWorkspaceName || t.projectName || '(unbound)';
-        const list = groups.get(key);
-        if (list) list.push(t);
-        else groups.set(key, [t]);
-    }
-
+function renderAll(blocks: ReadonlyArray<WorkspaceBlock>, tabIndex: OpenTabIndex, capturedAt: string | null): string {
+    const totalOpen = tabIndex.byProjectId.size + tabIndex.byUrlProjectId.size;
     let html = '<div style="font-size:10px;color:#94a3b8;padding:0 0 6px 0;">'
-        + tabs.length + ' open tab' + (tabs.length === 1 ? '' : 's')
-        + ' across ' + groups.size + ' workspace' + (groups.size === 1 ? '' : 's')
-        + (capturedAt ? ' · ' + escapeHtml(formatTime(capturedAt)) : '')
+        + blocks.length + ' workspace' + (blocks.length === 1 ? '' : 's')
+        + ' · ' + totalOpen + ' open project tab' + (totalOpen === 1 ? '' : 's')
+        + (capturedAt ? ' · ' + escapeHtml(capturedAt) : '')
         + '</div>';
-
-    const sortedKeys = Array.from(groups.keys()).sort(function (a, b) { return a.localeCompare(b); });
-    for (const ws of sortedKeys) {
-        const rows = groups.get(ws) ?? [];
-        html += '<div style="margin-bottom:8px;">'
-            + '<div style="font-size:10px;color:' + cPrimaryLighter + ';font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:2px 0;border-bottom:1px solid rgba(124,58,237,0.3);margin-bottom:2px;">'
-            + escapeHtml(ws) + ' <span style="color:#64748b;font-weight:400;">(' + rows.length + ')</span>'
-            + '</div>';
-        for (const t of rows) html += renderProjectRow(t);
-        html += '</div>';
-    }
+    for (const b of blocks) html += renderBlock(b, tabIndex);
     return html;
 }
 
-function renderProjectRow(t: OpenTabRow): string {
-    const name = t.projectName || extractProjectIdFromUrl(t.url) || t.title || '(untitled)';
-    const activeDot = t.active
-        ? '<span style="color:#fbbf24;margin-right:4px;" title="Active in window">●</span>'
-        : '<span style="margin-right:4px;opacity:0;">●</span>';
-    const idLabel = t.projectId
-        ? '<span style="color:#64748b;font-size:9px;">' + escapeHtml(t.projectId) + '</span>'
-        : '';
+function renderBlock(b: WorkspaceBlock, tabIndex: OpenTabIndex): string {
+    const wsName = b.ws.fullName || b.ws.name || b.ws.id;
+    const openCount = b.projects
+        ? b.projects.filter(function (p) { return isOpen(p.id, tabIndex); }).length
+        : 0;
+    const headerSuffix = b.loading
+        ? '<span style="color:#64748b;font-weight:400;"> (loading…)</span>'
+        : b.error
+            ? '<span style="color:#fca5a5;font-weight:400;" title="' + escapeHtml(b.error) + '"> (error)</span>'
+            : '<span style="color:#64748b;font-weight:400;"> (' + (b.projects?.length ?? 0) + ')</span>'
+              + (openCount > 0 ? ' <span style="color:#fbbf24;font-weight:400;">· ' + openCount + ' open</span>' : '');
+
+    let body = '';
+    if (b.loading) {
+        body = '<div style="color:#64748b;font-size:10px;padding:3px 4px;font-style:italic;">Fetching projects…</div>';
+    } else if (b.error) {
+        body = '<div style="color:#fca5a5;font-size:10px;padding:3px 4px;">⚠ ' + escapeHtml(b.error) + '</div>';
+    } else if ((b.projects?.length ?? 0) === 0) {
+        body = '<div style="color:#64748b;font-size:10px;padding:3px 4px;font-style:italic;">No projects.</div>';
+    } else {
+        // Show open ones first.
+        const open = (b.projects ?? []).filter(function (p) { return isOpen(p.id, tabIndex); });
+        const closed = (b.projects ?? []).filter(function (p) { return !isOpen(p.id, tabIndex); });
+        for (const p of open) body += renderProjectRow(p, tabIndex, true);
+        for (const p of closed) body += renderProjectRow(p, tabIndex, false);
+    }
+
+    return '<div style="margin-bottom:8px;">'
+        + '<div style="font-size:10px;color:' + cPrimaryLighter + ';font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:2px 0;border-bottom:1px solid rgba(124,58,237,0.3);margin-bottom:2px;">'
+        + escapeHtml(wsName) + headerSuffix
+        + '</div>'
+        + body
+        + '</div>';
+}
+
+function renderProjectRow(p: ProjectEntry, tabIndex: OpenTabIndex, isOpenFlag: boolean): string {
+    const tab = isOpenFlag
+        ? (tabIndex.byProjectId.get(p.id) ?? tabIndex.byUrlProjectId.get(p.id) ?? null)
+        : null;
+    const url = tab?.url ?? ('https://lovable.dev/projects/' + p.id);
+    const dot = isOpenFlag
+        ? '<span style="color:#10b981;margin-right:4px;" title="Open in Chrome">●</span>'
+        : '<span style="margin-right:4px;color:#334155;">○</span>';
+    const nameColor = isOpenFlag ? '#67e8f9' : '#cbd5e1';
+    const fontWeight = isOpenFlag ? '700' : '400';
+    const bg = isOpenFlag ? 'background:rgba(16,185,129,0.08);' : '';
+    const idLabel = '<span style="color:#64748b;font-size:9px;">' + escapeHtml(p.id) + '</span>';
     return ''
-        + '<div data-open-url="' + escapeHtml(t.url) + '" '
-        +   'title="' + escapeHtml(t.title) + '\nClick to open in new tab" '
-        +   'style="display:flex;align-items:center;gap:6px;padding:3px 4px;cursor:pointer;border-radius:3px;font-size:11px;font-family:monospace;" '
+        + '<div data-open-url="' + escapeHtml(url) + '" '
+        +   'title="' + escapeHtml(p.name) + (isOpenFlag ? '\n(open in Chrome)' : '') + '\nClick to open" '
+        +   'style="display:flex;align-items:center;gap:6px;padding:3px 4px;cursor:pointer;border-radius:3px;font-size:11px;font-family:monospace;' + bg + '" '
         +   'onmouseover="this.style.background=\'rgba(124,58,237,0.15)\'" '
-        +   'onmouseout="this.style.background=\'transparent\'">'
-        +   activeDot
-        +   '<span style="color:#67e8f9;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(name) + '</span>'
+        +   'onmouseout="this.style.background=\'' + (isOpenFlag ? 'rgba(16,185,129,0.08)' : 'transparent') + '\'">'
+        +   dot
+        +   '<span style="color:' + nameColor + ';font-weight:' + fontWeight + ';flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(p.name) + '</span>'
         +   idLabel
         + '</div>';
+}
+
+function isOpen(projectId: string, tabIndex: OpenTabIndex): boolean {
+    return tabIndex.byProjectId.has(projectId) || tabIndex.byUrlProjectId.has(projectId);
 }
 
 function extractProjectIdFromUrl(url: string): string | null {
@@ -180,7 +270,7 @@ function createPanel(): HTMLDivElement {
     panel.style.cssText =
         'position:fixed;top:80px;right:40px;z-index:100002;background:' + cPanelBg
         + ';border:1px solid ' + cPrimary
-        + ';border-radius:8px;padding:0;min-width:420px;max-width:560px;'
+        + ';border-radius:8px;padding:0;min-width:480px;max-width:640px;'
         + 'box-shadow:0 8px 32px rgba(0,0,0,.6);font-family:monospace;resize:both;overflow:hidden;';
     return panel;
 }
@@ -192,7 +282,7 @@ function createTitleBar(panel: HTMLElement): HTMLElement {
         + ';cursor:grab;user-select:none;border-bottom:1px solid rgba(124,58,237,0.3);';
     const title = document.createElement('span');
     title.style.cssText = 'font-size:11px;color:' + cPrimaryLighter + ';font-weight:700;';
-    title.textContent = '📂 Projects — Open Lovable Tabs';
+    title.textContent = '📂 Projects — by Workspace';
     const closeBtn = document.createElement('span');
     closeBtn.style.cssText = 'cursor:pointer;color:#94a3b8;font-size:14px;padding:0 4px;';
     closeBtn.textContent = '✕';
@@ -205,12 +295,16 @@ function createTitleBar(panel: HTMLElement): HTMLElement {
 
 function createFooter(onRefresh: () => void): HTMLElement {
     const footer = document.createElement('div');
-    footer.style.cssText = 'padding:6px 10px;border-top:1px solid rgba(124,58,237,0.3);display:flex;justify-content:flex-end;gap:6px;';
+    footer.style.cssText = 'padding:6px 10px;border-top:1px solid rgba(124,58,237,0.3);display:flex;justify-content:space-between;align-items:center;gap:6px;';
+    const legend = document.createElement('span');
+    legend.style.cssText = 'font-size:9px;color:#64748b;';
+    legend.innerHTML = '<span style="color:#10b981;">●</span> open in Chrome &nbsp; <span style="color:#334155;">○</span> closed';
     const refresh = document.createElement('button');
     refresh.type = 'button';
     refresh.textContent = '⟳ Refresh';
     refresh.style.cssText = 'padding:3px 10px;background:#1e3a5f;color:#cbd5e1;border:1px solid #3b6fa0;border-radius:3px;font-size:10px;cursor:pointer;';
     refresh.onclick = function (): void { onRefresh(); };
+    footer.appendChild(legend);
     footer.appendChild(refresh);
     return footer;
 }
@@ -239,10 +333,6 @@ function attachDrag(panel: HTMLElement, bar: HTMLElement, closeBtn: HTMLElement)
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
     };
-}
-
-function formatTime(iso: string): string {
-    try { return new Date(iso).toLocaleTimeString(); } catch { return iso; }
 }
 
 function escapeHtml(s: string): string {
