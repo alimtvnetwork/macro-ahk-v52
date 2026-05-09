@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * cached-build.mjs — Content-hash cache wrapper for standalone-scripts builds
+ * cached-build.mjs - Content-hash cache wrapper for standalone-scripts builds
  *
  * Wraps any standalone build pipeline so that repeated runs with identical
- * inputs return in ~50ms instead of 5–30s of tsc + vite work. Used both
+ * inputs return in ~50ms instead of 5-30s of tsc + vite work. Used both
  * locally (via `pnpm run build:<name>`) and in CI (the `.cache/` directory
  * is restored by `actions/cache@v4` keyed on the same hash inputs).
  *
- * Sequential, fail-fast (no retry/backoff). One miss → one full build → one
+ * Sequential, fail-fast (no retry/backoff). One miss -> one full build -> one
  * cache write. No partial caches. No probabilistic recovery.
  *
  * USAGE
@@ -37,7 +37,7 @@
  *   5. standalone-scripts/<name>/instruction.ts (if present)
  *   6. Root pnpm-lock.yaml
  *   7. The build command itself (so changing the command busts cache)
- *   8. --mode value (production vs development → different bundles)
+ *   8. --mode value (production vs development -> different bundles)
  *   9. Any --extra-input=<path> the caller passes (shared deps)
  *
  * CACHE LAYOUT
@@ -49,8 +49,8 @@
  *
  * BYPASS
  * ------
- *   STANDALONE_BUILD_NO_CACHE=1   → always miss, always rebuild, no write
- *   STANDALONE_BUILD_FORCE=1      → ignore HIT, rebuild, overwrite cache
+ *   STANDALONE_BUILD_NO_CACHE=1   -> always miss, always rebuild, no write
+ *   STANDALONE_BUILD_FORCE=1      -> ignore HIT, rebuild, overwrite cache
  *
  * Author: Riseup Asia LLC
  */
@@ -110,7 +110,7 @@ if (!fs.existsSync(projectDir)) {
 
 /**
  * Some legacy projects use non-canonical config filenames (e.g. marco-sdk uses
- * tsconfig.sdk.json). Accept either canonical OR legacy names — first match wins.
+ * tsconfig.sdk.json). Accept either canonical OR legacy names - first match wins.
  * Order matters: canonical first so the registry-required name is preferred.
  */
 const TSCONFIG_CANDIDATES = {
@@ -256,7 +256,7 @@ if (cacheHit()) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Cache miss — run the build                                          */
+/*  Cache miss - run the build                                          */
 /* ------------------------------------------------------------------ */
 
 if (NO_CACHE) {
