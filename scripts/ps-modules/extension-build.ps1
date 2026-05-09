@@ -249,6 +249,19 @@ function Build-Extension {
         $effectiveBuildNow = Get-EffectivePnpmCommand "pnpm run build:extension"
     }
 
+    $directPnpmRunMatch = [regex]::Match($effectiveBuildNow, '^(pnpm(?:\.cmd|\.exe)?)\s+(?:--ignore-workspace\s+)?run\s+([^\s]+)\s*$')
+    if ($directPnpmRunMatch.Success) {
+        $scriptName = $directPnpmRunMatch.Groups[2].Value
+        Write-Host "  Command:  package script direct: $scriptName" -ForegroundColor DarkCyan
+        Write-Host "  Cwd:      $(Get-Location)" -ForegroundColor DarkCyan
+        Write-Host "  Linker:   $($script:EffectiveNodeLinker)" -ForegroundColor DarkCyan
+        $directExitCode = Invoke-PackageScriptDirect $script:ExtensionDir $scriptName
+        if ($directExitCode -ne 0) {
+            Write-Host "  ERROR: Build failed" -ForegroundColor Red
+            exit 3
+        }
+        Write-Host "  [OK] Extension built successfully" -ForegroundColor Green
+    } else {
     if ($effectiveBuildNow -match '^(pnpm(?:\.cmd|\.exe)?)\s+' -and $effectiveBuildNow -notmatch '(^|\s)--ignore-workspace(\s|$)') {
         $effectiveBuildNow = $effectiveBuildNow -replace '^(pnpm(?:\.cmd|\.exe)?)\s+', '$1 --ignore-workspace '
     }
@@ -261,6 +274,7 @@ function Build-Extension {
         exit 3
     }
     Write-Host "  [OK] Extension built successfully" -ForegroundColor Green
+    }
 
     # Clean up env var
     if ($script:nosourcemap) { Remove-Item env:VITE_NO_SOURCEMAP -ErrorAction SilentlyContinue }
