@@ -10,27 +10,29 @@
  *
  * Em-dashes inside JSDoc/line comments are tolerated.
  */
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync } from "node:fs";
 
-const SCRIPTS_DIR = "scripts";
+/**
+ * Scoped allowlist: scripts that run during the standalone build chain
+ * invoked by `pnpm run build:<project>`. These print directly to the
+ * Windows PowerShell console where non-ASCII = mojibake.
+ */
+const FILES = [
+    "scripts/cached-build.mjs",
+    "scripts/check-axios-version.mjs",
+    "scripts/check-instruction-json-casing.mjs",
+    "scripts/check-standalone-build-portability.mjs",
+    "scripts/compile-instruction.mjs",
+    "scripts/run-standalone-build-step.mjs",
+    "scripts/validate-instruction-schema.mjs",
+];
+
 const FORBIDDEN_RE = /[^\x00-\x7E]/g;
 const CALL_RE =
     /(?:console\.(?:log|error|warn|info)|process\.(?:stdout|stderr)\.write)\s*\(([\s\S]*?)\)\s*;/g;
 
-function listMjs(dir) {
-    const out = [];
-    for (const entry of readdirSync(dir)) {
-        const full = join(dir, entry);
-        const st = statSync(full);
-        if (st.isDirectory()) continue;
-        if (entry.endsWith(".mjs")) out.push(full);
-    }
-    return out;
-}
-
 const failures = [];
-for (const file of listMjs(SCRIPTS_DIR)) {
+for (const file of FILES) {
     const text = readFileSync(file, "utf-8");
     // Strip line + block comments before scanning.
     const stripped = text
@@ -64,5 +66,6 @@ if (failures.length > 0) {
 }
 
 console.log(
-    `[OK] All script console output is ASCII-safe (scanned ${listMjs(SCRIPTS_DIR).length} files)`
+    "[OK] Standalone build-chain scripts emit ASCII-safe output " +
+        "(scanned " + FILES.length + " files)"
 );
