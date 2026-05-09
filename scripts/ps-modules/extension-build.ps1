@@ -18,6 +18,8 @@
     Boolean — $true if install succeeded or was skipped successfully.
 #>
 function Install-ExtensionDependencies {
+    Set-PnpmNonInteractiveEnvironment
+
     $HasNodeModules = Test-Path "node_modules"
     $HasPnpManifest = Test-Path ".pnp.cjs"
     $IsMissingNodeModules = -not $HasNodeModules
@@ -82,6 +84,8 @@ function Install-ExtensionDependencies {
     The repository root directory.
 #>
 function Install-RootBuildDependencies([string]$RootDir) {
+    Set-PnpmNonInteractiveEnvironment
+
     $rootNodeModules = Join-Path $RootDir "node_modules"
     $rootBuildPackages = @("vite", "typescript", "axios", "@types/chrome")
     $missingRootBuildPackages = @()
@@ -106,7 +110,7 @@ function Install-RootBuildDependencies([string]$RootDir) {
             # Use pnpm (not npm) — the project's .npmrc contains pnpm-only keys
             # (node-linker, store-dir, virtual-store-dir, ...) which trigger
             # "Unknown config" warnings when npm parses them.
-            $rootInstallResult = pnpm install --prod=false 2>&1
+            $rootInstallResult = pnpm install --prod=false --dangerously-allow-all-builds 2>&1
             if ($LASTEXITCODE -ne 0) {
                 Write-Host "  [FAIL] Root pnpm install failed" -ForegroundColor Red
                 foreach ($line in $rootInstallResult) { Write-Host "    $line" -ForegroundColor DarkGray }
