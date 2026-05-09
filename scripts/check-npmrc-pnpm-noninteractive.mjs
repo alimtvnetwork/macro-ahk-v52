@@ -11,7 +11,7 @@
 import { readFileSync } from "node:fs";
 
 const TARGET = "scripts/ps-modules/pnpm-config.ps1";
-const REQUIRED = ["verify-deps-before-run=false", "confirm-modules-purge=false"];
+const REQUIRED = ["verify-deps-before-run=false", "confirm-modules-purge=false", "strict-dep-builds=false"];
 const text = readFileSync(TARGET, "utf-8");
 const missing = REQUIRED.filter((key) => !text.includes(key));
 
