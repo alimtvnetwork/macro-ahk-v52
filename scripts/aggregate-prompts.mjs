@@ -35,7 +35,7 @@ async function main() {
         try {
             info = JSON.parse(await readFile(join(dir, "info.json"), "utf-8"));
         } catch {
-            console.warn(`⚠ Skipping ${folder.name}: missing/invalid info.json`);
+            console.warn(`[WARN] Skipping ${folder.name}: missing/invalid info.json`);
             continue;
         }
 
@@ -46,7 +46,7 @@ async function main() {
         const pick = (pascal, camel) => {
             if (pascal in info) return info[pascal];
             if (camel in info) {
-                console.warn(`⚠ ${folder.name}/info.json: legacy camelCase key "${camel}" — please rename to "${pascal}"`);
+                console.warn(`[WARN] ${folder.name}/info.json: legacy camelCase key "${camel}" - please rename to "${pascal}"`);
                 return info[camel];
             }
             return undefined;
@@ -56,7 +56,7 @@ async function main() {
         try {
             text = (await readFile(join(dir, "prompt.md"), "utf-8")).trim();
         } catch {
-            console.warn(`⚠ Skipping ${folder.name}: missing prompt.md`);
+            console.warn(`[WARN] Skipping ${folder.name}: missing prompt.md`);
             continue;
         }
 
@@ -104,10 +104,10 @@ async function main() {
     await mkdir(DIST_PROMPTS_DIR, { recursive: true });
     await writeFile(OUTPUT, payload, "utf-8");
 
-    console.log(`✅ Aggregated ${prompts.length} prompts → ${OUTPUT}`);
+    console.log(`[OK] Aggregated ${prompts.length} prompts -> ${OUTPUT}`);
 }
 
 main().catch(err => {
-    console.error("❌ aggregate-prompts failed:", err);
+    console.error("[FAIL] aggregate-prompts failed:", err);
     process.exit(1);
 });

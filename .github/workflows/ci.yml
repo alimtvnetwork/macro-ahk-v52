@@ -878,6 +878,9 @@ jobs:
       - name: Preflight · pnpm non-interactive .npmrc keys
         run: node scripts/check-npmrc-pnpm-noninteractive.mjs
 
+      - name: Preflight · no nested pnpm run in build scripts
+        run: node scripts/check-no-nested-pnpm-run.mjs
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:

@@ -18,9 +18,12 @@ import { readFileSync } from "node:fs";
  * Windows PowerShell console where non-ASCII = mojibake.
  */
 const FILES = [
+    "scripts/aggregate-prompts.mjs",
     "scripts/cached-build.mjs",
     "scripts/check-axios-version.mjs",
     "scripts/check-instruction-json-casing.mjs",
+    "scripts/check-no-nested-pnpm-run.mjs",
+    "scripts/check-script-ascii-output.mjs",
     "scripts/check-standalone-build-portability.mjs",
     "scripts/compile-instruction.mjs",
     "scripts/run-standalone-build-step.mjs",
@@ -55,7 +58,7 @@ if (failures.length > 0) {
         "[FAIL] Non-ASCII characters detected in script console output."
     );
     console.error(
-        "Reason: they render as mojibake (Γ£à, ΓåÆ, ΓòÉ) under Windows PowerShell."
+        "Reason: they render as mojibake under Windows PowerShell."
     );
     console.error("Replace with ASCII equivalents: [OK] [FAIL] -> | + - =");
     console.error("");
