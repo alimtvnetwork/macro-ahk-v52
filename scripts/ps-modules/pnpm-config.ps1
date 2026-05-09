@@ -73,7 +73,8 @@ function Configure-PnpMode {
             "package-import-method=copy",
             "virtual-store-dir=node_modules/.pnpm",
             "verify-deps-before-run=false",
-            "confirm-modules-purge=false"
+            "confirm-modules-purge=false",
+            "strict-dep-builds=false"
         ) -join "`n"
     } elseif ($script:EffectiveNodeLinker -eq "pnp") {
         $npmrcContent = @(
@@ -81,7 +82,8 @@ function Configure-PnpMode {
             "symlink=false",
             "package-import-method=auto",
             "verify-deps-before-run=false",
-            "confirm-modules-purge=false"
+            "confirm-modules-purge=false",
+            "strict-dep-builds=false"
         ) -join "`n"
     } else {
         $npmrcContent = @(
@@ -89,7 +91,8 @@ function Configure-PnpMode {
             "symlink=true",
             "package-import-method=auto",
             "verify-deps-before-run=false",
-            "confirm-modules-purge=false"
+            "confirm-modules-purge=false",
+            "strict-dep-builds=false"
         ) -join "`n"
     }
 
