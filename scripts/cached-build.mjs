@@ -44,8 +44,8 @@
  * ------------
  *   .cache/standalone-builds/
  *     <name>/
- *       <hash>.json         ← manifest: { hash, builtAt, commandHash, files[] }
- *       <hash>/dist/...     ← snapshot of standalone-scripts/<name>/dist/
+ *       <hash>.json         <- manifest: { hash, builtAt, commandHash, files[] }
+ *       <hash>/dist/...     <- snapshot of standalone-scripts/<name>/dist/
  *
  * BYPASS
  * ------
