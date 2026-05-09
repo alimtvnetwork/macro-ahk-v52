@@ -36,7 +36,7 @@ const PROJECTS = {
 };
 
 const project = process.argv.find((a) => a.startsWith("--project="))?.slice("--project=".length);
-const mode = process.argv.find((a) => a.startsWith("--mode="))?.slice("--mode=".length) ?? "production";
+const mode = process.argv.find((a) => a.startsWith("--mode="))?.slice("--mode=".length) ?? process.env.BUILD_MODE ?? "production";
 
 if (!project || !(project in PROJECTS)) {
     console.error(`[FAIL] Usage: node scripts/run-standalone-build-step.mjs --project=<${Object.keys(PROJECTS).join("|")}> [--mode=production|development]`);
