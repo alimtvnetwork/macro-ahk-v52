@@ -114,7 +114,7 @@ function Configure-PnpMode {
 
     $workspaceContent = @(
         "packages:",
-        "  - \".\"",
+        '  - "."',
         "recursiveInstall: false",
         "nodeLinker: $($script:EffectiveNodeLinker)",
         "symlink: $(if ($script:EffectiveNodeLinker -eq 'pnp') { 'false' } else { 'true' })",
@@ -124,7 +124,7 @@ function Configure-PnpMode {
         "strictDepBuilds: false",
         "dangerouslyAllowAllBuilds: true",
         "allowBuilds:",
-        "  \"@swc/core\": true",
+        '  "@swc/core": true',
         "  esbuild: true"
     ) -join "`n"
     $hasWorkspaceBefore = Test-Path $workspacePath
