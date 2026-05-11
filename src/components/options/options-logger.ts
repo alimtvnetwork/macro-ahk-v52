@@ -17,7 +17,7 @@
  */
 
 import { sendMessage } from "@/lib/message-client";
-import { MessageType, type MessageRequest } from "@/shared/messages";
+import { MessageType } from "@/shared/messages";
 
 const SCOPE_PREFIX = "Options.";
 
