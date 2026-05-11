@@ -21,6 +21,7 @@ import {
 import { sendMessage } from "@/lib/message-client";
 import { RecorderStepGraph } from "./RecorderStepGraph";
 import { RecorderStepDetail } from "./RecorderStepDetail";
+import { RecorderEmptyState } from "./RecorderEmptyState";
 import { downloadRecorderExport, type ExportFormat } from "./recorder-export";
 import { Loader2, Database, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
