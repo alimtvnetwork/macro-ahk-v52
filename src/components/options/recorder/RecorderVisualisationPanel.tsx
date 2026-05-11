@@ -166,6 +166,22 @@ export default function RecorderVisualisationPanel({ projectSlug }: Props) {
         [setStepLink],
     );
 
+    const handleExport = useCallback(
+        (format: ExportFormat) => {
+            if (data === null) { return; }
+            if (data.steps.length === 0) {
+                toast.error("Nothing to export — no steps recorded yet.");
+                return;
+            }
+            try {
+                downloadRecorderExport({ projectSlug, data, tagsByStep }, format);
+                toast.success(`Exported ${data.steps.length} step(s) as ${format.toUpperCase()}`);
+            } catch (err) {
+                toast.error(err instanceof Error ? err.message : "Export failed");
+            }
+        },
+        [data, projectSlug, tagsByStep],
+    );
     if (loading) {
         return (
             <div className="flex items-center gap-2 text-xs text-muted-foreground p-4">
