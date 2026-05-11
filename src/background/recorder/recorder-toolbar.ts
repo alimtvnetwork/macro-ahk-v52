@@ -187,6 +187,10 @@ export function mountRecorderToolbar(
         const phase = session.Phase;
         phaseLabel.textContent = phase;
 
+        const isActive = phase === "Recording" || phase === "Paused";
+        projectChip.dataset.active = isActive ? "true" : "false";
+        projectChip.dataset.phase = phase;
+
         startBtn.disabled = phase !== "Idle";
         stopBtn.disabled  = phase === "Idle";
 
