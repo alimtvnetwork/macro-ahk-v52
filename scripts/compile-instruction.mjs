@@ -43,6 +43,54 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
+const SCHEMA_VERSION_CONTRACT_PATH = join(
+    ROOT,
+    "standalone-scripts/types/instruction/primitives/schema-version.json",
+);
+
+function loadCurrentSchemaVersion() {
+    if (!existsSync(SCHEMA_VERSION_CONTRACT_PATH)) {
+        throw new Error(
+            `[compile-instruction] Missing schema contract at ${SCHEMA_VERSION_CONTRACT_PATH}; ` +
+            `cannot pin instruction SchemaVersion.`,
+        );
+    }
+    const raw = JSON.parse(readFileSync(SCHEMA_VERSION_CONTRACT_PATH, "utf-8"));
+    if (typeof raw.current !== "string" || raw.current.length === 0) {
+        throw new Error(
+            `[compile-instruction] Invalid schema contract at ${SCHEMA_VERSION_CONTRACT_PATH}; ` +
+            `missing non-empty "current" SchemaVersion.`,
+        );
+    }
+    return raw.current;
+}
+
+function releaseMajorMinor(version) {
+    if (typeof version !== "string") return null;
+    const match = version.match(/^(\d+\.\d+)\.\d+$/);
+    return match ? match[1] : null;
+}
+
+function pinSchemaVersion(obj, tsPath, folderArg) {
+    const currentSchemaVersion = loadCurrentSchemaVersion();
+    if (obj.SchemaVersion === currentSchemaVersion) return obj;
+
+    const accidentalReleaseSchemaVersion = releaseMajorMinor(obj.Version);
+    if (obj.SchemaVersion === accidentalReleaseSchemaVersion) {
+        console.warn(
+            `[WARN] ${folderArg}/src/instruction.ts had SchemaVersion "${obj.SchemaVersion}" ` +
+            `derived from release Version "${obj.Version}"; emitting SchemaVersion ` +
+            `"${currentSchemaVersion}" and leaving Version unchanged.`,
+        );
+        return { ...obj, SchemaVersion: currentSchemaVersion };
+    }
+
+    throw new Error(
+        `[compile-instruction] Unsupported SchemaVersion in ${tsPath}: ` +
+        `expected "${currentSchemaVersion}" from ${SCHEMA_VERSION_CONTRACT_PATH}, ` +
+        `got ${JSON.stringify(obj.SchemaVersion)}. Release numbers belong in Version only.`,
+    );
+}
 
 /* ------------------------------------------------------------------ */
 /*  Key-casing helpers                                                  */
@@ -167,7 +215,7 @@ async function main() {
     }
 
     const source = readFileSync(tsPath, "utf-8");
-    const obj = evaluateInstructionSource(source, tsPath);
+    const obj = pinSchemaVersion(evaluateInstructionSource(source, tsPath), tsPath, folderArg);
 
     // The source MUST already be PascalCase (Phase 1 rename). We pass it
     // through unchanged - no alias injection - so `instruction.json` is
