@@ -1,11 +1,10 @@
 # All Prompt Samples — Index
 
-**Total prompts:** 14
+**Total prompts:** 13
 
 | Seq | Name | Category | Slug |
 |-----|------|----------|------|
 | 01 | Start Prompt | — | start-prompt |
-| 02 | Start Prompt v2 | — | start-prompt-v2 |
 | 03 | Rejog the Memory v1 | — | rejog-the-memory-v1 |
 | 04 | Unified AI Prompt v4 | — | unified-ai-prompt-v4 |
 | 05 | Issues Tracking | — | issues-tracking |

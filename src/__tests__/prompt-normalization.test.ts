@@ -169,7 +169,6 @@ describe('normalizeNewlines', () => {
 describe('findNextTasksPrompt — next task selection', () => {
   const fullEntries: PromptEntry[] = [
     { name: 'Start Prompt', text: 'Write a readme...', slug: 'start-prompt', id: 'default-start' },
-    { name: 'Start Prompt v2', text: 'Write a readme v2...', slug: 'start-prompt-v2', id: 'default-start-v2' },
     { name: 'Next Tasks', text: 'List remaining tasks', slug: 'next-tasks', id: 'default-next-tasks', category: 'automation' },
   ];
 

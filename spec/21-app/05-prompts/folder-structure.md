@@ -21,9 +21,6 @@ standalone-scripts/
     ├── 01-start-prompt/
     │   ├── info.json
     │   └── prompt.md
-    ├── 02-start-prompt-v2/
-    │   ├── info.json
-    │   └── prompt.md
     ├── 03-rejog-the-memory-v1/
     │   ├── info.json
     │   └── prompt.md

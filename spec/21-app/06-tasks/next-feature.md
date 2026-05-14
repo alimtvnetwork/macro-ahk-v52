@@ -29,7 +29,6 @@ The "Task Next" button is the **first item** in the prompts dropdown menu, befor
 │ [Category Chips]        │
 ├─────────────────────────┤
 │ Start Prompt            │
-│ Start Prompt v2         │
 │ ...                     │
 └─────────────────────────┘
 ```

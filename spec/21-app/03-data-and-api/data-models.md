@@ -375,9 +375,6 @@ standalone-scripts/prompts/
 ├── 01-start-prompt/
 │   ├── info.json        # Metadata: Id (slug), Title, Slug, Version, Author, Categories, Order
 │   └── prompt.md        # Raw prompt text
-├── 02-start-prompt-v2/
-│   ├── info.json
-│   └── prompt.md
 └── ...
 ```
 
