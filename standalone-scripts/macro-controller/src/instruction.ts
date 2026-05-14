@@ -18,7 +18,7 @@ type MacroControllerSettings = {
 };
 
 const instruction: ProjectInstruction<MacroControllerSettings> = {
-    SchemaVersion: "1.0",
+    SchemaVersion: "2.240.0",
     Name: "macro-controller",
     DisplayName: "Macro Controller",
     Version: "2.239.0",

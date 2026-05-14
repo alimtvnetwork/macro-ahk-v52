@@ -6,7 +6,20 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-## [Unreleased] — Webhook delivery result types
+## [v2.240.0] — 2026-05-14 Changelog modal and root changelog synchronization
+
+### Added
+- **Read Memory prompt** (`standalone-scripts/prompts/15-read-memory/`): onboarding prompt for AI assistant memory reconstruction.
+- **Write Memory prompt** (`standalone-scripts/prompts/16-write-memory/`): session-end memory persistence prompt.
+- **Coding Guidelines prompt** (`standalone-scripts/prompts/17-coding-guidelines/`): project synthesis and task planning prompt.
+- **Minor Bump prompt** (`standalone-scripts/prompts/08-minor-bump/`): automated minor version bump instruction.
+- **Major Bump prompt** (`standalone-scripts/prompts/09-major-bump/`): automated major version bump instruction.
+
+### Changed
+- **Unified AI Prompt v4** (`standalone-scripts/prompts/04-unified-ai-prompt-v4/`): comprehensive 3-part framework update (repository analysis, spec fix workflow, test failure handling).
+- **Rejog the Memory v1** (`standalone-scripts/prompts/03-rejog-the-memory-v1/`): proofread with reliability risk reports and Lovable suggestions filesystem contract.
+- **Macro Controller changelog modal** (`standalone-scripts/macro-controller/src/ui/changelog-modal.ts`): updated `CHANGELOG_ENTRIES` with v2.234.0–v2.240.0 entries.
+- **Version bump**: 2.239.0 → 2.240.0 across all version-carrying files.
 
 ---
 

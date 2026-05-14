@@ -15,7 +15,7 @@ import type { ProjectInstruction } from "../../types/instruction/project-instruc
 import type { EmptySettings } from "../../types/instruction/seed/empty-settings";
 
 const instruction: ProjectInstruction<EmptySettings> = {
-    SchemaVersion: "1.0",
+    SchemaVersion: "2.240.0",
     Name: "lovable-common",
     DisplayName: "Lovable Common (XPath + API)",
     Version: "2.239.0",
