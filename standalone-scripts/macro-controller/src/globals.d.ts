@@ -79,6 +79,7 @@ interface MarcoSDKApiMemberships {
 
 interface MarcoSDKApiProjects {
   list(wsId: string, options?: MarcoSDKApiCallOptions): Promise<MarcoSDKApiResponse>;
+  get(projectId: string, options?: MarcoSDKApiCallOptions): Promise<MarcoSDKApiResponse>;
 }
 
 interface MarcoSDKRemixInitBody {

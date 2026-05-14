@@ -15,6 +15,11 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
+  { ver: 'v2.241.0', date: '2026-05-14', changes: [
+    'Projects modal: Export CSV button with sequential per-project git fetch and progress indicator',
+    'CSV columns: workspace, credits used/total, project, GitHub repo + branch, last activity, version, exported timestamp',
+    'New SDK endpoint: marco.api.projects.get(projectId) for per-project metadata'
+  ]},
   { ver: 'v2.240.0', date: '2026-05-14', changes: [
     'Changelog modal updated with recent prompt additions and macro-controller UI fixes'
   ]},

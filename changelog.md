@@ -6,6 +6,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v2.241.0] — 2026-05-14 Projects modal CSV export with git info
+
+### Added
+- **Projects modal — Export CSV** (`standalone-scripts/macro-controller/src/ui/projects-modal.ts`): footer "⬇ Export CSV" button exports every loaded project to a `.csv` file with columns: `workspaceId, workspaceName, creditsUsed, creditsTotal, projectId, projectName, isOpenInChrome, gitRepo, gitBranch, lastCommunication, gitFetchError, extensionVersion, exportedAt`. Sequential per-project fetch with live progress (`Fetching git info: N / M (P%)`) per `mem://constraints/no-retry-policy`.
+- **SDK endpoint**: `marco.api.projects.get(projectId)` (`standalone-scripts/marco-sdk/src/api-registry.ts`, `api.ts`) — fetches project metadata; tolerates missing `github_repo` / `github_branch` / `last_message_at` fields.
+
+### Changed
+- **Version bump**: 2.240.0 → 2.241.0 across all version-carrying files.
+
+---
+
 ## [v2.240.0] — 2026-05-14 Changelog modal and root changelog synchronization
 
 ### Added
