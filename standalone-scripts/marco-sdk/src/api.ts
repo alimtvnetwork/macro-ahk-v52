@@ -197,6 +197,18 @@ const projects = Object.freeze({
             params: { wsId, ...options?.params },
         });
     },
+
+    /**
+     * Fetch a single project's metadata. Used by the Projects-modal CSV export
+     * to enrich each row with `github_repo`, `github_branch`, and the most
+     * recent activity timestamp. Caller MUST tolerate missing fields.
+     */
+    get(projectId: string, options?: ApiCallOptions): Promise<ApiResponse> {
+        return callEndpoint(apiRegistry.projects.get, {
+            ...options,
+            params: { projectId, ...options?.params },
+        });
+    },
 });
 
 const remix = Object.freeze({
