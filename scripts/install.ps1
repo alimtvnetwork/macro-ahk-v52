@@ -31,15 +31,15 @@
   Target directory. Default: $HOME\marco-extension
 
 .PARAMETER Repo
-  GitHub owner/repo. Default: alimtvnetwork/macro-ahk-v32
+  GitHub owner/repo. Default: alimtvnetwork/macro-ahk-v33
 
 .EXAMPLE
   # From a release page — installs that exact release (URL-pinned):
-  irm https://github.com/alimtvnetwork/macro-ahk-v32/releases/download/v2.158.0/install.ps1 | iex
+  irm https://github.com/alimtvnetwork/macro-ahk-v33/releases/download/v2.158.0/install.ps1 | iex
 
 .EXAMPLE
   # From main — installs the latest release:
-  irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v32/main/scripts/install.ps1 | iex
+  irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v33/main/scripts/install.ps1 | iex
 
 .EXAMPLE
   & ./install.ps1 -Version v2.150.0
@@ -72,7 +72,7 @@ if (Test-Path -LiteralPath $__constCandidate) {
 }
 Remove-Variable __constCandidate -ErrorAction SilentlyContinue
 
-if (-not $script:MarcoDefaultRepo)        { $script:MarcoDefaultRepo        = 'alimtvnetwork/macro-ahk-v32' }
+if (-not $script:MarcoDefaultRepo)        { $script:MarcoDefaultRepo        = 'alimtvnetwork/macro-ahk-v33' }
 if (-not $script:MarcoVersionRegex)       { $script:MarcoVersionRegex       = '^v\d+\.\d+\.\d+(-[A-Za-z0-9.-]+)?$' }
 if (-not $script:MarcoMainBranchSentinel) { $script:MarcoMainBranchSentinel = '__MAIN_BRANCH__' }
 
