@@ -10,21 +10,7 @@
 
 ---
 
-## 🛑 Stability — Loop & Leak Prevention (added 2026-05-15)
-
-Audit: `.lovable/audits/2026-05-15-infinite-loop-and-memory-leak-audit.md`.
-User reported intermittent browser crashes during long sessions. Static scan
-found 5 plausible cumulative contributors (no single hard infinite loop):
-
-| ID  | Severity | File | Fix |
-|-----|----------|------|-----|
-| L-1 | **P0** | `standalone-scripts/macro-controller/src/workspace-observer.ts` | `handleObserverMutation` re-installs the observer every 2 s with `retryCount` reset on each install — uncapped under SPA churn. Add bounded counter + exponential backoff (2 s → 10 s → 60 s → stop). |
-| L-2 | P1 | `src/background/recorder/recorder-toolbar.ts` | 1 Hz `renderHealth` tick runs in hidden tabs. Mirror PERF-5: pause on `document.hidden`, stop on `pagehide`, drop cadence to 5 s. |
-| L-3 | P1 | `standalone-scripts/macro-controller/src/startup-persistence.ts` | MutationObserver on `<body>` never disconnects. Prefer `#root`; expose teardown on `pagehide`. |
-| L-4 | P2 | `standalone-scripts/marco-sdk/src/utils.ts` | `pollUntil` uses native `setInterval` — invisible to IntervalRegistry. Use a tracked wrapper. |
-| L-5 | P2 | `src/content-scripts/message-relay.ts` | No cap on outstanding `chrome.runtime.sendMessage` callbacks; can balloon when SW is asleep. Track in-flight count, reject after threshold. |
-
-Execute on `next` — start with L-1 (the only path that can run forever).
+_(Stability — Loop & Leak Prevention shipped in v2.243.0; see Completed below.)_
 
 ---
 
@@ -103,6 +89,17 @@ Execute on `next` — start with L-1 (the only path that can run forever).
 ---
 
 ## ✅ Completed
+
+### Session 2026-05-15 — Loop & Leak Audit Fixes (v2.243.0)
+
+| Task | Result |
+|---|---|
+| **L-1 workspace observer reschedule cap** | ✅ — bounded reinstalls (10/60s window, 2s→5s→15s→60s backoff), tracked timers cleared on `disconnect()`. |
+| **L-2 recorder-toolbar tick** | ✅ — 5s cadence, paused on `document.hidden`, `pagehide` teardown removes interval + both listeners. |
+| **L-3 startup-persistence observer** | ✅ — prefers `<main>`/`#root` (warns on `<body>`), returns `teardown()`, auto-fires on `pagehide`. |
+| **L-4 marco-sdk pollUntil tracking** | ✅ — `_activePolls` Set + `_diagActivePolls()` helper. |
+| **L-5 message-relay in-flight cap** | ✅ — `MAX_INFLIGHT=50`, rejects with `"Relay overloaded"`, decrement on every code path. |
+| **Version bump + readme + changelog** | ✅ — v2.242.0 → v2.243.0; `check-version-sync.mjs` and `check-changelog-entry.mjs` green. Audit footer marked Resolved. |
 
 ### Session 2026-04-29 — SchemaVersion contract, readme.txt prohibition enforcement, `result-webhook.ts` rebuild
 

@@ -6,6 +6,21 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v2.243.0] — 2026-05-15 Loop and leak fixes (audit L-1…L-5)
+
+### Fixed
+- **L-1 workspace observer reschedule loop** (`standalone-scripts/macro-controller/src/workspace-observer.ts`): bounded mutation-driven reinstalls to 10 per 60 s window with a 2 s → 5 s → 15 s → 60 s backoff ladder; all `setTimeout` handles now tracked and cleared on `disconnect()`. Halts auto-reinstall with a single `Logger.error()` once the cap is hit.
+- **L-2 recorder toolbar tick** (`src/background/recorder/recorder-toolbar.ts`): cadence reduced from 1 s to 5 s, paused while `document.hidden`, with a `pagehide` listener that auto-clears the interval and removes both the `visibilitychange` and `pagehide` listeners.
+- **L-3 startup persistence observer** (`standalone-scripts/macro-controller/src/startup-persistence.ts`): now prefers `<main>`/`#root`, warns on `<body>` fallback, and `setupPersistenceObserver` returns a `teardown()` that disconnects the observer, cancels the pending reinjection timer/idle handle, and removes both listeners; `pagehide` invokes teardown automatically.
+- **L-4 marco-sdk pollUntil tracking** (`standalone-scripts/marco-sdk/src/utils.ts`): every active `setInterval` now tracked in `_activePolls`, surfaced via the new `_diagActivePolls()` helper for leak introspection.
+- **L-5 message relay in-flight cap** (`src/content-scripts/message-relay.ts`): outstanding `chrome.runtime.sendMessage` callbacks capped at 50; new requests beyond the cap reject immediately with `"Relay overloaded"` instead of accumulating closures.
+
+### Notes
+- No-retry policy preserved: every backoff ladder is bounded and stops; nothing recurses.
+- Source: `.lovable/audits/2026-05-15-infinite-loop-and-memory-leak-audit.md`.
+
+---
+
 ## [v2.242.0] — 2026-05-15 SchemaVersion pinning and release version separation
 
 ### Fixed
