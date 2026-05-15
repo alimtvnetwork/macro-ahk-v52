@@ -56,19 +56,26 @@ function describeObserveTarget(target: Element): string {
   return target.tagName + (target.id ? '#' + target.id : '');
 }
 
-function attachVisibilityHandler(createUI: () => void): void {
-  document.addEventListener('visibilitychange', function () {
+function attachVisibilityHandler(createUI: () => void): () => void {
+  function onVisibilityChange(): void {
     if (document.visibilityState !== 'visible') return;
     const isMissing = !document.getElementById(IDS.SCRIPT_MARKER) || !document.getElementById(IDS.CONTAINER);
     if (isMissing) {
       log('visibilitychange: UI missing — re-injecting', 'check');
       tryReinjectUI(createUI);
     }
-  });
+  }
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  return function () { document.removeEventListener('visibilitychange', onVisibilityChange); };
 }
 
-/** Install MutationObserver + visibilitychange listener for SPA persistence. */
-export function setupPersistenceObserver(createUI: () => void): void {
+/**
+ * Install MutationObserver + visibilitychange listener for SPA persistence.
+ * Returns a teardown() that disconnects the observer, clears any pending
+ * reinjection timer/idle handle, and removes both the visibilitychange and
+ * pagehide listeners. L-3 (audit 2026-05-15).
+ */
+export function setupPersistenceObserver(createUI: () => void): () => void {
   let reinjectTimer: ReturnType<typeof setTimeout> | null = null;
   let reinjectIdleHandle: number | null = null;
   const idleWin = window as unknown as IdleCallbackWindow;
@@ -104,9 +111,29 @@ export function setupPersistenceObserver(createUI: () => void): void {
     scheduleReinject();
   });
 
-  const observeTarget = document.querySelector('main') || document.querySelector('#root') || document.body;
+  // L-3: Prefer scoped roots; warn when falling back to <body> because that
+  // forces every direct-child mutation through our callback.
+  const scopedTarget = document.querySelector('main') || document.querySelector('#root');
+  const observeTarget = scopedTarget || document.body;
+  if (!scopedTarget) {
+    log('Persistence observer: no <main> or #root found — falling back to document.body (higher mutation volume)', 'warn');
+  }
   observer.observe(observeTarget, { childList: true });
   log('MutationObserver installed on ' + describeObserveTarget(observeTarget) + ' (childList only) for UI persistence', 'success');
 
-  attachVisibilityHandler(createUI);
+  const detachVisibility = attachVisibilityHandler(createUI);
+
+  let torn = false;
+  function teardown(): void {
+    if (torn) return;
+    torn = true;
+    observer.disconnect();
+    cancelPending();
+    detachVisibility();
+    window.removeEventListener('pagehide', onPageHide);
+  }
+  function onPageHide(): void { teardown(); }
+  window.addEventListener('pagehide', onPageHide, { once: true });
+
+  return teardown;
 }
