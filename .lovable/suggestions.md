@@ -7,16 +7,18 @@
 ## Active Suggestions
 
 ### Round-trip files (file:save → file:list → file:delete) and grouped-kv in the SDK self-test
-- **Status:** Pending
+- **Status:** ✅ Implemented — 2026-05-16 (verified against existing code)
 - **Priority:** Medium
 - **Description:** Extend `standalone-scripts/marco-sdk/src/self-test.ts` to exercise the file-storage and grouped-kv handlers with the same set/get/delete pattern as the new KV round-trip, so every project-scoped storage surface is health-checked on every page load.
 - **Added:** 2026-04-20 (session v2.166.0)
+- **Resolution:** `runFilesRoundTrip` (line 243) drives `files.save → files.list (must include) → files.read → files.delete → files.list (must NOT include)` and `runGkvRoundTrip` (line 326) drives `gkv:set → gkv:get → gkv:delete → gkv:get (cleared)` directly through the bridge. Each surface logs its own PASS/FAIL via `NamespaceLogger` under `sdkSelfTest:files-roundtrip` / `sdkSelfTest:gkv-roundtrip`.
 
 ### Surface latest sdkSelfTest + kv-roundtrip results in the popup
-- **Status:** Pending
+- **Status:** ✅ Implemented — 2026-05-16 (verified against existing code)
 - **Priority:** Medium
 - **Description:** Show ✅/❌ + last-run timestamp in the popup so users see SDK health without opening DevTools.
 - **Added:** 2026-04-20
+- **Resolution:** `src/components/popup/SdkSelfTestPanel.tsx` renders a 4-row grid (sync / KV / Files / GKV) with per-surface ✅/❌ + last-run timestamp, backed by `chrome.storage.local["marco_sdk_selftest"]` written by `src/background/handlers/sdk-selftest-handler.ts`. Wired into `src/pages/Popup.tsx` (lazy import, line 19; rendered line 209).
 
 ### Vitest tests for `assertBindable` + `BindError`
 - **Status:** ✅ Implemented — 2026-04-22
@@ -33,10 +35,11 @@
 - **Resolution:** New file `src/test/regression/handler-guards.test.ts` adds **27 tests** across 4 describe blocks (kv-handler 9, grouped-kv-handler 7, file-storage-handler 7, project-api-handler 4). Strongest invariant verified: when a required field is missing, the underlying SQLite Database is **never touched** (no `prepare`/`run`/`exec` calls) — proven via call-tracking fake DbManager. Also verifies error-message shape (`[<op>]` prefix + `'<field>'` name) and edge cases (empty-string, non-string, both-missing ordering). Full suite: **478/478** passing in `npx vitest run`.
 
 ### Hook `BindError` into the global Errors panel reporter
-- **Status:** Pending
+- **Status:** ✅ Implemented — 2026-05-16 (verified against existing code)
 - **Priority:** Low
 - **Description:** Any future undefined-bind escape should auto-land in the Errors panel with column + SQL preview, not just the message-router log.
 - **Added:** 2026-04-20
+- **Resolution:** `src/background/message-router.ts` `buildErrorResponse` (lines 139–177) special-cases `error instanceof BindError` and routes it through `logBgError(BgLogTag.SQLITE_BIND, "SQLITE_BIND_ERROR", …, { contextDetail })` carrying `paramIndex`, `columnName`, and SQL preview. That tag lands in the Errors table consumed by the Errors panel, so escapes are visually surfaced (not silently swallowed).
 
 ### Audit remaining 8 SQLite-backed handlers for handler-guards adoption
 - **Status:** ✅ Implemented — 2026-04-20 (v2.167.0)
