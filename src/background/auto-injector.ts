@@ -15,6 +15,7 @@
  */
 
 import { evaluateUrlMatches, deduplicateScripts } from "./project-matcher";
+import { isNewTabOrBlankUrl } from "../shared/url-utils";
 import { resolveScriptBindings, type ResolvedScript } from "./script-resolver";
 import { evaluateConditions } from "./condition-evaluator";
 import { wrapWithIsolation } from "./handlers/injection-wrapper";
@@ -125,6 +126,14 @@ export async function handleNavigationCompleted(
     const isSubFrame = details.frameId !== 0;
 
     if (isSubFrame) {
+        return;
+    }
+
+    // New-tab / empty-URL guard (v2.249.5) — see mem://features/new-tab-no-url-guard
+    if (isNewTabOrBlankUrl(details.url)) {
+        console.log(
+            `[new-tab-guard] skipped url="${details.url ?? ""}" tabId=${details.tabId}`,
+        );
         return;
     }
 

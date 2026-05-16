@@ -11,6 +11,7 @@ import type { StoredProject } from "../shared/project-types";
 import type { MatchResult, ScriptBindingResolved } from "../shared/types";
 import { isUrlMatch } from "./url-matcher";
 import { readAllProjects } from "./handlers/project-helpers";
+import { isNewTabOrBlankUrl } from "../shared/url-utils";
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                         */
@@ -20,6 +21,11 @@ import { readAllProjects } from "./handlers/project-helpers";
 export async function evaluateUrlMatches(
     url: string,
 ): Promise<MatchResult[]> {
+    // New-tab / empty-URL guard (v2.249.5) — see mem://features/new-tab-no-url-guard
+    if (isNewTabOrBlankUrl(url)) {
+        return [];
+    }
+
     const projects = await readAllProjects();
     const enabledProjects = projects
         .filter(isProjectEnabled)
