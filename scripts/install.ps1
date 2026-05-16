@@ -1100,9 +1100,12 @@ function Main {
         Remove-PathSafely -Path $result.TmpDir -Reason "post-install temp cleanup"
     }
 
-    $resolvedVersion | Set-Content (Join-Path $resolvedDir "VERSION")
+    # Mirror install.sh: main-branch fallback records "<branch>@HEAD"
+    # instead of the sentinel to keep VERSION human-readable.
+    $recordedVersion = if ($isMainFallback) { "$script:MarcoMainBranch@HEAD" } else { $resolvedVersion }
+    $recordedVersion | Set-Content (Join-Path $resolvedDir "VERSION")
 
-    return @{ InstallDir = $resolvedDir; Version = $resolvedVersion; UrlPinned = $urlPinned }
+    return @{ InstallDir = $resolvedDir; Version = $recordedVersion; UrlPinned = $urlPinned }
 }
 
 # Test-harness guard: when $env:MARCO_INSTALLER_TEST_MODE is "1", the
