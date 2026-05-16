@@ -46,16 +46,24 @@ export enum StepKindId {
      * translates each chord into KeyboardEvent dispatches.
      */
     Hotkey = 7,
+    /**
+     * Spec 19 §1 — navigating click that opens or focuses a tab by
+     * URL pattern. Payload mirrors `UrlTabClickParams` (PascalCase
+     * keys: UrlPattern, UrlMatch, Mode, Selector?, SelectorKind?,
+     * TimeoutMs?, DirectOpen?, Url?).
+     */
+    UrlTabClick = 9,
 }
 
 const STEP_KIND_SEED: ReadonlyArray<{ Id: StepKindId; Name: string }> = [
-    { Id: StepKindId.Click,    Name: "Click" },
-    { Id: StepKindId.Type,     Name: "Type" },
-    { Id: StepKindId.Select,   Name: "Select" },
-    { Id: StepKindId.JsInline, Name: "JsInline" },
-    { Id: StepKindId.Wait,     Name: "Wait" },
-    { Id: StepKindId.RunGroup, Name: "RunGroup" },
-    { Id: StepKindId.Hotkey,   Name: "Hotkey" },
+    { Id: StepKindId.Click,       Name: "Click" },
+    { Id: StepKindId.Type,        Name: "Type" },
+    { Id: StepKindId.Select,      Name: "Select" },
+    { Id: StepKindId.JsInline,    Name: "JsInline" },
+    { Id: StepKindId.Wait,        Name: "Wait" },
+    { Id: StepKindId.RunGroup,    Name: "RunGroup" },
+    { Id: StepKindId.Hotkey,      Name: "Hotkey" },
+    { Id: StepKindId.UrlTabClick, Name: "UrlTabClick" },
 ];
 
 /* ------------------------------------------------------------------ */

@@ -658,7 +658,8 @@ export function stepKindLabel(id: StepKindId): string {
         case StepKindId.JsInline: return "JS";
         case StepKindId.Wait:     return "Wait";
         case StepKindId.RunGroup: return "Run group";
-        case StepKindId.Hotkey:   return "Hotkey";
-        default:                  return `Kind ${String(id)}`;
+        case StepKindId.Hotkey:      return "Hotkey";
+        case StepKindId.UrlTabClick: return "URL tab click";
+        default:                     return `Kind ${String(id)}`;
     }
 }

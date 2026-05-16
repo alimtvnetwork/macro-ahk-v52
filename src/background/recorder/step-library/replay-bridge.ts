@@ -243,6 +243,16 @@ export function stepRowToReplayInput(step: StepRow): ReplayStepInput {
                 + `this should be handled by runGroup() recursion, not the bridge.`,
             );
         }
+        case StepKindId.UrlTabClick: {
+            // UrlTabClick is dispatched by `executeUrlTabClick` against a
+            // TabsAdapter — not the selector-based replay bridge. Surface
+            // a precise reason so failure diagnostics show "wrong path"
+            // instead of a silent skip.
+            throw new Error(
+                `UrlTabClick step #${step.StepId} is not handled by the live replay bridge — `
+                + `it is dispatched by executeUrlTabClick against the tabs adapter.`,
+            );
+        }
         case StepKindId.Hotkey: {
             // Hotkey (AutoHotkey-style chord macro) is dispatched by a
             // dedicated keyboard executor — not the selector-based

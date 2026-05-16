@@ -77,6 +77,7 @@ const KIND_OPTIONS: ReadonlyArray<StepKindId> = [
     StepKindId.Wait,
     StepKindId.RunGroup,
     StepKindId.Hotkey,
+    StepKindId.UrlTabClick,
 ];
 
 /**
@@ -100,8 +101,59 @@ function payloadPlaceholderFor(kind: StepKindId): string {
             return "(payload not used — pick a target group below)";
         case StepKindId.Hotkey:
             return '{ "Keys": ["Ctrl+S","Tab","Enter"], "WaitMs": 500 }';
+        case StepKindId.UrlTabClick:
+            return "(use the URL tab click form below)";
         default:
             return "{ }";
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/*  UrlTabClick form state                                             */
+/* ------------------------------------------------------------------ */
+
+type UrlMatchDialect = "Exact" | "Prefix" | "Glob" | "Regex";
+type UrlTabClickMode = "OpenNew" | "FocusExisting" | "OpenOrFocus";
+type SelectorKindOption = "Auto" | "XPath" | "Css";
+
+interface UrlTabClickFormState {
+    UrlPattern: string;
+    UrlMatch: UrlMatchDialect;
+    Mode: UrlTabClickMode;
+    Selector: string;
+    SelectorKind: SelectorKindOption;
+    TimeoutMs: string;
+    DirectOpen: boolean;
+    Url: string;
+}
+
+const URL_TAB_CLICK_DEFAULTS: UrlTabClickFormState = {
+    UrlPattern: "",
+    UrlMatch: "Glob",
+    Mode: "OpenOrFocus",
+    Selector: "",
+    SelectorKind: "Auto",
+    TimeoutMs: "",
+    DirectOpen: false,
+    Url: "",
+};
+
+function hydrateUrlTabClickForm(payloadJson: string | null): UrlTabClickFormState {
+    if (payloadJson === null || payloadJson === "") return { ...URL_TAB_CLICK_DEFAULTS };
+    try {
+        const p = JSON.parse(payloadJson) as Partial<Record<keyof UrlTabClickFormState, unknown>>;
+        return {
+            UrlPattern:   typeof p.UrlPattern === "string" ? p.UrlPattern : "",
+            UrlMatch:     (p.UrlMatch === "Exact" || p.UrlMatch === "Prefix" || p.UrlMatch === "Glob" || p.UrlMatch === "Regex") ? p.UrlMatch : "Glob",
+            Mode:         (p.Mode === "OpenNew" || p.Mode === "FocusExisting" || p.Mode === "OpenOrFocus") ? p.Mode : "OpenOrFocus",
+            Selector:     typeof p.Selector === "string" ? p.Selector : "",
+            SelectorKind: (p.SelectorKind === "XPath" || p.SelectorKind === "Css" || p.SelectorKind === "Auto") ? p.SelectorKind : "Auto",
+            TimeoutMs:    typeof p.TimeoutMs === "number" ? String(p.TimeoutMs) : "",
+            DirectOpen:   p.DirectOpen === true,
+            Url:          typeof p.Url === "string" ? p.Url : "",
+        };
+    } catch {
+        return { ...URL_TAB_CLICK_DEFAULTS };
     }
 }
 
@@ -121,6 +173,11 @@ export default function StepEditorDialog(props: StepEditorDialogProps): JSX.Elem
      *  hydrate from the stored PayloadJson on open. */
     const [hotkeyChords, setHotkeyChords] = useState<readonly string[]>([]);
     const [hotkeyWaitMs, setHotkeyWaitMs] = useState<string>("");
+    /** UrlTabClick-specific structured form. Serialised into PayloadJson
+     *  on submit and hydrated from PayloadJson when editing. */
+    const [urlTabClick, setUrlTabClick] = useState<UrlTabClickFormState>(URL_TAB_CLICK_DEFAULTS);
+    const patchUrlTabClick = (patch: Partial<UrlTabClickFormState>): void =>
+        setUrlTabClick((prev) => ({ ...prev, ...patch }));
 
     // Reset form whenever the dialog (re-)opens with a new mode.
     useEffect(() => {
@@ -132,6 +189,7 @@ export default function StepEditorDialog(props: StepEditorDialogProps): JSX.Elem
             setTargetGroupId(null);
             setHotkeyChords([]);
             setHotkeyWaitMs("");
+            setUrlTabClick({ ...URL_TAB_CLICK_DEFAULTS });
         } else {
             setKind(mode.Step.StepKindId);
             setLabel(mode.Step.Label ?? "");
@@ -151,6 +209,12 @@ export default function StepEditorDialog(props: StepEditorDialogProps): JSX.Elem
                 setHotkeyChords([]);
                 setHotkeyWaitMs("");
             }
+            // Hydrate UrlTabClick form from PayloadJson when editing.
+            setUrlTabClick(
+                mode.Step.StepKindId === StepKindId.UrlTabClick
+                    ? hydrateUrlTabClickForm(mode.Step.PayloadJson)
+                    : { ...URL_TAB_CLICK_DEFAULTS },
+            );
         }
     }, [open, mode]);
 
@@ -201,6 +265,57 @@ export default function StepEditorDialog(props: StepEditorDialogProps): JSX.Elem
             const payload = waitMs === undefined
                 ? { Keys: [...hotkeyChords] }
                 : { Keys: [...hotkeyChords], WaitMs: waitMs };
+            onSubmit({
+                StepKindId: kind,
+                Label: label.trim() === "" ? null : label.trim(),
+                PayloadJson: JSON.stringify(payload),
+                TargetStepGroupId: null,
+            });
+            return;
+        }
+        // UrlTabClick kind has its own structured form — validate the
+        // pattern (mirrors `validateUrlTabClickParams` in url-tab-click.ts)
+        // and serialise into PayloadJson.
+        if (kind === StepKindId.UrlTabClick) {
+            const u = urlTabClick;
+            if (u.UrlPattern.trim() === "") {
+                toast.error("URL pattern is required.");
+                return;
+            }
+            if (u.DirectOpen) {
+                if (u.Mode !== "OpenNew") {
+                    toast.error("DirectOpen requires Mode = 'OpenNew'.");
+                    return;
+                }
+                if (u.Url.trim() === "") {
+                    toast.error("DirectOpen requires a literal URL.");
+                    return;
+                }
+            }
+            const timeoutTrim = u.TimeoutMs.trim();
+            const timeoutMs = timeoutTrim === "" ? undefined : Number(timeoutTrim);
+            if (timeoutMs !== undefined && (!Number.isFinite(timeoutMs) || timeoutMs < 0)) {
+                toast.error("Timeout (ms) must be ≥ 0.");
+                return;
+            }
+            // Reject obviously broken regex patterns at save time.
+            if (u.UrlMatch === "Regex") {
+                try { new RegExp(u.UrlPattern); } catch (err) {
+                    const msg = err instanceof Error ? err.message : String(err);
+                    toast.error("Invalid regex pattern", { description: msg });
+                    return;
+                }
+            }
+            const payload: Record<string, unknown> = {
+                UrlPattern: u.UrlPattern.trim(),
+                UrlMatch:   u.UrlMatch,
+                Mode:       u.Mode,
+            };
+            if (u.Selector.trim() !== "") payload.Selector = u.Selector.trim();
+            if (u.SelectorKind !== "Auto") payload.SelectorKind = u.SelectorKind;
+            if (timeoutMs !== undefined)   payload.TimeoutMs = timeoutMs;
+            if (u.DirectOpen)              payload.DirectOpen = true;
+            if (u.Url.trim() !== "")       payload.Url = u.Url.trim();
             onSubmit({
                 StepKindId: kind,
                 Label: label.trim() === "" ? null : label.trim(),
@@ -337,6 +452,120 @@ export default function StepEditorDialog(props: StepEditorDialogProps): JSX.Elem
                                     onChange={(e) => setHotkeyWaitMs(e.target.value)}
                                 />
                             </div>
+                        </div>
+                    ) : kind === StepKindId.UrlTabClick ? (
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="space-y-1 col-span-2">
+                                    <Label htmlFor="utc-pattern">URL pattern</Label>
+                                    <Input
+                                        id="utc-pattern"
+                                        value={urlTabClick.UrlPattern}
+                                        placeholder="https://example.com/orders/*"
+                                        onChange={(e) => patchUrlTabClick({ UrlPattern: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label htmlFor="utc-match">Match</Label>
+                                    <Select
+                                        value={urlTabClick.UrlMatch}
+                                        onValueChange={(v) => patchUrlTabClick({ UrlMatch: v as UrlMatchDialect })}
+                                    >
+                                        <SelectTrigger id="utc-match"><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Exact">Exact</SelectItem>
+                                            <SelectItem value="Prefix">Prefix</SelectItem>
+                                            <SelectItem value="Glob">Glob</SelectItem>
+                                            <SelectItem value="Regex">Regex</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <div className="space-y-1">
+                                <Label htmlFor="utc-mode">Mode</Label>
+                                <Select
+                                    value={urlTabClick.Mode}
+                                    onValueChange={(v) => patchUrlTabClick({ Mode: v as UrlTabClickMode })}
+                                >
+                                    <SelectTrigger id="utc-mode"><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="OpenNew">Open new tab</SelectItem>
+                                        <SelectItem value="FocusExisting">Focus existing tab</SelectItem>
+                                        <SelectItem value="OpenOrFocus">Focus existing, else open</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="space-y-1 col-span-2">
+                                    <Label htmlFor="utc-selector">Selector (optional)</Label>
+                                    <Input
+                                        id="utc-selector"
+                                        value={urlTabClick.Selector}
+                                        placeholder="#open-orders, //a[@data-id]"
+                                        onChange={(e) => patchUrlTabClick({ Selector: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label htmlFor="utc-sel-kind">Selector kind</Label>
+                                    <Select
+                                        value={urlTabClick.SelectorKind}
+                                        onValueChange={(v) => patchUrlTabClick({ SelectorKind: v as SelectorKindOption })}
+                                    >
+                                        <SelectTrigger id="utc-sel-kind"><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Auto">Auto</SelectItem>
+                                            <SelectItem value="Css">CSS</SelectItem>
+                                            <SelectItem value="XPath">XPath</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <div className="space-y-1">
+                                <Label htmlFor="utc-timeout">Timeout (ms, optional)</Label>
+                                <Input
+                                    id="utc-timeout"
+                                    type="number"
+                                    min={0}
+                                    value={urlTabClick.TimeoutMs}
+                                    placeholder="default 15000"
+                                    onChange={(e) => patchUrlTabClick({ TimeoutMs: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <input
+                                    id="utc-direct"
+                                    type="checkbox"
+                                    checked={urlTabClick.DirectOpen}
+                                    onChange={(e) => patchUrlTabClick({
+                                        DirectOpen: e.target.checked,
+                                        Mode: e.target.checked ? "OpenNew" : urlTabClick.Mode,
+                                    })}
+                                />
+                                <Label htmlFor="utc-direct" className="cursor-pointer">
+                                    Direct open (skip click, navigate to literal URL)
+                                </Label>
+                            </div>
+
+                            {urlTabClick.DirectOpen && (
+                                <div className="space-y-1">
+                                    <Label htmlFor="utc-url">Literal URL</Label>
+                                    <Input
+                                        id="utc-url"
+                                        value={urlTabClick.Url}
+                                        placeholder="https://example.com/orders/new"
+                                        onChange={(e) => patchUrlTabClick({ Url: e.target.value })}
+                                    />
+                                </div>
+                            )}
+
+                            <p className="text-[11px] text-muted-foreground">
+                                Saved as PayloadJson with PascalCase keys (UrlPattern, UrlMatch, Mode…).
+                                Runner: <code>executeUrlTabClick</code>.
+                            </p>
                         </div>
                     ) : (
                         <div className="space-y-1">
