@@ -113,6 +113,18 @@ export async function readStorageSchemaVersion(): Promise<number> {
  * Stamps the new version only after every migration succeeds.
  */
 export async function runStorageMigrations(): Promise<StorageMigrationResult> {
+    // Hard runtime guard — refuse to register or execute any migration
+    // beyond the camelCase baseline. See MAX_ALLOWED_STORAGE_SCHEMA_VERSION.
+    const overCeiling = MIGRATIONS.filter(
+        (m) => m.version > MAX_ALLOWED_STORAGE_SCHEMA_VERSION,
+    );
+    if (overCeiling.length > 0) {
+        const versions = overCeiling.map((m) => `v${m.version}`).join(", ");
+        assertNoPascalCaseStorageMigration(
+            `runStorageMigrations registry (forbidden migrations: ${versions})`,
+        );
+    }
+
     const fromVersion = await readStorageSchemaVersion();
     const pending = MIGRATIONS.filter((m) => m.version > fromVersion);
 
