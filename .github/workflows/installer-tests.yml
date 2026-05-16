@@ -6,6 +6,7 @@
 # real-MoveFileEx E2E on windows-latest.
 #
 # Suites under test:
+# Suites under test:
 #   1. tests/installer/resolver.test.sh        — pure unit (resolve_version,
 #                                                decide_sibling_discovery)
 #   2. tests/installer/mock-server.test.sh     — full pipeline against a
@@ -13,6 +14,10 @@
 #                                                7, 8, 9, 10, 11, 13)
 #   3. tests/installer/deferred-delete.test.sh — sharing-violation logic
 #   4. tests/installer/deferred-delete-sim.test.sh — P/Invoke surface mocks
+#   5. tests/installer/resolver.ps1.test.ps1   — AC-2 main-branch fallback
+#                                                parity for install.ps1
+#                                                (200+empty, 404, 500, network,
+#                                                happy tag)
 #
 # Spec: spec/14-update/01-generic-installer-behavior.md §5
 # ──────────────────────────────────────────────────────────────
@@ -159,6 +164,9 @@ jobs:
           }
           if ($fails -gt 0) { exit 1 }
 
+      - name: Run AC-2 resolver suite on native Windows PowerShell
+        shell: pwsh
+        run: pwsh -NoProfile -File tests/installer/resolver.ps1.test.ps1
       - name: Run deferred-delete simulation suite
         shell: pwsh
         run: |

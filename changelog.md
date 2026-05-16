@@ -6,6 +6,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v2.249.4] — 2026-05-16 Wire AC-2 ps1 resolver test into CI
+
+### Changed
+- **`package.json`** — `test:installer` now appends `pwsh -NoProfile -File tests/installer/resolver.ps1.test.ps1` as the 5th suite; added `test:installer:resolver-ps1` alias.
+- **`.github/workflows/installer-tests.yml`** — Linux job already installs pwsh so the new suite runs as part of `npm run test:installer`; Windows job adds a dedicated "Run AC-2 resolver suite on native Windows PowerShell" step so AC-2 is exercised on real Windows pwsh too. Header comment block updated to list 5 suites.
+
+---
+
 ## [v2.249.3] — 2026-05-16 install.ps1 — AC-2 resolver unit test
 
 ### Added
