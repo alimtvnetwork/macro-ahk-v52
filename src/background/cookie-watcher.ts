@@ -62,7 +62,6 @@ const COOKIE_DEBOUNCE_MS = 200;
 
 interface PendingChange {
     timer: ReturnType<typeof setTimeout>;
-    latest: chrome.cookies.CookieChangeInfo;
 }
 const pendingByName: Map<string, PendingChange> = new Map();
 
@@ -83,7 +82,7 @@ function scheduleCookieChange(changeInfo: chrome.cookies.CookieChangeInfo): void
         pendingByName.delete(key);
         void handleCookieChange(changeInfo);
     }, COOKIE_DEBOUNCE_MS);
-    pendingByName.set(key, { timer, latest: changeInfo });
+    pendingByName.set(key, { timer });
 }
 
 /* ------------------------------------------------------------------ */
