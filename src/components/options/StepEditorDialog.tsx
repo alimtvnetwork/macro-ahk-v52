@@ -77,6 +77,7 @@ const KIND_OPTIONS: ReadonlyArray<StepKindId> = [
     StepKindId.Wait,
     StepKindId.RunGroup,
     StepKindId.Hotkey,
+    StepKindId.UrlTabClick,
 ];
 
 /**
@@ -100,8 +101,59 @@ function payloadPlaceholderFor(kind: StepKindId): string {
             return "(payload not used — pick a target group below)";
         case StepKindId.Hotkey:
             return '{ "Keys": ["Ctrl+S","Tab","Enter"], "WaitMs": 500 }';
+        case StepKindId.UrlTabClick:
+            return "(use the URL tab click form below)";
         default:
             return "{ }";
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/*  UrlTabClick form state                                             */
+/* ------------------------------------------------------------------ */
+
+type UrlMatchDialect = "Exact" | "Prefix" | "Glob" | "Regex";
+type UrlTabClickMode = "OpenNew" | "FocusExisting" | "OpenOrFocus";
+type SelectorKindOption = "Auto" | "XPath" | "Css";
+
+interface UrlTabClickFormState {
+    UrlPattern: string;
+    UrlMatch: UrlMatchDialect;
+    Mode: UrlTabClickMode;
+    Selector: string;
+    SelectorKind: SelectorKindOption;
+    TimeoutMs: string;
+    DirectOpen: boolean;
+    Url: string;
+}
+
+const URL_TAB_CLICK_DEFAULTS: UrlTabClickFormState = {
+    UrlPattern: "",
+    UrlMatch: "Glob",
+    Mode: "OpenOrFocus",
+    Selector: "",
+    SelectorKind: "Auto",
+    TimeoutMs: "",
+    DirectOpen: false,
+    Url: "",
+};
+
+function hydrateUrlTabClickForm(payloadJson: string | null): UrlTabClickFormState {
+    if (payloadJson === null || payloadJson === "") return { ...URL_TAB_CLICK_DEFAULTS };
+    try {
+        const p = JSON.parse(payloadJson) as Partial<Record<keyof UrlTabClickFormState, unknown>>;
+        return {
+            UrlPattern:   typeof p.UrlPattern === "string" ? p.UrlPattern : "",
+            UrlMatch:     (p.UrlMatch === "Exact" || p.UrlMatch === "Prefix" || p.UrlMatch === "Glob" || p.UrlMatch === "Regex") ? p.UrlMatch : "Glob",
+            Mode:         (p.Mode === "OpenNew" || p.Mode === "FocusExisting" || p.Mode === "OpenOrFocus") ? p.Mode : "OpenOrFocus",
+            Selector:     typeof p.Selector === "string" ? p.Selector : "",
+            SelectorKind: (p.SelectorKind === "XPath" || p.SelectorKind === "Css" || p.SelectorKind === "Auto") ? p.SelectorKind : "Auto",
+            TimeoutMs:    typeof p.TimeoutMs === "number" ? String(p.TimeoutMs) : "",
+            DirectOpen:   p.DirectOpen === true,
+            Url:          typeof p.Url === "string" ? p.Url : "",
+        };
+    } catch {
+        return { ...URL_TAB_CLICK_DEFAULTS };
     }
 }
 
