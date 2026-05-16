@@ -6,6 +6,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v2.248.0] — 2026-05-16 Open-tabs probe failure logging (LOG-1 compliance)
+
+### Added
+- **`src/background/handlers/open-tabs-handler.ts`** — workspace-probe failures are now classified with a short `ProbeFailureReason` code (`NoTabId` | `NoReceiver` | `EmptyResponse` | `ProbeFailed` | `Exception`) plus a `ReasonDetail` string, attached to every `OpenLovableTabInfo` row and emitted as a structured background-log line via `logBgError(BgLogTag.OPEN_TABS, ...)`. The benign `NoReceiver` case (controller not yet injected into the tab) uses `console.debug` to keep noise low; all other reasons land in the SQLite errors table.
+- **`src/background/bg-logger.ts`** — added `BgLogTag.OPEN_TABS = "[open-tabs]"`.
+
+### Why
+- Closes plan.md "Open Lovable Tabs → Workspace Mapping" follow-up #5 and brings the handler into compliance with the Core "Failure logs (mandatory shape)" rule (every failure MUST log `Reason` + `ReasonDetail`). Previously the only failure signal was a free-text `probeError` string on the response row — invisible to the diagnostics export and impossible to grep by category.
+
+---
+
 ## [v2.247.0] — 2026-05-16 Smoke-test + CI dist path fix
 
 ### Fixed

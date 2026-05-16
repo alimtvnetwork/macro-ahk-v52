@@ -22,6 +22,20 @@ import { STORAGE_KEY_ALL_PROJECTS } from "../../shared/constants";
 import type { StoredProject, UrlRule } from "../../shared/project-types";
 import { getTabInjections } from "../state-manager";
 import { isUrlMatch } from "../url-matcher";
+import { BgLogTag, logBgError } from "../bg-logger";
+
+/**
+ * Short, machine-grep-able failure classification for the workspace probe.
+ * Conforms to the mandatory failure-log shape (Core memory: every failure MUST
+ * log `Reason` + `ReasonDetail`). "NoReceiver" is the common benign case where
+ * the controller hasn't been injected into the tab yet.
+ */
+export type ProbeFailureReason =
+    | "NoTabId"
+    | "NoReceiver"
+    | "EmptyResponse"
+    | "ProbeFailed"
+    | "Exception";
 
 export type DetectedWorkspaceSource = "api" | "cache" | "dom" | "none";
 
@@ -57,6 +71,10 @@ export interface OpenLovableTabInfo {
     detectedWorkspaceSource: DetectedWorkspaceSource | null;
     /** Why the probe did not return data — null on success, a short reason on failure. */
     probeError: string | null;
+    /** Short Reason code per LOG-1; null on success. */
+    probeFailureReason: ProbeFailureReason | null;
+    /** Human-readable detail for the Reason code; null on success. */
+    probeFailureReasonDetail: string | null;
     /** Which project URL rule the tab matched (when any). Lets the panel explain why this binding was chosen. */
     matchedRule: MatchedRuleInfo | null;
 }
@@ -84,6 +102,8 @@ interface ProbePayload {
 interface ProbeResult {
     payload: ProbePayload | null;
     error: string | null;
+    reason: ProbeFailureReason | null;
+    reasonDetail: string | null;
 }
 
 export async function handleGetOpenLovableTabs(): Promise<OpenLovableTabsResponse> {
@@ -143,6 +163,8 @@ export async function handleGetOpenLovableTabs(): Promise<OpenLovableTabsRespons
             detectedWorkspaceId: probePayload?.workspaceId?.trim() || null,
             detectedWorkspaceSource: probePayload?.source ?? null,
             probeError: probe.error,
+            probeFailureReason: probe.reason,
+            probeFailureReasonDetail: probe.reasonDetail,
             matchedRule,
         };
     });
@@ -211,21 +233,48 @@ async function safeGetFocusedWindowId(): Promise<number | null> {
  */
 async function probeTabWorkspace(tabId: number | null): Promise<ProbeResult> {
     if (tabId === null) {
-        return { payload: null, error: "no tab id" };
+        return emitProbeFailure(null, "NoTabId", "tab carried no chrome-assigned id");
     }
     try {
         const response: unknown = await chrome.tabs.sendMessage(tabId, { type: "PROBE_DETECTED_WORKSPACE" });
         if (response === undefined || response === null) {
-            return { payload: null, error: "empty probe response" };
+            return emitProbeFailure(tabId, "EmptyResponse", "relay returned no payload (controller may be loading)");
         }
         const r = response as { isOk?: boolean; payload?: ProbePayload | null; errorMessage?: string };
         if (r.isOk === false) {
-            return { payload: null, error: r.errorMessage ?? "probe failed" };
+            return emitProbeFailure(tabId, "ProbeFailed", r.errorMessage ?? "probe failed (no errorMessage from controller)");
         }
-        return { payload: r.payload ?? null, error: null };
+        return { payload: r.payload ?? null, error: null, reason: null, reasonDetail: null };
     } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        // Common benign cases: "Could not establish connection. Receiving end does not exist."
-        return { payload: null, error: msg };
+        // "Could not establish connection. Receiving end does not exist." is the
+        // expected case when the controller isn't injected yet — classify separately
+        // so it isn't conflated with genuine SDK exceptions.
+        const isNoReceiver = /receiving end does not exist|could not establish connection/i.test(msg);
+        const reason: ProbeFailureReason = isNoReceiver ? "NoReceiver" : "Exception";
+        return emitProbeFailure(tabId, reason, msg);
     }
+}
+
+/**
+ * Records the Reason + ReasonDetail to both the returned row AND a structured
+ * background-log line per LOG-1. NoReceiver is the benign "controller not
+ * injected" case and is logged at console.debug to avoid noise; everything
+ * else uses logBgError so it lands in the SQLite errors table.
+ */
+function emitProbeFailure(
+    tabId: number | null,
+    reason: ProbeFailureReason,
+    reasonDetail: string,
+): ProbeResult {
+    const tagged = `${BgLogTag.OPEN_TABS} probe failure Reason=${reason} ReasonDetail="${reasonDetail}" tabId=${tabId ?? "null"}`;
+    if (reason === "NoReceiver") {
+        // Expected when the controller has not yet been injected — keep noise low.
+        console.debug(tagged);
+    } else {
+        logBgError(BgLogTag.OPEN_TABS, `probe_${reason}`, tagged, undefined, {
+            contextDetail: reasonDetail,
+        });
+    }
+    return { payload: null, error: reasonDetail, reason, reasonDetail };
 }
