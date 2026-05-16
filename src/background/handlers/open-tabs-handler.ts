@@ -163,6 +163,8 @@ export async function handleGetOpenLovableTabs(): Promise<OpenLovableTabsRespons
             detectedWorkspaceId: probePayload?.workspaceId?.trim() || null,
             detectedWorkspaceSource: probePayload?.source ?? null,
             probeError: probe.error,
+            probeFailureReason: probe.reason,
+            probeFailureReasonDetail: probe.reasonDetail,
             matchedRule,
         };
     });
