@@ -346,15 +346,30 @@ jobs:
       - name: Build Chrome extension
         run: pnpm run build:extension
 
-      - name: Verify no source maps in dist
+      # The Chrome extension dist is `chrome-extension/` itself (see
+      # `vite.config.extension.ts` → `outDir: DIST_DIR = resolve(__dirname, "chrome-extension")`
+      # and `powershell.json -> distDir = "chrome-extension"`). There is NO
+      # `chrome-extension/dist/` subfolder. Using the wrong path here silently
+      # produced empty/missing release assets — see RCA in
+      # `mem://constraints/chrome-extension-dist-path` and changelog v2.243.0.
+      - name: Verify chrome-extension build output exists
         run: |
-          MAP_FILES=$(find chrome-extension/dist -name '*.map' 2>/dev/null || true)
+          if [ ! -f chrome-extension/manifest.json ]; then
+            echo "::error::chrome-extension/manifest.json not found — extension build did not produce expected output"
+            ls -la chrome-extension/ || true
+            exit 1
+          fi
+          echo "✅ chrome-extension/ build output present"
+
+      - name: Verify no source maps in extension build
+        run: |
+          MAP_FILES=$(find chrome-extension -name '*.map' 2>/dev/null || true)
           if [ -n "$MAP_FILES" ]; then
-            echo "::error::Source map files found in dist — production builds must not include .map files:"
+            echo "::error::Source map files found — production builds must not include .map files:"
             echo "$MAP_FILES"
             exit 1
           fi
-          echo "✅ No source map files in dist"
+          echo "✅ No source map files in chrome-extension/"
 
       # ── Package assets ────────────────────────────────────
       - name: Package release assets
@@ -363,19 +378,32 @@ jobs:
         run: |
           mkdir -p release-assets
 
-          # ── Copy README + VERSION into extension dist ──
-          cp readme.md chrome-extension/dist/readme.md
-          echo "${VER}" > chrome-extension/dist/VERSION
+          # ── Copy README + VERSION into extension build ──
+          cp readme.md chrome-extension/readme.md
+          echo "${VER}" > chrome-extension/VERSION
 
           # ── Remove source maps (must never ship in releases) ──
-          MAP_COUNT=$(find chrome-extension/dist -name '*.map' | wc -l | tr -d ' ')
-          find chrome-extension/dist -name '*.map' -delete
+          MAP_COUNT=$(find chrome-extension -name '*.map' | wc -l | tr -d ' ')
+          find chrome-extension -name '*.map' -delete
           echo "Removed ${MAP_COUNT} source map files"
 
-          # ── Chrome extension — zip dist/ contents (no dist/ prefix) ──
-          cd chrome-extension/dist
-          zip -r "../../release-assets/marco-extension-${VER}.zip" .
-          cd ../..
+          # ── Chrome extension — zip chrome-extension/ contents (load-unpacked target) ──
+          cd chrome-extension
+          zip -r "../release-assets/marco-extension-${VER}.zip" .
+          cd ..
+
+          # ── Verify the extension zip was actually produced and is non-trivial ──
+          if [ ! -s "release-assets/marco-extension-${VER}.zip" ]; then
+            echo "::error::marco-extension-${VER}.zip is missing or empty"
+            ls -la release-assets/ || true
+            exit 1
+          fi
+          EXT_ZIP_SIZE=$(stat -c%s "release-assets/marco-extension-${VER}.zip")
+          if [ "$EXT_ZIP_SIZE" -lt 10240 ]; then
+            echo "::error::marco-extension-${VER}.zip is suspiciously small (${EXT_ZIP_SIZE} bytes) — likely a packaging-path regression"
+            exit 1
+          fi
+          echo "✅ marco-extension-${VER}.zip = ${EXT_ZIP_SIZE} bytes"
 
           # ── Standalone scripts ──
           if [ -d "standalone-scripts/prompts" ]; then
