@@ -322,7 +322,46 @@ Immediately after a successful download of the primary archive, every installer 
 2. On mismatch the installer MUST NOT retry the download — a mismatch is a definitive abort signal (no-retry policy, `mem://constraints/no-retry-policy`).
 3. The expected and actual hex strings MUST appear in the user-facing error so the user can manually re-verify the published value.
 4. The verification download MUST go over the same scheme as the asset (HTTPS in production).
-5. Signing of `checksums.txt` (minisign / cosign) is an optional v0.3 enhancement — not required by this spec revision.
+5. Signing of `checksums.txt` (minisign) is implemented as an **opt-in v0.3 enhancement** — see §7.1.5. The verifier ships in both installers but stays silent (soft-skip) until the release pipeline emits `.minisig` AND the operator provisions `MARCO_MINISIGN_PUBKEY`.
+
+### 7.1.5 Signature verification contract (v0.3, opt-in)
+
+Both installers contain a `verify_signature` / `Test-Signature` step that runs immediately after `verify_checksum` and **before** archive extraction. It validates the already-downloaded `checksums.txt` against a sibling `checksums.txt.minisig` published on the same release using the [minisign](https://jedisct1.github.io/minisign/) CLI. Combined with the SHA-256 check, this extends end-to-end integrity from "matches mirror" to "matches what the release signer produced".
+
+**Preconditions (ALL must hold for verification to run):**
+
+1. `MARCO_MINISIGN_PUBKEY` env var is set to a non-empty raw base64 minisign public key.
+2. The release ships `checksums.txt.minisig` (HTTP 200).
+3. The host has a `minisign` binary on PATH.
+
+**Outcomes:**
+
+| Outcome | Behavior |
+|---|---|
+| All preconditions met + signature valid | `ok "Signature verified"`, continue (AC-24). |
+| All preconditions met + signature MISMATCH | `err` with source URL + pubkey-prefix hint, `exit 6` (AC-25). |
+| Any precondition missing | Soft-warn (or silent when pubkey unset) and continue (AC-26). |
+
+**Release-side workflow (NOT yet automated — manual provisioning required):**
+
+```bash
+# One-time keygen (operator workstation, store .key in a secret manager):
+minisign -G -p marco-release.pub -s marco-release.key
+
+# Per-release signing (run after assembling checksums.txt):
+minisign -S -s marco-release.key -m checksums.txt
+# Produces checksums.txt.minisig — attach to the GitHub release alongside checksums.txt.
+
+# Operator-side: distribute the public key (raw base64, second line of marco-release.pub):
+export MARCO_MINISIGN_PUBKEY="RWQxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+
+A future revision SHOULD add a GitHub Actions release workflow step that:
+- Consumes a `MINISIGN_SECRET_KEY` repo secret.
+- Calls `minisign -S -s` against the assembled `checksums.txt`.
+- Uploads `checksums.txt.minisig` as a release asset.
+
+Until then, the verifier remains a silent no-op for end-users while still enforcing strict integrity for any operator that opts in.
 
 ---
 
