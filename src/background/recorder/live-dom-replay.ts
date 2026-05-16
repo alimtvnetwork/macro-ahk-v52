@@ -193,6 +193,38 @@ async function executeStep(
             return finalize(step, options, startedAt, now(), { Ok: true });
         }
 
+        // Spec 19 §2 — pre-condition gate (checked before actuation).
+        if (step.Gate !== undefined) {
+            const gateOutcome = await waitForCondition(step.Gate.Condition, {
+                Doc: options.Doc,
+                TimeoutMs: step.Gate.TimeoutMs,
+                PollMs: step.Gate.PollMs,
+                Sleep: sleep,
+                Now: () => now().getTime(),
+            });
+            if (!gateOutcome.Ok) {
+                if (step.Gate.OnTimeout === "Skip") {
+                    return finalize(step, options, startedAt, now(), {
+                        Ok: true,
+                        Skipped: true,
+                        Error: new Error(
+                            "Skipped: gate condition not met within " + step.Gate.TimeoutMs + "ms " +
+                            "(polls=" + gateOutcome.Polls + ", elapsed=" + gateOutcome.DurationMs + "ms)",
+                        ),
+                    });
+                }
+                return finalize(step, options, startedAt, now(), {
+                    Ok: false,
+                    Reason: "ConditionTimeout",
+                    ReasonDetail:
+                        "Gate condition not met within " + step.Gate.TimeoutMs + "ms " +
+                        "(polls=" + gateOutcome.Polls + ", elapsed=" + gateOutcome.DurationMs + "ms). " +
+                        "Last evaluation: " + JSON.stringify(gateOutcome.LastEvaluation),
+                    Error: new Error("Gate condition not met within " + step.Gate.TimeoutMs + "ms"),
+                });
+            }
+        }
+
         // Resolve {{Token}} variables FIRST (per
         // mem://standards/verbose-logging-and-failure-diagnostics): the
         // detailed resolver returns one VariableContext per token with
