@@ -409,10 +409,13 @@ function reportProject(name, result) {
     let exit = 0;
     const failures = [];   // { project, label, shape, fileRel, fileAbs, kind, count }
 
-    for (const [label, file, res, shape] of [
+    const artifacts = [
         ["canonical", result.canonical, result.canonicalResult, "PascalCase"],
-        ["compat   ", result.compat, result.compatResult, "camelCase"],
-    ]) {
+    ];
+    if (result.compat && result.compatResult) {
+        artifacts.push(["compat   ", result.compat, result.compatResult, "camelCase"]);
+    }
+    for (const [label, file, res, shape] of artifacts) {
         const fileRel = rel(file);
         const fileAbs = resolve(REPO_ROOT, file);
 
