@@ -73,6 +73,10 @@ export function generateInstallerConstants(outDir = __dirname) {
         `MARCO_CHECKSUMS_FILE="${contract.checksums.fileName}"`,
         `MARCO_CHECKSUMS_ALGO="${contract.checksums.algorithm}"`,
         "",
+        "# Signing (v0.3, opt-in)",
+        `MARCO_SIGNATURE_FILE="${contract.signing.signatureFileName}"`,
+        `: "\${${contract.signing.publicKeyEnvVar}:=${contract.signing.publicKeyDefault}}"`,
+        "",
     ];
     const sh = shLines.join("\n") + "\n";
 
@@ -97,6 +101,10 @@ export function generateInstallerConstants(outDir = __dirname) {
         "# Checksums",
         `$script:MarcoChecksumsFile = '${contract.checksums.fileName}'`,
         `$script:MarcoChecksumsAlgo = '${contract.checksums.algorithm}'`,
+        "",
+        "# Signing (v0.3, opt-in)",
+        `$script:MarcoSignatureFile = '${contract.signing.signatureFileName}'`,
+        `if (-not $env:${contract.signing.publicKeyEnvVar}) { $env:${contract.signing.publicKeyEnvVar} = '${contract.signing.publicKeyDefault}' }`,
         "",
     ];
     const ps1 = ps1Lines.join("\n") + "\n";
