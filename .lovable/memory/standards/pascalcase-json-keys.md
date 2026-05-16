@@ -159,15 +159,15 @@ Each `Projects[]` entry is a slimmed `ProjectInstruction` and follows the same m
 
 ### Files allowed to read `instruction.compat.json`
 
-Maintained as `COMPAT_READER_ALLOWLIST` in `scripts/check-pascalcase-instruction-migration.mjs`. As of Phase 2b:
+Maintained as `COMPAT_READER_ALLOWLIST` in `scripts/check-pascalcase-instruction-migration.mjs`. As of Phase 2c (post-2026-05-16):
 
-- `vite.config.extension.ts` — copyProjectScripts plugin (the lone runtime reader; Phase 2c migrates it).
-- `scripts/compile-instruction.mjs` — emitter.
-- `scripts/check-standalone-dist.mjs` — dist-shape validator.
+- `scripts/compile-instruction.mjs` — emitter (no longer emits compat; retains the filename in dead-code path).
+- `scripts/check-standalone-dist.mjs` — dist-shape validator (compat removed from required-artifacts, name still referenced in comments).
 - `scripts/generate-seed-manifest.mjs` — references the filename in comments only.
 - `scripts/check-pascalcase-instruction-migration.mjs` — self-reference (this guard).
+- Plus permanent residents for truncation-test fixtures that ship a frozen `instruction.compat.json` to exercise legacy parsers.
 
-When Phase 2c lands, the runtime entry is removed and the allowlist holds only the four build-tooling files (which never *consume* the camelCase keys — they only know the filename).
+The runtime entry (`vite.config.extension.ts`) was removed in Phase 2c. All remaining entries are build-tooling / test fixtures — none consume the camelCase keys at runtime.
 
 ### Variable names that flag CHECK C
 
