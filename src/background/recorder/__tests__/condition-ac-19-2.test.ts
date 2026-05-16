@@ -32,18 +32,19 @@ function cssSelector(stepId: number, expr: string): PersistedSelector[] {
 describe("Spec 19 §2.4 — Appearance-Wait AC suite", () => {
     it("AC-19.2.1: Gate with Visible(sel) + OnTimeout=Fail polls before actuating", async () => {
         document.body.innerHTML = `<button id="go">Go</button>`;
-        const btn = document.getElementById("go")!;
 
-        // The gate waits for #target to become visible; we inject it after a tick.
-        let injected = false;
-        btn.addEventListener("click", () => {
-            setTimeout(() => {
+        // Inject the gated element on the first sleep tick so the poll loop
+        // observes it mid-wait, then proceeds to actuation.
+        let sleepCalls = 0;
+        const sleep = vi.fn(async (ms: number) => {
+            sleepCalls++;
+            if (sleepCalls === 1) {
                 document.body.insertAdjacentHTML(
                     "beforeend",
                     `<div id="target" style="display:block">Loaded</div>`,
                 );
-                injected = true;
-            }, 0);
+            }
+            await new Promise((r) => setTimeout(r, ms));
         });
 
         const steps: ReplayStepInput[] = [{
@@ -57,9 +58,10 @@ describe("Spec 19 §2.4 — Appearance-Wait AC suite", () => {
             },
         }];
 
-        const outcome = await executeReplay(steps, { Doc: document });
+        const outcome = await executeReplay(steps, { Doc: document, Sleep: sleep });
         expect(outcome.Results[0]!.Ok).toBe(true);
         expect(document.getElementById("target")).not.toBeNull();
+        expect(sleep).toHaveBeenCalled();
     });
 
     it("AC-19.2.2: OnTimeout=Fail produces ConditionTimeout failure report with trace", async () => {
