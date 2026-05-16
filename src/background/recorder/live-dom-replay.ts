@@ -337,6 +337,7 @@ function finalize(
         /** Caller-supplied classification — overrides auto-derivation in `logFailure`. */
         Reason?: FailureReasonCode;
         ReasonDetail?: string;
+        Skipped?: boolean;
     },
 ): ReplayStepResult {
     if (outcome.Ok) {
