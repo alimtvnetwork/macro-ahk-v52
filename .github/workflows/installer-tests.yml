@@ -159,6 +159,9 @@ jobs:
           }
           if ($fails -gt 0) { exit 1 }
 
+      - name: Run AC-2 resolver suite on native Windows PowerShell
+        shell: pwsh
+        run: pwsh -NoProfile -File tests/installer/resolver.ps1.test.ps1
       - name: Run deferred-delete simulation suite
         shell: pwsh
         run: |
