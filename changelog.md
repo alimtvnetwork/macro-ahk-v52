@@ -6,6 +6,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v2.249.1] — 2026-05-16 Open-tabs workspace mapping memory written
+
+### Docs
+- **`.lovable/memory/features/macro-controller/open-tabs-workspace-mapping.md`** — captured the per-tab workspace mapping contract (transport, no-retry, 600 ms timeout, shared `LOVABLE_TAB_PATTERNS`, classified `Reason`+`ReasonDetail` failure-log schema). Indexed in `.lovable/memory/index.md`.
+- **`plan.md`** — closed the 2026-04-27 "Open Lovable Tabs → Workspace Mapping" cluster (4/5 items done; 2 React/component tests deferred per `mem://preferences/deferred-workstreams`).
+
+---
+
 ## [v2.249.0] — 2026-05-16 Shared LOVABLE_TAB_PATTERNS constant
 
 ### Added
