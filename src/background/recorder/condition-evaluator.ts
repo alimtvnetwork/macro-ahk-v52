@@ -325,8 +325,8 @@ export async function waitForCondition(
         lastTrace = trace;
         lastError = null;
 
-        if (result) return { Ok: true, DurationMs: now() - started, Polls: polls };
-        if (now() >= deadline) {
+    if (result) return { Ok: true, DurationMs: now() - started, Polls: polls };
+        if (polls >= 2 && now() >= deadline) {
             return {
                 Ok: false,
                 DurationMs: now() - started,
