@@ -401,6 +401,13 @@ $script:MarcoOwnerSignature = 'marco-installer'
 # --- Download ---
 
 function Get-Asset([string]$version) {
+    # Spec §2 step 5 / AC-2: when Get-LatestVersion returned the
+    # main-branch sentinel, switch to the source tarball off the default
+    # branch instead of a release ZIP. Discovery mode only.
+    if ($version -eq $script:MarcoMainBranchSentinel) {
+        return Get-MainBranchTarball
+    }
+
     $assetName = "marco-extension-${version}.zip"
     $assetUrl = "$script:DownloadBase/$Repo/releases/download/$version/$assetName"
 
@@ -428,6 +435,38 @@ function Get-Asset([string]$version) {
     Write-OK "Downloaded successfully."
     Test-Checksum -Version $version -AssetName $assetName -ZipPath $zipPath -TmpDir $tmpDir
     return @{ ZipPath = $zipPath; TmpDir = $tmpDir }
+}
+
+# Fetch the source tarball from the configured main branch. Spec §2
+# step 5 / AC-2 fallback when the release host is reachable but reports
+# zero releases. NOT subject to checksums.txt (the file lives in
+# releases, not in branches), and NOT subject to exit 4 — a missing main
+# branch is a network/tooling problem and exits 5 (spec §2.3).
+function Get-MainBranchTarball {
+    $branch = $script:MarcoMainBranch
+    $repoLeaf = ($Repo -split '/')[-1]
+    $archiveName = "$repoLeaf-$branch.tar.gz"
+    $archiveUrl  = "$script:DownloadBase/$Repo/archive/refs/heads/$branch.tar.gz"
+
+    $tmpDir = Join-Path $env:TEMP "marco-install-$script:MarcoRunId"
+    New-Item -ItemType Directory -Path $tmpDir -Force | Out-Null
+    $archivePath = Join-Path $tmpDir $archiveName
+
+    Write-Step "Downloading main-branch tarball ($branch)..."
+    try {
+        Invoke-WebRequest -Uri $archiveUrl -OutFile $archivePath -UseBasicParsing
+    }
+    catch {
+        Write-Err "Main-branch tarball download failed: $_"
+        Write-Err "URL: $archiveUrl"
+        Write-Err ""
+        Write-Err "Spec §2.3: discovery-mode network failure exits 5."
+        Remove-PathSafely -Path $tmpDir -Reason "failed-mainbranch-download cleanup" | Out-Null
+        exit 5
+    }
+
+    Write-OK "Downloaded successfully."
+    return @{ ZipPath = $archivePath; TmpDir = $tmpDir }
 }
 
 # --- Checksum verification (spec/14-update §7.1, §8 rule 2) ---
