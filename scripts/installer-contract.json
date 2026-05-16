@@ -114,7 +114,10 @@
     "AC-8":  "Network/API failure in discovery mode → exit 5 (never silent fallthrough).",
     "AC-21": "Checksum verification: download checksums.txt, verify SHA-256 of zip before extraction.",
     "AC-22": "Checksum mismatch → exit 6 and abort install.",
-    "AC-23": "Missing checksums.txt → soft warn (back-compat with legacy releases without SHA256SUMS)."
+    "AC-23": "Missing checksums.txt → soft warn (back-compat with legacy releases without SHA256SUMS).",
+    "AC-24": "Signature verification (v0.3): when MARCO_MINISIGN_PUBKEY is set AND checksums.txt.minisig is present AND minisign CLI is installed, verify the signature before checksum compare.",
+    "AC-25": "Signature MISMATCH (configured pubkey + present .minisig + tampered file) → exit 6 and abort install.",
+    "AC-26": "Missing pubkey OR missing .minisig OR missing minisign tool → soft-warn and continue (verifier infrastructure is opt-in until release pipeline signs)."
   },
 
   "siblingDiscovery": {
@@ -134,5 +137,16 @@
     "algorithm": "SHA-256",
     "format": "<hex>  <filename>",
     "missingPolicy": "soft-warn-back-compat"
+  },
+
+  "signing": {
+    "specSection": "§7.1.5",
+    "tool": "minisign",
+    "signatureFileName": "checksums.txt.minisig",
+    "publicKeyEnvVar": "MARCO_MINISIGN_PUBKEY",
+    "publicKeyDefault": "",
+    "missingPolicy": "soft-warn-back-compat",
+    "mismatchExitCode": 6,
+    "rationale": "Opt-in v0.3 signature gate. Verifier ships in both installers but stays silent (soft-warn) until release pipeline starts emitting .minisig + operator provisions MARCO_MINISIGN_PUBKEY. See spec §7.1.5."
   }
 }
