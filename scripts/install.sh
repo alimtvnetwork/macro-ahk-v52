@@ -471,6 +471,9 @@ verify_signature() {
     exit 6
 }
 
+
+# ── Install ─────────────────────────────────────────────────────────
+
 install_extension() {
     local archive_path="$1" install_dir="$2" version="$3"
 
