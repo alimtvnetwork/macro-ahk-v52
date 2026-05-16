@@ -28,7 +28,7 @@
 
 import { log } from './logging';
 import { logError } from './error-utils';
-import { extractProjectIdFromUrl } from './workspace-detection';
+import { extractProjectIdFromUrl, invalidateProjectIdCache } from './workspace-detection';
 import { state } from './shared-state';
 import { stopLoop } from './loop-engine';
 import { showToast } from './toast';
