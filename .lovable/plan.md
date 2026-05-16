@@ -205,7 +205,7 @@ Documents three behaviours with full acceptance criteria (AC-19.1.x / AC-19.2.x 
 | Task | Description | Status |
 |------|-------------|--------|
 | 19.1 | `UrlTabClick` (StepKindId=9) capture + replay (Open/Focus/OpenOrFocus, pattern dialects Exact/Prefix/Glob/Regex) | ✅ 2026-04-27 (capture-time `deriveUrlTabClickParams` in `capture-to-step-bridge.ts`; `Step.ParamsJson` column added + idempotent `applyParamsJsonMigration` for legacy DBs; replay primitive `executeUrlTabClick` already in `url-tab-click.ts` (23 tests). New 4 bridge tests for ⇒ 18/18 capture-bridge + 51/51 combined. UI wire-up + e2e deferred to 19.5/19.6.) |
-| 19.2 | Unify all element-appearance waits behind `waitForCondition` (legacy `WaitFor` synthesised as `Exists` Gate) | 📋 Spec'd |
+| 19.2 | Unify all element-appearance waits behind `waitForCondition` (legacy `WaitFor` synthesised as `Exists` Gate) | ✅ 2026-05-16 (`waitForCondition` 2-poll guarantee; `Gate` pre-condition wired in `executeStep` with `OnTimeout` Fail/Skip; `ConditionTimeout` added to `FailureReasonCode`; AC-tagged suite `condition-ac-19-2.test.ts` 6/6 green) |
 | 19.3 | `validateCondition` save-time rules + structured `ConditionFailureRecord` shape (AC-19.3.1–10) | ✅ 2026-05-16 (implementation already shipped in `condition-evaluator.ts` + `condition-failure-record.ts`; new AC-tagged suite `condition-ac-19-3.test.ts` covers all 10 ACs, 10/10 green; 97-acceptance-criteria.md row flipped to ✅) |
 | 19.4 | Migration `005` — seed `StepKind (9, 'UrlTabClick')` | ✅ 2026-04-27 (`recorder-db-schema.ts` seed + `StepKindId.UrlTabClick = 9`; tests 10/10) |
 | 19.5 | Step inspector UI for `UrlTabClick` editor | 📋 Spec'd |
