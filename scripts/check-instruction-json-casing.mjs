@@ -2,13 +2,12 @@
 /**
  * check-instruction-json-casing.mjs
  *
- * Phase 2b dual-emit JSON-shape gate. Runs AFTER `compile-instruction.mjs`
- * has emitted both files into each project's `dist/`, and BEFORE the
+ * Phase 2c canonical JSON-shape gate. Runs AFTER `compile-instruction.mjs`
+ * has emitted instruction.json into each project's `dist/`, and BEFORE the
  * vite extension build's `copyProjectScripts` plugin copies those files
  * into `chrome-extension/projects/scripts/<name>/`.
  *
- * For every `standalone-scripts/<name>/dist/instruction.json` and its
- * sibling `dist/instruction.compat.json` this script enforces:
+ * For every `standalone-scripts/<name>/dist/instruction.json` this script enforces:
  *
  *   -- instruction.json (canonical)
  *   - Every object key in the recursive tree starts with [A-Z] (PascalCase),
@@ -19,18 +18,15 @@
  *   - Zero camelCase keys allowed (a key starting with [a-z] that is NOT
  *     in the lowercase allowlist is a hard fail).
  *
- *   -- instruction.compat.json (transitional camelCase snapshot)
- *   - Every object key starts with [a-z_] (camelCase or snake-ish) - i.e.
- *     no key may begin with [A-Z]. The lowercase binding identifiers
- *     ({config, theme}) are also valid here (they pass through unchanged
- *     during the camelCase conversion in compile-instruction.mjs).
+ * If a stale `instruction.compat.json` is present from a pre-Phase-2c build,
+ * the script scans it as an optional legacy artifact, but it is not required.
  *
  * Why this is its OWN script (not folded into
  * check-pascalcase-instruction-migration.mjs):
  *   That checker validates SOURCE FILES (`src/instruction.ts` literals
  *   and `.ts/.mjs` consumers). This checker validates the BUILD ARTIFACTS
- *   (`dist/instruction.json` + `dist/instruction.compat.json`) - the actual
- *   bytes that will be copied into the extension and shipped. Source can
+ *   (`dist/instruction.json`) - the actual bytes that will be copied into
+ *   the extension and shipped. Source can
  *   be clean while artifacts drift if `compile-instruction.mjs` has a bug
  *   (wrong conversion, partial walk, alias leak, etc.). This script is
  *   the second line of defence against shipping a wrong-shape JSON.
@@ -43,7 +39,7 @@
  *
  * Usage:
  *   node scripts/check-instruction-json-casing.mjs
- *     -> scans every standalone-scripts/<name>/dist/{instruction,instruction.compat}.json
+ *     -> scans every standalone-scripts/<name>/dist/instruction.json
  *
  *   node scripts/check-instruction-json-casing.mjs <project-folder>
  *     -> scans only that one project (matches compile-instruction.mjs CLI)
@@ -77,7 +73,7 @@
  *                          compat:    { ... } } }] }
  *
  * Exit codes:
- *   0 - every scanned project's two artifacts pass both shape checks
+ *   0 - every scanned project's canonical artifact passes the shape check
  *   1 - at least one violation. When run inside GitHub Actions
  *       (GITHUB_ACTIONS=true), one `::error file=<dist/.../instruction[.compat].json>`
  *       annotation is emitted per offending JSON-pointer key (capped at
