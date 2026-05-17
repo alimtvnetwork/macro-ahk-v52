@@ -1787,33 +1787,23 @@ jobs:
           ARTIFACT="${{ matrix.artifact }}"
           PROJECT="${{ matrix.project }}"
           CANONICAL="$DIST/instruction.json"
-          COMPAT="$DIST/instruction.compat.json"
-
-          MISSING=()
+          # NOTE (Phase 2c): instruction.compat.json is no longer emitted.
+          # Only the canonical PascalCase instruction.json is required.
 
           if [ ! -d "$DIST" ]; then
             echo "::error file=.github/workflows/ci.yml,title=Missing dist folder after artifact download::Project '$PROJECT' — expected dist folder '$DIST' does not exist after downloading artifact '$ARTIFACT'. Upstream build job (build-${PROJECT}) may have exited 0 without emitting dist/, OR the artifact name is mis-mapped in the matrix include block. Fix the upstream build OR correct the matrix entry { project: $PROJECT, artifact: $ARTIFACT, dist-path: $DIST }."
             exit 1
           fi
 
-          if [ ! -f "$CANONICAL" ]; then MISSING+=("$CANONICAL (canonical PascalCase)"); fi
-          if [ ! -f "$COMPAT" ];    then MISSING+=("$COMPAT (transitional camelCase snapshot)"); fi
-
-          if [ ${#MISSING[@]} -gt 0 ]; then
-            # Show what DID land so the human can tell apart "build
-            # ran but produced wrong outputs" from "build silently
-            # skipped compile-instruction.mjs".
+          if [ ! -f "$CANONICAL" ]; then
             echo "Contents of '$DIST' after download:"
             ls -la "$DIST" || true
-            for m in "${MISSING[@]}"; do
-              echo "::error file=$DIST,title=Missing instruction artifact after download::Project '$PROJECT' — required file '$m' is missing from artifact '$ARTIFACT'. Likely cause: build-${PROJECT} did not run scripts/compile-instruction.mjs (which dual-emits both files). See mem://architecture/instruction-dual-emit-phase-2b.md."
-            done
+            echo "::error file=$DIST,title=Missing instruction artifact after download::Project '$PROJECT' — required file '$CANONICAL' (canonical PascalCase) is missing from artifact '$ARTIFACT'. Likely cause: build-${PROJECT} did not run scripts/compile-instruction.mjs."
             exit 1
           fi
 
           echo "✅ Artifact '$ARTIFACT' downloaded and unpacked into '$DIST':"
           echo "   • $CANONICAL ($(stat -c%s "$CANONICAL") bytes)"
-          echo "   • $COMPAT ($(stat -c%s "$COMPAT") bytes)"
 
       - name: Validate ${{ matrix.project }} instruction casing
         run: node scripts/check-instruction-json-casing.mjs standalone-scripts/${{ matrix.project }}
