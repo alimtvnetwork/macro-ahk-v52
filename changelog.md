@@ -6,6 +6,30 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v3.3.0] — 2026-05-18 Release create-event trigger hardening
+
+### Why
+Creating a `release/*` branch or `vX.Y.Z` tag in GitHub can emit a `create`
+event instead of a `push` event. The canonical release workflow only listened
+to `push` branch/tag events, so that path could skip the build/upload pipeline
+and leave the Release page with no built ZIPs or installer assets.
+
+### Fixed
+- **`.github/workflows/release.yml`** — now listens to `create` events and
+  resolves `tag` creation (`v*`) plus branch creation (`release/*`) into the
+  same release-mode build path as `push`, while safely skipping unrelated create
+  events.
+- **`.github/workflows/release-watcher.yml`** — now dispatches from the changed
+  `.gitmap/release/v*.json` descriptor first instead of always reading
+  `latest.json`, preventing a stale latest descriptor from replaying the wrong
+  tag.
+
+### Changed
+- Root `readme.md` install snippets pinned to `v3.3.0`.
+- All version-carrying files bumped `3.2.0` → `3.3.0`.
+
+---
+
 ## [v3.2.0] — 2026-05-18 Release watcher closes descriptor → release.yml gap
 
 ### Why

@@ -43,8 +43,8 @@ Added `.github/workflows/release-watcher.yml`:
 
 - Triggers on `push: main` paths `.gitmap/release/v*.json`
   and `.gitmap/release/latest.json`.
-- Reads the target tag from `.gitmap/release/latest.json`
-  (`tag` field, falling back to `v{version}`).
+- Reads the target tag from the changed `.gitmap/release/v*.json` descriptor,
+  falling back to `.gitmap/release/latest.json` for manual replay.
 - Verifies the tag exists on origin.
 - Dispatches `release.yml` via `gh workflow run release.yml --ref
   refs/tags/<tag> -f version=<tag>`.

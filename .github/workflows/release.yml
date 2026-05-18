@@ -31,15 +31,16 @@
 name: Release Build
 
 on:
+  create:
   push:
     branches:
       - "release/**"
     tags:
       - "v*"
-  # Manual replay path — used to recover a release whose original tag-push
+  # Manual replay path — used to recover a release whose original tag/create
   # event never reached Actions (e.g., tag created via the GitHub web UI's
-  # "Create release from tag" flow, or the Lovable release tooling which
-  # writes .gitmap/release/v*.json but does not always fire push:tags).
+  # "Create release from tag" flow, or release tooling which writes
+  # .gitmap/release/v*.json but does not always fire push:tags).
   # The release-watcher.yml workflow auto-invokes this dispatch when a
   # new .gitmap/release/v*.json lands on main.
   workflow_dispatch:
@@ -71,6 +72,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       ref: ${{ steps.version.outputs.ref }}
+      skip: ${{ steps.version.outputs.skip }}
 
     steps:
       - name: Checkout repository
@@ -81,7 +83,22 @@ jobs:
       - name: Resolve version and ref
         id: version
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          if [[ "${{ github.event_name }}" == "create" ]]; then
+            EVENT_REF="${{ github.event.ref }}"
+            if [[ "${{ github.event.ref_type }}" == "tag" && "${{ github.event.ref }}" == v* ]]; then
+              VERSION="${EVENT_REF}"
+              REF="refs/tags/${VERSION}"
+            elif [[ "${{ github.event.ref_type }}" == "branch" && "${{ github.event.ref }}" == release/* ]]; then
+              VERSION="${EVENT_REF#release/}"
+              REF="refs/heads/${EVENT_REF}"
+            else
+              echo "Create event for ${{ github.event.ref_type }} '${{ github.event.ref }}' is not a release ref; skipping."
+              echo "version=skip" >> "$GITHUB_OUTPUT"
+              echo "ref=${GITHUB_REF}" >> "$GITHUB_OUTPUT"
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             VERSION="${{ github.event.inputs.version }}"
             if [[ -z "$VERSION" ]]; then
               echo "::error::workflow_dispatch invoked without a version input"
@@ -108,9 +125,11 @@ jobs:
           fi
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "ref=${REF}" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
           echo "Resolved version: ${VERSION} (ref=${REF})"
 
       - name: Enforce lowercase .md filenames
+        if: steps.version.outputs.skip != 'true'
         run: |
           VIOLATIONS=$(find . -name '*.md' \
             -not -path './node_modules/*' \
@@ -125,22 +144,27 @@ jobs:
           echo "✅ All .md filenames are lowercase"
 
       - name: Setup Node.js
+        if: steps.version.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Setup pnpm
+        if: steps.version.outputs.skip != 'true'
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
       - name: Install root dependencies
+        if: steps.version.outputs.skip != 'true'
         run: pnpm install --no-frozen-lockfile
 
       - name: Run root lint
+        if: steps.version.outputs.skip != 'true'
         run: pnpm run lint
 
       - name: Run tests
+        if: steps.version.outputs.skip != 'true'
         run: pnpm run test
 
   # ════════════════════════════════════════════════════════════
@@ -149,6 +173,7 @@ jobs:
   build-sdk:
     name: Build · Marco SDK
     needs: setup
+    if: needs.setup.outputs.skip != 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -186,6 +211,7 @@ jobs:
   build-xpath:
     name: Build · XPath
     needs: [setup, build-sdk]
+    if: needs.setup.outputs.skip != 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -229,6 +255,7 @@ jobs:
   build-macro-controller:
     name: Build · Macro Controller
     needs: [setup, build-sdk]
+    if: needs.setup.outputs.skip != 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -283,6 +310,7 @@ jobs:
   build-prompts:
     name: Build · Prompts
     needs: setup
+    if: needs.setup.outputs.skip != 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -320,6 +348,7 @@ jobs:
   release:
     name: Build · Extension · Release
     needs: [setup, build-sdk, build-xpath, build-macro-controller, build-prompts]
+    if: needs.setup.outputs.skip != 'true'
     runs-on: ubuntu-latest
 
     steps:

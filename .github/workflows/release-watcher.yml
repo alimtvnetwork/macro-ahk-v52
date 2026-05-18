@@ -52,17 +52,42 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Resolve target version from latest descriptor
+      - name: Resolve target version from changed descriptor
         id: resolve
         run: |
           set -euo pipefail
-          DESCRIPTOR=".gitmap/release/latest.json"
+          CANDIDATES=()
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            BEFORE="${{ github.event.before }}"
+            AFTER="${{ github.sha }}"
+            if [[ -n "$BEFORE" && "$BEFORE" != "0000000000000000000000000000000000000000" ]]; then
+              CHANGED=$(git diff --name-only "$BEFORE" "$AFTER" -- '.gitmap/release/*.json' || true)
+            else
+              CHANGED=$(git diff-tree --no-commit-id --name-only -r "$AFTER" -- '.gitmap/release/*.json' || true)
+            fi
+            while IFS= read -r file; do
+              if [[ "$file" =~ ^\.gitmap/release/v.+\.json$ ]]; then
+                CANDIDATES+=("$file")
+              fi
+            done <<< "$CHANGED"
+            while IFS= read -r file; do
+              if [[ "$file" == ".gitmap/release/latest.json" ]]; then
+                CANDIDATES+=("$file")
+              fi
+            done <<< "$CHANGED"
+          fi
+
+          if [[ "${#CANDIDATES[@]}" -eq 0 && -f ".gitmap/release/latest.json" ]]; then
+            CANDIDATES+=(".gitmap/release/latest.json")
+          fi
+
+          DESCRIPTOR="${CANDIDATES[0]:-}"
           if [[ ! -f "$DESCRIPTOR" ]]; then
-            echo "::warning::No $DESCRIPTOR present — nothing to dispatch"
+            echo "::warning::No release descriptor present — nothing to dispatch"
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          TAG=$(node -e "const j=require('./.gitmap/release/latest.json'); process.stdout.write(j.tag || ('v'+j.version) || '')")
+          TAG=$(DESCRIPTOR="$DESCRIPTOR" node -e "const fs=require('node:fs'); const j=JSON.parse(fs.readFileSync(process.env.DESCRIPTOR,'utf8')); const version=String(j.version || '').replace(/^v/,''); process.stdout.write(j.tag || (version ? 'v'+version : ''))")
           if [[ -z "$TAG" ]]; then
             echo "::error::Could not derive tag from $DESCRIPTOR"
             exit 1
