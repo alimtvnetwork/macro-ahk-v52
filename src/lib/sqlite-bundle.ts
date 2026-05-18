@@ -394,7 +394,81 @@ function insertVariables(db: Database, projects: ReadonlyArray<StoredProject>): 
   stmt.free();
 }
 
-/** Fetches all data, builds a SQLite DB, zips it, and triggers download. */
+/**
+ * v6: parse a prompt's category data into a deduplicated, ordered list.
+ * Prefers the comma-separated `categories` field (from PromptsDetails view)
+ * and falls back to the singular `category` for pre-view bundles.
+ */
+function parsePromptCategories(raw: Record<string, unknown>): string[] {
+  const joined = typeof raw.categories === "string" ? raw.categories
+    : typeof raw.category === "string" ? raw.category
+    : "";
+  if (!joined) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const part of joined.split(",")) {
+    const trimmed = part.trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    out.push(trimmed);
+  }
+  return out;
+}
+
+/**
+ * v6: write PromptsCategory + PromptsToCategory rows so multi-category
+ * linkage survives round-trip. Categories are deduplicated across the
+ * whole prompt set; junction rows reference Prompts.Uid + Category Name
+ * (snapshot-friendly — no two-phase INSERT to resolve AUTOINCREMENT Ids).
+ */
+function insertPromptCategories(
+  db: Database,
+  prompts: ReadonlyArray<PromptEntry>,
+  rawPromptsByUid: Map<string, Record<string, unknown>>,
+): void {
+  const now = new Date().toISOString();
+
+  // 1) Collect ordered, unique category names across all prompts.
+  const seenCategories = new Set<string>();
+  const orderedCategories: string[] = [];
+  const promptCategoryMap = new Map<string, string[]>();
+  for (const p of prompts) {
+    const raw = rawPromptsByUid.get(p.id ?? "") ?? {};
+    const cats = parsePromptCategories(raw);
+    promptCategoryMap.set(p.id ?? "", cats);
+    for (const name of cats) {
+      if (!seenCategories.has(name)) {
+        seenCategories.add(name);
+        orderedCategories.push(name);
+      }
+    }
+  }
+
+  // 2) Insert each unique category once with its discovery order.
+  const catStmt = db.prepare(`
+    INSERT INTO PromptsCategory (Uid, Name, SortOrder, CreatedAt)
+    VALUES (?, ?, ?, ?)
+  `);
+  for (let i = 0; i < orderedCategories.length; i++) {
+    catStmt.run([null, orderedCategories[i], i, now]);
+  }
+  catStmt.free();
+
+  // 3) Insert junction rows for each (PromptUid, CategoryName).
+  const linkStmt = db.prepare(`
+    INSERT INTO PromptsToCategory (PromptUid, CategoryName, CreatedAt)
+    VALUES (?, ?, ?)
+  `);
+  for (const [promptUid, cats] of promptCategoryMap.entries()) {
+    if (!promptUid) continue;
+    for (const catName of cats) {
+      linkStmt.run([promptUid, catName, now]);
+    }
+  }
+  linkStmt.free();
+}
+
+
 // eslint-disable-next-line max-lines-per-function
 export async function exportAllAsSqliteZip(): Promise<void> {
   const [projRes, scriptsRes, configsRes, promptsRes] = await Promise.all([
