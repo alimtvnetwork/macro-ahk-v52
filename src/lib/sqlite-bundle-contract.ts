@@ -105,6 +105,29 @@ export const BUNDLE_SCHEMA: Readonly<Record<string, BundleTableContract>> = {
         required: ["Id", "Key", "Value"],
         optional: [],
     },
+    /**
+     * v6: row-per-dependency promotion of Projects.Dependencies JSON blob.
+     * Optional table (absent in v4/v5 bundles, present in v6+ emits).
+     */
+    Dependencies: {
+        required: [
+            "Id", "ProjectUid", "DependsOnProjectId",
+            "CreatedAt", "UpdatedAt",
+        ],
+        optional: ["Uid", "Version"],
+    },
+    /**
+     * v6: row-per-variable promotion of Projects.Settings.variables map.
+     * Value is JSON-stringified to preserve non-string types (objects,
+     * arrays, booleans, null) on round-trip. Optional table.
+     */
+    Variables: {
+        required: [
+            "Id", "ProjectUid", "Name",
+            "CreatedAt", "UpdatedAt",
+        ],
+        optional: ["Uid", "Value"],
+    },
 } as const;
 
 /** Tables that MUST exist in a full bundle. */
