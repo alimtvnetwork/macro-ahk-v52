@@ -38,17 +38,26 @@ show all expected assets:
 ## Replaying a release that was published incorrectly
 
 If a tag exists on GitHub but the Release page only shows the Source-code
-archives (the symptom that produced Issue 95):
+archives (the symptom that produced Issue 95, and again at `v2.250.0` —
+see `.lovable/cicd-issues/02-release-page-missing-built-assets.md`):
 
 1. Open the **Actions** tab in GitHub.
 2. Select the **Release Build** workflow.
 3. Click **Run workflow**, choose the default branch, and supply the existing
    tag (e.g. `v2.192.0`) in the `version` input.
-4. The workflow will rebuild the same artifacts and upload them to the
-   existing Release object via `softprops/action-gh-release@v2` (the action
-   updates the Release in place rather than creating a duplicate).
+4. The workflow now:
+   - validates that `refs/tags/{VERSION}` exists on the remote and aborts otherwise,
+   - **checks out that exact tag** in every build job (`needs.setup.outputs.ref`),
+   - regenerates `RELEASE_NOTES.md` using the previous-but-not-current tag,
+   - runs a required-asset verification gate before publishing, and
+   - uploads to the existing Release object via `softprops/action-gh-release@v2`
+     (the action updates in place rather than creating a duplicate).
 
 This is safe to repeat — the asset upload is idempotent.
+
+A scheduled workflow (`.github/workflows/audit-releases.yml`, weekly + manual)
+audits every published `v*` release and reports any missing assets.
+
 
 ## Forbidden paths
 
