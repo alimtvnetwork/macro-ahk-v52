@@ -6,6 +6,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v3.4.2] — 2026-05-18 Version bump
+
+### Changed
+- Bumped extension, SDK, and standalone-script versions to **3.4.2**.
+- Synced `manifest.json`, `src/shared/constants.ts`, `readme.md`, and all
+  `standalone-scripts/*/src/instruction.ts` descriptors.
+
+---
+
 ## [v3.4.1] — 2026-05-18 Release asset recovery gating
 
 ### Root cause
