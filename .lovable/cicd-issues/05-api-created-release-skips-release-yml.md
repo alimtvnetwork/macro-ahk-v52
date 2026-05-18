@@ -79,11 +79,11 @@ fetches the tag, and feeds the existing build/verify/upload pipeline.
 
 After this change lands on `main`:
 
-1. **Actions → Release Build → Run workflow**, supply `version: v3.1.0`, OR
+1. **Actions → Release Build → Run workflow** from `main`, supply `version: v3.1.0`, OR
 2. Edit the v3.1.0 release on GitHub (any save fires `release: edited`).
 
-Either path re-runs `release.yml`, rebuilds all assets from the `v3.1.0` tag,
-and uploads them to the existing Release page in place.
+Either path re-runs the current fixed `release.yml`, rebuilds all assets from
+the `v3.1.0` tag, and uploads them to the existing Release page in place.
 
 ## References
 
