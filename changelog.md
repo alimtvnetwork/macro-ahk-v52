@@ -6,6 +6,27 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v3.0.0] — 2026-05-18 Release pipeline hardening (major)
+
+### Why a major bump
+The release pipeline contract changed: a Marco release is now defined as a GitHub Release page that contains the full set of built assets (ZIPs, installers, checksums, notes), not just a tag with auto source archives. Downstream consumers (installers, audit tooling, docs) all assume that contract. Prior `v2.x` tags published without uploaded assets are no longer considered valid releases.
+
+### Added
+- **`.github/workflows/release.yml`** — `setup` job now also outputs a resolved `ref`. Every downstream build job checks out **that exact tag/branch** instead of the workflow's default ref. `workflow_dispatch` validates the tag exists on the remote before continuing.
+- **`.github/workflows/release.yml`** — new **"Verify required release assets"** step runs before `softprops/action-gh-release@v2` and fails the run with `::error file=...` if any of `marco-extension-{VER}.zip`, `macro-controller-{VER}.zip`, `marco-sdk-{VER}.zip`, `xpath-{VER}.zip`, `install.ps1`, `install.sh`, `VERSION.txt`, `changelog.md`, `checksums.txt`, `RELEASE_NOTES.md` are missing or suspiciously small.
+- **`.github/workflows/audit-releases.yml`** — new workflow (weekly cron + `workflow_dispatch`) that audits every published `v*` release via `gh release view` and fails when uploaded assets are missing. Step summary lists each tag's status.
+- **`.lovable/cicd-issues/02-release-page-missing-built-assets.md`** + index update — RCA for the `v2.250.0` release page that shipped without built assets.
+
+### Changed
+- **`.github/workflows/release.yml`** — release-notes generation now picks `PREV_TAG` **excluding the current `${VER}`**, so the changelog range is always `previous..HEAD` rather than collapsing to an empty `${VER}..HEAD` range on tag-triggered runs.
+- **`spec/21-app/02-features/chrome-extension/release-procedure.md`** — replay section updated to describe the new ref resolution, asset-verification gate, and audit workflow.
+- **`readme.md`** — pinned version references bumped `v2.250.0` → `v3.0.0`.
+
+### Bumped
+- `2.250.0` → `3.0.0` across manifest, `src/shared/constants.ts`, macro-controller, marco-sdk, xpath, lovable-common, lovable-owner-switch, lovable-user-add instruction manifests.
+
+---
+
 ## [v2.250.0] — 2026-05-18 Version bump
 
 ### Changed
