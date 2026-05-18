@@ -175,9 +175,9 @@ export interface BundleValidationError {
  * additions are all OPTIONAL columns — a v4 DB satisfies the v5 contract,
  * it just round-trips the new fields as undefined).
  */
-export const SUPPORTED_FORMAT_VERSIONS = ["4", "5"] as const;
+export const SUPPORTED_FORMAT_VERSIONS = ["4", "5", "6"] as const;
 /** Version this build emits when exporting a fresh bundle. */
-export const CURRENT_FORMAT_VERSION = "5" as const;
+export const CURRENT_FORMAT_VERSION = "6" as const;
 
 /* ------------------------------------------------------------------ */
 /*  Validator (db-shape-agnostic — works on any sql.js-compatible db)  */
