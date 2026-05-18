@@ -158,6 +158,37 @@ const CREATE_VARIABLES_TABLE = `
   );
 `;
 
+/**
+ * v6: PromptsCategory + PromptsToCategory tables preserve multi-category
+ * linkage on round-trip. Pre-v6 bundles flattened categories into the
+ * single Prompts.Category column (lossy when a prompt had >1 category).
+ * Prompts.Category is still emitted as the FIRST category for backward
+ * compat with v4/v5 readers.
+ *
+ * Junction stores PromptUid + CategoryName directly (rather than INTEGER
+ * Id pairs) so we don't need a two-phase write to resolve auto-increment
+ * Ids — bundle is a snapshot, not a relational live store.
+ */
+const CREATE_PROMPTS_CATEGORY_TABLE = `
+  CREATE TABLE IF NOT EXISTS PromptsCategory (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Uid TEXT,
+    Name TEXT NOT NULL UNIQUE,
+    SortOrder INTEGER DEFAULT 0,
+    CreatedAt TEXT NOT NULL
+  );
+`;
+
+const CREATE_PROMPTS_TO_CATEGORY_TABLE = `
+  CREATE TABLE IF NOT EXISTS PromptsToCategory (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    PromptUid TEXT NOT NULL,
+    CategoryName TEXT NOT NULL,
+    CreatedAt TEXT NOT NULL
+  );
+`;
+
+
 /* ------------------------------------------------------------------ */
 /*  Init sql.js                                                        */
 /* ------------------------------------------------------------------ */
