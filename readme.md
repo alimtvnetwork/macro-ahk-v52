@@ -632,7 +632,8 @@ await RiseupAsiaMacroExt.require("Project.Script");
 
 ## CI/CD Release Pipeline
 
-Pushing to a `release/*` branch (e.g., `release/v2.117.0`) automatically:
+Creating or pushing a `release/*` branch (e.g., `release/v3.3.0`) or creating a
+`v*` tag automatically enters release mode and:
 
 1. Installs dependencies with pnpm; if `pnpm-lock.yaml` is absent it falls back to `pnpm install --no-frozen-lockfile --lockfile=false`
 2. Runs root ESLint and `chrome-extension` ESLint
@@ -642,7 +643,7 @@ Pushing to a `release/*` branch (e.g., `release/v2.117.0`) automatically:
 6. Copies `readme.md`, `VERSION`, and `changelog.md` into the release asset set
 7. Zips `chrome-extension/` into `marco-extension-v{VERSION}.zip`
 8. Generates categorized release notes from commit history with Bash + PowerShell install commands
-9. Creates a GitHub Release with all assets attached
+9. Creates or updates the GitHub Release page with all assets attached
 
 **No email or notification is sent** — check the [Releases page](https://github.com/alimtvnetwork/macro-ahk-v34/releases) for status.
 
