@@ -36,4 +36,24 @@ completion. Known causes:
 3. Release notes use the current tag as the "previous tag" when the workflow is
    running on that tag, making the changelog range `${VER}..HEAD` weak or empty.
 4. Release metadata files such as `.gitmap/release/*.json` are not authoritative
-   because `
+   because `assets: []` does not publish or verify anything by itself.
+
+## Required CI/CD behavior
+
+- `workflow_dispatch` must validate that the requested `v*` tag exists and must
+  check out that exact ref before building assets.
+- Release notes must compute the previous tag by excluding the current version
+  tag from the candidate list.
+- The release workflow must verify every required asset exists and is non-empty
+  before calling `softprops/action-gh-release`.
+- The release body must include one-line install commands for Windows
+  PowerShell and Linux/macOS Bash, plus direct download/install guidance for
+  the Chrome-extension ZIP.
+- A separate release-audit job should detect any existing `v*` GitHub Release
+  that has only source archives or is missing required built assets.
+
+## Operator rule
+
+If a tag exists but the Release page has no built ZIPs, do not bump another
+version first. Re-run **Release Build** via `workflow_dispatch` for that exact
+tag, then confirm the Release page contains the built ZIPs and checksums.
