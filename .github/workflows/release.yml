@@ -153,6 +153,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.setup.outputs.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -182,12 +184,14 @@ jobs:
   # ════════════════════════════════════════════════════════════
   build-xpath:
     name: Build · XPath
-    needs: build-sdk
+    needs: [setup, build-sdk]
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.setup.outputs.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -223,12 +227,14 @@ jobs:
   # ════════════════════════════════════════════════════════════
   build-macro-controller:
     name: Build · Macro Controller
-    needs: build-sdk
+    needs: [setup, build-sdk]
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.setup.outputs.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -281,6 +287,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.setup.outputs.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -317,6 +325,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          ref: ${{ needs.setup.outputs.ref }}
           fetch-depth: 0
 
       - name: Setup Node.js
