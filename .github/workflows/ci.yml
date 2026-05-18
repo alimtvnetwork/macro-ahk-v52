@@ -1862,7 +1862,9 @@ jobs:
   # ════════════════════════════════════════════════════════════
   import-export-e2e:
     name: E2E · Import/Export Round-trip
-    needs: setup
+    # Runs after derive-casing-matrix so the casing registry shared by the
+    # bundle round-trip is already validated. See spec/30-import-export/03-test-plan.md §6.
+    needs: [setup, derive-casing-matrix]
     runs-on: ubuntu-latest
 
     steps:
@@ -1908,8 +1910,28 @@ jobs:
       - name: Install root dependencies
         run: pnpm install --prefer-offline --no-frozen-lockfile
 
+      # Aggregate prompts so MD→JSON intermediate is present for the fixture.
+      - name: Aggregate prompts
+        run: node scripts/aggregate-prompts.mjs
+
       - name: Run Import/Export E2E tests
         run: npx vitest run src/test/import-export/ --reporter=github-actions
+
+      # Forensic artifact for failed runs. The setup helper writes the
+      # produced zip to node_modules/.cache/marco-fixture/ when present;
+      # we tar the test directory as a fallback so a failure always
+      # leaves something inspectable.
+      - name: Upload fixture bundle (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: import-export-fixture-bundle
+          path: |
+            node_modules/.cache/marco-fixture/**
+            src/test/import-export/**
+          if-no-files-found: warn
+          retention-days: 7
+
 
   # ════════════════════════════════════════════════════════════
   # Job 4: Build Chrome Extension (depends on all standalone)
