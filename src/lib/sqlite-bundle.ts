@@ -478,11 +478,17 @@ export async function exportAllAsSqliteZip(): Promise<void> {
     sendMessage<{ prompts?: PromptEntry[] }>({ type: "GET_PROMPTS" }),
   ]);
 
+  // v6: keep the raw prompt records keyed by uid so insertPromptCategories
+  // can read the `categories` field (comma-separated string from the
+  // PromptsDetails view) without forcing PromptEntry to grow a new field.
+  const rawPromptsByUid = new Map<string, Record<string, unknown>>();
   const prompts: PromptEntry[] = Array.isArray(promptsRes.prompts)
     ? promptsRes.prompts.map((raw, i) => {
         const r = raw as unknown as Record<string, unknown>;
+        const uid = String(r.id ?? "");
+        rawPromptsByUid.set(uid, r);
         return {
-          id: String(r.id ?? ""),
+          id: uid,
           slug: typeof r.slug === "string" ? r.slug : undefined,
           name: (r.name as string) ?? "",
           text: (r.text as string) ?? "",
@@ -505,6 +511,8 @@ export async function exportAllAsSqliteZip(): Promise<void> {
   db.run(CREATE_META_TABLE);
   db.run(CREATE_DEPENDENCIES_TABLE);
   db.run(CREATE_VARIABLES_TABLE);
+  db.run(CREATE_PROMPTS_CATEGORY_TABLE);
+  db.run(CREATE_PROMPTS_TO_CATEGORY_TABLE);
 
   insertProjects(db, projRes.projects);
   insertScripts(db, scriptsRes.scripts);
@@ -512,6 +520,7 @@ export async function exportAllAsSqliteZip(): Promise<void> {
   insertPrompts(db, prompts);
   insertDependencies(db, projRes.projects);
   insertVariables(db, projRes.projects);
+  insertPromptCategories(db, prompts, rawPromptsByUid);
   insertMeta(db);
 
   const dbData = db.export();
