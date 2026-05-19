@@ -115,7 +115,7 @@ export async function getChatBoxXPath(): Promise<string> {
                 return proj.settings.chatBoxXPath;
             }
         }
-    } catch { /* fall through to global */ }
+    } catch { /* allow-swallow: per-project chatBoxXPath lookup failed; fall through to global settings */ } // eslint-disable-line
     const stored = await loadSettings();
     return stored.chatBoxXPath ?? DEFAULT_SETTINGS.chatBoxXPath;
 }
