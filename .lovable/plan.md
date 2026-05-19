@@ -1,102 +1,72 @@
-# Macro Controller — Workspace Hover Tooltip & Members Panel Overhaul
+# Plan — Dashboard scripts "not available" + auto-attach by URL condition
 
-Scope: the workspace chip/section in the Macro Controller floating UI. Today there are **two tooltips** stacked, both verbose. Goal: one compact, colorful, scannable tooltip with progressive disclosure, plus a real Members management popup (add / remove / promote-to-owner) and removal of the unused Settings button.
+## What the user is seeing
 
-No code is written in this pass — this file is the spec + 15-step task list. Implementation begins on the next `next`.
+On the Options → Project Detail → **Scripts** tab, scripts that exist in the library appear in a "not available" state — rows render but cannot be picked or edited, and the user has to attach them by hand. The user wants scripts to be connected to projects automatically based on the URL-match condition that already exists in each script's `instruction.json`. They also want **no error swallowing** along the way.
 
----
+## Hypothesis (root cause)
 
-## Problems observed
+Two independent bugs combine into the "not available" symptom:
 
-1. **Two tooltips** appear on hover over the workspace in the macro-controller script section. Confusing — only one should exist.
-2. Tooltip is **too tall / too wide**, hard to read at a glance.
-3. Information is laid out one-fact-per-line. Credits (available / daily / used) take 3 lines but belong on one.
-4. **Priority / "letter, top wins"** explainer is always-visible noise — should be collapsed by default.
-5. **Refill date** and **expiry date** are the high-value facts but are buried.
-6. Visual style is monochrome — needs color cues (green = healthy, amber = low, red = exhausted, blue = info).
-7. A **Settings (gear) button** is rendered that opens a "Macro Settings" dialog with credit / grace-period fields the user cannot actually modify. It is dead UI and should be removed (or justified).
-8. **Show Members** currently renders a plain list. It should be a **popup panel** (same shape as the Rename panel) with:
-   - List of members
-   - **Add user** (by email)
-   - **Remove user**
-   - **Promote to Owner**
-   The relevant workspace member-management JSON APIs were already shared by the user previously.
+1. **Silent binding miss.** `ScriptsTabContent.findScript(path)` in `src/components/options/ProjectDetailView.tsx` falls back to `{scriptId: s.path, code: ""}` when a saved project script no longer matches any `StoredScript.name`. The row renders empty, the user has no way to repair it, and nothing is logged.
+2. **No auto-attach.** Creating or saving a project never compares the project's URL to each script's `UrlMatches`. So even though every script declares the URL it belongs to, the project starts empty and the user must wire each one manually.
 
----
+We will confirm both before writing fix code by adding **diagnostic-only** logging first.
 
-## Target design — compact tooltip
+## Scope
 
-Single tooltip, ~280px wide, 3 zones:
+In scope:
 
-```text
-┌──────────────────────────────────────────┐
-│ ● Workspace Name              [Pro plan] │  ← header (status dot + name + plan chip)
-├──────────────────────────────────────────┤
-│ Credits  142 avail / 50 daily / 8 used   │  ← one line, color-coded numbers
-│ Refill   in 3d (May 22)                  │  ← high-priority
-│ Expires  in 27d (Jun 15)                 │  ← high-priority
-├──────────────────────────────────────────┤
-│ ▸ Priority rules                         │  ← collapsed; click to expand
-└──────────────────────────────────────────┘
-```
+- Options → Project Detail → **Scripts** tab (`ProjectDetailView.tsx`, `ProjectScriptSelector.tsx`)
+- Save path: `SAVE_PROJECT` handler in `src/background/handlers/`
+- Script library loader: `GET_ALL_SCRIPTS` + `script-resolver.ts`
 
-Color rules:
-- Available credits ≥ 50% daily → `--success`
-- 10–50% → `--warning`
-- < 10% → `--destructive`
-- Refill/expiry within 24h → `--warning`; expired → `--destructive`
-- Plan chip uses `--accent`
+Out of scope (no behavior change this round):
 
-Expanded "Priority rules" reveals the existing letter/top-wins explainer verbatim — no information loss, just hidden by default.
+- Popup, content scripts, recorder, webhook delivery
+- Standalone macro-controller UI
 
----
+## Phases
 
-## Target design — Members popup
+### Phase 1 — Diagnose (no behavior change, ~30 min)
 
-Reuse the Rename panel chrome (same position, animation, dismissal). Sections:
+1. Replace the silent `findScript` fallback with a `Logger.error` call that records `{ projectId, savedPath, libraryNames }`. Render an explicit `UnboundScript` row in the UI (red badge + "Re-link" button) instead of an empty row.
+2. Add a one-shot console group on `ProjectDetailView` mount logging `{ availableScripts: name[], project.scripts: path[], matched: count, unbound: name[] }`.
+3. Ship a `node scripts/audit-project-script-bindings.mjs` one-off that reads `chrome.storage` export bundles in `/dev-server/.lovable/diagnostics/*.zip` (if present) and prints the mismatch table.
 
-1. Header: "Members — <workspace name>" + close
-2. List rows: avatar/initials · display name · email · role chip · row actions (`⋯` → Promote to Owner / Remove)
-3. Footer: `+ Add member` → inline email input + role select (member/owner) + Send invite
+**Exit criteria:** the user reloads, reports the unbound list from the console group, and we know whether the failure is name-mismatch (rename / migration) or library-empty (loader bug).
 
-Calls (already provided by user previously; confirm in step 02):
-- `GET /workspaces/{wsId}/memberships/search` (already wired in `ws-members-fetch.ts`)
-- `POST` invite member
-- `DELETE` membership
-- `PATCH` change role → owner
+### Phase 2 — Fix bindings + auto-attach (~1 hour)
 
----
+Based on Phase-1 evidence, apply whichever subset is needed:
 
-## 15-step task list
+- **Heal mismatched bindings on save** — when `findScript` resolves a basename or `endsWith` match, rewrite `s.path` to the canonical `StoredScript.name` so the next save no longer drifts.
+- **Auto-attach on save** — `attachScriptsByUrl(project, library)` reads each script's `instruction.UrlMatches` (already in `availableScripts` via `script-resolver`), tests against `project.url`, and appends any unattached match in stable `order`. Skip scripts the user has explicitly removed (track in `project.scripts.removedAutoAttach: string[]`).
+- **Auto-attach on first load** for legacy projects with `project.scripts.length === 0` and no `removedAutoAttach` flag yet.
 
-| # | Task | Outcome |
-|---|------|---------|
-| 01 | Write the spec under `spec/22-app-issues/` covering tooltip + members popup + settings-button removal | Reviewable spec, single source of truth |
-| 02 | Audit current code: locate both tooltip renderers, the settings button, and the members list component; document call sites | RCA note in spec |
-| 03 | Confirm the four workspace member-management API endpoints (search / invite / remove / promote) from prior chat + sdk surface | API contract section in spec |
-| 04 | Remove the duplicate (second) tooltip so only one renders on hover | Single tooltip on hover |
-| 05 | Restructure tooltip markup into 3 zones (header / priority facts / collapsible) with compact CSS (~280px) | New compact layout, no info loss |
-| 06 | Combine credits into one line: `N avail / N daily / N used` with per-number color tokens | One-line credits row |
-| 07 | Promote **Refill in** and **Expires in** to the priority zone with relative + absolute date | Refill/expiry visible at a glance |
-| 08 | Move the "Priority — letter, top wins" block into a collapsed `<details>` (closed by default) | Noise hidden, available on demand |
-| 09 | Apply color tokens (success / warning / destructive / accent) per the rules above | Colorful, semantic states |
-| 10 | Remove the Settings (gear) button + its modal from the workspace section (dead UI) | Cleaner header |
-| 11 | Convert "Show Members" trigger to open a popup panel using the Rename-panel chrome | Members popup shell |
-| 12 | Render member rows: avatar/initials, name, email, role chip, row action menu | Readable list |
-| 13 | Implement **Add member** (email + role) wired to invite endpoint, with optimistic insert + error toast | Add works |
-| 14 | Implement **Remove member** and **Promote to Owner** with confirm step + cache invalidation via `clearMembersCache` | Remove + promote work |
-| 15 | Tests: vitest for tooltip layout (single instance, collapsed priority, color classes) + members panel (add/remove/promote dispatch correct API). Update `ws-members-fetch` test if surface changed. | Regression coverage |
+A small toast in the Scripts tab will tell the user **"Auto-attached N scripts matching this project's URL"** with an Undo action that writes those names into `removedAutoAttach`.
 
----
+### Phase 3 — No error swallowing pass (~20 min)
 
-## Out of scope
+1. Audit the touched files for `catch {…}` blocks; route every one through `Logger.error` or rethrow.
+2. Re-run `node scripts/audit-error-swallow.mjs` to confirm zero new findings on changed files.
+3. Re-run typecheck and the affected vitest suites (`ProjectDetailView`, `ProjectScriptSelector`).
 
-- Backend changes (none — only consuming existing endpoints).
-- Restyling of the rest of the Macro Controller UI.
-- Adding new credit/grace-period editing (user explicitly says these aren't modifiable).
+## Technical details
 
----
+- **No new dependencies.** Reuses `Logger`, `script-resolver`, `useProjectsScripts` hook.
+- **Storage shape stays the same** — `project.scripts: { path; order; runAt; configBinding?; code? }[]`. We only add the optional sibling `project.removedAutoAttach?: string[]`. No PascalCase rewrite (forbidden by memory).
+- **Migration**: backfill is a no-op when `project.scripts.length > 0` — the auto-attach only fills empty projects, so existing wiring is never overwritten.
+- **Versioning**: minor bump after Phase 2 lands, synced via `scripts/check-version-sync.mjs`.
 
-## Next
+## Risks
 
-Awaiting `next` to begin task 01.
+- Auto-attaching scripts the user did not want — mitigated by the `removedAutoAttach` undo list and the toast.
+- URL pattern in `instruction.UrlMatches` is a MV3 match pattern (`https://*.example.com/*`), not a regex — we will use the existing matcher from `auto-injector.ts` so semantics stay identical to runtime injection.
+- Renaming `s.path` on save changes the saved bundle shape for users who export — acceptable because the new name is the canonical library name.
+
+## What this plan deliberately does NOT do
+
+- Does not change the popup or the macro-controller workspace UI.
+- Does not change auto-injection runtime behavior — only the **attachment** that feeds it.
+- Does not introduce any new error-swallow patterns.
