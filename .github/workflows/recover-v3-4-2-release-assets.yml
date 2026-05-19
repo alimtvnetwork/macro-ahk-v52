@@ -1,0 +1,40 @@
+# ──────────────────────────────────────────────────────────────
+# One-shot recovery: v3.4.2 release assets
+#
+# Purpose:
+#   The live GitHub Release for v3.4.2 has zero uploaded assets. This workflow
+#   calls the canonical release pipeline from the current fixed commit and uses
+#   v3.4.2 only as the publish target. It exists to repair the already-created
+#   source-only Release page in place.
+#
+# NOTE: No email or notification integrations — by design.
+# ──────────────────────────────────────────────────────────────
+
+name: Recover v3.4.2 Release Assets
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/recover-v3-4-2-release-assets.yml"
+      - ".github/workflows/release.yml"
+      - ".gitmap/release/v3.4.2.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: recover-v3-4-2-release-assets
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    name: Build and upload v3.4.2 assets
+    uses: ./.github/workflows/release.yml
+    permissions:
+      contents: write
+    with:
+      version: v3.4.2
+      source_ref: ${{ github.sha }}

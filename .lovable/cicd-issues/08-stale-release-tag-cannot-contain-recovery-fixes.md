@@ -36,6 +36,13 @@ current fixed source tree. The missing contract was: recovery must be allowed to
 build from a fixed source ref while uploading assets to the already-published
 tag.
 
+After that was fixed, the live GitHub API still showed `v3.4.2` with **zero**
+uploaded assets. The remaining operational gap was that descriptor/watch-based
+recovery still depends on GitHub receiving and scheduling the watcher event. For
+an already-broken latest release, that is too indirect: there must be a direct,
+version-specific recovery workflow that runs from `main` and calls the canonical
+release pipeline with `version=v3.4.2` and `source_ref=${{ github.sha }}`.
+
 ## Status
 
 ✅ Resolved — 2026-05-19
@@ -59,6 +66,10 @@ tag.
 - Fixed descriptor selection in `release-watcher.yml` so when both
   `.gitmap/release/v3.4.2.json` and `latest.json` are changed, the concrete
   `v*.json` descriptor wins instead of being overwritten by the first candidate.
+- Added `.github/workflows/recover-v3-4-2-release-assets.yml`, a direct one-shot
+  recovery workflow triggered by this fix. It calls `release.yml` with
+  `version=v3.4.2` and `source_ref=${{ github.sha }}` so the Release page is
+  repaired without waiting for descriptor heuristics.
 - Asset names, `VERSION.txt`, checksums, release notes, and `action-gh-release`
   still use the target tag (`v3.4.2`), so the existing Release page is repaired
   in place instead of requiring another version bump.
@@ -69,6 +80,8 @@ tag.
 - The workflow must distinguish build source from publish target.
 - Successful workflow completion must be based on the live GitHub Release asset
   list, not only local `release-assets/` files.
+- When the latest release is already source-only, use a direct recovery workflow
+  or manual `workflow_dispatch`; do not rely only on indirect descriptor replay.
 - Re-running Release Watcher after this change can repair existing source-only
   releases by rebuilding from fixed `main` and uploading to the existing tag.
 
@@ -76,5 +89,6 @@ tag.
 
 - `.github/workflows/release.yml`
 - `.github/workflows/release-watcher.yml`
+- `.github/workflows/recover-v3-4-2-release-assets.yml`
 - `.gitmap/release/v3.4.2.json`
 - Prior RCAs: `02`, `03`, `04`, `05`, `06`, `07`
