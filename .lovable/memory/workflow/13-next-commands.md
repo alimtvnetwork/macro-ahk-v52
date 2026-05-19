@@ -31,8 +31,8 @@ Trigger phrases the user may type to query this file:
 - [ ] **Test infra fix** — restore missing `standalone-scripts/macro-controller/src/test/setup.ts` so vitest runs again (blocks Task 2.2)
 - [ ] **Task 1.2** — E2E Chrome verification (manual smoke pass on installer build)
 - [ ] **Dashboard "scripts not available" — Phase 2b** — auto-attach scripts to project by URL condition. Phase 1 (diagnostic log + Unbound badge) and Phase 2a (heal bindings on save in `handleSaveProject`) shipped. Phase 2b needs user-confirmed source for per-script URL matches (seed-manifest `TargetUrls` per source project vs project's own `targetUrls`). See `.lovable/question-and-ambiguity/20-dashboard-scripts-not-available-and-auto-attach.md`.
-- [ ] **Error-swallow P1 (14 left)** — `recorder/step-library/export-bundle.ts`, `recorder/step-library/import-bundle.ts`, `recorder/url-tab-click.ts`, `recorder/xpath-of-element.ts`, `status-handler.ts`, `url-trigger.ts`, `async-utils.ts`, `spa-route-guard.ts`, `startup-timing.ts`, `startup.ts`, `toast.ts`, `ui/error-overlay.ts`, `ui/settings-ui.ts`, `ws-move.ts`
-- [ ] **Error-swallow P2 (59 left)** — sweep after P1 done
+- [x] **Error-swallow P1** — all 14 items cleared (2026-05-19)
+- [ ] **Error-swallow P2 (59 left)** — sweep next
 
 ## P1 — Ready to Implement
 

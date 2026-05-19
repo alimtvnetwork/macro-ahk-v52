@@ -290,7 +290,7 @@ function _saveGeneralSettings(genResult: GeneralPanelResult, deps: SettingsDeps)
     } else {
       localStorage.removeItem('marco_custom_display_name');
     }
-  } catch { /* localStorage unavailable */ }
+  } catch { /* localStorage unavailable */ } // allow-swallow: localStorage throws in private browsing or when disabled; custom display name is non-critical.
 
   const newChatXPath = genResult.inputs.pasteTargetXPath.value;
   if (newChatXPath) {

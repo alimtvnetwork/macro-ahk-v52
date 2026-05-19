@@ -1,51 +1,6 @@
 {
-  "GeneratedAt": "2026-05-19T16:25:11.158Z",
+  "GeneratedAt": "2026-05-19T16:35:16.209Z",
   "Items": [
-    {
-      "Id": "8091c9d69e2a",
-      "Severity": "P1",
-      "File": "standalone-scripts/macro-controller/src/startup.ts",
-      "Line": 88,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch (_e: unknown) {"
-    },
-    {
-      "Id": "0fc6e2643384",
-      "Severity": "P1",
-      "File": "standalone-scripts/macro-controller/src/toast.ts",
-      "Line": 75,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "d197c90c5407",
-      "Severity": "P1",
-      "File": "standalone-scripts/macro-controller/src/ui/error-overlay.ts",
-      "Line": 785,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "f807d648315e",
-      "Severity": "P1",
-      "File": "standalone-scripts/macro-controller/src/ui/settings-ui.ts",
-      "Line": 293,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "1ae58673594c",
-      "Severity": "P1",
-      "File": "standalone-scripts/macro-controller/src/ws-move.ts",
-      "Line": 379,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
     {
       "Id": "1c2c48d60ac9",
       "Severity": "P2",
