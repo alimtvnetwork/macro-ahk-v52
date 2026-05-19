@@ -355,7 +355,9 @@ function buildStatusPillHtml(status: WorkspaceStatus): string {
     + ';background:' + style.bg
     + ';border:1px solid ' + style.border
     + ';padding:1px 5px;border-radius:3px;font-weight:700;margin-left:5px;vertical-align:middle;letter-spacing:0.3px;text-transform:uppercase;"'
-    + ' title="' + tip + '">' + status.label + '</span>';
+    // Native title= intentionally omitted (spec/22-app-issues/113): custom
+    // hover card in ws-hover-card.ts carries this content. Avoid double-tip.
+    + ' data-marco-tip="' + tip + '">' + status.label + '</span>';
 }
 
 /** Build the inner HTML for a workspace row. */
