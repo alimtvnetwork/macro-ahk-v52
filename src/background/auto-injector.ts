@@ -23,7 +23,12 @@ import { logCaughtError, logBgWarnError, BgLogTag } from "./bg-logger";
 import {
     setTabInjection,
     getActiveProjectId,
+    getTabDecision,
+    setTabDecision,
+    clearTabDecision,
+    isSameDecisionFingerprint,
 } from "./state-manager";
+import { urlFingerprint } from "./url-fingerprint";
 import { injectWithCspFallback } from "./csp-fallback";
 import { STORAGE_KEY_ALL_SCRIPTS } from "../shared/constants";
 import { ensureBuiltinScriptsExist } from "./builtin-script-guard";
@@ -31,6 +36,9 @@ import { persistInjectionError, persistInjectionWarn } from "./injection-diagnos
 import { readAllProjects } from "./handlers/project-helpers";
 import type { StoredScript } from "../shared/script-config-types";
 import type { MatchResult, ScriptBindingResolved } from "../shared/types";
+
+/** Dedup TTL — absorb burst/double-fires from listener overlap (audit U-1). */
+const DEDUP_TTL_MS = 5_000;
 
 /* ------------------------------------------------------------------ */
 /*  URL Guards                                                         */
@@ -106,13 +114,58 @@ function filterAutoInjectOnly(
 /*  Public API                                                         */
 /* ------------------------------------------------------------------ */
 
-/** Registers the webNavigation listener for auto-injection. */
+/**
+ * Registers all auto-injection triggers (T1 load, T2 refresh, T3 tab activation).
+ * See `.lovable/audits/2026-05-16-url-trigger-and-energy-audit.md` U-1/U-3.
+ */
 export function registerAutoInjector(): void {
-    // v7.26: Auto-injection DISABLED — scripts must be injected manually via popup Run button,
-    // keyboard shortcut (Ctrl+Shift+Down), or context menu. Version-based re-injection is
-    // handled by the script's own idempotency guard (data-version marker check).
-    console.log("[auto-injector] Auto-injection DISABLED (v7.26) — manual injection only");
-    // chrome.webNavigation.onCompleted.addListener(handleNavigationCompleted);
+    try {
+        chrome.webNavigation.onCompleted.addListener(handleNavigationCompleted);
+    } catch (err) {
+        logCaughtError(BgLogTag.MARCO, "webNavigation.onCompleted registration failed", err);
+    }
+    try {
+        chrome.tabs.onActivated.addListener((info) => {
+            void handleTabActivated(info.tabId);
+        });
+    } catch (err) {
+        logCaughtError(BgLogTag.MARCO, "tabs.onActivated registration failed", err);
+    }
+    try {
+        chrome.tabs.onRemoved.addListener((tabId) => {
+            clearTabDecision(tabId);
+        });
+    } catch (err) {
+        logCaughtError(BgLogTag.MARCO, "tabs.onRemoved cache-clear registration failed", err);
+    }
+    console.log("[auto-injector] Registered T1/T2 (onCompleted) + T3 (onActivated) + cache-clear (onRemoved)");
+}
+
+/* ------------------------------------------------------------------ */
+/*  Tab activation handler (T3)                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Fired when the user switches to a different tab. Re-evaluates the
+ * URL only if the cached fingerprint differs (or no cache exists).
+ * Never re-injects if the URL is unchanged — that's the whole point
+ * of the per-tab decision cache.
+ */
+export async function handleTabActivated(tabId: number): Promise<void> {
+    let tab: chrome.tabs.Tab;
+    try {
+        tab = await chrome.tabs.get(tabId);
+    } catch {
+        return; // tab gone between event and lookup
+    }
+    const url = tab.url ?? "";
+    if (!url || isNewTabOrBlankUrl(url)) return;
+    if (!isProjectPageUrl(url)) return;
+
+    const fp = urlFingerprint(url);
+    if (isSameDecisionFingerprint(tabId, fp)) return; // T3 dedup — no work needed
+
+    await processPageNavigation(tabId, url, "activate");
 }
 
 /* ------------------------------------------------------------------ */
@@ -145,7 +198,16 @@ export async function handleNavigationCompleted(
         return;
     }
 
-    await processPageNavigation(details.tabId, details.url);
+    // TTL-based dedup: absorb listener double-fires (audit U-1 recommendation).
+    // Reloads >5s apart still re-inject; bursts within 5s are squashed.
+    const fp = urlFingerprint(details.url);
+    const cached = getTabDecision(details.tabId);
+    const isBurst = cached !== undefined
+        && cached.urlFp === fp
+        && (Date.now() - cached.decidedAt) < DEDUP_TTL_MS;
+    if (isBurst) return;
+
+    await processPageNavigation(details.tabId, details.url, "load");
 }
 
 /** Processes a top-frame navigation for script injection. */
@@ -153,8 +215,19 @@ export async function handleNavigationCompleted(
 async function processPageNavigation(
     tabId: number,
     url: string,
+    trigger: "load" | "refresh" | "activate",
 ): Promise<void> {
     const matches = await evaluateUrlMatches(url);
+
+    // Cache the decision (even empty) so T3 activations don't re-run evaluateUrlMatches.
+    setTabDecision(tabId, {
+        urlFp: urlFingerprint(url),
+        url,
+        matches,
+        trigger,
+        decidedAt: Date.now(),
+    });
+
     const isNoMatch = matches.length === 0;
 
     if (isNoMatch) {
