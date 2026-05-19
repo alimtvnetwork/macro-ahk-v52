@@ -35,7 +35,6 @@ import { getCurrentWorkspaceDisplayName, getTitleBarDisplayState } from './title
 import { buildHeaderRemixSplitButton } from '../remix-dropdown';
 import { extractProjectIdFromUrl } from '../workspace-detection';
 import { getDisplayProjectName } from '../logging';
-import { buildSettingsButton } from '../settings-button';
 import { loopCreditState } from '../shared-state';
 // ============================================
 // Return type for buildTitleRow
