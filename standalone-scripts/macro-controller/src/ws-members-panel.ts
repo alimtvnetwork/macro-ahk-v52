@@ -20,7 +20,7 @@ import { cPanelBg, cPanelFg, cPanelBorder, cPrimary, cPrimaryLight, lDropdownRad
 import { fetchWorkspaceMembers, clearMembersCache, type WorkspaceMember } from './ws-members-fetch';
 import { logError } from './error-utils';
 import { formatDateDDMMMYY } from './workspace-status';
-import { inviteMember } from './ws-members-mutations';
+import { inviteMember, removeMember, updateMemberRole } from './ws-members-mutations';
 import { showToast } from './toast';
 
 const PANEL_ID = 'marco-ws-members-panel';
