@@ -56,6 +56,9 @@ tag.
   upload target.
 - Touched `.gitmap/release/v3.4.2.json` with an `assetRecovery` marker to force
   the watcher path to replay `v3.4.2` after this fix lands.
+- Fixed descriptor selection in `release-watcher.yml` so when both
+  `.gitmap/release/v3.4.2.json` and `latest.json` are changed, the concrete
+  `v*.json` descriptor wins instead of being overwritten by the first candidate.
 - Asset names, `VERSION.txt`, checksums, release notes, and `action-gh-release`
   still use the target tag (`v3.4.2`), so the existing Release page is repaired
   in place instead of requiring another version bump.
