@@ -108,7 +108,7 @@ export function logTimingSummary(): void {
       ?.RiseupAsiaMacroExt?.Projects?.MacroController?.meta;
     const ver = ext?.version || '?';
     lines.push('│  Version: v' + ver + '                                                    │'.substring(0, 55) + '│');
-  } catch {
+  } catch { // allow-swallow: optional version probe for console banner; missing globals just omit the version line.
     // Version unavailable — skip
   }
 
