@@ -18,8 +18,10 @@
 #   with that version. This is deliberate: an async `gh workflow run` can be
 #   queued against stale workflow logic and the watcher can still pass while
 #   the release page remains source-only. release.yml's workflow_call path
-#   then checks out the exact tag for packaging, builds every asset, gates on
-#   the required-asset verification step, and uploads to the GitHub Release.
+#   then checks out either the exact tag or, for stale-tag recovery, the fixed
+#   current commit as source while keeping the existing tag as the publish
+#   target. It builds every asset, gates on required-asset verification, and
+#   uploads to the GitHub Release.
 #
 # This makes asset publication deterministic regardless of how
 # the tag was created.
