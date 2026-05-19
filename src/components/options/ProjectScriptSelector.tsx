@@ -191,6 +191,15 @@ function ScriptEntryCard({
               {binding.configBindings.length} config{binding.configBindings.length !== 1 ? "s" : ""}
             </Badge>
           )}
+          {isUnbound && (
+            <Badge
+              variant="destructive"
+              className="text-[9px] shrink-0"
+              title={`Script "${binding.scriptName}" is not in the library. Rename the binding to a library script, drop a .js file to define it, or remove this row.`}
+            >
+              Unbound
+            </Badge>
+          )}
           {linkMap?.has(binding.scriptName) && (
             <SyncBadge
               state={linkMap.get(binding.scriptName)!.state}
