@@ -290,7 +290,7 @@ export function shouldRecordAsUrlTabClick(ctx: CaptureClickContext): boolean {
             const dest = new URL(ctx.Href);
             const here = new URL(ctx.LocationOrigin);
             if (dest.origin !== here.origin) return true;
-        } catch {
+        } catch { // allow-swallow: malformed href (e.g. "javascript:", relative-only) — treat as same-origin and fall through to remaining detection rules.
             /* malformed href — fall through */
         }
     }

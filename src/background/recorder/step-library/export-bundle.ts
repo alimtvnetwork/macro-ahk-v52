@@ -432,7 +432,7 @@ export function buildFilteredSnapshot(
     } catch (err) {
         try {
             dst.exec("ROLLBACK;");
-        } catch {
+        } catch { // allow-swallow: ROLLBACK after a failed COMMIT — outer err is already returned; rethrowing here would mask it.
             /* ignore */
         }
         return {

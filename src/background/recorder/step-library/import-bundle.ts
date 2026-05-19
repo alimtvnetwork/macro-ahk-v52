@@ -586,7 +586,7 @@ export async function runStepGroupImport(
         } catch (err) {
             try {
                 rawDest.exec("ROLLBACK;");
-            } catch {
+            } catch { // allow-swallow: ROLLBACK after merge failure — original err is returned; rollback failure is secondary.
                 /* ignore — rollback failure is secondary to the original error */
             }
             return {

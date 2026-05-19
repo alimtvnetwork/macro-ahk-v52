@@ -1,33 +1,6 @@
 {
-  "GeneratedAt": "2026-05-19T16:23:03.356Z",
+  "GeneratedAt": "2026-05-19T16:24:09.066Z",
   "Items": [
-    {
-      "Id": "9dd821df248f",
-      "Severity": "P1",
-      "File": "src/background/recorder/step-library/export-bundle.ts",
-      "Line": 435,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "71d9f8c36f77",
-      "Severity": "P1",
-      "File": "src/background/recorder/step-library/import-bundle.ts",
-      "Line": 589,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "6f1ece5554e7",
-      "Severity": "P1",
-      "File": "src/background/recorder/url-tab-click.ts",
-      "Line": 293,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
     {
       "Id": "9393910b543f",
       "Severity": "P1",
