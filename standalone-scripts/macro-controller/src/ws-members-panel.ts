@@ -177,6 +177,9 @@ function ensurePanelEl(): HTMLDivElement {
     'box-shadow:0 12px 32px rgba(0,0,0,0.6)',
     'font-family:system-ui,-apple-system,sans-serif', 'font-size:11px',
     'display:none',
+    // v3.4.3 (task 11) — Rename-style open animation: fade + slide-down
+    'opacity:0', 'transform:translateY(-4px)',
+    'transition:opacity 120ms ease-out, transform 120ms ease-out',
   ].join(';') + ';';
   document.body.appendChild(el);
   return el;
