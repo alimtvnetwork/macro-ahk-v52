@@ -68,6 +68,7 @@ import { generateLlmGuide } from "@/lib/generate-llm-guide";
 import { exportKnowledgeBase } from "@/lib/developer-guide-bundle";
 import { generateDts } from "@/lib/generate-dts";
 import { toast } from "sonner";
+import { logError } from "./options-logger";
 import { sendMessage } from "@/lib/message-client";
 
 /* ------------------------------------------------------------------ */
@@ -1605,6 +1606,40 @@ function ScriptsTabContent({ project, availableScripts, availableConfigs, onSave
     return availableConfigs.find((c) => c.name === basename || c.name.endsWith("/" + basename));
   };
 
+  const unboundPaths = useMemo(() => {
+    const set = new Set<string>();
+    for (const s of project.scripts ?? []) {
+      if (!findScript(s.path)) {
+        set.add(s.path);
+      }
+    }
+    return set;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- recompute on library or project changes
+  }, [project.scripts, availableScripts]);
+
+  /* Phase-1 diagnostic: one-shot console group + Logger.error on unbound bindings.
+   * See plan.md "Dashboard scripts not available" + mem://standards/error-logging-via-namespace-logger. */
+  useEffect(() => {
+    const projectPaths = (project.scripts ?? []).map((s) => s.path);
+    const libraryNames = availableScripts.map((s) => s.name);
+    const unbound = Array.from(unboundPaths);
+    /* eslint-disable no-console -- intentional diagnostic group, not error logging */
+    console.groupCollapsed(
+      `[Options.ScriptsTab] project="${project.name}" scripts=${projectPaths.length} unbound=${unbound.length}`,
+    );
+    console.log("project.scripts paths:", projectPaths);
+    console.log("availableScripts names:", libraryNames);
+    console.log("unbound paths:", unbound);
+    console.groupEnd();
+    /* eslint-enable no-console */
+    if (unbound.length > 0) {
+      logError(
+        "ScriptsTab.UnboundBinding",
+        `Project bindings reference scripts missing from the library.\n  Project: ${project.id} (${project.name})\n  Missing: ${unbound.join(", ")}\n  Reason: No StoredScript.name matches saved project.scripts[].path (exact, basename, or suffix). Library has ${libraryNames.length} scripts; check for rename or missing seed.`,
+      );
+    }
+  }, [project.id, project.name, project.scripts, availableScripts, unboundPaths]);
+
   const bindings: ScriptBinding[] = (project.scripts ?? []).map((s) => {
     const matched = findScript(s.path);
     const bindingIds = s.configBinding
@@ -1656,6 +1691,7 @@ function ScriptsTabContent({ project, availableScripts, availableConfigs, onSave
         availableConfigs={availableConfigs}
         selectedScripts={pendingBindings ?? bindings}
         onChange={handleChange}
+        unboundScriptNames={unboundPaths}
       />
       <div className="flex items-center justify-end gap-2">
         {isDirty && (

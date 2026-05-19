@@ -57,6 +57,8 @@ interface Props {
   selectedScripts: ScriptBinding[];
   onChange: (scripts: ScriptBinding[]) => void;
   linkMap?: LibraryLinkMap;
+  /** Names of bindings that don't match any library script — render an Unbound badge. */
+  unboundScriptNames?: Set<string>;
 }
 
 /* ------------------------------------------------------------------ */
@@ -73,12 +75,13 @@ interface ScriptEntryCardProps {
   onMoveUp: () => void;
   onMoveDown: () => void;
   linkMap?: LibraryLinkMap;
+  isUnbound?: boolean;
 }
 
 // eslint-disable-next-line max-lines-per-function
 function ScriptEntryCard({
   binding, index, totalCount, availableConfigs,
-  onUpdate, onRemove, onMoveUp, onMoveDown, linkMap,
+  onUpdate, onRemove, onMoveUp, onMoveDown, linkMap, isUnbound,
 }: ScriptEntryCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState("js");
@@ -186,6 +189,15 @@ function ScriptEntryCard({
           {binding.configBindings.length > 0 && (
             <Badge variant="outline" className="text-[9px] shrink-0">
               {binding.configBindings.length} config{binding.configBindings.length !== 1 ? "s" : ""}
+            </Badge>
+          )}
+          {isUnbound && (
+            <Badge
+              variant="destructive"
+              className="text-[9px] shrink-0"
+              title={`Script "${binding.scriptName}" is not in the library. Rename the binding to a library script, drop a .js file to define it, or remove this row.`}
+            >
+              Unbound
             </Badge>
           )}
           {linkMap?.has(binding.scriptName) && (
@@ -345,7 +357,7 @@ function ScriptEntryCard({
 /* ------------------------------------------------------------------ */
 
 // eslint-disable-next-line max-lines-per-function
-export function ProjectScriptSelector({ availableScripts, availableConfigs, selectedScripts, onChange, linkMap }: Props) {
+export function ProjectScriptSelector({ availableScripts, availableConfigs, selectedScripts, onChange, linkMap, unboundScriptNames }: Props) {
   const [showPicker, setShowPicker] = useState(false);
 
   const handleAddFromLibrary = (scriptId: string) => {
@@ -514,6 +526,7 @@ export function ProjectScriptSelector({ availableScripts, availableConfigs, sele
           onMoveUp={() => handleMove(binding.scriptId, -1)}
           onMoveDown={() => handleMove(binding.scriptId, 1)}
           linkMap={linkMap}
+          isUnbound={unboundScriptNames?.has(binding.scriptName) ?? false}
         />
       ))}
     </div>
