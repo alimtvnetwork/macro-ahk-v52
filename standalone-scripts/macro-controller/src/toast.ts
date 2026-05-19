@@ -73,7 +73,7 @@ function getNotify(): MarcoNotify | null {
       return notify!;
     }
   } catch {
-    /* SDK not loaded */
+    /* SDK not loaded */ // allow-swallow: SDK probe — absence is expected on non-target tabs and during load; caller handles null.
   }
 
   return null;
