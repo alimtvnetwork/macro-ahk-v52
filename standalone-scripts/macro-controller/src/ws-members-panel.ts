@@ -369,14 +369,23 @@ function attachActionHandlers(el: HTMLElement, wsId: string, wsName: string): vo
   };
 
   // v3.4.3 (task 13) — Form submit hook (Enter or click on Send invite).
-  el.addEventListener('submit', function (e: Event) {
+  // Dedupe: remove any previously attached listener before re-binding to the
+  // current (wsId, wsName) pair so reopening the panel for a different
+  // workspace does not stack invite handlers.
+  const store = el as HTMLElement & PanelHandlerStore;
+  if (store._marcoMembersSubmit) {
+    el.removeEventListener('submit', store._marcoMembersSubmit);
+  }
+  const submitHandler = function (e: Event): void {
     const target = e.target as HTMLElement | null;
     if (!target) return;
     if (target.getAttribute('data-marco-action') !== 'add-member-submit') return;
     e.preventDefault();
     e.stopPropagation();
     submitInvite(el, wsId, wsName, target as HTMLFormElement);
-  });
+  };
+  store._marcoMembersSubmit = submitHandler;
+  el.addEventListener('submit', submitHandler);
 }
 
 function attachDismissHandlers(el: HTMLElement): void {
