@@ -62,6 +62,10 @@ jobs:
           pnpm run build:sdk
           pnpm run build:xpath
           pnpm run build:macro-controller
+          pnpm run build:payment-banner-hider
+          pnpm run build:lovable-common
+          pnpm run build:lovable-owner-switch
+          pnpm run build:lovable-user-add
           pnpm run build:prompts
           pnpm run build:extension
 
@@ -71,14 +75,33 @@ jobs:
           rm -rf release-assets
           mkdir -p release-assets
 
+          if [ ! -f chrome-extension/manifest.json ]; then
+            echo "::error file=chrome-extension/manifest.json::Extension build output missing; expected chrome-extension/manifest.json after pnpm run build:extension"
+            ls -la chrome-extension/ || true
+            exit 1
+          fi
+
           cp readme.md chrome-extension/readme.md
           echo "${VER}" > chrome-extension/VERSION
           find chrome-extension -name '*.map' -delete
 
           (cd chrome-extension && zip -r "../release-assets/marco-extension-${VER}.zip" .)
-          (cd standalone-scripts/macro-controller && zip -r "../../release-assets/macro-controller-${VER}.zip" .)
-          (cd standalone-scripts/marco-sdk && zip -r "../../release-assets/marco-sdk-${VER}.zip" .)
-          (cd standalone-scripts/xpath && zip -r "../../release-assets/xpath-${VER}.zip" .)
+          PLUGINS=(
+            "macro-controller"
+            "marco-sdk"
+            "xpath"
+            "payment-banner-hider"
+            "lovable-common"
+            "lovable-owner-switch"
+            "lovable-user-add"
+          )
+          for plugin in "${PLUGINS[@]}"; do
+            if [ ! -d "standalone-scripts/${plugin}" ]; then
+              echo "::error file=standalone-scripts/${plugin}::Required plugin folder missing; release page must include every plugin ZIP"
+              exit 1
+            fi
+            (cd "standalone-scripts/${plugin}" && zip -r "../../release-assets/${plugin}-${VER}.zip" .)
+          done
           if [ -d standalone-scripts/prompts ]; then
             (cd standalone-scripts/prompts && zip -r "../../release-assets/prompts-${VER}.zip" .)
           fi
