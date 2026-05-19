@@ -253,7 +253,7 @@ function writeSentinelInPage(
             const host = document.body ?? document.documentElement;
             host.appendChild(el);
         }
-    } catch {
+    } catch { // allow-swallow: page may be mid-navigation / detached; sentinel element write is best-effort and re-runs on next decision.
         // Page may be mid-navigation; safe to drop.
     }
 }
