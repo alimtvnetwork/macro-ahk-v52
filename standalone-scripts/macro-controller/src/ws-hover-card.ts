@@ -93,7 +93,12 @@ function pillHtml(status: WorkspaceStatus): string {
 /* Card body builder                                                   */
 /* ------------------------------------------------------------------ */
 
-function buildSubHeader(ws: WorkspaceCredit): string {
+/**
+ * Legacy sub-header builder — kept for diagnostic exports that still inline
+ * the plan/role/projects/git-sync metadata row. Not used by the v3.4.3 compact
+ * tooltip; the same data is surfaced via the plan chip + Meta section.
+ */
+export function buildSubHeader(ws: WorkspaceCredit): string {
   const parts: string[] = [];
   parts.push(escHtml(String(ws.planType || ws.tier || 'FREE')));
   if (ws.membershipRole || ws.role) parts.push(escHtml(String(ws.membershipRole || ws.role)));
