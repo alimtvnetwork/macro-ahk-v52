@@ -115,6 +115,30 @@ export const apiRegistry: ApiRegistry = Object.freeze({
             description: "Search active members of a workspace (top 20)",
             timeoutMs: 10_000,
         }),
+        // PENDING-VERIFY (spec/22-app-issues/113 · ambiguity log 20):
+        // path/verb assumed from Lovable's REST convention; confirm on first
+        // live call and patch this entry if the server returns 404/405.
+        invite: Object.freeze({
+            url: "/workspaces/{wsId}/memberships",
+            method: "POST" as const,
+            auth: true,
+            description: "Invite a user to a workspace (body: { email, role })",
+            timeoutMs: 10_000,
+        }),
+        remove: Object.freeze({
+            url: "/workspaces/{wsId}/memberships/{userId}",
+            method: "DELETE" as const,
+            auth: true,
+            description: "Remove a member from a workspace",
+            timeoutMs: 10_000,
+        }),
+        updateRole: Object.freeze({
+            url: "/workspaces/{wsId}/memberships/{userId}",
+            method: "PATCH" as const,
+            auth: true,
+            description: "Change a member's role (body: { role: 'owner' | 'member' })",
+            timeoutMs: 10_000,
+        }),
     }),
 
     projects: Object.freeze({
