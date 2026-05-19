@@ -285,9 +285,70 @@ function render(el: HTMLElement, wsName: string, state: PanelState): void {
   el.innerHTML = headerHtml(wsName, state) + buildBodyHtml(state) + footerHtml();
 }
 
+function findFooter(el: HTMLElement): HTMLElement | null {
+  return el.querySelector('[data-marco-section="members-footer"]') as HTMLElement | null;
+}
+
+function swapFooter(el: HTMLElement, expanded: boolean): void {
+  const footer = findFooter(el);
+  if (!footer) return;
+  footer.innerHTML = expanded ? footerFormHtml() : footerCollapsedHtml();
+  if (expanded) {
+    const emailInput = footer.querySelector('[data-marco-field="invite-email"]') as HTMLInputElement | null;
+    if (emailInput) emailInput.focus();
+  }
+}
+
+// v3.4.3 (task 13) — Submit invite + optimistic insert. Reverts on failure.
+function submitInvite(el: HTMLElement, wsId: string, wsName: string, form: HTMLFormElement): void {
+  const emailInput = form.querySelector('[data-marco-field="invite-email"]') as HTMLInputElement | null;
+  const roleSelect = form.querySelector('[data-marco-field="invite-role"]') as HTMLSelectElement | null;
+  const submitBtn = form.querySelector('[data-marco-field="invite-submit"]') as HTMLButtonElement | null;
+  const email = (emailInput?.value || '').trim();
+  const roleRaw = (roleSelect?.value || 'member').toLowerCase();
+  const role: 'member' | 'owner' = roleRaw === 'owner' ? 'owner' : 'member';
+  if (!email) {
+    if (emailInput) emailInput.focus();
+    return;
+  }
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+  }
+
+  // Optimistic placeholder row inserted at the top of the list.
+  const body = el.querySelector('div[style*="max-height:380px"]') as HTMLElement | null;
+  const optimisticId = 'optimistic-' + Date.now();
+  let optimisticEl: HTMLElement | null = null;
+  if (body) {
+    optimisticEl = document.createElement('div');
+    optimisticEl.setAttribute('data-marco-optimistic', optimisticId);
+    optimisticEl.style.cssText = 'padding:6px 8px;border-bottom:1px solid rgba(148,163,184,0.12);font-size:11px;color:#bae6fd;opacity:0.75;';
+    optimisticEl.textContent = '⏳ Inviting ' + email + ' (' + role + ')…';
+    body.insertBefore(optimisticEl, body.firstChild);
+  }
+
+  inviteMember(wsId, email, role)
+    .then(function () {
+      showToast('✉️ Invited ' + email, 'success');
+      swapFooter(el, false);
+      // Refetch authoritative list — drops optimistic row.
+      loadAndRender(el, wsId, wsName);
+    })
+    .catch(function (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      showToast('❌ Invite failed: ' + msg, 'error');
+      if (optimisticEl && optimisticEl.parentNode) optimisticEl.parentNode.removeChild(optimisticEl);
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send invite';
+      }
+    });
+}
+
 function attachActionHandlers(el: HTMLElement, wsId: string, wsName: string): void {
   el.onclick = function (e: MouseEvent): void {
-    const target = e.target as HTMLElement | null;
+    const target = (e.target as HTMLElement | null)?.closest('[data-marco-action]') as HTMLElement | null;
     if (!target) return;
     const action = target.getAttribute('data-marco-action');
     if (action === 'close') {
@@ -297,8 +358,24 @@ function attachActionHandlers(el: HTMLElement, wsId: string, wsName: string): vo
       e.stopPropagation();
       clearMembersCache(wsId);
       loadAndRender(el, wsId, wsName);
+    } else if (action === 'add-member-toggle') {
+      e.stopPropagation();
+      swapFooter(el, true);
+    } else if (action === 'add-member-cancel') {
+      e.stopPropagation();
+      swapFooter(el, false);
     }
   };
+
+  // v3.4.3 (task 13) — Form submit hook (Enter or click on Send invite).
+  el.addEventListener('submit', function (e: Event) {
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
+    if (target.getAttribute('data-marco-action') !== 'add-member-submit') return;
+    e.preventDefault();
+    e.stopPropagation();
+    submitInvite(el, wsId, wsName, target as HTMLFormElement);
+  });
 }
 
 function attachDismissHandlers(el: HTMLElement): void {
