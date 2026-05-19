@@ -51,6 +51,13 @@ extension output path is missing, upload all assets directly with
 `gh release upload --clobber`, edit the release body, then verify the live GitHub
 asset list.
 
+The reusable `release.yml` path had one more trigger-context bug: a workflow
+called from Release Watcher still sees the caller's event/ref (`push` on
+`refs/heads/main`). The resolver only entered recovery mode when
+`GITHUB_EVENT_NAME` was literally `workflow_call`/`workflow_dispatch`, so it fell
+through to `Unexpected ref: refs/heads/main`. Version inputs must take precedence
+over the inherited caller ref.
+
 ## Status
 
 ✅ Resolved — 2026-05-19
@@ -89,6 +96,9 @@ asset list.
   Release page empty.
 - Updated the canonical release workflow and release audit to enforce those same
   support-plugin ZIPs, not just the original three plugin assets.
+- Fixed `release.yml` resolution so any provided `version` input is handled
+  before checking `GITHUB_EVENT_NAME`/`GITHUB_REF`; this repairs reusable calls
+  inherited from `main` and prevents `Unexpected ref: refs/heads/main`.
 - Asset names, `VERSION.txt`, checksums, release notes, and `action-gh-release`
   still use the target tag (`v3.4.2`), so the existing Release page is repaired
   in place instead of requiring another version bump.
