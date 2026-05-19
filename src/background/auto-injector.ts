@@ -198,7 +198,16 @@ export async function handleNavigationCompleted(
         return;
     }
 
-    await processPageNavigation(details.tabId, details.url);
+    // TTL-based dedup: absorb listener double-fires (audit U-1 recommendation).
+    // Reloads >5s apart still re-inject; bursts within 5s are squashed.
+    const fp = urlFingerprint(details.url);
+    const cached = getTabDecision(details.tabId);
+    const isBurst = cached !== undefined
+        && cached.urlFp === fp
+        && (Date.now() - cached.decidedAt) < DEDUP_TTL_MS;
+    if (isBurst) return;
+
+    await processPageNavigation(details.tabId, details.url, "load");
 }
 
 /** Processes a top-frame navigation for script injection. */
@@ -206,8 +215,19 @@ export async function handleNavigationCompleted(
 async function processPageNavigation(
     tabId: number,
     url: string,
+    trigger: "load" | "refresh" | "activate",
 ): Promise<void> {
     const matches = await evaluateUrlMatches(url);
+
+    // Cache the decision (even empty) so T3 activations don't re-run evaluateUrlMatches.
+    setTabDecision(tabId, {
+        urlFp: urlFingerprint(url),
+        url,
+        matches,
+        trigger,
+        decidedAt: Date.now(),
+    });
+
     const isNoMatch = matches.length === 0;
 
     if (isNoMatch) {
