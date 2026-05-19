@@ -560,6 +560,9 @@ export function attachWorkspaceHoverCard(listEl: HTMLElement, lookup: WsLookup):
     if (!target.closest(SEL_WS_NAME)) return;
     const related = e.relatedTarget as HTMLElement | null;
     if (related && related.closest(SEL_WS_NAME)) return;
+    // Don't hide if the pointer moved onto the hover card itself —
+    // allow user to expand <details>.
+    if (related && related.closest('#' + HOVERCARD_ID)) return;
     hideCard();
   };
 
