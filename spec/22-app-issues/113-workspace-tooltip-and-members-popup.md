@@ -1,5 +1,22 @@
 # 113 — Workspace tooltip + Members popup + Settings-button removal
 
+## Audit (task 02) — call sites
+
+| Surface | Producer | Consumer / entry point |
+|---------|----------|------------------------|
+| Custom hover card | `ws-hover-card.ts` (`attachWorkspaceHoverCard`, `hideWorkspaceHoverCard`) — pulls content from `status-explainer.ts` | `ws-list-renderer.ts:38` attaches per row |
+| **Native browser tooltip** (the second tooltip) | `ws-list-renderer.ts:419` `buildLoopTooltipText(ws)` → `ws-list-renderer.ts:428` `row.title = tooltip` | Browser renders automatically on hover after ~500 ms — overlaps the custom card |
+| Inline status chip tooltip | `ws-list-renderer.ts:358` `title="' + tip + '"` on status span | Same row — adds a third native tooltip on the inner chip |
+| Tier badge tooltip | `ws-list-renderer.ts:389` `title="' + tip + '"` on tier badge | Same row |
+| Settings (gear) button | `settings-button.ts` `buildSettingsButton()` → opens `settings-modal.ts` `showSettingsModal()` | `ui/panel-header.ts:96` mounts it in the panel header |
+| Members list | `ws-members-panel.ts` `showWsMembersPanel(wsId, wsName, x, y)` | `ws-context-menu.ts:145` — fired from right-click menu, anchored at click coords |
+
+**Root cause of "two tooltips"**: the custom hover card (`ws-hover-card.ts`) was added to *replace* the native `title=` attribute, but `row.title = tooltip` plus two more inner `title="…"` attributes were never removed. The browser still renders its built-in OS tooltip on hover, layered over the custom card.
+
+**Fix for task 04**: strip the three `row.title` / inner `title="…"` writes in `ws-list-renderer.ts`. The custom hover card already carries the same data (and more). Keep `buildLoopTooltipText()` available only if `ws-hover-card.ts` consumes it as a fallback (it currently does not — it builds its own content via `status-explainer.ts`).
+
+
+
 **Status**: Draft (spec)
 **Area**: `standalone-scripts/macro-controller/src/`
 **Related files** (audit pass):
