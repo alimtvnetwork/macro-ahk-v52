@@ -1,33 +1,6 @@
 {
-  "GeneratedAt": "2026-05-19T16:24:09.066Z",
+  "GeneratedAt": "2026-05-19T16:25:11.158Z",
   "Items": [
-    {
-      "Id": "9393910b543f",
-      "Severity": "P1",
-      "File": "standalone-scripts/macro-controller/src/async-utils.ts",
-      "Line": 69,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "4cbe30b56a78",
-      "Severity": "P1",
-      "File": "standalone-scripts/macro-controller/src/spa-route-guard.ts",
-      "Line": 148,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch (_e: unknown) {"
-    },
-    {
-      "Id": "af5335889b7b",
-      "Severity": "P1",
-      "File": "standalone-scripts/macro-controller/src/startup-timing.ts",
-      "Line": 111,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
     {
       "Id": "8091c9d69e2a",
       "Severity": "P1",
