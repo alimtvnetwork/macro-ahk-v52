@@ -204,7 +204,7 @@ function logDynamicLoad(
         let version = "unknown";
         try {
             version = chrome.runtime.getManifest().version;
-        } catch { /* allow-swallow: service worker context may lack manifest; "unknown" sentinel is the documented fallback */ }
+        } catch { // allow-swallow: service worker context may lack manifest; "unknown" sentinel is the documented fallback
 
         db.run(
             `INSERT INTO DynamicLoadLog (Timestamp, Requester, Target, Status, Detail, ExtVersion)
