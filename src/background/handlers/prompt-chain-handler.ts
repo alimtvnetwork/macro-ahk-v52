@@ -152,8 +152,8 @@ async function clearPendingArg(correlationId: string): Promise<void> {
         } else {
             await chrome.storage.session.set({ [PROMPT_ARGS_KEY]: map });
         }
-    } catch {
-        // Best-effort cleanup; ignore failures.
+    } catch { // allow-swallow: best-effort cleanup of session-storage pending args; next sweep will retry
+        // ignore
     }
 }
 

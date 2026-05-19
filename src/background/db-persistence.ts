@@ -35,8 +35,8 @@ function ensureIdempotentSchema(db: SqlJsDatabase, schema: string): void {
         for (const stmt of statements) {
             try {
                 db.run(stmt);
-            } catch {
-                // Individual statement failed — likely already exists, safe to skip
+            } catch { // allow-swallow: idempotent schema migration — individual statement likely already applied (e.g., column exists)
+                // safe to skip
             }
         }
     }

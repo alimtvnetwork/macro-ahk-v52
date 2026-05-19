@@ -1,33 +1,6 @@
 {
-  "GeneratedAt": "2026-05-19T14:31:55.120Z",
+  "GeneratedAt": "2026-05-19T14:32:58.058Z",
   "Items": [
-    {
-      "Id": "e429c836984c",
-      "Severity": "P1",
-      "File": "src/background/db-persistence.ts",
-      "Line": 38,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "da8a44855ae8",
-      "Severity": "P1",
-      "File": "src/background/handlers/prompt-chain-handler.ts",
-      "Line": 155,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "fc996ca905fb",
-      "Severity": "P1",
-      "File": "src/background/handlers/script-info-handler.ts",
-      "Line": 147,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
     {
       "Id": "8809e272326d",
       "Severity": "P1",

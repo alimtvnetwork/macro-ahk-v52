@@ -144,8 +144,8 @@ export async function handleGetScriptInfo(
             const headRes = await fetch(scriptUrl, { method: "HEAD" });
             const cl = headRes.headers.get("content-length");
             if (cl) sizeBytes = parseInt(cl, 10);
-        } catch {
-            // Size is optional — ignore errors
+        } catch { // allow-swallow: HEAD probe for script size is optional metadata; null sentinel is acceptable
+            // size unavailable
         }
 
         return {
