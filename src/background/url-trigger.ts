@@ -133,12 +133,42 @@ async function handleActivated(
 /*  Shared gate                                                        */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Returns true for URLs Chrome forbids scripting into (chrome://, the
+ * Web Store, other extensions, devtools, file://, view-source:, blank).
+ * Avoids logging predictable "restricted URL" errors on every nav.
+ */
+function isRestrictedUrl(url: string): boolean {
+    if (url.length === 0) return true;
+    if (url === "about:blank") return true;
+    if (url.startsWith("chrome://")) return true;
+    if (url.startsWith("chrome-search://")) return true;
+    if (url.startsWith("chrome-extension://")) return true;
+    if (url.startsWith("edge://")) return true;
+    if (url.startsWith("brave://")) return true;
+    if (url.startsWith("opera://")) return true;
+    if (url.startsWith("about:")) return true;
+    if (url.startsWith("devtools://")) return true;
+    if (url.startsWith("view-source:")) return true;
+    if (url.startsWith("file://")) return true;
+    if (url.startsWith("https://chrome.google.com/webstore")) return true;
+    if (url.startsWith("https://chromewebstore.google.com")) return true;
+    return false;
+}
+
 /** Single source of truth for the dedup gate + decision write + sentinel. */
 async function runGate(
     tabId: number,
     url: string,
     trigger: TabDecision["trigger"],
 ): Promise<void> {
+    if (isRestrictedUrl(url)) {
+        // Scripting is forbidden here — clear any stale decision and exit
+        // silently. Logging would flood on chrome:// and Web Store tabs.
+        clearTabDecision(tabId);
+        return;
+    }
+
     const fp = urlFingerprint(url);
 
     const isDuplicate = isSameDecisionFingerprint(tabId, fp);
@@ -207,11 +237,23 @@ async function injectSentinel(
             ],
         });
     } catch (err) {
-        // Restricted URLs (chrome://, file://, etc.) reject executeScript.
-        // That's expected and non-fatal — sentinel is best-effort.
+        // Restricted URLs (chrome://, Web Store, other extensions, etc.)
+        // reject executeScript. Expected and non-fatal; downgrade these
+        // predictable failures to a debug log so they don't show up as
+        // MARCO_ERROR in the UI. Anything unexpected is still escalated.
+        const message = err instanceof Error ? err.message : String(err);
+        const isExpectedRestriction =
+            /chrome(-extension)?:\/\/|extensions gallery|cannot be scripted|Missing host permission/i
+                .test(message);
+        if (isExpectedRestriction) {
+            console.debug(
+                `[url-trigger] sentinel inject skipped (tab=${tabId}) — restricted URL: ${message}`,
+            );
+            return;
+        }
         logCaughtError(
             BgLogTag.MARCO,
-            `[url-trigger] sentinel inject skipped (tab=${tabId}) — likely restricted URL`,
+            `[url-trigger] sentinel inject failed (tab=${tabId})`,
             err,
         );
     }
