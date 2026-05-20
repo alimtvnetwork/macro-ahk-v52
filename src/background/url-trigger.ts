@@ -237,11 +237,23 @@ async function injectSentinel(
             ],
         });
     } catch (err) {
-        // Restricted URLs (chrome://, file://, etc.) reject executeScript.
-        // That's expected and non-fatal — sentinel is best-effort.
+        // Restricted URLs (chrome://, Web Store, other extensions, etc.)
+        // reject executeScript. Expected and non-fatal; downgrade these
+        // predictable failures to a debug log so they don't show up as
+        // MARCO_ERROR in the UI. Anything unexpected is still escalated.
+        const message = err instanceof Error ? err.message : String(err);
+        const isExpectedRestriction =
+            /chrome(-extension)?:\/\/|extensions gallery|cannot be scripted|Missing host permission/i
+                .test(message);
+        if (isExpectedRestriction) {
+            console.debug(
+                `[url-trigger] sentinel inject skipped (tab=${tabId}) — restricted URL: ${message}`,
+            );
+            return;
+        }
         logCaughtError(
             BgLogTag.MARCO,
-            `[url-trigger] sentinel inject skipped (tab=${tabId}) — likely restricted URL`,
+            `[url-trigger] sentinel inject failed (tab=${tabId})`,
             err,
         );
     }
