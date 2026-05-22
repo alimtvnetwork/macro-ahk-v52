@@ -8,6 +8,7 @@
  */
 
 import { sendMessage } from "./bridge";
+import { NamespaceLogger } from "./logger";
 
 type ConfigChangeCallback = (key: string, value: unknown) => void;
 
@@ -44,8 +45,8 @@ export function notifyConfigChange(key: string, value: unknown): void {
     for (const cb of changeListeners) {
         try {
             cb(key, value);
-        } catch {
-            // Swallow listener errors
+        } catch (caught) {
+            NamespaceLogger.error("notifyConfigChange", `Config-change listener threw for key="${key}" — listener will continue receiving events but this callback's failure was non-fatal`, caught);
         }
     }
 }

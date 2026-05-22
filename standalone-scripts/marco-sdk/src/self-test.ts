@@ -169,9 +169,10 @@ function checkKvListSync(kv: KvApi | undefined, failures: string[]): void {
         }
         /* Swallow rejection — the contract is "returns a Promise without
            throwing synchronously". A rejected promise (e.g. no KV API in
-           this context) is not a self-test failure. */
-        (result as Promise<unknown>).catch(() => {
-            /* expected in environments without backend KV */
+           this context) is not a self-test failure. Still log to NamespaceLogger
+           so the rejection is auditable in diagnostics. */
+        (result as Promise<unknown>).catch((caught: unknown) => {
+            NamespaceLogger.error("selfTest.kv.list", "kv.list() promise rejected — expected in environments without backend KV; not counted as a self-test failure", caught);
         });
     } catch (err) {
         failures.push(`.kv.list() threw synchronously: ${(err as Error).message}`);
@@ -467,8 +468,8 @@ async function sendSelfTestReport(
             failures,
             version: version ?? "",
         });
-    } catch {
-        /* swallow — see jsdoc above */
+    } catch (caught) {
+        NamespaceLogger.error("reportSelfTest", `SDK_SELFTEST_REPORT sendMessage failed for surface="${surface}" — background may be unreachable; report not delivered (see jsdoc)`, caught);
     }
 }
 

@@ -19,6 +19,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { logError } from "./recorder-logger";
 import {
     Activity,
     Circle,
@@ -79,13 +80,19 @@ function loadMode(): ControllerMode {
     try {
         const raw = window.localStorage.getItem(MODE_STORAGE_KEY);
         if (raw === "mini" || raw === "compact" || raw === "expanded") { return raw; }
-    } catch { /* ignore */ }
+    } catch (caught) {
+        logError("FloatingController.loadMode", `localStorage read failed for key="${MODE_STORAGE_KEY}" — defaulting to "compact"`, caught);
+    }
     return "compact";
 }
 
 function saveMode(mode: ControllerMode): void {
     if (typeof window === "undefined") { return; }
-    try { window.localStorage.setItem(MODE_STORAGE_KEY, mode); } catch { /* ignore */ }
+    try {
+        window.localStorage.setItem(MODE_STORAGE_KEY, mode);
+    } catch (caught) {
+        logError("FloatingController.saveMode", `localStorage write failed for key="${MODE_STORAGE_KEY}" value="${mode}" — mode preference will not survive reload`, caught);
+    }
 }
 
 /* ------------------------------------------------------------------ */

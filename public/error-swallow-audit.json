@@ -1,92 +1,11 @@
 {
-  "GeneratedAt": "2026-05-22T03:27:16.086Z",
+  "GeneratedAt": "2026-05-22T03:29:34.440Z",
   "Items": [
     {
       "Id": "4d63db41f0f3",
       "Severity": "P2",
       "File": "src/components/overlay/DraggableOverlay.tsx",
       "Line": 42,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "45ded9f117aa",
-      "Severity": "P2",
-      "File": "src/components/popup/BootFailureBanner.tsx",
-      "Line": 89,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "c3294e044d72",
-      "Severity": "P2",
-      "File": "src/components/popup/InjectionModeToggle.tsx",
-      "Line": 31,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "76eb01e31b22",
-      "Severity": "P2",
-      "File": "src/components/popup/PopupHeader.tsx",
-      "Line": 24,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "1b2df7bfe49e",
-      "Severity": "P2",
-      "File": "src/components/popup/SessionCopyButton.tsx",
-      "Line": 154,
-      "Rule": "no-noop-promise-catch",
-      "Message": "Promise .catch() handler is a no-op — rejection is silently swallowed.",
-      "Snippet": ".catch(() => { })"
-    },
-    {
-      "Id": "aea94851abbe",
-      "Severity": "P2",
-      "File": "src/components/recorder/FloatingController.tsx",
-      "Line": 82,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "1764174db436",
-      "Severity": "P2",
-      "File": "src/components/recorder/FloatingController.tsx",
-      "Line": 88,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "f7b4201bffe8",
-      "Severity": "P2",
-      "File": "src/components/recorder/KeywordEventBulkContextMenu.tsx",
-      "Line": 501,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "a1aeb526f18a",
-      "Severity": "P2",
-      "File": "src/components/recorder/KeywordEventBulkContextMenu.tsx",
-      "Line": 512,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "67ee800456f8",
-      "Severity": "P2",
-      "File": "src/components/recorder/KeywordEventStepContextMenu.tsx",
-      "Line": 111,
       "Rule": "no-empty-catch",
       "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
       "Snippet": "catch {"
@@ -177,78 +96,6 @@
       "Severity": "P2",
       "File": "src/platform/chrome-adapter.ts",
       "Line": 136,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "cd0cb4682d99",
-      "Severity": "P2",
-      "File": "standalone-scripts/marco-sdk/src/config.ts",
-      "Line": 47,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "0035223dcc9c",
-      "Severity": "P2",
-      "File": "standalone-scripts/marco-sdk/src/http.ts",
-      "Line": 219,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "40d0b5b1a3c9",
-      "Severity": "P2",
-      "File": "standalone-scripts/marco-sdk/src/index.ts",
-      "Line": 96,
-      "Rule": "no-noop-promise-catch",
-      "Message": "Promise .catch() handler is a no-op — rejection is silently swallowed.",
-      "Snippet": ".catch(() => { })"
-    },
-    {
-      "Id": "87b3f2d4c7ce",
-      "Severity": "P2",
-      "File": "standalone-scripts/marco-sdk/src/prompts.ts",
-      "Line": 216,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "6b4f8c5a76e2",
-      "Severity": "P2",
-      "File": "standalone-scripts/marco-sdk/src/prompts.ts",
-      "Line": 248,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "5e6fb81042c2",
-      "Severity": "P2",
-      "File": "standalone-scripts/marco-sdk/src/prompts.ts",
-      "Line": 374,
-      "Rule": "no-empty-catch",
-      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
-      "Snippet": "catch {"
-    },
-    {
-      "Id": "ec3198930a66",
-      "Severity": "P2",
-      "File": "standalone-scripts/marco-sdk/src/self-test.ts",
-      "Line": 173,
-      "Rule": "no-noop-promise-catch",
-      "Message": "Promise .catch() handler is a no-op — rejection is silently swallowed.",
-      "Snippet": ".catch(() => { })"
-    },
-    {
-      "Id": "458c1ed6a1d2",
-      "Severity": "P2",
-      "File": "standalone-scripts/marco-sdk/src/self-test.ts",
-      "Line": 470,
       "Rule": "no-empty-catch",
       "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
       "Snippet": "catch {"

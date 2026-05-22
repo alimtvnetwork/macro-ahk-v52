@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
+import { logError } from "@/hooks/popup-logger";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Bug } from "lucide-react";
@@ -28,8 +29,8 @@ export function InjectionModeToggle() {
           type: "GET_SETTINGS",
         });
         setForceLegacy(res.settings.forceLegacyInjection === true);
-      } catch {
-        // Settings unavailable
+      } catch (caught) {
+        logError("InjectionModeToggle.load", "GET_SETTINGS failed — toggle will remain in default OFF state until settings become available", caught);
       }
       setLoading(false);
     })();

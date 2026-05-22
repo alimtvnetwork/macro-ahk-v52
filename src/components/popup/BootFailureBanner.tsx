@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { logError } from "@/hooks/popup-logger";
 import { AlertTriangle, ChevronDown, ChevronRight, Copy, Check, Download, MousePointerClick, Code2, ListChecks, Database, Terminal, FileWarning, ShieldOff } from "lucide-react";
 import { readClickTrail, type ClickTrailEntry } from "@/lib/click-trail";
 import { useBenignWarningStats } from "@/hooks/use-benign-warning-stats";
@@ -80,13 +81,18 @@ export function BootFailureBanner({ bootStep, bootError, bootErrorStack, bootErr
     try {
       const saved = localStorage.getItem("marco_support_report_mode");
       return saved === "short" ? "short" : "full";
-    } catch { // allow-swallow: localStorage may be denied; safe default is "full"
+    } catch (caught) { // allow-swallow: localStorage may be denied; safe default is "full"
+      logError("BootFailureBanner.loadReportMode", "localStorage read failed for key=marco_support_report_mode — defaulting to \"full\" report mode", caught);
       return "full";
     }
   });
   const setReportModePersisted = (mode: "short" | "full"): void => {
     setReportMode(mode);
-    try { localStorage.setItem("marco_support_report_mode", mode); } catch { /* storage denied */ }
+    try {
+      localStorage.setItem("marco_support_report_mode", mode);
+    } catch (caught) {
+      logError("BootFailureBanner.persistReportMode", `localStorage write failed for key=marco_support_report_mode value="${mode}" — preference will not survive reload`, caught);
+    }
   };
   // Tally of warnings the activity timeline filtered out — disclosed in the
   // support report so the suppression is auditable. `bumpKey` is keyed on

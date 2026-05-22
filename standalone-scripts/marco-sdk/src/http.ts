@@ -11,6 +11,7 @@ import axios from "axios";
 import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from "axios";
 import { sendMessage } from "./bridge";
 import { extractBearerTokenFromBridgePayload } from "./auth-response";
+import { NamespaceLogger } from "./logger";
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -216,8 +217,8 @@ async function resolveAuthTokenInner(): Promise<string | null> {
             console.log("[marco-sdk:auth] 🔑 localStorage fallback resolved in %.1fms (bridge: %s)", ms, bridgeOutcome);
             return stored;
         }
-    } catch {
-        // localStorage unavailable
+    } catch (caught) {
+        NamespaceLogger.error("getBearerToken", `localStorage fallback read failed for key="${LOCALSTORAGE_TOKEN_KEY}" — localStorage may be unavailable (sandboxed iframe?); returning null token`, caught);
     }
 
     const ms = performance.now() - t0;

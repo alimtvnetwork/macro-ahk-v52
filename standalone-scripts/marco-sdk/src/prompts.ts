@@ -213,8 +213,8 @@ async function fetchFromBridge(): Promise<PromptEntry[]> {
             if (entries.length > 0) {
                 return entries;
             }
-        } catch {
-            // retry
+        } catch (caught) {
+            NamespaceLogger.error("fetchFromBridge", `GET_PROMPTS attempt ${i + 1}/${RETRY_DELAYS.length} failed — will retry per RETRY_DELAYS schedule`, caught);
         }
     }
     return [];
@@ -245,7 +245,9 @@ function findPasteTarget(xpath?: string, selector?: string): HTMLElement | null 
             if (result.singleNodeValue instanceof HTMLElement) {
                 return result.singleNodeValue;
             }
-        } catch { /* fallthrough */ }
+        } catch (caught) {
+            NamespaceLogger.error("findPasteTarget", `document.evaluate(xpath="${xpath}") threw — invalid XPath syntax; falling through to selector/fallback strategies`, caught);
+        }
     }
     // Try selector
     if (selector) {
@@ -371,8 +373,8 @@ async function backgroundRevalidate(cachedHash: string): Promise<void> {
 
         memoryCache = fresh;
         await writeCache(fresh);
-    } catch {
-        // silent
+    } catch (caught) {
+        NamespaceLogger.error("revalidatePromptCache", "Background revalidation failed — memoryCache may be stale until next refresh", caught);
     }
 }
 

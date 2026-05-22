@@ -93,8 +93,8 @@ window.addEventListener("message", (event) => {
 /*  Warm caches on load                                                */
 /* ------------------------------------------------------------------ */
 
-initXPathCache().catch(() => {
-    /* silent — cache will be empty until first explicit call */
+initXPathCache().catch((caught: unknown) => {
+    NamespaceLogger.error("initXPathCache", "XPath cache warm-up failed — cache will be empty until first explicit call (non-fatal)", caught);
 });
 
 console.log("[marco-sdk] Riseup Macro SDK v2.169.0 initialized (RiseupAsiaMacroExt root + Logger + Projects.RiseupMacroSdk self-namespace + runtime self-test)");

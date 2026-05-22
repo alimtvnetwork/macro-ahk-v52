@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
+import { logError } from "./recorder-logger";
 import {
     Download,
     Eye,
@@ -498,9 +499,8 @@ function persistSequence(input: SequenceRenameInput): void {
         if (localStorage.getItem(LEGACY_SEQUENCE_KEY_V1) !== null) {
             localStorage.removeItem(LEGACY_SEQUENCE_KEY_V1);
         }
-    } catch {
-        // Storage may be unavailable (private mode, quota); silently ignore — the
-        // dialog still works, it just won't remember last used settings.
+    } catch (caught) {
+        logError("KeywordEventBulkContextMenu.persistSequence", `localStorage write failed for key="${SEQUENCE_RENAME_STORAGE_KEY}" — dialog will work but won't remember last used settings`, caught);
     }
 }
 
@@ -509,8 +509,8 @@ function clearPersistedSequence(): void {
     try {
         localStorage.removeItem(SEQUENCE_RENAME_STORAGE_KEY);
         localStorage.removeItem(LEGACY_SEQUENCE_KEY_V1);
-    } catch {
-        // Best-effort; reset still applies to the in-memory state.
+    } catch (caught) {
+        logError("KeywordEventBulkContextMenu.clearPersistedSequence", `localStorage.removeItem failed for keys=[${SEQUENCE_RENAME_STORAGE_KEY}, ${LEGACY_SEQUENCE_KEY_V1}] — in-memory reset still applies`, caught);
     }
 }
 

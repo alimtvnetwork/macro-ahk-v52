@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- chrome runtime detection via globalThis */
 import marcoLogo from "@/assets/marco-logo.png";
+import { logError } from "@/hooks/popup-logger";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,7 +22,9 @@ function getManifestVersion(): string | null {
     if (typeof runtime?.getManifest === "function") {
       return runtime.getManifest().version ?? null;
     }
-  } catch { /* not in extension context */ }
+  } catch (caught) {
+    logError("PopupHeader.getManifestVersion", "chrome.runtime.getManifest() threw — not running inside an extension context, returning null version", caught);
+  }
   return null;
 }
 

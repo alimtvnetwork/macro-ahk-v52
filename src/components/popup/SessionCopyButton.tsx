@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { logError } from "@/hooks/popup-logger";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -151,8 +152,8 @@ export function SessionCopyButton() {
           setSelectedSession(res.sessionId);
         }
       })
-      .catch(() => {
-        // Silently fail — dropdown just won't show sessions
+      .catch((caught: unknown) => {
+        logError("SessionCopyButton.fetchSessions", "GET_SESSION_REPORT failed — sessions dropdown will be empty", caught);
       })
       .finally(() => {
         if (!cancelled) setLoadingSessions(false);
