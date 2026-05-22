@@ -39,7 +39,6 @@ const SCRIPTS_KEY = "marco_scripts";
 /** @typedef {{ id: string; name: string }} StoredScript */
 
 function fail(code, reason, detail) {
-    // eslint-disable-next-line no-console
     console.error(`[audit-project-script-bindings] FAIL code=${code} reason=${reason} detail=${detail}`);
     process.exit(code);
 }
@@ -105,13 +104,10 @@ function auditBundle(bundle, sourcePath) {
     const projects = Array.isArray(bundle?.[PROJECTS_KEY]) ? bundle[PROJECTS_KEY] : [];
     const library = Array.isArray(bundle?.[SCRIPTS_KEY]) ? bundle[SCRIPTS_KEY] : [];
 
-    // eslint-disable-next-line no-console
     console.log(`\n=== ${sourcePath} ===`);
-    // eslint-disable-next-line no-console
     console.log(`projects=${projects.length} libraryScripts=${library.length}`);
 
     if (library.length === 0) {
-        // eslint-disable-next-line no-console
         console.log("⚠ Library is empty — every binding will appear unbound. Reason: marco_scripts missing or not exported.");
     }
 
@@ -136,14 +132,11 @@ function auditBundle(bundle, sourcePath) {
     }
 
     if (rows.length === 0) {
-        // eslint-disable-next-line no-console
         console.log("(no project.scripts bindings to audit)");
     } else {
-        // eslint-disable-next-line no-console
         console.table(rows);
     }
 
-    // eslint-disable-next-line no-console
     console.log(`Summary: bindings=${rows.length} ok=${rows.length - unboundCount - driftCount} drift=${driftCount} unbound=${unboundCount}`);
     return { unboundCount, driftCount };
 }
@@ -165,7 +158,6 @@ async function main() {
         totalDrift += driftCount;
     }
 
-    // eslint-disable-next-line no-console
     console.log(`\nGrand total: files=${files.length} unbound=${totalUnbound} drift=${totalDrift}`);
     process.exit(totalUnbound > 0 ? 1 : 0);
 }
