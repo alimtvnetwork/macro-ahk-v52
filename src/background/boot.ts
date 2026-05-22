@@ -29,6 +29,7 @@ import {
     ensureDefaultProjectSingleScript,
 } from "./default-project-seeder";
 import { seedFromManifest } from "./manifest-seeder";
+import { backfillScriptUrlMatches } from "./url-matches-backfill";
 import { runStorageMigrations } from "./storage-migration";
 import { setBootStep, setBootPersistenceMode, finalizeBoot, setBootError, getBootErrorContext, getWasmProbeResult } from "./boot-diagnostics";
 import { configureUserScriptWorld } from "./csp-fallback";
@@ -115,6 +116,20 @@ export async function boot(): Promise<void> {
             console.log("[Marco] ✓ Manifest seeder: %d scripts, %d configs across %d projects", result.scripts, result.configs, result.projects);
         } catch (err) {
             logCaughtError(BgLogTag.BOOT, "Manifest seeder failed (non-fatal)", err);
+        }
+
+        step = "backfill-url-matches";
+        setBootStep(step);
+        try {
+            const bf = await backfillScriptUrlMatches();
+            if (bf.updated > 0 || bf.skippedNoBindingFound > 0) {
+                console.log(
+                    "[Marco] ✓ urlMatches backfill: scanned=%d updated=%d alreadyPopulated=%d noBinding=%d",
+                    bf.scanned, bf.updated, bf.skippedAlreadyPopulated, bf.skippedNoBindingFound,
+                );
+            }
+        } catch (err) {
+            logCaughtError(BgLogTag.BOOT, "urlMatches backfill failed (non-fatal)", err);
         }
 
         step = "reseed-prompts";
