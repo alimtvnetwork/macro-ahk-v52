@@ -22,6 +22,36 @@ const HTTP_OK_MAX = 300;
 const BODY_SNIPPET_MAX = 500;
 const REPORT_HALT_LINE = "Loop halted. Awaiting user instruction.";
 
+/** Window CustomEvent name dispatched whenever an `HttpFailFastError` is constructed in a UI context. */
+export const HTTP_FAIL_FAST_EVENT = "marco:http-fail-fast";
+
+/** Detail payload for the `marco:http-fail-fast` window CustomEvent. */
+export interface HttpFailFastEventDetail {
+    status: number;
+    method: string;
+    url: string;
+    reason: string;
+    bodySnippet: string | null;
+    report: string;
+    at: string;
+}
+
+const emitHttpFailFastEvent = (err: { status: number; method: string; url: string; reason: string; bodySnippet: string | null; toReportString: () => string }): void => {
+    if (typeof window === "undefined" || typeof window.dispatchEvent !== "function") return;
+    try {
+        const detail: HttpFailFastEventDetail = {
+            status: err.status,
+            method: err.method,
+            url: err.url,
+            reason: err.reason,
+            bodySnippet: err.bodySnippet,
+            report: err.toReportString(),
+            at: new Date().toISOString(),
+        };
+        window.dispatchEvent(new CustomEvent(HTTP_FAIL_FAST_EVENT, { detail }));
+    } catch { /* allow-swallow: event dispatch is best-effort UI surfacing */ }
+};
+
 export interface HttpCallContext {
     method: string;
     url: string;
