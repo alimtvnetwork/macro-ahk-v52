@@ -764,8 +764,9 @@ function loadAndRender(el: HTMLElement, wsId: string, wsName: string): void {
 export function showWsMembersPanel(wsId: string, wsName: string, x: number, y: number): void {
   if (!wsId) return;
   const el = ensurePanelEl();
-  // Reset attach state before re-rendering for a different workspace.
+  // Reset attach state + page-size before re-rendering for a different workspace.
   detachDismissHandlers();
+  (el as HTMLElement & PanelHandlerStore)._marcoMembersLimit = DEFAULT_MEMBERS_PAGE_LIMIT;
   attachActionHandlers(el, wsId, wsName);
   loadAndRender(el, wsId, wsName);
   // First render to measure, then position.
