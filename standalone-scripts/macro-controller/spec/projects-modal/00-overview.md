@@ -31,17 +31,15 @@ The footer **Export CSV** button performs a *second*, per-project pass:
 
 User reports `GET /projects/{projectId}` returns **HTTP 405 Method Not Allowed**.
 
-**Diagnosis**: the route `/projects/{projectId}` is not exposed on the public REST API surface used by `CREDIT_API_BASE`. Project metadata is fetched through a different channel on lovable.dev (likely a tRPC / GraphQL POST endpoint embedded in the web app, not a public REST GET).
+**Diagnosis (Step 2, decided 2026-05-22 — see `.lovable/question-and-ambiguity/52-projects-get-405.md`)**: all sibling routes work (`/projects/{id}/move-to-workspace`, `/mark-viewed`, `/workspace`, `/remix/init`), so the API server reserves the bare `GET /projects/{projectId}` for non-GET verbs (likely `DELETE` / `PATCH`). `projects.list` already returns rich objects per project (`{ id, name, ... }`) and almost certainly includes the same git/activity fields the dashboard renders.
 
-**Options** (to be confirmed in Step 2 by inspecting the live request):
+**Decision**: drop `projects.get`. Enrich CSV rows directly from the `projects.list` response. This eliminates the 405, removes N extra HTTP calls per export, and makes the throttle setting (Step 8) optional. If a future requirement needs per-project deep metadata that `list` doesn't carry, revisit and switch to the tRPC endpoint.
 
-| Option | Action | Trade-off |
-|---|---|---|
-| A. Drop `projects.get` entirely | Use only `projects.list` data (id + name + whatever list returns); leave `gitRepo`/`gitBranch`/`lastCommunication` columns blank | Simplest. CSV loses git columns. |
-| B. Switch to the page-context fetch | Issue the request from the page's own session (DOM-injected fetch with the page's auth cookie) | More reliable on lovable.dev; risk of breakage if path changes. |
-| C. Inspect & switch endpoint | Capture the actual URL the lovable.dev dashboard uses (likely `POST /api/trpc/project.getById` or similar), update `apiRegistry.projects.get` | Best fidelity. Requires Step 2 network capture. |
-
-**Provisional recommendation**: Option C, falling back to A if no endpoint can be confirmed.
+Implementation deferred to Step 3:
+1. Inspect one live `projects.list` response, confirm field names.
+2. Extend `ProjectEntry` with `githubRepo`, `githubBranch`, `lastMessageAt`.
+3. Delete `apiRegistry.projects.get`, `api.projects.get`, and `fetchProjectGitInfo()`.
+4. CSV columns sourced directly from `ProjectEntry`.
 
 ## 4. Why some CSV rows show ID instead of name
 
