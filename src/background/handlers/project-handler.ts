@@ -341,6 +341,18 @@ export async function handleDeleteProject(
     return { isOk: true };
 }
 
+/**
+ * Returns the last auto-attach evaluation decisions for a project so the
+ * Project Detail UI can render per-script skip reasons.
+ */
+export async function handleGetAutoAttachDecisions(
+    message: MessageRequest,
+): Promise<{ record: PersistedAutoAttachRecord | null }> {
+    const { projectId } = message as { projectId: string };
+    const result = await chrome.storage.local.get(STORAGE_KEY_AUTO_ATTACH_DECISIONS);
+    const map = (result[STORAGE_KEY_AUTO_ATTACH_DECISIONS] as Record<string, PersistedAutoAttachRecord> | undefined) ?? {};
+    return { record: map[projectId] ?? null };
+
 /** Clears active project if the deleted ID was active. */
 async function clearActiveIfDeleted(
     deletedId: string,
