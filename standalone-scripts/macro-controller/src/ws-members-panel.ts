@@ -511,6 +511,11 @@ function attachActionHandlers(el: HTMLElement, wsId: string, wsName: string): vo
       const role = (target.getAttribute('data-marco-user-role') || 'member').toLowerCase();
       const label = target.getAttribute('data-marco-user-label') || userId;
       openMemberActionMenu(el, target, wsId, wsName, userId, role, label);
+    } else if (action === 'copy') {
+      e.stopPropagation();
+      const value = target.getAttribute('data-marco-copy-value') || '';
+      const lbl = target.getAttribute('data-marco-copy-label') || 'Value';
+      copyToClipboard(value, lbl);
     }
   };
 
