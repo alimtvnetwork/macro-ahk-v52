@@ -429,7 +429,15 @@ export async function loadBundledDefaultPrompts(): Promise<PromptEntry[] | null>
     try {
         const url = chrome.runtime.getURL("prompts/macro-prompts.json");
         const response = await fetch(url);
-        if (!response.ok) return null;
+        if (!response.ok) {
+            // HEFF: bundled asset missing/mis-served. No retry; log and return null.
+            logSampledDebug(
+                BgLogTag.PROMPTS,
+                "loadBundledDefaults",
+                `HEFF: HTTP ${response.status} on GET ${url} — bundled prompts missing. Loop halted.`,
+            );
+            return null;
+        }
 
         const parsed = await response.json() as { prompts?: RawDefaultPromptEntry[] } | RawDefaultPromptEntry[];
         const rawEntries: RawDefaultPromptEntry[] = Array.isArray(parsed)
