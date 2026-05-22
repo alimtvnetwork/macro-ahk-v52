@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
-## [v3.6.0] — 2025-05-22
+## [v3.6.0] — 2025-05-22 Minor Version Bump and Fixes
 
 ### Added
 - New prompts: `logo-create` (18) and `proof-read` (19) in the standalone script prompt library.
