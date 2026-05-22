@@ -714,6 +714,8 @@ function loadAndRender(el: HTMLElement, wsId: string, wsName: string): void {
   fetchWorkspaceMembers(wsId)
     .then(function (entry) {
       if (!document.getElementById(PANEL_ID)) return; // panel was closed
+      const store = el as HTMLElement & PanelHandlerStore;
+      store._marcoMembersLatest = { wsName: wsName, members: entry.members, total: entry.total };
       render(el, wsName, { kind: 'success', members: entry.members, total: entry.total });
     })
     .catch(function (err: unknown) {
