@@ -164,6 +164,9 @@ async function probeUrl(url) {
 }
 
 async function checkBadgeUrls(badges) {
+  // HEFF: probe sequentially; first non-2xx (after the HEAD→GET probe pair,
+  // which is a single probe by design) HALTS the loop and the caller exits 1.
+  // Do NOT continue probing more badges after a failure.
   let allOk = true;
   console.log("\n## URL reachability\n");
   for (const b of badges) {
@@ -182,7 +185,14 @@ async function checkBadgeUrls(badges) {
     if (r.error) {
       console.log(`         → error:    ${r.error}`);
     }
-    if (!r.ok) allOk = false;
+    if (!r.ok) {
+      allOk = false;
+      console.log(
+        `\n[HEFF] HTTP ${r.status} on ${r.method} ${b.shieldsUrl} — badge probe halted. ` +
+        `Awaiting user instruction. Skipping remaining ${badges.length - badges.indexOf(b) - 1} badge(s).`,
+      );
+      break;
+    }
   }
   return allOk;
 }
