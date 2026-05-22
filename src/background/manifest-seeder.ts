@@ -246,6 +246,14 @@ async function seedScriptsFromManifest(
     return { seeded, errors };
 }
 
+/**
+ * Extracts target-url glob patterns from the seed project so auto-attach
+ * (mem://features/auto-attach-policy.md, C2) has data to match against.
+ */
+function extractUrlMatches(project: SeedProjectEntry): string[] {
+    return (project.TargetUrls ?? []).map((t) => t.Pattern);
+}
+
 function buildStoredScript(def: SeedScriptEntry, project: SeedProjectEntry, manifest: SeedManifest): StoredScript {
     const now = new Date().toISOString();
     return {
@@ -266,6 +274,7 @@ function buildStoredScript(def: SeedScriptEntry, project: SeedProjectEntry, mani
         configBinding: resolveConfigSeedId(def.ConfigBinding, project),
         themeBinding: resolveConfigSeedId(def.ThemeBinding, project),
         cookieBinding: def.CookieBinding,
+        urlMatches: extractUrlMatches(project),
         createdAt: now,
         updatedAt: now,
     };
@@ -293,6 +302,7 @@ function refreshStoredScript(
         configBinding: resolveConfigSeedId(def.ConfigBinding, project),
         themeBinding: resolveConfigSeedId(def.ThemeBinding, project),
         cookieBinding: def.CookieBinding,
+        urlMatches: extractUrlMatches(project),
         updatedAt: new Date().toISOString(),
     };
 }
@@ -314,9 +324,11 @@ function isScriptStale(
         current.cookieBinding !== def.CookieBinding ||
         current.configBinding !== resolveConfigSeedId(def.ConfigBinding, project) ||
         current.themeBinding !== resolveConfigSeedId(def.ThemeBinding, project) ||
-        JSON.stringify(current.dependencies ?? []) !== JSON.stringify(resolveDependencyIds(manifest, project))
+        JSON.stringify(current.dependencies ?? []) !== JSON.stringify(resolveDependencyIds(manifest, project)) ||
+        JSON.stringify(current.urlMatches ?? []) !== JSON.stringify(extractUrlMatches(project))
     );
 }
+
 
 /* ------------------------------------------------------------------ */
 /*  Config Seeding                                                     */

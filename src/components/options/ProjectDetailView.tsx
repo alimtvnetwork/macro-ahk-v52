@@ -63,6 +63,7 @@ import type { StoredProject, StoredScript, StoredConfig } from "@/hooks/use-proj
 import { DEFAULT_CHATBOX_XPATH } from "@/shared/defaults";
 import { ProjectScriptSelector, type ScriptBinding } from "./ProjectScriptSelector";
 import { DevGuideSection } from "./DevGuideSection";
+import { AutoAttachDiagnosticsPanel } from "./AutoAttachDiagnosticsPanel";
 import { slugify, toCodeName, toSdkNamespace } from "@/lib/slug-utils";
 import { generateLlmGuide } from "@/lib/generate-llm-guide";
 import { exportKnowledgeBase } from "@/lib/developer-guide-bundle";
@@ -238,6 +239,11 @@ export function ProjectDetailView({ project, allProjects, availableScripts, avai
             </TabsContent>
 
             <TabsContent value="scripts" className="mt-4" forceMount={activeTab === "scripts" ? true : undefined}>
+              <AutoAttachDiagnosticsPanel
+                projectId={project.id}
+                autoStart={project.settings?.autoStart === true}
+                refreshKey={project.updatedAt ? new Date(project.updatedAt).getTime() : 0}
+              />
               <ScriptsTabContent
                 project={project}
                 availableScripts={availableScripts}

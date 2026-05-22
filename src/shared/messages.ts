@@ -32,6 +32,7 @@ export enum MessageType {
     DUPLICATE_PROJECT = "DUPLICATE_PROJECT",
     IMPORT_PROJECT = "IMPORT_PROJECT",
     EXPORT_PROJECT = "EXPORT_PROJECT",
+    GET_AUTO_ATTACH_DECISIONS = "GET_AUTO_ATTACH_DECISIONS",
 
     // ─── Scripts & Configs (from Spec 13) ───
     GET_ALL_SCRIPTS = "GET_ALL_SCRIPTS",
@@ -443,6 +444,7 @@ export type MessageRequest =
     | { type: MessageType.DUPLICATE_PROJECT; projectId: string }
     | { type: MessageType.IMPORT_PROJECT; json: string }
     | { type: MessageType.EXPORT_PROJECT; projectId: string }
+    | { type: MessageType.GET_AUTO_ATTACH_DECISIONS; projectId: string }
     | { type: MessageType.GET_ALL_SCRIPTS }
     | { type: MessageType.SAVE_SCRIPT; script: Record<string, JsonValue> }
     | { type: MessageType.DELETE_SCRIPT; id: string }

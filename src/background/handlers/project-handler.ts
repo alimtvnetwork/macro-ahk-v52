@@ -20,7 +20,9 @@ import { ensureDefaultProjectSingleScript } from "../default-project-seeder";
 import { initProjectDb } from "../project-db-manager";
 import { seedConfigToDb } from "../config-seeder";
 import { ensureBuiltinScriptsExist } from "../builtin-script-guard";
-import { runAutoAttach } from "../auto-attach-runner";
+import { runAutoAttach, persistAutoAttachDecisions, type PersistedAutoAttachRecord } from "../auto-attach-runner";
+import { STORAGE_KEY_AUTO_ATTACH_DECISIONS } from "../../shared/constants";
+
 import {
     generateId,
     nowTimestamp,
@@ -209,13 +211,18 @@ export async function handleSaveProject(
     // Only attaches when project.settings.autoStart === true AND every C1..C8
     // condition holds for a given library script. Every skip is logged.
     const library = await readStoredScripts();
-    const { project: withAutoAttached, attached } = runAutoAttach(healed, library);
+    const { project: withAutoAttached, attached, decisions } = runAutoAttach(healed, library);
     if (attached.length > 0) {
         console.info(`${BgLogTag.SCRIPT_RESOLVER} auto-attach added ${attached.length} script(s) to project "${withAutoAttached.name}": ${attached.map((a) => a.path).join(", ")}`);
     }
 
     const saved = upsertProject(projects, withAutoAttached);
     await writeAllProjects(projects);
+
+    // Persist decisions so ProjectDetailView can render per-script skip reasons.
+    persistAutoAttachDecisions(saved, library, decisions).catch((err) =>
+        logCaughtError(BgLogTag.SCRIPT_RESOLVER, `persistAutoAttachDecisions failed for "${saved.id}"`, err),
+    );
 
     // ✅ 15.8: Rebuild namespace cache on save (fire-and-forget)
     rebuildNamespaceCache(saved).catch((err) =>
@@ -333,6 +340,18 @@ export async function handleDeleteProject(
 
     return { isOk: true };
 }
+
+/**
+ * Returns the last auto-attach evaluation decisions for a project so the
+ * Project Detail UI can render per-script skip reasons.
+ */
+export async function handleGetAutoAttachDecisions(
+    message: MessageRequest,
+): Promise<{ record: PersistedAutoAttachRecord | null }> {
+    const { projectId } = message as { projectId: string };
+    const result = await chrome.storage.local.get(STORAGE_KEY_AUTO_ATTACH_DECISIONS);
+    const map = (result[STORAGE_KEY_AUTO_ATTACH_DECISIONS] as Record<string, PersistedAutoAttachRecord> | undefined) ?? {};
+    return { record: map[projectId] ?? null };
 
 /** Clears active project if the deleted ID was active. */
 async function clearActiveIfDeleted(

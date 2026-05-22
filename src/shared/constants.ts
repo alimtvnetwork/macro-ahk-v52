@@ -20,6 +20,8 @@ export const STORAGE_KEY_STATE = "marco_state";
 export const STORAGE_KEY_FIRST_RUN = "marco_first_run";
 export const STORAGE_KEY_LEGACY_PRUNED = "marco_legacy_pruned";
 export const STORAGE_KEY_LAST_BUILD_ID = "marco_last_build_id";
+/** Per-project record of the latest auto-attach evaluation decisions. */
+export const STORAGE_KEY_AUTO_ATTACH_DECISIONS = "marco_auto_attach_decisions";
 
 /* ------------------------------------------------------------------ */
 /*  Limits                                                             */
