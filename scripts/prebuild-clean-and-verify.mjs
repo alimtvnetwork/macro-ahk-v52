@@ -61,6 +61,16 @@ function verifyStepLibrary() {
     console.log("   ✓ " + EXPECTED_STEP_LIBRARY_FILES.length + " expected files present and non-empty");
 }
 
+function runNoBareFetchLint() {
+    console.log("🔍 [prebuild-clean-and-verify] Running no-bare-fetch lint guard…");
+    const { execSync } = require("node:child_process");
+    try {
+        execSync("node scripts/lint/no-bare-fetch.mjs", { cwd: ROOT, stdio: "inherit" });
+    } catch (err) {
+        fail("no-bare-fetch lint guard failed — see output above.");
+    }
+}
+
 try {
     await waitForBuildLock();
 } catch (err) {
