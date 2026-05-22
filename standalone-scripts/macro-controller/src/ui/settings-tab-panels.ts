@@ -9,7 +9,9 @@
 
 import { taskNextState } from './task-next-ui';
 import { getBackdropOpacity, setBackdropOpacity } from './panel-layout';
-import { getSettingsOverrides } from '../settings-store';
+import { getSettingsOverrides, saveSettingsOverrides, type PerWorkspaceLifecycleOverride } from '../settings-store';
+import { showToast } from '../toast';
+import { logError } from '../error-utils';
 import type { ExtensionResponse, ResolvedPromptsConfig } from '../types';
 import { getLogConfig, resetLogConfig, type LogManagerConfig } from '../log-manager';
 import {
@@ -23,6 +25,9 @@ import {
   cPrimaryLight,
   cSectionHeader,
   cWarning,
+  cInputBg,
+  cInputBorder,
+  cInputFg,
   state,
 } from '../shared-state';
 import type { SettingsDeps, MakeFieldFn } from './settings-ui';
@@ -309,10 +314,195 @@ export function buildGeneralPanel(
 
   const toggles = _buildOverrideToggles(panel);
 
+  panel.appendChild(_buildPerWorkspaceEditor());
   panel.appendChild(_buildBackdropSlider());
   panel.appendChild(_buildVersionInfo());
 
   return { panel, inputs, toggles };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Per-workspace lifecycle overrides editor                           */
+/* ------------------------------------------------------------------ */
+
+function _buildPerWorkspaceEditor(): HTMLElement {
+  const section = document.createElement('div');
+  section.style.cssText = 'margin-top:14px;';
+
+  const title = document.createElement('div');
+  title.style.cssText = CssFragment.FontSize11pxFontWeight700Color + cSectionHeader
+    + ';margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;';
+  title.textContent = 'Per-Workspace Lifecycle Overrides';
+  section.appendChild(title);
+
+  const hint = document.createElement('div');
+  hint.style.cssText = 'font-size:9px;color:#64748b;margin-bottom:6px;';
+  hint.textContent = 'Tune expiry grace + refill warning for individual workspaces. Leave a field empty to fall back to the global value.';
+  section.appendChild(hint);
+
+  const list = document.createElement('div');
+  list.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+  section.appendChild(list);
+
+  const addRow = _buildPerWsAddRow(function () { _renderPerWsList(list); });
+  section.appendChild(addRow);
+
+  _renderPerWsList(list);
+  return section;
+}
+
+function _renderPerWsList(list: HTMLElement): void {
+  list.innerHTML = '';
+  const overrides = getSettingsOverrides();
+  const map = overrides.perWorkspace || {};
+  const ids = Object.keys(map).sort();
+  if (ids.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'font-size:10px;color:#64748b;padding:6px 0;font-style:italic;';
+    empty.textContent = 'No per-workspace overrides set.';
+    list.appendChild(empty);
+    return;
+  }
+  for (const wsId of ids) {
+    list.appendChild(_buildPerWsRow(wsId, map[wsId], function () { _renderPerWsList(list); }));
+  }
+}
+
+function _buildPerWsRow(
+  wsId: string,
+  entry: PerWorkspaceLifecycleOverride,
+  onChange: () => void,
+): HTMLElement {
+  const row = document.createElement('div');
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 70px 70px auto;gap:6px;align-items:center;'
+    + 'padding:5px 6px;border:1px solid ' + cPanelBorder + ';border-radius:5px;background:' + cPanelBgAlt + ';';
+
+  const idLabel = document.createElement('div');
+  idLabel.style.cssText = 'font-family:monospace;font-size:10px;color:' + cPanelText + ';'
+    + 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+  idLabel.title = wsId;
+  idLabel.textContent = wsId;
+  row.appendChild(idLabel);
+
+  const graceInp = _numField(entry.expiryGracePeriodDays, 'grace');
+  const refillInp = _numField(entry.refillWarningThresholdDays, 'refill');
+  row.appendChild(graceInp);
+  row.appendChild(refillInp);
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.textContent = '✕';
+  removeBtn.title = 'Remove override';
+  removeBtn.style.cssText = 'background:transparent;border:1px solid ' + cPanelBorder
+    + ';color:' + cWarning + ';font-size:11px;padding:2px 7px;border-radius:4px;cursor:pointer;';
+  removeBtn.onclick = function (): void {
+    void _persistPerWs(function (map) { delete map[wsId]; })
+      .then(function () { showToast('Removed override for ' + wsId, 'info'); onChange(); });
+  };
+  row.appendChild(removeBtn);
+
+  const commit = function (): void {
+    const grace = graceInp.value.trim() === '' ? undefined : Number(graceInp.value);
+    const refill = refillInp.value.trim() === '' ? undefined : Number(refillInp.value);
+    void _persistPerWs(function (map) {
+      const next: PerWorkspaceLifecycleOverride = {};
+      if (typeof grace === 'number' && Number.isFinite(grace) && grace >= 0) {
+        next.expiryGracePeriodDays = Math.floor(grace);
+      }
+      if (typeof refill === 'number' && Number.isFinite(refill) && refill >= 0) {
+        next.refillWarningThresholdDays = Math.floor(refill);
+      }
+      if (next.expiryGracePeriodDays === undefined && next.refillWarningThresholdDays === undefined) {
+        delete map[wsId];
+      } else {
+        map[wsId] = next;
+      }
+    });
+  };
+  graceInp.onchange = commit;
+  refillInp.onchange = commit;
+
+  return row;
+}
+
+function _buildPerWsAddRow(onAdded: () => void): HTMLElement {
+  const row = document.createElement('div');
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 70px 70px auto;gap:6px;align-items:center;margin-top:8px;';
+
+  const idInp = document.createElement('input');
+  idInp.type = 'text';
+  idInp.placeholder = 'Workspace ID (UUID)';
+  idInp.style.cssText = 'padding:4px 6px;border:1px solid ' + cInputBorder + ';border-radius:4px;'
+    + 'background:' + cInputBg + ';color:' + cInputFg + ';font-family:monospace;font-size:10px;';
+  row.appendChild(idInp);
+
+  const graceInp = _numField(undefined, 'grace');
+  graceInp.placeholder = 'grace';
+  const refillInp = _numField(undefined, 'refill');
+  refillInp.placeholder = 'refill';
+  row.appendChild(graceInp);
+  row.appendChild(refillInp);
+
+  const addBtn = document.createElement('button');
+  addBtn.type = 'button';
+  addBtn.textContent = '+ Add';
+  addBtn.style.cssText = 'background:' + cPrimary + ';border:none;color:#fff;font-size:11px;'
+    + 'padding:3px 10px;border-radius:4px;cursor:pointer;font-weight:600;';
+  addBtn.onclick = function (): void {
+    const wsId = idInp.value.trim();
+    if (!wsId) { showToast('Enter a workspace id first', 'warn'); return; }
+    const grace = graceInp.value.trim() === '' ? undefined : Number(graceInp.value);
+    const refill = refillInp.value.trim() === '' ? undefined : Number(refillInp.value);
+    if (grace === undefined && refill === undefined) {
+      showToast('Set at least one of grace / refill', 'warn');
+      return;
+    }
+    void _persistPerWs(function (map) {
+      const next: PerWorkspaceLifecycleOverride = {};
+      if (typeof grace === 'number' && Number.isFinite(grace) && grace >= 0) {
+        next.expiryGracePeriodDays = Math.floor(grace);
+      }
+      if (typeof refill === 'number' && Number.isFinite(refill) && refill >= 0) {
+        next.refillWarningThresholdDays = Math.floor(refill);
+      }
+      map[wsId] = next;
+    }).then(function () {
+      showToast('Added override for ' + wsId, 'success');
+      idInp.value = '';
+      graceInp.value = '';
+      refillInp.value = '';
+      onAdded();
+    });
+  };
+  row.appendChild(addBtn);
+  return row;
+}
+
+function _numField(initial: number | undefined, kind: 'grace' | 'refill'): HTMLInputElement {
+  const inp = document.createElement('input');
+  inp.type = 'number';
+  inp.min = '0';
+  inp.step = '1';
+  inp.value = typeof initial === 'number' ? String(initial) : '';
+  inp.title = kind === 'grace' ? 'Expiry grace period (days)' : 'Refill warning threshold (days)';
+  inp.style.cssText = 'padding:4px 6px;border:1px solid ' + cInputBorder + ';border-radius:4px;'
+    + 'background:' + cInputBg + ';color:' + cInputFg + ';font-family:monospace;font-size:10px;width:100%;box-sizing:border-box;';
+  return inp;
+}
+
+async function _persistPerWs(
+  mutate: (map: Record<string, PerWorkspaceLifecycleOverride>) => void,
+): Promise<void> {
+  try {
+    const current = getSettingsOverrides();
+    const map: Record<string, PerWorkspaceLifecycleOverride> = { ...(current.perWorkspace || {}) };
+    mutate(map);
+    await saveSettingsOverrides({ ...current, perWorkspace: map });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    logError('PerWsOverridesEditor', 'persist failed: ' + msg);
+    showToast('❌ Save failed: ' + msg, 'error');
+  }
 }
 
 function _buildOverrideToggles(panel: HTMLElement): Record<string, HTMLInputElement> {

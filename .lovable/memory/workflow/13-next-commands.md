@@ -80,7 +80,8 @@ Trigger phrases the user may type to query this file:
 
 - [x] 2026-05-22 — **Expose more keys** — added Settings → General toggles for `enableCanceledCreditOverride`, `enableWorkspaceStatusLabels`, `enableWorkspaceHoverDetails`; persisted via `saveSettingsOverrides`; lifecycle resolver honors user override over JSON config.
 - [x] 2026-05-22 — **Export/import overrides** — Settings footer now has `⬇ Export` (downloads `marco-settings-overrides-<ts>.json`) and `⬆ Import` (file picker, validates `kind`, persists via `saveSettingsOverrides`).
-- [x] 2026-05-22 — **Per-workspace overrides** — extended `SettingsOverrides.perWorkspace: Record<wsId, {expiryGracePeriodDays?, refillWarningThresholdDays?}>` with sanitizer; new `getWorkspaceLifecycleConfigFor(wsId)` resolver (per-ws → global override → JSON → constant); `credit-parser.applyLifecycleOverrides` now resolves per-row. Editor UI deferred — users currently set perWorkspace via Settings → Import JSON.
+- [x] 2026-05-22 — **Per-workspace overrides** — extended `SettingsOverrides.perWorkspace: Record<wsId, {expiryGracePeriodDays?, refillWarningThresholdDays?}>` with sanitizer; new `getWorkspaceLifecycleConfigFor(wsId)` resolver (per-ws → global override → JSON → constant); `credit-parser.applyLifecycleOverrides` now resolves per-row.
+- [x] 2026-05-22 — **Per-workspace overrides — editor UI** — Settings → General now shows a "Per-Workspace Lifecycle Overrides" section: list of existing entries (wsId + grace + refill + remove ✕) plus an Add row. Each change persists immediately via `saveSettingsOverrides` (independent of footer Save), with toast feedback and fail-fast error handling.
 
 ---
 
