@@ -21,6 +21,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
+import { logError } from "./recorder-logger";
 import { Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 
 import {

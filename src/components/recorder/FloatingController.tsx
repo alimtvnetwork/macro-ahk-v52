@@ -19,6 +19,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { logError } from "./recorder-logger";
 import {
     Activity,
     Circle,

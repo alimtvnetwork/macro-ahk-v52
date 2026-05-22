@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { logError } from "@/hooks/popup-logger";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,

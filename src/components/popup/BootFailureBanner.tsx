@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { logError } from "@/hooks/popup-logger";
 import { AlertTriangle, ChevronDown, ChevronRight, Copy, Check, Download, MousePointerClick, Code2, ListChecks, Database, Terminal, FileWarning, ShieldOff } from "lucide-react";
 import { readClickTrail, type ClickTrailEntry } from "@/lib/click-trail";
 import { useBenignWarningStats } from "@/hooks/use-benign-warning-stats";

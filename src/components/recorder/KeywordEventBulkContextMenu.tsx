@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
+import { logError } from "./recorder-logger";
 import {
     Download,
     Eye,

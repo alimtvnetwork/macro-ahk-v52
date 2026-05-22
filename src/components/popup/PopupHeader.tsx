@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- chrome runtime detection via globalThis */
 import marcoLogo from "@/assets/marco-logo.png";
+import { logError } from "@/hooks/popup-logger";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {

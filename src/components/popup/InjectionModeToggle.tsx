@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
+import { logError } from "@/hooks/popup-logger";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Bug } from "lucide-react";
