@@ -578,11 +578,13 @@ function createSearchBar(onChange: () => void): HTMLElement {
         function () { return state.filterOpenOnly; },
         function () { state.filterOpenOnly = !state.filterOpenOnly; },
     );
+    chipOpen.setAttribute('data-chip', 'open');
     const chipRepo = makeChip(
         'Has repo', 'Show only projects with a GitHub repo configured',
         function () { return state.filterHasRepo; },
         function () { state.filterHasRepo = !state.filterHasRepo; },
     );
+    chipRepo.setAttribute('data-chip', 'repo');
 
     const chipsLabel = document.createElement('span');
     chipsLabel.textContent = 'Filter:';
