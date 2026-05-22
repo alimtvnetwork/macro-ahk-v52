@@ -245,10 +245,12 @@ async function loadSqlJs(): Promise<SqlJs> {
         );
     }
     if (!wasmResponse.ok) {
+        // HEFF: single attempt, no retry.
         throw new Error(
-            `WASM fetch returned HTTP ${wasmResponse.status} for "${wasmUrl}". ` +
+            `HEFF: HTTP ${wasmResponse.status} on GET "${wasmUrl}". ` +
             `Ensure "wasm/sql-wasm.wasm" is listed in manifest.web_accessible_resources ` +
-            `and the file was copied to chrome-extension/wasm/ during the build.`,
+            `and the file was copied to chrome-extension/wasm/ during the build. ` +
+            `Loop halted. Awaiting user instruction.`,
         );
     }
 
