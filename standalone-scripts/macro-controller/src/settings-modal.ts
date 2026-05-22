@@ -127,6 +127,16 @@ function buildHtml(state: ModalState): string {
           jsonValue: undefined,
           defaultValue: PRO_ZERO_CACHE_TTL_DEFAULT_MIN,
         })
+    +   buildField({
+          label: 'Projects Cache TTL (hours)',
+          help: 'How long the Projects modal keeps each workspace’s project list in SQLite before refetching. Refresh button always bypasses this.',
+          valueEl: inputHtml('projectsCacheTtl', state.projectsCacheTtlInput, submittingDisabled),
+          effective: typeof getSettingsOverrides().projectsCacheTtlHours === 'number'
+            ? (getSettingsOverrides().projectsCacheTtlHours as number)
+            : DEFAULT_PROJECTS_CACHE_TTL_HOURS,
+          jsonValue: undefined,
+          defaultValue: DEFAULT_PROJECTS_CACHE_TTL_HOURS,
+        })
     +   errorHtml
     + '</div>'
     + '<div style="padding:10px 14px;border-top:1px solid ' + cPanelBorder + ';display:flex;justify-content:space-between;gap:8px;background:rgba(0,0,0,0.20);">'
