@@ -32,6 +32,7 @@ Updated: just now
 
 ## Memories
 - [⛔ readme.txt prohibitions (SP-1..SP-8)](mem://constraints/readme-txt-prohibitions) — Sequenced hard ban; honor one-shot explicit writes only; mirrors strictly-avoid.md and spec/01-spec-authoring-guide/09-exceptions.md
+- [Auto-attach policy](mem://features/auto-attach-policy) — Auto-attach only when `project.autoStart === true`; body `data-marco-injected` CSV marker for already-injected detection
 - [Chrome-extension dist path](mem://constraints/chrome-extension-dist-path) — Extension build output is `chrome-extension/` itself (NOT `chrome-extension/dist/`); release/CI must never reference legacy `/dist` subpath. RCA for v2.242.0 missing-asset regression.
 - [Release assets publish contract](mem://constraints/release-assets-publish-contract) — GitHub Release must contain built ZIPs/installers/checksums/notes; tag/source archives alone are invalid; workflow_dispatch must check out requested tag and notes must exclude current tag from previous-tag range.
 - [URL trigger + sentinel cache](mem://architecture/url-trigger-sentinel-cache) — v2.244.0: only 3 URL re-eval triggers (load/refresh/activate), per-tab `tabDecisionCache` fingerprint gate, `__marco_sentinel__` DOM marker; no polling, no retry, never throw from listener.
