@@ -12,7 +12,7 @@
 
 import { cPanelBg, cPanelFg, cPanelBorder, cPrimaryLight, lDropdownRadius } from './shared-state';
 import { showRemixModal } from './remix-modal';
-import { getRemixConfig } from './remix-config';
+import { getRemixConfig, openRemixRedirect } from './remix-config';
 import { fetchWorkspaceProjectNames, submitRemix } from './remix-fetch';
 import { resolveNextName } from './remix-name-resolver';
 import { showToast } from './toast';
@@ -62,7 +62,7 @@ export async function actionRemixNext(ctx: RemixActionContext): Promise<void> {
     });
     showToast('✅ Remixed → "' + name + '"', 'success');
     if (result.redirectUrl) {
-      window.open(result.redirectUrl, '_blank', 'noopener');
+      openRemixRedirect(result.redirectUrl);
     }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);

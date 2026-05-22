@@ -10,6 +10,7 @@
  *   remix.defaultIncludeCustomKnowledge  (boolean)
  *   remix.nextSuffixSeparator            (string, e.g. '-' or '')
  *   remix.maxCollisionIncrements         (number, safety cap)
+ *   remix.openInCurrentTab               (boolean) — when true, redirect navigates current tab
  */
 
 import {
@@ -17,6 +18,7 @@ import {
   DEFAULT_REMIX_INCLUDE_CUSTOM_KNOWLEDGE,
   DEFAULT_REMIX_NEXT_SUFFIX_SEPARATOR,
   DEFAULT_REMIX_NEXT_MAX_COLLISION_INCREMENTS,
+  DEFAULT_REMIX_OPEN_IN_CURRENT_TAB,
 } from './constants';
 
 export interface RemixConfig {
@@ -24,6 +26,7 @@ export interface RemixConfig {
   defaultIncludeCustomKnowledge: boolean;
   nextSuffixSeparator: string;
   maxCollisionIncrements: number;
+  openInCurrentTab: boolean;
 }
 
 interface RemixConfigInput {
@@ -31,6 +34,7 @@ interface RemixConfigInput {
   defaultIncludeCustomKnowledge?: boolean;
   nextSuffixSeparator?: string;
   maxCollisionIncrements?: number;
+  openInCurrentTab?: boolean;
 }
 
 function readRaw(): Partial<RemixConfigInput> {
@@ -55,5 +59,22 @@ export function getRemixConfig(): RemixConfig {
     maxCollisionIncrements: typeof raw.maxCollisionIncrements === 'number' && raw.maxCollisionIncrements > 0
       ? Math.floor(raw.maxCollisionIncrements)
       : DEFAULT_REMIX_NEXT_MAX_COLLISION_INCREMENTS,
+    openInCurrentTab: typeof raw.openInCurrentTab === 'boolean'
+      ? raw.openInCurrentTab
+      : DEFAULT_REMIX_OPEN_IN_CURRENT_TAB,
   };
+}
+
+/**
+ * Navigate to a remix redirect URL honoring the `openInCurrentTab` toggle.
+ * - true  → replaces current tab (window.location.href)
+ * - false → opens a new tab (window.open with noopener)
+ */
+export function openRemixRedirect(redirectUrl: string): void {
+  const cfg = getRemixConfig();
+  if (cfg.openInCurrentTab) {
+    window.location.href = redirectUrl;
+    return;
+  }
+  window.open(redirectUrl, '_blank', 'noopener');
 }

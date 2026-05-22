@@ -12,7 +12,7 @@
  */
 
 import { cPanelBg, cPanelFg, cPanelBorder, cPrimary, cPrimaryLight, lDropdownRadius } from './shared-state';
-import { getRemixConfig } from './remix-config';
+import { getRemixConfig, openRemixRedirect } from './remix-config';
 import { submitRemix } from './remix-fetch';
 import { showToast } from './toast';
 import { logError } from './error-utils';
@@ -205,7 +205,7 @@ export function showRemixModal(opts: RemixModalOpts): void {
       showToast('🔀 Remixed → "' + projectName + '"', 'success');
       hideRemixModal();
       if (result.redirectUrl) {
-        window.open(result.redirectUrl, '_blank', 'noopener');
+        openRemixRedirect(result.redirectUrl);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
