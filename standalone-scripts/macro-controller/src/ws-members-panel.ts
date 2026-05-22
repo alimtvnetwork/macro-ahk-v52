@@ -124,11 +124,17 @@ function memberRowHtml(m: WorkspaceMember, idx: number): string {
     +   '</div>'
     + '</div>'
     + '<div style="display:flex;justify-content:space-between;gap:8px;font-size:10px;color:#94a3b8;padding-left:42px;">'
-    +   '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + escHtml(m.email) + '">' + escHtml(m.email || '—') + '</span>'
+    +   (m.email
+          ? '<span data-marco-action="copy" data-marco-copy-value="' + escHtml(m.email) + '" data-marco-copy-label="Email" '
+            + 'style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;" '
+            + 'title="Click to copy email: ' + escHtml(m.email) + '">' + escHtml(m.email) + '</span>'
+          : '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">—</span>')
     +   '<span title="Credits used this billing period">Period: ' + billingCredits + '</span>'
     + '</div>'
     + '<div style="display:flex;justify-content:space-between;gap:8px;font-size:9px;color:#64748b;padding-left:42px;">'
-    +   '<span title="@username · user_id ' + escHtml(m.user_id) + '">@' + escHtml(m.username || '—') + '</span>'
+    +   '<span data-marco-action="copy" data-marco-copy-value="' + escHtml(m.user_id) + '" data-marco-copy-label="User ID" '
+    +     'style="cursor:pointer;" '
+    +     'title="Click to copy user_id: ' + escHtml(m.user_id) + '">@' + escHtml(m.username || '—') + '</span>'
     +   '<span>Joined ' + escHtml(joined) + ' · Invited ' + escHtml(invited) + '</span>'
     + '</div>'
     + '</div>';
