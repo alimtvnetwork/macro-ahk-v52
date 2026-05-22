@@ -10,7 +10,7 @@ import { CreditSource } from './types';
 import { calcTotalCredits, calcAvailableCredits } from './credit-api';
 import { loopCreditState, state } from './shared-state';
 import { getEffectiveStatus, shouldApplyCanceledOverride, applyCanceledCreditOverride } from './workspace-status';
-import { getWorkspaceLifecycleConfig } from './workspace-lifecycle-config';
+import { getWorkspaceLifecycleConfig, getWorkspaceLifecycleConfigFor } from './workspace-lifecycle-config';
 import { getSettingsOverrides } from './settings-store';
 import { enrichProZeroWorkspaces } from './pro-zero/pro-zero-enrichment';
 
@@ -213,7 +213,6 @@ function parseWorkspaceItem(rawItem: Record<string, unknown>, wsIdx: number): im
 // Idempotent — re-running on the same array is a no-op.
 // ============================================
 function applyLifecycleOverrides(perWs: import('./types').WorkspaceCredit[]): void {
-  const cfg = getWorkspaceLifecycleConfig();
   // Default true — only opt-out disables the override.
   const enabled = getSettingsOverrides().enableCanceledCreditOverride !== false;
   if (!enabled) {
@@ -222,7 +221,9 @@ function applyLifecycleOverrides(perWs: import('./types').WorkspaceCredit[]): vo
   }
   let overridden = 0;
   for (const ws of perWs) {
-    const status = getEffectiveStatus(ws, cfg);
+    // Per-workspace override (grace/refill) trumps global cfg for this row.
+    const wsCfg = getWorkspaceLifecycleConfigFor(ws.id);
+    const status = getEffectiveStatus(ws, wsCfg);
     if (!shouldApplyCanceledOverride(status)) continue;
     const beforeAvail = ws.available || 0;
     const beforeBilling = ws.billingAvailable || 0;

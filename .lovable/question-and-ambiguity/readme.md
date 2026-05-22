@@ -4,3 +4,4 @@ Active under No-Questions Mode (opened 2026-04-26). Each entry records an ambigu
 
 - [20 — Member-management endpoints (invite / remove / promote)](./20-member-management-endpoints.md) — Recommend Option A: assume conventional REST `/workspaces/{wsId}/memberships[/{userId}]` shape and patch on first 404.
 - [50 — ProjectGroupMember.ProjectId contract (number vs UUID)](./50-project-group-member-id-contract.md) — Recommend Option C: fix the useEffect bug now, defer drag-to-assign until logs.db migration v8 normalizes ProjectId to UUID.
+- [51 — Bulk Remix Next: target scope](./51-bulk-remix-next-scope.md) — Recommend Option A: iterate checked workspace rows (rename feature to "Bulk Remix Next across checked workspaces"); deferred this loop.
