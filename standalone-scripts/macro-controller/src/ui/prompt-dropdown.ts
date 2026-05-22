@@ -162,7 +162,7 @@ function _renderFresh(
   _persistSnapshot(promptsDropdown, entries, dataHash, categoryFilter);
 }
 
-/** Append header, Task Next submenu, and category filter bar. */
+/** Append header, Task Next + Plan Task + Filter inline menus. */
 function _appendHeaderAndSubmenu(
   container: HTMLElement,
   entries: LoaderPromptEntry[],
@@ -171,22 +171,9 @@ function _appendHeaderAndSubmenu(
 ): void {
   container.appendChild(buildDropdownHeader(ctx, taskNextDeps));
   renderTaskNextSubmenu(container, ctx, taskNextDeps);
-
+  renderPlanTaskSubmenu(container, ctx);
   const categories = collectUniqueCategories(entries);
-  if (categories.length > 0) {
-    container.appendChild(_buildFilterBar(categories, ctx, taskNextDeps));
-  }
-}
-
-/** Build the category filter chip bar. */
-function _buildFilterBar(categories: string[], ctx: PromptContext, taskNextDeps: TaskNextDeps): HTMLElement {
-  const filterBar = document.createElement('div');
-  filterBar.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;padding:6px 8px;border-bottom:1px solid rgba(124,58,237,0.2);';
-  filterBar.appendChild(makeFilterChip('All', '', ctx, taskNextDeps));
-  for (const cat of categories) {
-    filterBar.appendChild(makeFilterChip(cat, cat.toLowerCase(), ctx, taskNextDeps));
-  }
-  return filterBar;
+  renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
 }
 
 /** Append filtered prompt items or empty-category message. */
