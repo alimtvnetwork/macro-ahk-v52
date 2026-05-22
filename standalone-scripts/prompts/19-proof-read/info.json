@@ -1,0 +1,12 @@
+{
+  "Id": "default-proof-read",
+  "Title": "Proofread / Rewrite",
+  "Slug": "proof-read",
+  "Version": "1.0.0",
+  "Author": "marco",
+  "Categories": ["writing"],
+  "IsDefault": true,
+  "Order": 19,
+  "CreatedAt": "2026-05-22T00:00:00Z",
+  "UpdatedAt": "2026-05-22T00:00:00Z"
+}

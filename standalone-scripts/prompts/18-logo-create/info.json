@@ -1,0 +1,12 @@
+{
+  "Id": "default-logo-create",
+  "Title": "Logo Create",
+  "Slug": "logo-create",
+  "Version": "1.0.0",
+  "Author": "marco",
+  "Categories": ["assets"],
+  "IsDefault": true,
+  "Order": 18,
+  "CreatedAt": "2026-05-22T00:00:00Z",
+  "UpdatedAt": "2026-05-22T00:00:00Z"
+}
