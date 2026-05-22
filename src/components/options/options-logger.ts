@@ -64,10 +64,12 @@ export function logError(scope: string, message: string, caught?: unknown): void
             errorCode: scope.toUpperCase().replace(/[^A-Z0-9_]+/g, "_"),
             message: composed,
             stackTrace: safeStack(caught),
-        } as Parameters<typeof sendMessage>[0]).catch(() => {
-            /* Background not reachable (preview / SW asleep) — already on console. */
+        } as Parameters<typeof sendMessage>[0]).catch((bgErr: unknown) => {
+            /* Background not reachable (preview / SW asleep) — already on console. Use console.warn so the dropped forward is visible without recursing back into logError. */
+            console.warn(`[${fullScope}] LOG_ERROR forward failed (background unreachable) — entry was logged to console only`, bgErr);
         });
-    } catch {
-        /* sendMessage threw synchronously — already on console. */
+    } catch (caught2) {
+        /* sendMessage threw synchronously — already on console. Surface via console.warn (cannot recurse into logError). */
+        console.warn(`[${fullScope}] sendMessage threw synchronously — LOG_ERROR forward skipped`, caught2);
     }
 }
