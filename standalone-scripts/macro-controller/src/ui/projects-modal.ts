@@ -74,10 +74,15 @@ interface ModalState {
     searchQuery: string;
     /** Workspace IDs whose section is collapsed. Persisted across opens. */
     collapsed: Set<string>;
+    /** Show only projects whose tab is currently open. */
+    filterOpenOnly: boolean;
+    /** Show only projects that have a GitHub repo configured. */
+    filterHasRepo: boolean;
 }
 const state: ModalState = {
     blocks: [], tabIndex: null, exporting: false,
     searchQuery: '', collapsed: new Set<string>(),
+    filterOpenOnly: false, filterHasRepo: false,
 };
 
 const COLLAPSED_STORAGE_KEY = 'marco_projects_modal_collapsed_v1';
