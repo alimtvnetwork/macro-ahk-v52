@@ -26,7 +26,7 @@ Trigger phrases the user may type to query this file:
 
 ---
 
-## P1 — Blocked / High Priority
+## P0 — Blocked / High Priority
 
 - [ ] **UI issue — prompt section near buttons** — User reports clicking the prompt section near buttons does not open properly. Screenshot appears to show Lovable platform chatbox prompt picker, which is not editable from this project. **Blocked on clarification:** identify which extension component (Options, popup, injected panel) has the issue, or confirm this is platform-side.
 - [x] **Test infra fix** — macro-controller has no vitest suite; item was stale (2026-05-22).
