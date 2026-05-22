@@ -61,17 +61,6 @@ const FILE_WHITELIST = new Map([
 ]);
 
 // ---------------------------------------------------------------------------
-// Pattern whitelist: line-level regexes that make a fetch call safe.
-// ---------------------------------------------------------------------------
-const LINE_WHITELIST = [
-    // fetch() inside a string/template (e.g., generated code, comments)
-    /[`'"][^`'"]*fetch\(/,
-
-    // fetch inside a JSDoc / comment line
-    /^\s*[*/].*fetch\(/,
-];
-
-// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -80,7 +69,6 @@ function walk(dir, files = []) {
         const abs = join(dir, entry);
         const s = statSync(abs);
         if (s.isDirectory()) {
-            // Skip hidden dirs, node_modules, dist, .release, skipped
             if (entry.startsWith(".") || entry === "node_modules" || entry === "dist" || entry === ".release" || entry === "skipped") {
                 continue;
             }
@@ -92,46 +80,50 @@ function walk(dir, files = []) {
     return files;
 }
 
-function isLineWhitelisted(line) {
-    for (const re of LINE_WHITELIST) {
-        if (re.test(line)) return true;
-    }
-    return false;
-}
-
 function relPath(absPath) {
     return absPath.replace(ROOT + "/", "");
 }
 
-function getNextNonCommentLine(lines, startIdx) {
-    for (let i = startIdx + 1; i < lines.length; i++) {
-        const trimmed = lines[i].trim();
-        if (trimmed === "" || trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*")) {
-            continue;
-        }
-        return { index: i, line: trimmed };
-    }
-    return null;
+function isCommentOrBlank(line) {
+    const t = line.trim();
+    return t === "" || t.startsWith("//") || (t.startsWith("*") && !t.includes("fetch(")) || t.startsWith("/*") || t.startsWith("*/");
 }
 
-function hasGuardOnNextLine(lines, fetchIdx) {
-    const next = getNextNonCommentLine(lines, fetchIdx);
-    if (!next) return false;
-    const tl = next.line;
-    // Direct httpFailFast or httpFetchOrThrow call
-    if (tl.includes("httpFailFast") || tl.includes("httpFetchOrThrow")) return true;
-    // Immediate .ok check
-    if (tl.includes(".ok")) return true;
-    // Catch block for network errors (acceptable for local asset fetches)
-    if (tl.startsWith("} catch")) return true;
+function isGlobalFetch(line) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("//")) return false;
+    // Reject method calls like .fetch( or credits.fetch(
+    if (/\.\s*fetch\s*\(/.test(trimmed)) return false;
+    // Match global fetch( or await fetch(
+    return /\bfetch\s*\(/.test(trimmed);
+}
+
+function isInsideString(line) {
+    const t = line.trim();
+    // Heuristic: if the whole line is inside backticks or quotes with fetch(
+    const backtickCount = (t.match(/`/g) || []).length;
+    const singleQuoteCount = (t.match(/'/g) || []).length;
+    const doubleQuoteCount = (t.match(/"/g) || []).length;
+    // Odd number of unescaped quotes suggests inside a string
+    if (backtickCount >= 2 && t.indexOf("fetch(") > t.indexOf("`") && t.lastIndexOf("`") > t.indexOf("fetch(")) return true;
     return false;
 }
 
-function isFetchLine(line) {
-    // Match await fetch( or fetch( but not inside strings/comments
-    const trimmed = line.trim();
-    if (trimmed.startsWith("//") || trimmed.startsWith("*")) return false;
-    return /\bfetch\s*\(/.test(trimmed);
+function hasGuardNearby(lines, fetchIdx) {
+    // Look at next few non-comment lines (allow up to 3 lines of gap for multi-line fetch())
+    let seen =  0;
+    for (let i = fetchIdx + 1; i < lines.length && seen < 6; i++) {
+        const t = lines[i].trim();
+        if (isCommentOrBlank(lines[i])) continue;
+        seen++;
+        if (t.includes("httpFailFast") || t.includes("httpFetchOrThrow")) return true;
+        if (t.includes(".ok")) return true;
+        if (t.startsWith("} catch")) return true;
+        // If we hit a new statement or closing brace before finding a guard, stop
+        if (t.startsWith("const ") || t.startsWith("let ") || t.startsWith("var ") || t.startsWith("return ")) return false;
+        if (t === "}" || t.startsWith("function ") || t.startsWith("async ")) return false;
+    }
+    return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -148,17 +140,16 @@ for (const abs of allFiles) {
     const content = readFileSync(abs, "utf-8");
     const lines = content.split("\n");
 
+    // File-level whitelist
+    if (FILE_WHITELIST.has(rel)) continue;
+
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        if (!isFetchLine(line)) continue;
-        if (isLineWhitelisted(line)) continue;
+        if (!isGlobalFetch(line)) continue;
+        if (isInsideString(line)) continue;
 
-        // File-level whitelist
-        const whitelistReason = FILE_WHITELIST.get(rel);
-        if (whitelistReason) continue;
-
-        // Already guarded on next non-comment line?
-        if (hasGuardOnNextLine(lines, i)) continue;
+        // Already guarded?
+        if (hasGuardNearby(lines, i)) continue;
 
         violations.push({ rel, line: i + 1, text: line.trim() });
     }
