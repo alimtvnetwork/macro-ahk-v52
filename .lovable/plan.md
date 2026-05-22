@@ -1,72 +1,45 @@
-# Plan — Dashboard scripts "not available" + auto-attach by URL condition
+# Plan — Prompt Section Enhancements (Macro Controller UI)
 
-## What the user is seeing
+Scope: enhancements to the prompt dropdown / prompt section inside `standalone-scripts/macro-controller/src/ui/`. Frontend/UI only — no backend changes.
 
-On the Options → Project Detail → **Scripts** tab, scripts that exist in the library appear in a "not available" state — rows render but cannot be picked or edited, and the user has to attach them by hand. The user wants scripts to be connected to projects automatically based on the URL-match condition that already exists in each script's `instruction.json`. They also want **no error swallowing** along the way.
+## Steps (15)
 
-## Hypothesis (root cause)
+1. **Audit current prompt dropdown structure.** Read `prompt-dropdown.ts`, `prompt-manager.ts`, `task-next-ui.ts`, `save-prompt-task-next.ts`, `prompt-cache.ts` to map the existing Task Next row, copy/paste header, load button, and CRUD (save/edit/delete) flow.
 
-Two independent bugs combine into the "not available" symptom:
+2. **Define the new header layout.** Decide the row of action buttons next to "Task Next": `[Task Next] [Plan Task] [Filter]`. Remove the standalone "icon to copy / icon to paste" header strip; relocate the Load button to the top of the prompt list (or just under the action row).
 
-1. **Silent binding miss.** `ScriptsTabContent.findScript(path)` in `src/components/options/ProjectDetailView.tsx` falls back to `{scriptId: s.path, code: ""}` when a saved project script no longer matches any `StoredScript.name`. The row renders empty, the user has no way to repair it, and nothing is logged.
-2. **No auto-attach.** Creating or saving a project never compares the project's URL to each script's `UrlMatches`. So even though every script declares the URL it belongs to, the project starts empty and the user must wire each one manually.
+3. **Build the `Plan Task` submenu (mirror Task Next).** New file `ui/plan-task-ui.ts` exposing the same step-count dropdown (5, 10, 15, 20, 30, 40…) using the existing inline-accordion pattern from the Task Next fix.
 
-We will confirm both before writing fix code by adding **diagnostic-only** logging first.
+4. **Author the canonical Plan prompt text.** Store in a single constant `PLAN_TASK_PROMPT_TEMPLATE` with `{N}` placeholder. Proofread copy:
 
-## Scope
+   > "Please plan this task for **{N}** steps in the current situation. Do not execute anything in this turn — your only job is to list the steps. Write the {N} steps into `.lovable/plan.md` as a spec. Also scan the `.lovable/` folder for any memory or task sections; if pending tasks exist, append them to the pending list, then resolve them one by one and mark each as done. If anything is ambiguous, ask clarifying questions before starting."
 
-In scope:
+5. **Wire Plan Task click → inject prompt.** On step-count selection, build the prompt via the template and inject it through the same path Task Next uses (`prompt-injection.ts`).
 
-- Options → Project Detail → **Scripts** tab (`ProjectDetailView.tsx`, `ProjectScriptSelector.tsx`)
-- Save path: `SAVE_PROJECT` handler in `src/background/handlers/`
-- Script library loader: `GET_ALL_SCRIPTS` + `script-resolver.ts`
+6. **Add Filter button + menu.** New file `ui/prompt-filter-menu.ts`. Button sits to the right of Plan Task. Opens an inline accordion listing all prompt categories (derived from existing prompt metadata in `prompt-cache.ts`).
 
-Out of scope (no behavior change this round):
+7. **Implement filter state.** Multi-select checkboxes; persist selection in the panel handler store (`_marcoPromptFilter: string[]`). Empty selection = show all. Apply filter when rendering the prompt list.
 
-- Popup, content scripts, recorder, webhook delivery
-- Standalone macro-controller UI
+8. **Relocate the Load button.** Remove the old copy/paste header strip. Place a single `⟳ Load prompts` button at the top of the prompt list area (sticky above the list).
 
-## Phases
+9. **Audit prompt CRUD.** Trace Save / Rename / Delete in `save-prompt.ts`, `save-prompt-dropdown.ts`, `prompt-manager.ts`. Reproduce the reported "CRUD does not work properly" issue (likely cache not refreshing after mutation, or stale DOM).
 
-### Phase 1 — Diagnose (no behavior change, ~30 min)
+10. **Fix CRUD bugs.** Ensure every mutation: (a) writes to IndexedDB cache, (b) invalidates `_marcoPromptsLatest`, (c) re-renders the list, (d) preserves current filter selection.
 
-1. Replace the silent `findScript` fallback with a `Logger.error` call that records `{ projectId, savedPath, libraryNames }`. Render an explicit `UnboundScript` row in the UI (red badge + "Re-link" button) instead of an empty row.
-2. Add a one-shot console group on `ProjectDetailView` mount logging `{ availableScripts: name[], project.scripts: path[], matched: count, unbound: name[] }`.
-3. Ship a `node scripts/audit-project-script-bindings.mjs` one-off that reads `chrome.storage` export bundles in `/dev-server/.lovable/diagnostics/*.zip` (if present) and prints the mismatch table.
+11. **Styling pass.** Match existing dark-theme tokens. New buttons use the same height/padding/border-radius as the Task Next button. No custom colors — use existing CSS vars.
 
-**Exit criteria:** the user reloads, reports the unbound list from the console group, and we know whether the failure is name-mismatch (rename / migration) or library-empty (loader bug).
+12. **Coding-guideline compliance.** Methods ≤8 lines; no variable mutation; simple boolean expressions; defensive `?.` / `??`. Use `RiseupAsiaMacroExt.Logger.error()` for any error path. (No `.lovable/coding-guideline.md` found — following standards already encoded in memory index.)
 
-### Phase 2 — Fix bindings + auto-attach (~1 hour)
+13. **Typecheck.** Run `bunx tsc --noEmit` in `standalone-scripts/macro-controller/`. Fix any errors.
 
-Based on Phase-1 evidence, apply whichever subset is needed:
+14. **Manual smoke checklist (logged, not executed).** Open controller → click Task Next (inline accordion still works) → click Plan Task → pick 15 → verify prompt injected → click Filter → toggle categories → verify list filters → Save / Rename / Delete a prompt → verify list refreshes.
 
-- **Heal mismatched bindings on save** — when `findScript` resolves a basename or `endsWith` match, rewrite `s.path` to the canonical `StoredScript.name` so the next save no longer drifts.
-- **Auto-attach on save** — `attachScriptsByUrl(project, library)` reads each script's `instruction.UrlMatches` (already in `availableScripts` via `script-resolver`), tests against `project.url`, and appends any unattached match in stable `order`. Skip scripts the user has explicitly removed (track in `project.scripts.removedAutoAttach: string[]`).
-- **Auto-attach on first load** for legacy projects with `project.scripts.length === 0` and no `removedAutoAttach` flag yet.
+15. **Update memory + remaining-tasks log.** Append entry to `.lovable/memory/workflow/13-next-commands.md`; if new persistent patterns emerged (Plan Task template, filter store key), add a memory file and update `mem://index.md`.
 
-A small toast in the Scripts tab will tell the user **"Auto-attached N scripts matching this project's URL"** with an Undo action that writes those names into `removedAutoAttach`.
+## Notes
+- No `.lovable/coding-guideline.md` exists; memory-index rules apply instead (CQ14 braces, no `unknown`, defensive access, namespace logger).
+- No backend / Cloud changes. Pure controller UI.
+- Reuses inline-accordion pattern proven by the recent Task Next fix — no `position: fixed` flyouts.
 
-### Phase 3 — No error swallowing pass (~20 min)
-
-1. Audit the touched files for `catch {…}` blocks; route every one through `Logger.error` or rethrow.
-2. Re-run `node scripts/audit-error-swallow.mjs` to confirm zero new findings on changed files.
-3. Re-run typecheck and the affected vitest suites (`ProjectDetailView`, `ProjectScriptSelector`).
-
-## Technical details
-
-- **No new dependencies.** Reuses `Logger`, `script-resolver`, `useProjectsScripts` hook.
-- **Storage shape stays the same** — `project.scripts: { path; order; runAt; configBinding?; code? }[]`. We only add the optional sibling `project.removedAutoAttach?: string[]`. No PascalCase rewrite (forbidden by memory).
-- **Migration**: backfill is a no-op when `project.scripts.length > 0` — the auto-attach only fills empty projects, so existing wiring is never overwritten.
-- **Versioning**: minor bump after Phase 2 lands, synced via `scripts/check-version-sync.mjs`.
-
-## Risks
-
-- Auto-attaching scripts the user did not want — mitigated by the `removedAutoAttach` undo list and the toast.
-- URL pattern in `instruction.UrlMatches` is a MV3 match pattern (`https://*.example.com/*`), not a regex — we will use the existing matcher from `auto-injector.ts` so semantics stay identical to runtime injection.
-- Renaming `s.path` on save changes the saved bundle shape for users who export — acceptable because the new name is the canonical library name.
-
-## What this plan deliberately does NOT do
-
-- Does not change the popup or the macro-controller workspace UI.
-- Does not change auto-injection runtime behavior — only the **attachment** that feeds it.
-- Does not introduce any new error-swallow patterns.
+## Open question
+None blocking — all decisions inferable. Will ask only if step 9 reveals CRUD failure rooted outside the UI layer.
