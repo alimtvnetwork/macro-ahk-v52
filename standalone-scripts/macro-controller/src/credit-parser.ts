@@ -214,6 +214,12 @@ function parseWorkspaceItem(rawItem: Record<string, unknown>, wsIdx: number): im
 // ============================================
 function applyLifecycleOverrides(perWs: import('./types').WorkspaceCredit[]): void {
   const cfg = getWorkspaceLifecycleConfig();
+  // Default true — only opt-out disables the override.
+  const enabled = getSettingsOverrides().enableCanceledCreditOverride !== false;
+  if (!enabled) {
+    log('Lifecycle overrides disabled via enableCanceledCreditOverride=false', 'info');
+    return;
+  }
   let overridden = 0;
   for (const ws of perWs) {
     const status = getEffectiveStatus(ws, cfg);
