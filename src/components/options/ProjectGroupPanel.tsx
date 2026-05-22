@@ -202,8 +202,10 @@ function GroupDetailPanel({ group, onBack, onRefresh }: GroupDetailPanelProps) {
     }
   }, [group.Id]);
 
-  // Load on mount
-  useState(() => { loadMembers(); });
+  // Load on mount AND whenever the selected group changes.
+  // Was previously `useState(() => { loadMembers(); })` which only fired
+  // during initial mount — switching groups stranded stale member lists.
+  useEffect(() => { loadMembers(); }, [loadMembers]);
 
   const handleAddMember = useCallback(async () => {
     const pid = parseInt(addProjectId, 10);
