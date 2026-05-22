@@ -89,7 +89,7 @@ export function showProjectsModal(): void {
     panel.appendChild(body);
 
     const footer = createFooter(
-        function () { void loadAndRender(body); },
+        function () { void loadAndRender(body, { bypassCache: true }); },
         function (statusEl) { exportCsv(statusEl); },
     );
     panel.appendChild(footer);
