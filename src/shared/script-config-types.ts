@@ -30,6 +30,12 @@ export interface StoredScript {
     dependencies?: string[];
     /** Numeric load order (lower = loaded first). Global scripts default to 1. */
     loadOrder?: number;
+    /**
+     * URL glob patterns this script targets. Populated by manifest-seeder from
+     * the seed project's `TargetUrls[].Pattern`. Consumed by auto-attach (C2)
+     * in src/background/auto-attach.ts. Absence → no auto-attach (safe default).
+     */
+    urlMatches?: string[];
     /** Remote URL to fetch the latest version of this script. */
     updateUrl?: string;
     /** Last time the script was updated from its updateUrl (ISO string). */
