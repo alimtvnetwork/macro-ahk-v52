@@ -108,3 +108,4 @@ pnpm-workspace.yaml
 pnpm-lock.yaml
 .npmrc
 scripts/check-spec-links.baseline.json
+/.gitmap/backup
