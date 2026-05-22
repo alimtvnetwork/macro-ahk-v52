@@ -291,9 +291,11 @@ function readDialogCreditStatus(gotNavName: boolean): void {
 export function refreshStatus(): void {
   if (!state.running) {
     refreshStatusStopped();
+    emitCreditPollTick();
     return;
   }
   refreshStatusRunning();
+  emitCreditPollTick();
 }
 
 /**
