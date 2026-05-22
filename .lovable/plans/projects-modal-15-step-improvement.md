@@ -33,7 +33,7 @@
 | 12 | **Credits-used filter**: numeric min/max range to filter workspaces. | Filterable. |
 | 13 | **Replace `(no data returned by API)` rows**: if `last_message_at` missing, show "—" and don't pollute CSV. | Clean CSV. |
 | 14 | **Verify SQLite end-to-end**: open dialog, close, reopen — confirm second open hits cache (zero network in DevTools). Log cache hit/miss to activity log. | Verified. |
-| 15 | **Update changelog + bump version** (`constants.ts`, manifest, scripts in sync). Note all behavior changes in `changelog-modal.ts`. | Released. |
+| 15 | **Update changelog + bump version** (`constants.ts`, manifest, scripts in sync). Note all behavior changes in `changelog-modal.ts`. | ✅ Released as v3.5.1 on 2026-05-22. |
 
 ## Notes / Constraints
 - Honor `mem://constraints/no-retry-policy` — single attempt per network call; delay is throttle, not retry.

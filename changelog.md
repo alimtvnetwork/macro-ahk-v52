@@ -6,6 +6,24 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v3.5.1] — 2026-05-22 Projects Modal cache, search, and UX
+
+### Added
+- **Projects Modal — 15-step improvement (Steps 1–14)**:
+  - SQLite-backed project-list cache (`MacroProjectListCache:*` via `marco.kv`) with configurable TTL (default 48 h, Settings → Debugging).
+  - Search bar + workspace filter chips in the Projects dialog.
+  - Per-workspace credit usage (`used / total`) and per-row `repo:branch` badge.
+  - Empty/error-state UX with friendly messages and a clear-filters affordance.
+  - End-to-end cache verification script (`scripts/verify-projects-cache.mjs`).
+  - Dropped the broken `projects.get` endpoint (HTTP 405); CSV export now sources git/communication data directly from `projects.list`.
+
+### Changed
+- Bumped extension, SDK, and standalone-script versions to **3.5.1**.
+- Synced `manifest.json`, `src/shared/constants.ts`, and all
+  `standalone-scripts/*/src/instruction.ts` descriptors.
+
+---
+
 ## [v3.5.0] — 2026-05-19 Error-swallow P1 sweep and CI hygiene
 
 ### Changed

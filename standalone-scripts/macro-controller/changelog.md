@@ -1,5 +1,27 @@
 # Macro Controller — Changelog
 
+## v3.5.1 (2026-05-22)
+
+### Projects Modal — 15-Step Improvement (Steps 1–14)
+
+- **Step 1 — Spec**: Wrote `spec/projects-modal/00-overview.md` documenting the `projects.list` / `projects.get` flow, the HTTP 405 root cause, and the target cache-backed behavior.
+- **Step 2 — 405 Fix**: Dropped the deprecated `projects.get` endpoint (returned HTTP 405). CSV export now sources git/activity fields directly from the enriched `projects.list` response, eliminating N extra HTTP calls.
+- **Step 3 — Name resolution**: Multi-source fallback for blank project names — `projects.list` → open-tab title → SQLite cache. No CSV row emits raw ID when a human-readable name exists.
+- **Steps 4–7 — SQLite cache**: Added `projects-cache.ts` with `MacroProjectListCache:*` KV keys. Default TTL 48 h, user-tunable via Settings → Debugging (`projectsCacheTtlHours`). Cache hit/miss logged to activity log.
+- **Step 9 — Workspace credits**: Per-workspace header now shows `name · creditsUsed / creditsTotal`.
+- **Step 10 — Search bar**: Case-insensitive substring filter across project `name` + `id`.
+- **Step 11 — Workspace chips**: Toggle filter chips to show/hide entire workspace blocks.
+- **Step 12 — Row badges**: `⎇ repo:branch` pill and clickable `↗` open-in-new-tab icon on every project row.
+- **Step 13 — Empty/error UX**: Friendly states for "no workspaces", "no matches" (with clear-filters button), per-block load failures, and per-block "no projects yet".
+- **Step 14 — E2E verification**: Added `scripts/verify-projects-cache.mjs` — 7 scenarios, 18 checks (round-trip, miss, TTL expiry, clear, malformed JSON, wrong shape, KV unavailable). All green.
+- **Dropped**: Step 8 (inter-fetch delay slider) — eliminated along with the `projects.get` sequential fetch loop.
+
+### Version Alignment
+
+- Bumped macro-controller version to **3.5.1** in sync with extension manifest.
+
+---
+
 ## v2.1.0 (2026-04-03)
 
 ### Version Alignment
