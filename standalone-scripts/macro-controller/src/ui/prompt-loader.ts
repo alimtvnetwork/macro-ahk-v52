@@ -248,6 +248,19 @@ export function setRenderDropdownFn(fn: (ctx: PromptContext, deps: TaskNextDeps)
   promptLoaderState.renderDropdownFn = fn;
 }
 
+/**
+ * Trigger a full re-render of the main prompts dropdown using the last-registered
+ * context (from setRevalidateContext) and renderer (from setRenderDropdownFn).
+ * Used by CRUD flows (save / delete / rename) to refresh the list after mutation.
+ */
+export function rerenderPromptsDropdown(): void {
+  const fn = promptLoaderState.renderDropdownFn;
+  const c = promptLoaderState.revalidateCtx;
+  if (!fn || !c) return;
+  try { fn(c.ctx, c.taskNextDeps); }
+  catch (e) { logError('rerenderPromptsDropdown', 'Re-render failed', e); }
+}
+
 // CQ16: Extracted from loadPromptsFromJson legacy path closure
 function finishLegacyLoad(
   prompts: PromptEntry[] | null,
