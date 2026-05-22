@@ -190,6 +190,7 @@ function GroupDetailPanel({ group, onBack, onRefresh }: GroupDetailPanelProps) {
   const [removeMember, setRemoveMember] = useState<ProjectGroupMember | null>(null);
   const [cascading, setCascading] = useState(false);
   const [allProjects, setAllProjects] = useState<StoredProject[]>([]);
+  const [dropActive, setDropActive] = useState(false);
 
   const loadMembers = useCallback(async () => {
     setLoading(true);
