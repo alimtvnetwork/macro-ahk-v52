@@ -7,6 +7,8 @@
  *      against `result-webhook` in the past.
  *   2. Verifies `src/background/recorder/step-library/` contains every
  *      expected module file before bundling.
+ *   3. Runs no-bare-fetch lint guard to ensure all HTTP calls obey the
+ *      HEFF (HTTP Error Fail-Fast) policy.
  *
  * Exits with code 1 — and a clear path/missing-item/reason message — if any
  * expected file is missing. Cache deletion failures are non-fatal (logged).
@@ -15,6 +17,7 @@
 import { existsSync, rmSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { execSync } from "node:child_process";
 import { waitForBuildLock } from "./lib/build-lock.mjs";
 import {
     EXPECTED_STEP_LIBRARY_FILES,
@@ -61,6 +64,15 @@ function verifyStepLibrary() {
     console.log("   ✓ " + EXPECTED_STEP_LIBRARY_FILES.length + " expected files present and non-empty");
 }
 
+function runNoBareFetchLint() {
+    console.log("🔍 [prebuild-clean-and-verify] Running no-bare-fetch lint guard…");
+    try {
+        execSync("node scripts/lint/no-bare-fetch.mjs", { cwd: ROOT, stdio: "inherit" });
+    } catch (err) {
+        fail("no-bare-fetch lint guard failed — see output above.");
+    }
+}
+
 try {
     await waitForBuildLock();
 } catch (err) {
@@ -69,5 +81,6 @@ try {
 }
 clearCaches();
 verifyStepLibrary();
-console.log("✅ [prebuild-clean-and-verify] Cache cleared, step-library verified — safe to bundle.\n");
+runNoBareFetchLint();
+console.log("✅ [prebuild-clean-and-verify] Cache cleared, step-library verified, lint clean — safe to bundle.\n");
 
