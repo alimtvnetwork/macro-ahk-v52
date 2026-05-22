@@ -16,6 +16,8 @@ import { getRemixConfig, openRemixRedirect } from './remix-config';
 import { fetchWorkspaceProjectNames, submitRemix } from './remix-fetch';
 import { resolveNextName } from './remix-name-resolver';
 import { recordRemix, showRemixHistoryPanel } from './remix-history';
+import { actionBulkRemixNext } from './remix-bulk';
+import { getLoopWsCheckedIds } from './shared-state';
 import { showToast } from './toast';
 import { logError } from './error-utils';
 import { log } from './logging';
