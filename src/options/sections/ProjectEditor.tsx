@@ -82,7 +82,10 @@ export function ProjectEditor({ project, onBack }: ProjectEditorProps) {
             const settings: Record<string, unknown> = { ...(project?.settings ?? { logLevel: "info" }) };
             try {
                 settings.variables = JSON.parse(variablesJson);
-            } catch { /* keep existing */ }
+            } catch (err) {
+                console.warn("[ProjectEditor] variables JSON invalid; keeping existing settings.variables", err);
+            }
+
 
             const payload: StoredProject = {
                 id: project?.id ?? crypto.randomUUID(),

@@ -80,7 +80,9 @@ function readStore(): StoredShape {
 
 function writeStore(store: StoredShape): void {
     if (typeof window === "undefined") { return; }
-    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); } catch { /* ignore */ }
+    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); } catch (err) {
+        console.warn("[controller-panel-toggles] localStorage.setItem failed", err);
+    }
 }
 
 /**
@@ -116,5 +118,7 @@ export function savePanelToggles(sessionId: string, toggles: PanelToggles): void
 /** Test-only helper to reset module state. Safe in production (no-op extras). */
 export function __resetPanelTogglesForTests(): void {
     if (typeof window === "undefined") { return; }
-    try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+    try { window.localStorage.removeItem(STORAGE_KEY); } catch (err) {
+        console.warn("[controller-panel-toggles] localStorage.removeItem failed in test reset", err);
+    }
 }

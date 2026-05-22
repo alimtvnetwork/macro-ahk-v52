@@ -78,7 +78,10 @@ export function findElement(descriptor: ElementDescriptor): Element | null {
             log("findElement", "  " + name + " FOUND via ARIA: " + ariaLabels[a]);
             return ariaResult;
           }
-        } catch { /* skip */ }
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e);
+          warn("findElement", "  Invalid ARIA selector for '" + ariaLabels[a] + "': " + msg);
+        }
       }
     }
     if (descriptor.role) {

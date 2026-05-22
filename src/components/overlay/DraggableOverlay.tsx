@@ -39,7 +39,9 @@ function loadGeometry(): Geometry {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) return { ...DEFAULT_GEOMETRY, ...JSON.parse(raw) };
-    } catch { /* ignore */ }
+    } catch (err) {
+        console.warn("[DraggableOverlay] failed to load geometry from localStorage", err);
+    }
     return { ...DEFAULT_GEOMETRY };
 }
 

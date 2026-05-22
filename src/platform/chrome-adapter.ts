@@ -133,8 +133,8 @@ async function waitForReceiver(): Promise<void> {
             if (isReady) {
                 return;
             }
-        } catch {
-            // keep retrying
+        } catch (err) {
+            console.warn(`[chrome-adapter] background ping attempt ${i + 1}/${MAX_PING_ATTEMPTS} failed; will retry`, err);
         }
 
         const hasAttemptsRemaining = i < MAX_PING_ATTEMPTS - 1;

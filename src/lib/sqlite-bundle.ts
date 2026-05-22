@@ -955,13 +955,19 @@ export async function previewSqliteZip(file: File): Promise<BundlePreview> {
   let exportedAt: string | undefined;
   try {
     let metaRows: { columns: string[]; values: SqlValue[][] }[];
-    try { metaRows = db.exec("SELECT Value FROM Meta WHERE Key = 'exported_at'"); } catch {
-      try { metaRows = db.exec("SELECT value FROM meta WHERE key = 'exported_at'"); } catch { metaRows = []; }
+    try { metaRows = db.exec("SELECT Value FROM Meta WHERE Key = 'exported_at'"); } catch (errPascal) {
+      console.warn("[sqlite-bundle] Meta (PascalCase) exported_at query failed, trying legacy lowercase", errPascal);
+      try { metaRows = db.exec("SELECT value FROM meta WHERE key = 'exported_at'"); } catch (errLower) {
+        console.warn("[sqlite-bundle] legacy meta exported_at query failed; treating as absent", errLower);
+        metaRows = [];
+      }
     }
     if (Array.isArray(metaRows) && metaRows.length > 0 && metaRows[0].values.length > 0) {
       exportedAt = metaRows[0].values[0][0] as string;
     }
-  } catch { /* meta table may not exist */ }
+  } catch (err) {
+    console.warn("[sqlite-bundle] meta table read failed (likely missing)", err);
+  }
 
   db.close();
 

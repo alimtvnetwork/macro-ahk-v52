@@ -91,13 +91,17 @@ export function saveChainSettings(next: KeywordEventChainSettings): void {
         PauseMs: clampPause(next.PauseMs),
         RunAfterRecording: Boolean(next.RunAfterRecording),
     };
-    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(safe)); } catch { /* ignore */ }
+    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(safe)); } catch (err) {
+        console.warn("[keyword-event-chain] localStorage.setItem failed", err);
+    }
 }
 
 /** Test-only helper. Safe in production. */
 export function __resetChainSettingsForTests(): void {
     if (typeof window === "undefined") { return; }
-    try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+    try { window.localStorage.removeItem(STORAGE_KEY); } catch (err) {
+        console.warn("[keyword-event-chain] localStorage.removeItem failed in test reset", err);
+    }
 }
 
 /* ------------------------------------------------------------------ */

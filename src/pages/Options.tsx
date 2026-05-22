@@ -131,7 +131,9 @@ const OptionsPage = () => {
           mountBudgetMs.current = res.settings.optionsMountBudgetMs;
         }
       })
-      .catch(() => { /* keep default */ });
+      .catch((err) => {
+        console.warn("[Options] GET_SETTINGS failed; using default mount budget", err);
+      });
   }, []);
 
   // eslint-disable-next-line sonarjs/cognitive-complexity -- perf budget check with multi-field breakdown

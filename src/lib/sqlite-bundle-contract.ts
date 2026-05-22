@@ -314,9 +314,10 @@ export function validateBundleSchema(
             formatVersion = rows[0]?.values[0]?.[0] != null
                 ? String(rows[0].values[0][0])
                 : null;
-        } catch {
+        } catch (err) {
             // Fall back to legacy lowercase Meta — but that itself is a
             // PascalCase violation already reported above. Don't double-fail.
+            console.warn("[sqlite-bundle-contract] Meta.format_version query failed; legacy schema suspected", err);
         }
     }
     if (formatVersion === null && mode === "full") {

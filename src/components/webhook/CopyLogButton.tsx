@@ -20,8 +20,8 @@ async function writeToClipboard(text: string): Promise<boolean> {
       await navigator.clipboard.writeText(text);
       return true;
     }
-  } catch {
-    // Fall through to legacy path
+  } catch (err) {
+    console.warn("[CopyLogButton] navigator.clipboard.writeText failed, falling back to execCommand", err);
   }
   try {
     const textarea = document.createElement("textarea");
@@ -34,7 +34,8 @@ async function writeToClipboard(text: string): Promise<boolean> {
     const ok = document.execCommand("copy");
     document.body.removeChild(textarea);
     return ok;
-  } catch {
+  } catch (err) {
+    console.warn("[CopyLogButton] legacy execCommand copy fallback failed", err);
     return false;
   }
 }
