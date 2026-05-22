@@ -45,6 +45,10 @@ interface OpenTabsResponse {
 interface ProjectEntry {
     readonly id: string;
     readonly name: string;
+    /** From projects.list response; blank if upstream omits it. */
+    readonly githubRepo: string;
+    readonly githubBranch: string;
+    readonly lastMessageAt: string;
 }
 
 interface WorkspaceBlock {
@@ -168,13 +172,20 @@ async function fetchProjects(wsId: string): Promise<ProjectEntry[]> {
         logError('Projects', 'projects.list HTTP ' + resp.status + ' for ws=' + wsId + ': ' + preview);
         throw new Error('HTTP ' + resp.status);
     }
-    const data = resp.data as { projects?: Array<{ id?: string; name?: string }> };
+    const data = resp.data as { projects?: Array<Record<string, unknown>> };
     const list = Array.isArray(data.projects) ? data.projects : [];
     const out: ProjectEntry[] = [];
     for (const p of list) {
         const id = typeof p.id === 'string' ? p.id : '';
-        const name = typeof p.name === 'string' ? p.name : '';
-        if (id) out.push({ id, name: name || id });
+        if (!id) continue;
+        const rawName = typeof p.name === 'string' ? p.name : '';
+        out.push({
+            id,
+            name: rawName || id,
+            githubRepo: pickString(p, ['github_repo', 'githubRepo', 'github_full_name', 'repo_full_name']),
+            githubBranch: pickString(p, ['github_branch', 'githubBranch', 'default_branch', 'branch']),
+            lastMessageAt: pickString(p, ['last_message_at', 'lastMessageAt', 'updated_at', 'updatedAt']),
+        });
     }
     return out;
 }
