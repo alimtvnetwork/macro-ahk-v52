@@ -87,8 +87,13 @@ async function resolveScriptCode(script: StoredScript): Promise<ResolvedCode> {
             const fetchT0 = performance.now();
             const response = await fetch(url);
             if (!response.ok) {
-                logBgWarnError(BgLogTag.SCRIPT_RESOLVER, `filePath fetch failed\n  Path: ${candidate.isAbsolute ? candidate.path : "chrome.runtime.getURL(\"" + candidate.path + "\")"}\n  Missing: Script code for "${script.name}" (HTTP ${response.status})\n  Reason: Server returned ${response.status} — file may not exist in web_accessible_resources or dist/`);
-                continue;
+                // HEFF D-1 (ambiguity #53): an HTTP response means the server
+                // received and rejected us. Stop the resolver — do NOT try the
+                // next candidate. Only network errors (caught below) fall
+                // through. See mem://constraints/http-error-fail-fast.
+                const msg = `filePath fetch failed (HEFF halt — no further candidates)\n  Path: ${candidate.isAbsolute ? candidate.path : "chrome.runtime.getURL(\"" + candidate.path + "\")"}\n  Missing: Script code for "${script.name}" (HTTP ${response.status})\n  Reason: Server returned ${response.status} — refusing to fan out to remaining ${candidates.length - 1 - candidates.indexOf(candidate)} candidate(s)`;
+                logBgWarnError(BgLogTag.SCRIPT_RESOLVER, msg);
+                throw new Error(msg);
             }
             const code = await response.text();
             const fetchMs = (performance.now() - fetchT0).toFixed(1);
