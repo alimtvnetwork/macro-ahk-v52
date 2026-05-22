@@ -144,18 +144,22 @@ function validateWasmHeadResponse(wasmUrl: string, response: Response, probe: Wa
     if (response.status === 404) {
         setWasmProbeResult(probe);
         throw new Error(
-            `[WASM_FILE_MISSING_404] HEAD ${wasmUrl} returned 404. ` +
+            `[WASM_FILE_MISSING_404] HEFF: HTTP 404 on HEAD ${wasmUrl}. ` +
             `The packaged extension is missing "wasm/sql-wasm.wasm" — rebuild with ` +
             `".\\run.ps1 -d" so viteStaticCopy regenerates it from node_modules/sql.js/dist/, ` +
-            `then reload the extension from chrome://extensions.`,
+            `then reload the extension from chrome://extensions. ` +
+            `Loop halted. Awaiting user instruction.`,
         );
     }
     if (!response.ok) {
         setWasmProbeResult(probe);
+        // HEFF: HEAD 405/4xx/5xx must NOT trigger a GET-method-swap retry.
+        // Surface and halt.
         throw new Error(
-            `[WASM_FILE_MISSING_404] HEAD ${wasmUrl} returned HTTP ${response.status}. ` +
+            `[WASM_FILE_MISSING_404] HEFF: HTTP ${response.status} on HEAD ${wasmUrl}. ` +
             `Confirm "wasm/sql-wasm.wasm" is listed in manifest.web_accessible_resources and ` +
-            `present at chrome-extension/wasm/sql-wasm.wasm.`,
+            `present at chrome-extension/wasm/sql-wasm.wasm. ` +
+            `Loop halted. Awaiting user instruction.`,
         );
     }
     if (probe.contentLength !== null && Number(probe.contentLength) === 0) {
