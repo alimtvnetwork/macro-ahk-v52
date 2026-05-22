@@ -365,6 +365,7 @@ export const HANDLER_REGISTRY = new Map<MessageType, MessageHandler>([
     [MessageType.DUPLICATE_PROJECT, async (msg) => handleDuplicateProject(msg)],
     [MessageType.IMPORT_PROJECT, async (msg) => handleImportProject(msg)],
     [MessageType.EXPORT_PROJECT, async (msg) => handleExportProject(msg)],
+    [MessageType.GET_AUTO_ATTACH_DECISIONS, async (msg) => handleGetAutoAttachDecisions(msg)],
     [MessageType.GET_ALL_SCRIPTS, async () => handleGetAllScripts()],
     [MessageType.SAVE_SCRIPT, async (msg) => handleSaveScript(msg)],
     [MessageType.DELETE_SCRIPT, async (msg) => handleDeleteScript(msg)],
