@@ -22,3 +22,5 @@ re-deriving it from chat history.
 | 02 | [02-write-memory.md](./prompts/02-write-memory.md) | Write Memory v2.0 | `write memory`, `end memory`, `update memory` | superseded by 03 |
 | 03 | [03-write-memory.md](./prompts/03-write-memory.md) | Write Memory v3.0 (CI/CD issues + verbatim spec capture) | `write memory`, `end memory`, `update memory` | active |
 | 04 | [04-no-questions.md](./prompts/04-no-questions.md) | No-Questions Mode (40-task window) | `no question`, `not ques for 40`, `no-questions mode` | active |
+| 05 | [05-read-memory.md](./prompts/05-read-memory.md) | Read Memory | `read memory`, `recall memory` | active |
+| 06 | [06-logo-create.md](./prompts/06-logo-create.md) | Logo Create (Projects/ scaffold, SVG + raster + palette + favicon + README) | `create logo`, `make logo`, `logo`, `create icon`, `make icon`, `logo create` | active |
