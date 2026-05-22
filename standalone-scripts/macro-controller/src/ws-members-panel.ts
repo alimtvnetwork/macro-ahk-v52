@@ -132,12 +132,30 @@ function actionMenuHtml(m: WorkspaceMember): string {
     + 'border-radius:3px;padding:0 6px;height:20px;font-size:14px;line-height:1;cursor:pointer;">⋯</button>';
 }
 
-function memberRowHtml(m: WorkspaceMember, idx: number): string {
+function shareBarHtml(pct: number): string {
+  const clamped = Math.max(0, Math.min(100, pct));
+  const label = clamped >= 10 ? clamped.toFixed(0) + '%' : clamped.toFixed(1) + '%';
+  // Color ramp: low=slate, mid=cyan, high=emerald, dominant=amber
+  let fill = '#475569';
+  if (clamped >= 40) fill = '#f59e0b';
+  else if (clamped >= 20) fill = '#10b981';
+  else if (clamped >= 5) fill = '#0ea5e9';
+  return '<div title="Share of loaded members\u2019 total credits: ' + label + '" '
+    + 'style="display:flex;align-items:center;gap:6px;padding-left:42px;margin-top:2px;">'
+    +   '<div style="flex:1;height:4px;background:rgba(148,163,184,0.15);border-radius:2px;overflow:hidden;">'
+    +     '<div style="height:100%;width:' + clamped.toFixed(2) + '%;background:' + fill + ';transition:width 200ms ease-out;"></div>'
+    +   '</div>'
+    +   '<span style="font-size:9px;color:#94a3b8;font-variant-numeric:tabular-nums;min-width:32px;text-align:right;">' + label + '</span>'
+    + '</div>';
+}
+
+function memberRowHtml(m: WorkspaceMember, idx: number, sumLoaded: number): string {
   const displayName = m.display_name || m.username || m.email || m.user_id;
   const credits = fmtNumber(m.total_credits_used);
   const billingCredits = fmtNumber(m.total_credits_used_in_billing_period);
   const joined = m.joined_at ? formatDateDDMMMYY(m.joined_at) : '—';
   const invited = m.invited_at ? formatDateDDMMMYY(m.invited_at) : '—';
+  const sharePct = sumLoaded > 0 ? (m.total_credits_used / sumLoaded) * 100 : 0;
 
   return '<div data-marco-member-row data-marco-user-id="' + escHtml(m.user_id) + '" '
     + 'style="display:flex;flex-direction:column;gap:2px;padding:6px 8px;border-bottom:1px solid rgba(148,163,184,0.12);font-size:11px;">'
@@ -161,6 +179,7 @@ function memberRowHtml(m: WorkspaceMember, idx: number): string {
           : '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">—</span>')
     +   '<span title="Credits used this billing period">Period: ' + billingCredits + '</span>'
     + '</div>'
+    + shareBarHtml(sharePct)
     + '<div style="display:flex;justify-content:space-between;gap:8px;font-size:9px;color:#64748b;padding-left:42px;">'
     +   '<span data-marco-action="copy" data-marco-copy-value="' + escHtml(m.user_id) + '" data-marco-copy-label="User ID" '
     +     'style="cursor:pointer;" '
@@ -183,7 +202,10 @@ function buildBodyHtml(state: PanelState): string {
   if (state.members.length === 0) {
     return '<div style="padding:14px;text-align:center;color:#94a3b8;font-size:11px;">No active members.</div>';
   }
-  const rows = state.members.map(function (m, i) { return memberRowHtml(m, i); }).join('');
+  const sumLoaded = state.members.reduce(function (acc, m) {
+    return acc + (Number.isFinite(m.total_credits_used) ? m.total_credits_used : 0);
+  }, 0);
+  const rows = state.members.map(function (m, i) { return memberRowHtml(m, i, sumLoaded); }).join('');
   return '<div style="max-height:380px;overflow-y:auto;">' + rows + '</div>';
 }
 
