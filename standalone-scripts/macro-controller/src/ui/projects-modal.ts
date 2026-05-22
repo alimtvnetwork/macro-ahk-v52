@@ -20,6 +20,7 @@ import { cPanelBg, cPrimary, cPrimaryBgA, cPrimaryLighter, cPanelFgDim, loopCred
 import { sendToExtension } from './prompt-loader';
 import { log } from '../logging';
 import { logError } from '../error-utils';
+import { readProjectListCache, writeProjectListCache } from '../projects-cache';
 import type { DraggableElement, WorkspaceCredit } from '../types';
 
 const DIALOG_ID = 'marco-projects-modal';
@@ -117,9 +118,19 @@ async function loadAndRender(body: HTMLElement): Promise<void> {
     // 2. Build open-tab index (in parallel with fetches below).
     const openTabsPromise = loadOpenTabIndex();
 
-    // 3. Initialise blocks (loading state) and render skeleton.
-    const blocks: WorkspaceBlock[] = workspaces.map(function (ws) {
-        return { ws, projects: null, error: null, loading: true };
+    // 3. Initialise blocks — seed from SQLite cache when available so the UI
+    //    fills instantly while the network fetch refreshes in the background.
+    const cached = await Promise.all(workspaces.map(function (ws) {
+        return readProjectListCache(ws.id);
+    }));
+    const blocks: WorkspaceBlock[] = workspaces.map(function (ws, i) {
+        const cachedProjects = cached[i];
+        return {
+            ws,
+            projects: cachedProjects, // null when missing/expired
+            error: null,
+            loading: true,
+        };
     });
     const tabIndex = await openTabsPromise;
     state.blocks = blocks;
@@ -127,14 +138,18 @@ async function loadAndRender(body: HTMLElement): Promise<void> {
     body.innerHTML = renderAll(blocks, tabIndex, null);
     attachRowClicks(body);
 
-    // 4. Fetch each workspace's projects sequentially-ish but in parallel
-    //    (no retry per mem://constraints/no-retry-policy).
+    // 4. Fetch each workspace's projects in parallel (single attempt — no
+    //    retry per mem://constraints/no-retry-policy). On success persist
+    //    to the SQLite-backed projects-cache for the next open.
     await Promise.all(workspaces.map(function (ws, i) {
         return fetchProjects(ws.id).then(function (projects) {
             blocks[i] = { ws, projects, error: null, loading: false };
+            writeProjectListCache(ws.id, projects);
         }).catch(function (err: unknown) {
             const msg = err instanceof Error ? err.message : String(err);
-            blocks[i] = { ws, projects: null, error: msg, loading: false };
+            // Keep any cached projects visible on failure so the UI is not blanked.
+            const fallback = blocks[i].projects;
+            blocks[i] = { ws, projects: fallback, error: msg, loading: false };
         }).then(function () {
             state.blocks = blocks;
             // Re-render after each completes for incremental feedback.
