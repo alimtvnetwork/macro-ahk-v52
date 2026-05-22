@@ -12,10 +12,10 @@
 4. ✅ **Wrap P0 callers** (project Git checks, dashboard auto-attach probes, repo enumeration) with `httpFailFast`. Replace any `for`/`Promise.all` fanouts with sequential loops that `break` on `HttpFailFastError`.
 5. ✅ **Wrap remaining Needs-guard callers** (token probes, member fetch, webhook sender adjacency). Keep `webhook-fail-fast` semantics intact — just route through the shared error type.
 6. ✅ **Add repo grep guard** (`scripts/lint/no-bare-fetch.mjs`) that fails build if a `fetch(...)` appears outside `http-fail-fast.ts` without `httpFailFast(` on the next non-comment line. Wire into `prebuild-clean-and-verify.mjs`.
-7. **Surface failure in UI/logs.** When `HttpFailFastError` reaches the UI layer (panels, options, recorder), render a single dismissible banner with status + URL + reason. Use `Logger.error` with the mandatory shape. No toast spam, no re-render loop.
-8. **Add agent-side reminder doc** `.lovable/prompts/http-fail-fast-agent-checklist.md` so any future `code--exec` loop the agent writes (curl/psql/fetch in scripts) checks status and aborts on first failure. Cross-link from `.lovable/strictly-avoid.md`.
-9. **Write verification script** `standalone-scripts/macro-controller/scripts/verify-http-fail-fast.mjs` that fakes 404/405/500 responses against the helper and asserts: (a) throws, (b) no second call issued, (c) report string matches spec §5.
-10. **Unified version bump + changelog.** Bump manifest/constants/instruction versions, add `changelog.md` entry covering Steps 1–9, update `plan.md` to mark the workstream complete.
+7. ✅ **Surface failure in UI/logs.** `HttpFailFastBanner.tsx` listens for `marco:http-fail-fast` window events, renders a single dismissible banner with status + URL + reason. No toast spam, no re-render loop.
+8. ✅ **Add agent-side reminder doc** `.lovable/checklists/http-fail-fast.md` — agent checklist covering hard rules, pre/post-write checklists, quick-reference snippets, and anti-pattern examples.
+9. ✅ **Write verification script** `standalone-scripts/macro-controller/scripts/verify-http-fail-fast.mjs` — 11 assertions covering throw shape, sequential loop halting, CustomEvent dispatch, no retry tokens, and `isNetworkError()` discrimination.
+10. ✅ **Unified version bump + changelog.** Bumped manifest/constants/instruction versions to **3.5.2**, added `changelog.md` entry covering Steps 1–9, `plan.md` updated.
 
 ## Acceptance
 
