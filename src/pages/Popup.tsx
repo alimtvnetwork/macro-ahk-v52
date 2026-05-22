@@ -247,6 +247,7 @@ const PopupPage = () => {
           />
         </Suspense>
         <Toaster position="top-center" richColors closeButton />
+        <HttpFailFastBanner />
       </div>
     </TooltipProvider>
   );
