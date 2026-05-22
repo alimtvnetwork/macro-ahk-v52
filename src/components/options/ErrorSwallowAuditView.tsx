@@ -164,7 +164,11 @@ export default function ErrorSwallowAuditView() {
                 return;
             }
             if (!res.ok) {
-                setState({ kind: "error", message: `HTTP ${res.status} ${res.statusText}` });
+                // HEFF: single attempt; surface status, do NOT retry.
+                setState({
+                    kind: "error",
+                    message: `HEFF: HTTP ${res.status} on GET ${DEFAULT_AUDIT_URL} — ${res.statusText}. Loop halted.`,
+                });
                 return;
             }
             const raw = await res.json();
