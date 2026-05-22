@@ -532,8 +532,8 @@ export function useStepLibrary(): UseStepLibraryApi {
     const resetAll = useCallback(() => {
         try {
             localStorage.removeItem(STORAGE_KEY);
-        } catch {
-            /* ignore */
+        } catch (caught) {
+            logError("useStepLibrary.resetAll", `localStorage.removeItem("${STORAGE_KEY}") failed — bootstrap nonce will still trigger reload`, caught);
         }
         // Force a hard reload of the in-memory DB by re-running bootstrap.
         // Easiest path: reload the page fragment owning the hook.

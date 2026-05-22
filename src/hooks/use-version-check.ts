@@ -66,8 +66,8 @@ function getManifestVersion(): ManifestVersionInfo {
             : null,
       };
     }
-  } catch {
-    /* not in extension context */
+  } catch (caught) {
+    logError("useVersionCheck.readManifest", "chrome.runtime.getManifest() threw — not in an extension context, returning null version", caught);
   }
 
   return {
