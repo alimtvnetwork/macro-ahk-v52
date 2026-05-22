@@ -55,14 +55,21 @@ export function getWorkspaceLifecycleConfig(): WorkspaceLifecycleConfig {
       ? raw.refillWarningThresholdDays
       : DEFAULT_REFILL_WARNING_THRESHOLD_DAYS);
 
+  const rawLabels = raw.enableWorkspaceStatusLabels !== false
+    ? (raw.enableWorkspaceStatusLabels !== undefined ? raw.enableWorkspaceStatusLabels : DEFAULT_ENABLE_WORKSPACE_STATUS_LABELS)
+    : false;
+  const rawHover = raw.enableWorkspaceHoverDetails !== false
+    ? (raw.enableWorkspaceHoverDetails !== undefined ? raw.enableWorkspaceHoverDetails : DEFAULT_ENABLE_WORKSPACE_HOVER_DETAILS)
+    : false;
+
   return {
     expiryGracePeriodDays: grace,
     refillWarningThresholdDays: refill,
-    enableWorkspaceStatusLabels: raw.enableWorkspaceStatusLabels !== false
-      ? raw.enableWorkspaceStatusLabels !== undefined ? raw.enableWorkspaceStatusLabels : DEFAULT_ENABLE_WORKSPACE_STATUS_LABELS
-      : false,
-    enableWorkspaceHoverDetails: raw.enableWorkspaceHoverDetails !== false
-      ? raw.enableWorkspaceHoverDetails !== undefined ? raw.enableWorkspaceHoverDetails : DEFAULT_ENABLE_WORKSPACE_HOVER_DETAILS
-      : false,
+    enableWorkspaceStatusLabels: typeof overrides.enableWorkspaceStatusLabels === 'boolean'
+      ? overrides.enableWorkspaceStatusLabels
+      : rawLabels,
+    enableWorkspaceHoverDetails: typeof overrides.enableWorkspaceHoverDetails === 'boolean'
+      ? overrides.enableWorkspaceHoverDetails
+      : rawHover,
   };
 }
