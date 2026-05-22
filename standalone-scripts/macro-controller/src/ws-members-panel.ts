@@ -379,6 +379,8 @@ interface PanelHandlerStore {
   _marcoMembersSubmit?: (e: Event) => void;
   _marcoMembersLatest?: { wsName: string; members: WorkspaceMember[]; total: number; limit: number };
   _marcoMembersLimit?: number;
+  _marcoMembersPollUnsub?: () => void;
+  _marcoMembersAutoBusy?: boolean;
 }
 
 function ensurePanelEl(): HTMLDivElement {
