@@ -54,6 +54,17 @@ Scope: enhancements to the prompt dropdown / prompt section inside `standalone-s
 - No backend / Cloud changes. Pure controller UI.
 - Reuses the inline-accordion pattern proven by the recent Task Next fix — no `position: fixed` flyouts.
 
+## Completed workstreams
+
+### HTTP Fail-Fast Enforcement (v3.5.2)
+All 10 steps complete. See `.lovable/plans/http-fail-fast-10-step.md` for full breakdown.
+- Shared `httpFailFast()` helper + `HttpFailFastError` with spec §5 report shape.
+- All P0 callers wrapped (project Git checks, dashboard probes, member fetch, token probes).
+- Build lint guard (`scripts/lint/no-bare-fetch.mjs`) blocks bare `fetch` reintroduction.
+- UI banner (`HttpFailFastBanner.tsx`) surfaces failures in Popup and Options.
+- Agent checklist (`.lovable/checklists/http-fail-fast.md`) + macro verification suite (11 assertions).
+- Version bumped to **3.5.2** across manifest, constants, and all instruction manifests.
+
 ## Open question
 
 None blocking — all decisions inferable. Will ask only if step 9 reveals CRUD failure rooted outside the UI layer.
