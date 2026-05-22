@@ -9,7 +9,9 @@
 
 import { taskNextState } from './task-next-ui';
 import { getBackdropOpacity, setBackdropOpacity } from './panel-layout';
-import { getSettingsOverrides } from '../settings-store';
+import { getSettingsOverrides, saveSettingsOverrides, type PerWorkspaceLifecycleOverride } from '../settings-store';
+import { showToast } from '../toast';
+import { logError } from '../error-utils';
 import type { ExtensionResponse, ResolvedPromptsConfig } from '../types';
 import { getLogConfig, resetLogConfig, type LogManagerConfig } from '../log-manager';
 import {
@@ -23,6 +25,9 @@ import {
   cPrimaryLight,
   cSectionHeader,
   cWarning,
+  cInputBg,
+  cInputBorder,
+  cInputFg,
   state,
 } from '../shared-state';
 import type { SettingsDeps, MakeFieldFn } from './settings-ui';
