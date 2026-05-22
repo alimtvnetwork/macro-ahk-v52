@@ -370,15 +370,19 @@ function GroupDetailPanel({ group, onBack, onRefresh }: GroupDetailPanelProps) {
 
       {/* Add Member */}
       <div className="flex items-center gap-2">
-        <Input
-          value={addProjectId}
-          onChange={e => setAddProjectId(e.target.value)}
-          placeholder="Project ID"
-          className="h-8 text-sm w-32 font-mono"
-          type="number"
-          min={1}
-        />
-        <Button size="sm" onClick={handleAddMember} disabled={adding || !addProjectId.trim()}>
+        <Select value={addProjectId} onValueChange={setAddProjectId} disabled={availableProjects.length === 0}>
+          <SelectTrigger className="h-8 text-sm w-64">
+            <SelectValue placeholder={availableProjects.length === 0 ? "All projects already in group" : "Select a project…"} />
+          </SelectTrigger>
+          <SelectContent>
+            {availableProjects.map(p => (
+              <SelectItem key={p.id} value={p.id} className="text-sm">
+                {p.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button size="sm" onClick={handleAddMember} disabled={adding || !addProjectId}>
           {adding ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <UserPlus className="h-3.5 w-3.5 mr-1" />}
           Add Member
         </Button>
@@ -393,32 +397,38 @@ function GroupDetailPanel({ group, onBack, onRefresh }: GroupDetailPanelProps) {
       ) : members.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
           <Users className="h-8 w-8 opacity-30" />
-          <p className="text-sm">No members yet. Add a project by ID.</p>
+          <p className="text-sm">No members yet. Add a project from the dropdown above.</p>
         </div>
       ) : (
         <ScrollArea className="h-[300px]">
           <div className="space-y-2">
-            {members.map(member => (
-              <div
-                key={member.Id}
-                className="flex items-center justify-between p-3 rounded-lg border border-border/60 bg-card/50 hover:bg-card/80 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Badge variant="outline" className="text-[11px] font-mono px-2">
-                    #{member.ProjectId}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">Project {member.ProjectId}</span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                  onClick={() => setRemoveMember(member)}
+            {members.map(member => {
+              const project = projectsById.get(member.ProjectIdUuid);
+              const displayName = project?.name ?? "(unknown project)";
+              return (
+                <div
+                  key={member.Id}
+                  className="flex items-center justify-between p-3 rounded-lg border border-border/60 bg-card/50 hover:bg-card/80 transition-colors"
                 >
-                  <UserMinus className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            ))}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Badge variant="outline" className="text-[11px] font-mono px-2 shrink-0">
+                      {member.ProjectIdUuid.slice(0, 8)}
+                    </Badge>
+                    <span className={"text-sm truncate " + (project ? "" : "text-muted-foreground italic")}>
+                      {displayName}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                    onClick={() => setRemoveMember(member)}
+                  >
+                    <UserMinus className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         </ScrollArea>
       )}
@@ -455,7 +465,7 @@ function GroupDetailPanel({ group, onBack, onRefresh }: GroupDetailPanelProps) {
       <AlertDialog open={!!removeMember} onOpenChange={(v) => { if (!v) setRemoveMember(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Project #{removeMember?.ProjectId}?</AlertDialogTitle>
+            <AlertDialogTitle>Remove "{projectsById.get(removeMember?.ProjectIdUuid ?? "")?.name ?? removeMember?.ProjectIdUuid}"?</AlertDialogTitle>
             <AlertDialogDescription>
               This project will no longer inherit shared settings from this group.
             </AlertDialogDescription>
