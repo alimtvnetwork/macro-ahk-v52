@@ -120,9 +120,18 @@ async function loadAndRender(body: HTMLElement, opts?: { bypassCache?: boolean }
 
     // 3. Initialise blocks — seed from SQLite cache when available so the UI
     //    fills instantly while the network fetch refreshes in the background.
-    const cached = await Promise.all(workspaces.map(function (ws) {
-        return readProjectListCache(ws.id);
-    }));
+    //    Refresh button passes bypassCache=true to clear and force re-fetch.
+    const bypassCache = opts?.bypassCache === true;
+    if (bypassCache) {
+        await Promise.all(workspaces.map(function (ws) {
+            return clearProjectListCache(ws.id);
+        }));
+    }
+    const cached = bypassCache
+        ? workspaces.map(function () { return null; })
+        : await Promise.all(workspaces.map(function (ws) {
+            return readProjectListCache(ws.id);
+        }));
     const blocks: WorkspaceBlock[] = workspaces.map(function (ws, i) {
         const cachedProjects = cached[i];
         return {
