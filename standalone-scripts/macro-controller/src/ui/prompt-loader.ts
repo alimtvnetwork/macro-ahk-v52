@@ -111,6 +111,18 @@ export function setPromptCategoryFilter(value: string | null): void {
   promptLoaderState.promptCategoryFilter = value;
 }
 
+// ── Multi-select category filter (new — used by Filter button menu) ──
+const promptCategoryFilterSet: Set<string> = new Set<string>();
+/** Read current multi-select category filter (lowercased values). */
+export function getPromptCategoryFilterSet(): Set<string> { return promptCategoryFilterSet; }
+/** Toggle one category in the filter set. */
+export function togglePromptCategoryFilter(catLower: string): void {
+  if (promptCategoryFilterSet.has(catLower)) promptCategoryFilterSet.delete(catLower);
+  else promptCategoryFilterSet.add(catLower);
+}
+/** Remove every category from the filter set. */
+export function clearPromptCategoryFilterSet(): void { promptCategoryFilterSet.clear(); }
+
 /** Invalidate prompt cache (e.g. after save/delete) */
 export function invalidatePromptCache(): void {
   promptLoaderState.loadedJsonPrompts = null;
