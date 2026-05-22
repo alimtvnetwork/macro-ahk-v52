@@ -18,6 +18,7 @@ Updated: just now
 - **No-Retry Policy**: Bans unauthorized recursive retry or exponential backoff. Use sequential fail-fast.
 - **No Explicit Unknown**: No `unknown` except in `CaughtError`. Function params must use designed types.
 - **Error Handling**: Defensive property access (`?.`, `??`) required. CQ14 (braces), CQ15 (newlines).
+- **No Silent Failures**: Anything broken MUST be logged. Default to ERROR for obvious failure conditions (missing script/file/config, URL match without resolution, etc.). Downgrade later if proven benign — never silence by default. See `mem://standards/no-silent-failures`.
 - **HTTP fail-fast**: On ANY 4xx/5xx (esp. 404/405) from scripted/automated calls, STOP the loop immediately. No retry, no fanout, no heavy follow-up. Emit `HTTP <status> on <METHOD> <url>` + reason + `Loop halted. Awaiting user instruction.` then wait. See `mem://constraints/http-error-fail-fast`.
 - **Auth Contract**: Use single-path `getBearerToken()` contract. No legacy auth methods.
 - **Installer Contract**: All install scripts MUST conform to `spec/14-update/01-generic-installer-behavior.md` — strict on `--version`/release-URL, latest→main fallback otherwise, opt-in parallel sibling-repo discovery.
@@ -90,6 +91,7 @@ Updated: just now
 - [No CI notifications](mem://constraints/no-ci-notifications) — Never send emails/notifications for CI build events
 - [Namespace database creation](mem://features/namespace-database-creation) — Dot-separated namespaces, max 25, System.* reserved
 - [Error logging via namespace logger](mem://standards/error-logging-via-namespace-logger.md) — Use Logger.error(), no swallowed errors
+- [No silent failures](mem://standards/no-silent-failures) — Log first, classify later; missing script when URL matches = ERROR (not warn)
 - [Pre-write standards check](mem://standards/pre-write-check) — Read standards + sibling file before writing any new code
 - [No CSS !important](mem://standards/no-css-important) — Forbidden in CSS, LESS, and CSS-in-string-literal
 - [No error swallowing](mem://standards/no-error-swallowing) — Catch must Logger.error() and rethrow / Result.err — never silent return
