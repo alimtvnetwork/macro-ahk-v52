@@ -18,6 +18,7 @@ Updated: just now
 - **No-Retry Policy**: Bans unauthorized recursive retry or exponential backoff. Use sequential fail-fast.
 - **No Explicit Unknown**: No `unknown` except in `CaughtError`. Function params must use designed types.
 - **Error Handling**: Defensive property access (`?.`, `??`) required. CQ14 (braces), CQ15 (newlines).
+- **HTTP fail-fast**: On ANY 4xx/5xx (esp. 404/405) from scripted/automated calls, STOP the loop immediately. No retry, no fanout, no heavy follow-up. Emit `HTTP <status> on <METHOD> <url>` + reason + `Loop halted. Awaiting user instruction.` then wait. See `mem://constraints/http-error-fail-fast`.
 - **Auth Contract**: Use single-path `getBearerToken()` contract. No legacy auth methods.
 - **Installer Contract**: All install scripts MUST conform to `spec/14-update/01-generic-installer-behavior.md` — strict on `--version`/release-URL, latest→main fallback otherwise, opt-in parallel sibling-repo discovery.
 - **CI/CD Issues**: Logged in `.lovable/cicd-issues/XX-name.md` and indexed in `.lovable/cicd-index.md`. Stay in folder after resolution (set `## Status ✅ Resolved`); do NOT move to `solved-issues/`.
