@@ -45,6 +45,10 @@ interface OpenTabsResponse {
 interface ProjectEntry {
     readonly id: string;
     readonly name: string;
+    /** From projects.list response; blank if upstream omits it. */
+    readonly githubRepo: string;
+    readonly githubBranch: string;
+    readonly lastMessageAt: string;
 }
 
 interface WorkspaceBlock {
@@ -85,7 +89,7 @@ export function showProjectsModal(): void {
 
     const footer = createFooter(
         function () { void loadAndRender(body); },
-        function (statusEl) { void exportCsv(statusEl); },
+        function (statusEl) { exportCsv(statusEl); },
     );
     panel.appendChild(footer);
 
@@ -168,13 +172,20 @@ async function fetchProjects(wsId: string): Promise<ProjectEntry[]> {
         logError('Projects', 'projects.list HTTP ' + resp.status + ' for ws=' + wsId + ': ' + preview);
         throw new Error('HTTP ' + resp.status);
     }
-    const data = resp.data as { projects?: Array<{ id?: string; name?: string }> };
+    const data = resp.data as { projects?: Array<Record<string, unknown>> };
     const list = Array.isArray(data.projects) ? data.projects : [];
     const out: ProjectEntry[] = [];
     for (const p of list) {
         const id = typeof p.id === 'string' ? p.id : '';
-        const name = typeof p.name === 'string' ? p.name : '';
-        if (id) out.push({ id, name: name || id });
+        if (!id) continue;
+        const rawName = typeof p.name === 'string' ? p.name : '';
+        out.push({
+            id,
+            name: rawName || id,
+            githubRepo: pickString(p, ['github_repo', 'githubRepo', 'github_full_name', 'repo_full_name']),
+            githubBranch: pickString(p, ['github_branch', 'githubBranch', 'default_branch', 'branch']),
+            lastMessageAt: pickString(p, ['last_message_at', 'lastMessageAt', 'updated_at', 'updatedAt']),
+        });
     }
     return out;
 }
@@ -389,13 +400,6 @@ function escapeHtml(s: string): string {
 
 // ── CSV Export ──
 
-interface ProjectGitInfo {
-    repo: string;
-    branch: string;
-    lastMessageAt: string;
-    error: string;
-}
-
 interface ExportRow {
     workspaceId: string;
     workspaceName: string;
@@ -407,7 +411,6 @@ interface ExportRow {
     gitRepo: string;
     gitBranch: string;
     lastCommunication: string;
-    gitFetchError: string;
     extensionVersion: string;
     exportedAt: string;
 }
@@ -415,11 +418,20 @@ interface ExportRow {
 const EXPORT_HEADERS: ReadonlyArray<keyof ExportRow> = [
     'workspaceId', 'workspaceName', 'creditsUsed', 'creditsTotal',
     'projectId', 'projectName', 'isOpenInChrome',
-    'gitRepo', 'gitBranch', 'lastCommunication', 'gitFetchError',
+    'gitRepo', 'gitBranch', 'lastCommunication',
     'extensionVersion', 'exportedAt',
 ];
 
-async function exportCsv(statusEl: HTMLElement): Promise<void> {
+/**
+ * Build CSV synchronously from the already-loaded ProjectEntry list.
+ *
+ * Per Q52 (`.lovable/question-and-ambiguity/52-projects-get-405.md`), we no
+ * longer call `projects.get` per project — the server returns 405 on the
+ * bare `GET /projects/{id}` route. All git metadata is read directly from
+ * the `projects.list` response (which the dashboard itself renders from).
+ * Missing fields become blank cells; no per-project errors.
+ */
+function exportCsv(statusEl: HTMLElement): void {
     if (state.exporting) return;
 
     const blocks = state.blocks;
@@ -445,35 +457,25 @@ async function exportCsv(statusEl: HTMLElement): Promise<void> {
     state.exporting = true;
     setExportButtonDisabled(true);
     statusEl.style.color = '#94a3b8';
-    statusEl.textContent = 'Fetching git + last communication: 0 / ' + tasks.length + '…';
+    statusEl.textContent = 'Building CSV…';
 
     const exportedAt = new Date().toISOString();
-    const rows: ExportRow[] = [];
-
-    // Sequential fetch — mem://constraints/no-retry-policy (fail-fast, single attempt per project).
-    let i = 0;
-    for (const task of tasks) {
-        i++;
-        const tabIsOpen = isOpen(task.project.id, tabIndex);
-        const git = await fetchProjectGitInfo(task.project.id);
-        rows.push({
+    const rows: ExportRow[] = tasks.map(function (task) {
+        return {
             workspaceId: task.ws.id,
             workspaceName: task.ws.fullName || task.ws.name || task.ws.id,
             creditsUsed: task.ws.totalCreditsUsed ?? task.ws.used ?? 0,
             creditsTotal: task.ws.totalCredits ?? task.ws.limit ?? 0,
             projectId: task.project.id,
             projectName: task.project.name,
-            isOpenInChrome: tabIsOpen ? 'yes' : 'no',
-            gitRepo: git.repo,
-            gitBranch: git.branch,
-            lastCommunication: git.error ? '' : (git.lastMessageAt || '(no data returned by API)'),
-            gitFetchError: git.error,
+            isOpenInChrome: isOpen(task.project.id, tabIndex) ? 'yes' : 'no',
+            gitRepo: task.project.githubRepo,
+            gitBranch: task.project.githubBranch,
+            lastCommunication: task.project.lastMessageAt,
             extensionVersion: VERSION,
             exportedAt,
-        });
-        statusEl.textContent = 'Fetching git + last communication: ' + i + ' / ' + tasks.length
-            + ' (' + Math.round((i / tasks.length) * 100) + '%)';
-    }
+        };
+    });
 
     const csv = buildCsv(rows);
     const filename = 'marco-projects-' + exportedAt.replace(/[:.]/g, '-') + '.csv';
@@ -487,33 +489,12 @@ async function exportCsv(statusEl: HTMLElement): Promise<void> {
     log('Projects: CSV export complete (' + rows.length + ' rows)', 'info');
 }
 
-async function fetchProjectGitInfo(projectId: string): Promise<ProjectGitInfo> {
-    const blank: ProjectGitInfo = { repo: '', branch: '', lastMessageAt: '', error: '' };
-    const sdk = window.marco;
-    if (!sdk?.api?.projects || typeof sdk.api.projects.get !== 'function') {
-        return { ...blank, error: 'sdk.projects.get unavailable' };
+function pickString(obj: Record<string, unknown>, keys: ReadonlyArray<string>): string {
+    for (const k of keys) {
+        const v = obj[k];
+        if (typeof v === 'string' && v.length > 0) return v;
     }
-    try {
-        const resp = await sdk.api.projects.get(projectId, { baseUrl: CREDIT_API_BASE });
-        if (!resp.ok) {
-            const msg = 'HTTP ' + resp.status;
-            logError('Projects', 'projects.get HTTP ' + resp.status + ' for project=' + projectId);
-            return { ...blank, error: msg };
-        }
-        // Tolerate either { project: {...} } or {...} shapes.
-        const data = resp.data as Record<string, unknown>;
-        const inner = (data.project && typeof data.project === 'object')
-            ? data.project as Record<string, unknown>
-            : data;
-        const repo = pickString(inner, ['github_repo', 'githubRepo', 'github_full_name', 'repo_full_name']);
-        const branch = pickString(inner, ['github_branch', 'githubBranch', 'default_branch', 'branch']);
-        const lastMessageAt = pickString(inner, ['last_message_at', 'lastMessageAt', 'updated_at', 'updatedAt']);
-        return { repo, branch, lastMessageAt, error: '' };
-    } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        logError('Projects', 'projects.get threw for project=' + projectId + ': ' + msg);
-        return { ...blank, error: msg };
-    }
+    return '';
 }
 
 function pickString(obj: Record<string, unknown>, keys: ReadonlyArray<string>): string {
