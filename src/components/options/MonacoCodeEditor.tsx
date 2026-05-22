@@ -5,8 +5,8 @@ import { registerCustomThemes } from "@/lib/monaco-themes";
 import { useEditorTheme } from "@/hooks/use-editor-theme";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
 import { logError } from "./options-logger";
+import {
   AlignLeft,
   Upload,
   AlertTriangle,
