@@ -29,7 +29,6 @@ type ChromeStub = {
 };
 
 declare global {
-    // eslint-disable-next-line no-var
     var chrome: ChromeStub | undefined;
 }
 
@@ -194,8 +193,7 @@ describe("service-worker-main chrome.action fallback", () => {
         globalThis.chrome = {}; // no .action at all
         let thrownInTry: Error | null = null;
         try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (globalThis.chrome as any).action.setTitle({ title: "x" });
+            (globalThis.chrome as { action: { setTitle: (info: { title: string }) => void } }).action.setTitle({ title: "x" });
         } catch (err) {
             thrownInTry = err as Error;
         }
