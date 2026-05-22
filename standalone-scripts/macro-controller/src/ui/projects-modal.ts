@@ -532,6 +532,7 @@ function createTitleBar(panel: HTMLElement): HTMLElement {
  * types. Calls `onChange` on every input event so the body re-renders
  * against the current `state.searchQuery`.
  */
+// eslint-disable-next-line max-lines-per-function
 function createSearchBar(onChange: () => void): HTMLElement {
     const wrap = document.createElement('div');
     wrap.style.cssText = 'padding:6px 10px;border-bottom:1px solid rgba(124,58,237,0.20);background:rgba(0,0,0,0.20);display:flex;flex-direction:column;gap:6px;';
