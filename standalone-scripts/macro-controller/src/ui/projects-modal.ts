@@ -342,10 +342,28 @@ function renderAll(blocks: ReadonlyArray<WorkspaceBlock>, tabIndex: OpenTabIndex
         + (filterActive ? ' · <span style="color:#fbbf24;">' + matchCount + ' match' + (matchCount === 1 ? '' : 'es') + '</span>' : '')
         + (capturedAt ? ' · ' + escapeHtml(capturedAt) : '')
         + '</div>';
+    let visibleBlocks = 0;
     for (const b of filtered) {
         // Hide workspace block entirely when filter is active and yields no projects.
         if (filterActive && (b.projects?.length ?? 0) === 0 && !b.loading && !b.error) continue;
         html += renderBlock(b, tabIndex);
+        visibleBlocks++;
+    }
+    if (filterActive && matchCount === 0 && visibleBlocks === 0) {
+        const activeChips: string[] = [];
+        if (q) activeChips.push('search "' + escapeHtml(q) + '"');
+        if (onlyOpen) activeChips.push('open-in-tab');
+        if (onlyRepo) activeChips.push('has-repo');
+        html += '<div style="text-align:center;padding:24px 12px;color:' + cPanelFgDim + ';font-size:11px;'
+            + 'border:1px dashed rgba(124,58,237,0.35);border-radius:6px;margin-top:4px;">'
+            + '<div style="font-size:22px;margin-bottom:6px;opacity:0.6;">🔍</div>'
+            + '<div style="color:#cbd5e1;margin-bottom:6px;">No projects match your filters.</div>'
+            + '<div style="font-size:10px;margin-bottom:10px;">Active: ' + activeChips.join(' · ') + '</div>'
+            + '<button data-clear-filters="1" type="button" '
+            +   'style="background:rgba(124,58,237,0.25);border:1px solid ' + cPrimary + ';color:#e9d5ff;'
+            +   'padding:4px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-family:monospace;">'
+            +   'Clear all filters</button>'
+            + '</div>';
     }
     return html;
 }
