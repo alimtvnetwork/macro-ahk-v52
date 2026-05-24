@@ -93,6 +93,10 @@ const ProjectVariablesEditor = lazy(() => import("./ProjectVariablesEditor").the
 const UpdaterPanel = lazy(() => import("./UpdaterPanel").then(m => ({ default: m.UpdaterPanel })));
 const RecorderVisualisationPanel = lazy(() => import("./recorder/RecorderVisualisationPanel"));
 import { exportProjectAsSqliteZip } from "@/lib/sqlite-bundle";
+import { ActivityLogSection } from "./project-detail/ActivityLogSection";
+import { InjectionOrderPreview } from "./project-detail/InjectionOrderPreview";
+import { DocsTab } from "./project-detail/DocsTab";
+import { ScriptsTabContent } from "./project-detail/ScriptsTabContent";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
