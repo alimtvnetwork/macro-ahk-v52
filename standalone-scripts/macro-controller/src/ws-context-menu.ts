@@ -167,6 +167,20 @@ export function showWsContextMenu(
     }));
   }
 
+  // v3.10.0: Open GitHub repo for the current page's project. Uses the
+  // gitsync cache so repeated right-clicks never re-hit the API — including
+  // negative ("not_linked") results, which are memoized for 24h.
+  if (projectId) {
+    menu.appendChild(buildCtxMenuItem('🐙 Open GitHub repo', function () {
+      removeWsContextMenu();
+      void openGithubRepoFlow(wsId, projectId, false);
+    }));
+    menu.appendChild(buildCtxMenuItem('🔄 Refresh gitsync', function () {
+      removeWsContextMenu();
+      void openGithubRepoFlow(wsId, projectId, true);
+    }));
+  }
+
   document.body.appendChild(menu);
 
   setTimeout(function () {
