@@ -69,3 +69,20 @@ Every skip above MUST emit a structured log entry — NEVER a bare early-return.
 - `mem://features/new-tab-no-url-guard`
 - `src/background/condition-evaluator.ts` (C3 evaluator — reuse, do not duplicate)
 - `src/content-scripts/sentinel-reader.ts` (separate concern: project applicability)
+
+---
+
+## C9 — User dismissed for origin (added 2026-05-24)
+
+A **ninth** gate sits in front of C1..C8 at the auto-injector entrypoint. When the user clicks "Not now" or "Don't ask for this site" in the first-attach toast, the (tab, origin) — or origin alone, if persisted — is recorded and ALL subsequent navigations short-circuit before evaluateUrlMatches runs.
+
+- Module: `src/background/dismissed-origins.ts`
+- Storage key (persistent): `marco_dismissed_origins` in `chrome.storage.local` (array of origin strings)
+- Tab-scoped layer: ephemeral `Map<tabId, Set<origin>>`, cleared on `chrome.tabs.onRemoved`
+- Hot-path API: `isOriginDismissedForTab(tabId, url): boolean` (sync, no I/O)
+- Mutators: `dismissOriginForTab` (tab only), `persistDismissOrigin` / `unpersistDismissOrigin` (cross-tab)
+- Boot hook: call `preloadDismissedOrigins()` once at SW startup to hydrate the persistent layer
+- Log code on skip: `AUTOATTACH_SKIPPED_USER_DISMISSED` (mirrors C1..C8 shape — no silent return)
+- Tests: `src/background/__tests__/dismissed-origins.test.ts`
+
+Wired into `src/background/auto-injector.ts` at the top of both `handleNavigationCompleted` (T1) and `handleTabActivated` (T3), ahead of the existing dedup cache.
