@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.9.2] — 2026-05-24 Auto-Attach Default True for Built-Ins
+
+- **Changed** `AutoInject` from `false` → `true` in built-in script seed manifests: `macro-controller`, `lovable-owner-switch`, `lovable-user-add`. Scripts now auto-attach to projects by default (C1..C8 gate permitting) instead of requiring manual binding.
+- `lovable-common` remains `AutoInject: false` (dependency-only; resolved at injection-time via `resolveDependencies`).
+
 ## [v3.9.1] — 2026-05-24 First-Attach Toast UX
 
 - **Added** in-page first-attach toast (MAIN-world) asking the user once per origin whether to keep auto-attaching here. Actions: *Yes keep*, *Not now* (tab-scoped dismiss), *Don't ask for this site* (persistent dismiss).
