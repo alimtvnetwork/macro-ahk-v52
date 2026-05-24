@@ -16,10 +16,15 @@
  */
 
 import type { MessageRequest, OkResponse } from "../../shared/messages";
-import { parse } from "acorn";
 import { logBgWarnError, logCaughtError, BgLogTag } from "../bg-logger";
 import type { InjectableScript, InjectionResult, InjectScriptsResponse, SkipReason } from "../../shared/injection-types";
 import type { StoredProject, ScriptEntry } from "../../shared/project-types";
+import {
+    detectSyntaxError,
+    requestHasInlineSyntaxError,
+    collectInlineSyntaxFailures,
+    type InjectionRequestScript,
+} from "./injection-syntax-preflight";
 import { handleLogEntry, handleLogError } from "./logging-handler";
 import {
     getTabInjections,
