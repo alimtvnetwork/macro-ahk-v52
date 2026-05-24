@@ -31,7 +31,7 @@ Trigger phrases the user may type to query this file:
 - [x] **UI issue — prompt section near buttons** — 2026-05-22, fixed injected controller Prompts → Task Next panel: submenu now opens inline inside the dropdown/controller instead of fixed-positioning outside and colliding with nearby buttons.
 - [x] **Test infra fix** — macro-controller has no vitest suite; item was stale (2026-05-22).
 - [ ] **Task 1.2** — E2E Chrome verification (manual smoke pass on installer build)
-- [ ] **Dashboard "scripts not available" — Phase 2b** — auto-attach scripts to project by URL condition. Phase 1 (diagnostic log + Unbound badge) and Phase 2a (heal bindings on save in `handleSaveProject`) shipped. Phase 2b needs user-confirmed source for per-script URL matches (seed-manifest `TargetUrls` per source project vs project's own `targetUrls`). See `.lovable/question-and-ambiguity/20-dashboard-scripts-not-available-and-auto-attach.md`.
+- [x] **Dashboard "scripts not available" — Phase 2b** — auto-attach scripts to project by URL condition shipped 2026-05-24 (v3.9.2). Root cause was `AutoInject: false` on macro-controller/lovable-owner-switch/lovable-user-add seeds; changed to `true` so they pass C4 and auto-attach. lovable-common remains dependency-only (resolved at injection-time).
 - [x] **Error-swallow P1** — all 14 items cleared (2026-05-19)
 - [x] **Error-swallow P2** — audit shows 0 active findings across src/ as of 2026-05-22
 
