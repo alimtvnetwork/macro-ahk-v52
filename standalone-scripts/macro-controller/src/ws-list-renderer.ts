@@ -52,15 +52,17 @@ import { DataAttr, DomId } from './types';
 // CQ11/CQ17: Encapsulated view-filter state
 // ============================================
 
-/** Manages workspace list view state (compact mode, free-only filter, expired-with-credits filter). */
+/** Manages workspace list view state (compact mode, free-only filter, expired-with-credits filter, refill-priority sort). */
 class WsListViewState {
   private static instance: WsListViewState | null = null;
   private isFreeOnly = false;
   private isExpiredWithCredits = false;
   private isCompactMode: boolean;
+  private isRefillPriority: boolean;
 
   private constructor() {
-    this.isCompactMode = this.loadCompactMode();
+    this.isCompactMode = this.loadBool('ml_compact_mode', true);
+    this.isRefillPriority = this.loadBool('ml_refill_priority', false);
   }
 
   static getInstance(): WsListViewState {
@@ -71,16 +73,16 @@ class WsListViewState {
     return WsListViewState.instance;
   }
 
-  private loadCompactMode(): boolean {
+  private loadBool(key: string, fallback: boolean): boolean {
     try {
-      const stored: string | null = localStorage.getItem('ml_compact_mode');
+      const stored: string | null = localStorage.getItem(key);
 
-      return stored === null ? true : stored === 'true';
+      return stored === null ? fallback : stored === 'true';
     } catch (e: unknown) {
 
-      logError('getExpanded', 'Failed to read expanded state from localStorage', e);
+      logError('viewState.load', 'Failed to read "' + key + '" from localStorage', e);
 
-      return true;
+      return fallback;
     }
   }
 
@@ -109,6 +111,20 @@ class WsListViewState {
 
   setExpiredWithCredits(val: boolean): void {
     this.isExpiredWithCredits = val;
+  }
+
+  getRefillPriority(): boolean {
+
+    return this.isRefillPriority;
+  }
+
+  setRefillPriority(val: boolean): void {
+    this.isRefillPriority = val;
+    try {
+      localStorage.setItem('ml_refill_priority', val ? 'true' : 'false');
+    } catch (e: unknown) {
+      logError('viewState.setRefillPriority', 'Failed to persist refill priority flag', e);
+    }
   }
 }
 
@@ -145,6 +161,16 @@ export function getLoopWsExpiredWithCredits(): boolean {
 /** Set expired-with-credits filter state. */
 export function setLoopWsExpiredWithCredits(val: boolean): void {
   viewState().setExpiredWithCredits(val);
+}
+
+/** Get refill-priority sort state. */
+export function getLoopWsRefillPriority(): boolean {
+  return viewState().getRefillPriority();
+}
+
+/** Set refill-priority sort state. */
+export function setLoopWsRefillPriority(val: boolean): void {
+  viewState().setRefillPriority(val);
 }
 
 // ============================================
