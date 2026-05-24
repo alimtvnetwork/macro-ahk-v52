@@ -374,6 +374,17 @@ export function SettingsView() {
         <PromptVariablesCard />
       </SettingsGroup>
 
+      {/* Dismissed Sites (C9 auto-attach gate) */}
+      <SettingsGroup
+        icon={Shield}
+        title="Dismissed Sites"
+        description="Origins where you opted out of the auto-attach prompt"
+      >
+        <DismissedSitesCard />
+      </SettingsGroup>
+
+
+
       {/* Debugging */}
       <SettingsGroup
         icon={Shield}
