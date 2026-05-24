@@ -37,6 +37,12 @@ import { getDisplayProjectName } from './logging';
 import { DataAttr, DomId } from './types';
 import { PRO_ZERO_BALANCE_JSON_FIELD, PRO_ZERO_SOURCE_FIELD } from './pro-zero/pro-zero-enrichment';
 import { MacroCreditSource } from './pro-zero/macro-credit-source';
+import {
+  getGitsyncCache,
+  setGitsyncCache,
+  invalidateGitsyncCache,
+} from './gitsync-cache';
+import { fetchGitsyncConfig } from './gitsync-api';
 
 // ── Centralized DOM IDs / classnames ──
 const ID_CTX_MENU = 'loop-ws-ctx-menu';
@@ -161,6 +167,20 @@ export function showWsContextMenu(
     }));
   }
 
+  // v3.10.0: Open GitHub repo for the current page's project. Uses the
+  // gitsync cache so repeated right-clicks never re-hit the API — including
+  // negative ("not_linked") results, which are memoized for 24h.
+  if (projectId) {
+    menu.appendChild(buildCtxMenuItem('🐙 Open GitHub repo', function () {
+      removeWsContextMenu();
+      void openGithubRepoFlow(wsId, projectId, false);
+    }));
+    menu.appendChild(buildCtxMenuItem('🔄 Refresh gitsync', function () {
+      removeWsContextMenu();
+      void openGithubRepoFlow(wsId, projectId, true);
+    }));
+  }
+
   document.body.appendChild(menu);
 
   setTimeout(function () {
@@ -171,6 +191,52 @@ export function showWsContextMenu(
 export function removeWsContextMenu(): void {
   const existing = document.getElementById(ID_CTX_MENU);
   if (existing) existing.remove();
+}
+
+/**
+ * Open the GitHub repo linked to (wsId, projectId).
+ *
+ * v3.10.0 — spec/22-app-issues/workspace-github-open/01-overview.md.
+ *
+ * Flow:
+ *   1. If `forceRefresh` is true, drop any cached row first.
+ *   2. Check the SQLite gitsync cache. If we already know the repo URL,
+ *      open it directly — zero network. If we already know it's
+ *      `not_linked`, toast and stop — zero network.
+ *   3. Otherwise call the gitsync API once (no retry) and cache the
+ *      result, including the negative case so future right-clicks stay
+ *      offline.
+ */
+async function openGithubRepoFlow(
+  wsId: string,
+  pid: string,
+  forceRefresh: boolean,
+): Promise<void> {
+  if (forceRefresh) invalidateGitsyncCache(wsId, pid);
+
+  const cached = forceRefresh ? null : await getGitsyncCache(wsId, pid);
+  if (cached && cached.Status === 'found' && cached.RepoUrl) {
+    window.open(cached.RepoUrl, '_blank', 'noopener,noreferrer');
+    return;
+  }
+  if (cached && cached.Status === 'not_linked') {
+    showToast('🐙 No GitHub repo linked (cached). Use Refresh gitsync to re-check.', 'warn');
+    return;
+  }
+
+  const outcome = await fetchGitsyncConfig(wsId, pid);
+  if (outcome.status === 'found') {
+    setGitsyncCache(wsId, pid, 'found', outcome.repoUrl);
+    window.open(outcome.repoUrl, '_blank', 'noopener,noreferrer');
+    return;
+  }
+  if (outcome.status === 'not_linked') {
+    setGitsyncCache(wsId, pid, 'not_linked');
+    showToast('🐙 No GitHub repo linked to this project.', 'warn');
+    return;
+  }
+  setGitsyncCache(wsId, pid, 'error');
+  showToast('❌ Failed to fetch GitHub repo: ' + outcome.message, 'error');
 }
 
 // ── Inline rename helpers ──

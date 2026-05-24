@@ -123,7 +123,11 @@ export function buildButtonRow(deps: PanelBuilderDeps): ButtonRowResult {
   // `gap` has been observed to collapse visually (buttons rendered flush
   // against each other). The margin is independent of `gap` and survives
   // any minimize → expand cycle.
-  btnRow.style.cssText = 'display:flex;gap:10px;row-gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 10px 10px;width:100%;margin:0 auto;box-sizing:border-box;';
+  // v3.10.0: Added `min-width:0;max-width:100%;overflow:visible` so the row
+  // wraps cleanly instead of clipping the rightmost buttons when the panel
+  // is restored into a narrow Lovable sidebar. Prompts/error/menu buttons
+  // also get `min-width:0` on their wrappers below.
+  btnRow.style.cssText = 'display:flex;gap:10px;row-gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 10px 10px;width:100%;max-width:100%;min-width:0;margin:0 auto;box-sizing:border-box;overflow:visible;';
 
   // v2.239.0: Added `flex:0 0 auto;white-space:nowrap` so the buttons keep their
   // natural intrinsic width inside the flex-wrap row. Without this, when the panel
@@ -185,7 +189,7 @@ export function buildButtonRow(deps: PanelBuilderDeps): ButtonRowResult {
 
 function buildStartStopButton(deps: PanelBuilderDeps, btnStyle: string): { wrap: HTMLElement; btn: HTMLElement } {
   const startStopWrap = document.createElement('div');
-  startStopWrap.style.cssText = 'display:inline-flex;align-items:center;position:relative;';
+  startStopWrap.style.cssText = 'display:inline-flex;align-items:center;position:relative;min-width:0;';
 
   const startStopBtn = document.createElement('button');
   startStopBtn.id = IDS.START_BTN;
@@ -309,7 +313,7 @@ interface PromptsDropdownResult {
  
 function buildPromptsDropdown(_deps: PanelBuilderDeps, btnStyle: string): PromptsDropdownResult {
   const promptsContainer = document.createElement('div');
-  promptsContainer.style.cssText = 'position:relative;display:inline-block;';
+  promptsContainer.style.cssText = 'position:relative;display:inline-block;min-width:0;';
   const promptsBtn = document.createElement('button');
   promptsBtn.textContent = '📋 Prompts';
   promptsBtn.title = 'Select a prompt to paste or copy';

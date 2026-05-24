@@ -30,6 +30,8 @@ export {
   setLoopWsFreeOnly,
   getLoopWsExpiredWithCredits,
   setLoopWsExpiredWithCredits,
+  getLoopWsRefillPriority,
+  setLoopWsRefillPriority,
   buildLoopTooltipText,
   renderLoopWorkspaceList,
   populateLoopWorkspaceDropdown,

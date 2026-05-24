@@ -158,6 +158,8 @@ function _buildWsDropdown(deps: PanelBuilderDeps): { wsDropSection: HTMLElement 
     setLoopWsCompactMode: deps.setLoopWsCompactMode,
     getLoopWsExpiredWithCredits: deps.getLoopWsExpiredWithCredits,
     setLoopWsExpiredWithCredits: deps.setLoopWsExpiredWithCredits,
+    getLoopWsRefillPriority: deps.getLoopWsRefillPriority,
+    setLoopWsRefillPriority: deps.setLoopWsRefillPriority,
     getLoopWsNavIndex: deps.getLoopWsNavIndex,
     setLoopWsNavIndex: deps.setLoopWsNavIndex,
     triggerLoopMoveFromSelection: deps.triggerLoopMoveFromSelection,

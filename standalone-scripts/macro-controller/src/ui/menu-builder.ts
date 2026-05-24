@@ -60,7 +60,7 @@ export function buildHamburgerMenu(deps: MenuBuilderDeps): MenuBuilderResult {
   const menuBtnStyle = 'display:flex;align-items:center;gap:4px;width:100%;padding:5px 10px;border:none;background:transparent;color:' + cPanelFgMuted + ';font-size:' + tFontSm + ';cursor:pointer;text-align:left;border-radius:3px;transition:background ' + trFast + ';';
 
   const menuContainer = document.createElement('div');
-  menuContainer.style.cssText = 'position:relative;display:inline-block;';
+  menuContainer.style.cssText = 'position:relative;display:inline-block;min-width:0;';
   const menuBtn = document.createElement('button');
   menuBtn.textContent = '☰';
   menuBtn.title = 'More actions';

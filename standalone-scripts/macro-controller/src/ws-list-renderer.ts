@@ -45,22 +45,25 @@ import { showWsContextMenu } from './ws-context-menu';
 import { logError } from './error-utils';
 
 // ── Centralized constants ──
-import { SEL_LOOP_WS_ITEM } from './constants';
+import { SEL_LOOP_WS_ITEM, REFILL_PRIORITY_WINDOW_DAYS } from './constants';
 import { DataAttr, DomId } from './types';
+import { sortByRefillPriority, daysToRefillForWs } from './workspace-refill-priority';
 
 // ============================================
 // CQ11/CQ17: Encapsulated view-filter state
 // ============================================
 
-/** Manages workspace list view state (compact mode, free-only filter, expired-with-credits filter). */
+/** Manages workspace list view state (compact mode, free-only filter, expired-with-credits filter, refill-priority sort). */
 class WsListViewState {
   private static instance: WsListViewState | null = null;
   private isFreeOnly = false;
   private isExpiredWithCredits = false;
   private isCompactMode: boolean;
+  private isRefillPriority: boolean;
 
   private constructor() {
-    this.isCompactMode = this.loadCompactMode();
+    this.isCompactMode = this.loadBool('ml_compact_mode', true);
+    this.isRefillPriority = this.loadBool('ml_refill_priority', false);
   }
 
   static getInstance(): WsListViewState {
@@ -71,16 +74,16 @@ class WsListViewState {
     return WsListViewState.instance;
   }
 
-  private loadCompactMode(): boolean {
+  private loadBool(key: string, fallback: boolean): boolean {
     try {
-      const stored: string | null = localStorage.getItem('ml_compact_mode');
+      const stored: string | null = localStorage.getItem(key);
 
-      return stored === null ? true : stored === 'true';
+      return stored === null ? fallback : stored === 'true';
     } catch (e: unknown) {
 
-      logError('getExpanded', 'Failed to read expanded state from localStorage', e);
+      logError('viewState.load', 'Failed to read "' + key + '" from localStorage', e);
 
-      return true;
+      return fallback;
     }
   }
 
@@ -109,6 +112,20 @@ class WsListViewState {
 
   setExpiredWithCredits(val: boolean): void {
     this.isExpiredWithCredits = val;
+  }
+
+  getRefillPriority(): boolean {
+
+    return this.isRefillPriority;
+  }
+
+  setRefillPriority(val: boolean): void {
+    this.isRefillPriority = val;
+    try {
+      localStorage.setItem('ml_refill_priority', val ? 'true' : 'false');
+    } catch (e: unknown) {
+      logError('viewState.setRefillPriority', 'Failed to persist refill priority flag', e);
+    }
   }
 }
 
@@ -145,6 +162,16 @@ export function getLoopWsExpiredWithCredits(): boolean {
 /** Set expired-with-credits filter state. */
 export function setLoopWsExpiredWithCredits(val: boolean): void {
   viewState().setExpiredWithCredits(val);
+}
+
+/** Get refill-priority sort state. */
+export function getLoopWsRefillPriority(): boolean {
+  return viewState().getRefillPriority();
+}
+
+/** Set refill-priority sort state. */
+export function setLoopWsRefillPriority(val: boolean): void {
+  viewState().setRefillPriority(val);
 }
 
 // ============================================
@@ -360,6 +387,34 @@ function buildStatusPillHtml(status: WorkspaceStatus): string {
     + ' data-marco-tip="' + tip + '">' + status.label + '</span>';
 }
 
+/**
+ * Build the inline `R Nd` refill badge for a workspace row. Returns empty
+ * string when no usable refill date or refill is beyond the priority
+ * window. Colors follow the about-to-refill warning palette:
+ *   - 0 days  → sky-400 (today)
+ *   - 1–3d    → amber-400 (urgent)
+ *   - 4–10d   → slate-400 (heads-up)
+ *
+ * v3.10.0 — spec/22-app-issues/refill-priority-filter/01-overview.md §4.
+ */
+function buildRefillBadgeHtml(ws: WorkspaceCredit): string {
+  const days = daysToRefillForWs(ws);
+  if (days === null) return '';
+  if (days > REFILL_PRIORITY_WINDOW_DAYS) return '';
+  let fg = '#cbd5e1';
+  let bg = 'rgba(71,85,105,0.35)';
+  let border = 'rgba(148,163,184,0.5)';
+  if (days === 0) {
+    fg = '#bae6fd'; bg = 'rgba(2,132,199,0.45)'; border = '#38bdf8';
+  } else if (days <= 3) {
+    fg = '#fde68a'; bg = 'rgba(180,83,9,0.45)'; border = '#f59e0b';
+  }
+  return '<span class="loop-ws-refill-badge" style="font-size:9px;color:' + fg
+    + ';background:' + bg + ';border:1px solid ' + border
+    + ';padding:1px 5px;border-radius:3px;font-weight:700;margin-left:5px;vertical-align:middle;letter-spacing:0.3px;">R '
+    + days + 'd</span>';
+}
+
 /** Build the inner HTML for a workspace row. */
 function buildWsRowInnerHtml(
   ws: WorkspaceCredit, isCurrent: boolean, isChecked: boolean,
@@ -392,6 +447,8 @@ function buildWsRowInnerHtml(
       tierBadge += '<span style="font-size:10px;color:#fca5a5;background:rgba(127,29,29,0.55);padding:2px 5px;border-radius:3px;font-weight:600;margin-left:3px;vertical-align:middle;" data-marco-tip="' + tip + '">·' + days + 'd</span>';
     }
   }
+  // v3.10.0: Inline `R Nd` refill badge — only when refill is within window.
+  tierBadge += buildRefillBadgeHtml(ws);
   const nameColor = isCurrent ? '#67e8f9' : '#e2e8f0';
   const nameBold = isCurrent ? 'font-weight:800;' : 'font-weight:500;';
 
@@ -493,6 +550,12 @@ export function renderLoopWorkspaceList(
     survivors.sort(function (a, b) {
       return _expiredRecoveryScore(b.ws) - _expiredRecoveryScore(a.ws);
     });
+  } else if (viewState().getRefillPriority()) {
+    // v3.10.0: Refill-priority sort. score = max(0, K - daysToRefill) * available.
+    // Workspaces with no refill date or beyond the window score 0 and sink.
+    const sorted = sortByRefillPriority(survivors, REFILL_PRIORITY_WINDOW_DAYS);
+    survivors.length = 0;
+    for (const r of sorted) survivors.push(r);
   }
 
   for (const { ws, wsIndex } of survivors) {
@@ -742,6 +805,8 @@ export function populateLoopWorkspaceDropdown(): void {
     rolloverEl ? rolloverEl.getAttribute(DataAttr.Active) : '',
     billingEl ? billingEl.getAttribute(DataAttr.Active) : '',
     minCreditsEl ? (minCreditsEl as HTMLInputElement).value : '',
+    viewState().getExpiredWithCredits() ? 1 : 0,
+    viewState().getRefillPriority() ? 1 : 0,
     checkedCount,
   ].join('|');
 

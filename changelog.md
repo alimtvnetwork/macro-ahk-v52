@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.10.0] — 2026-05-24 Refill Priority Filter + GitHub Repo Open
+
+- **Fixed** button row overflow: added `min-width:0;max-width:100%` and `overflow:visible` to `btnRow`, plus `min-width:0` on the start/stop, prompts, and menu containers, so the row wraps cleanly instead of clipping the rightmost buttons inside narrow Lovable sidebars.
+- **Added** `Refill priority` filter row in the workspace hamburger menu. When active, workspaces sort by `score = max(0, K - daysToRefill) * available` (`REFILL_PRIORITY_WINDOW_DAYS = 10`), surfacing rows that both refill soon and still hold spendable credits. Persisted via `localStorage('ml_refill_priority')`.
+- **Added** inline `R Nd` badge on workspace rows when refill is within the 10-day window. Color tiers: 0d sky, 1–3d amber, 4–10d slate.
+- **Added** right-click "🐙 Open GitHub repo" + "🔄 Refresh gitsync" menu entries. Calls `GET /workspaces/{wsId}/projects/{pid}/gitsync` once (no retry, per `mem://constraints/no-retry-policy`). Results — including the negative `not_linked` case — are memoized in the new `MacroGitsyncCache:{wsId}:{pid}` SQLite kv table (TTL: found ∞, not_linked 24h, error 5m), so repeat right-clicks never re-hit the API for a result we already know.
+
 ## [v3.9.3] — 2026-05-24 Button Row Spacing Hardening
 
 - **Fixed** controller button row visually flush with no gap after minimize → expand cycle. Bumped `btnRow` flex `gap` 8px → 10px and added defensive `margin:2px 3px` to each button via `btnStyle` so spacing survives any layout state.
