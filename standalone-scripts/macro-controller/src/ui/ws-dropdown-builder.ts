@@ -148,6 +148,8 @@ function _buildWsDropdownHeader(deps: WsDropdownDeps): HTMLElement {
     setLoopWsCompactMode: deps.setLoopWsCompactMode,
     getLoopWsExpiredWithCredits: deps.getLoopWsExpiredWithCredits,
     setLoopWsExpiredWithCredits: deps.setLoopWsExpiredWithCredits,
+    getLoopWsRefillPriority: deps.getLoopWsRefillPriority,
+    setLoopWsRefillPriority: deps.setLoopWsRefillPriority,
   }));
 
   return wsDropHeader;
