@@ -46,7 +46,7 @@ export function createPromptsDropdown(): HTMLElement {
 
   const dropdown = document.createElement('div');
   dropdown.id = 'marco-chatbox-prompts-dropdown';
-  dropdown.style.cssText = 'display:none;position:fixed;z-index:100002;min-width:260px;max-width:380px;max-height:320px;overflow-y:auto;background:#1e1e2e;border:1px solid #7c3aed;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.4);font-family:system-ui,sans-serif;';
+  dropdown.style.cssText = 'display:none;position:fixed;z-index:100002;min-width:260px;max-width:380px;max-height:60vh;overflow-y:auto;background:#1e1e2e;border:1px solid #7c3aed;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.4);font-family:system-ui,sans-serif;';
   document.body.appendChild(dropdown);
   promptsDropdownState.element = dropdown;
 
@@ -60,13 +60,27 @@ export function createPromptsDropdown(): HTMLElement {
   return dropdown;
 }
 
-/** Position the dropdown above the trigger button. */
+/**
+ * Position the dropdown above the trigger button.
+ * Anchors via `bottom` so the panel grows upward regardless of async content
+ * height changes (loading → loaded). Clamps horizontally inside the viewport.
+ */
 export function positionDropdownAboveButton(dropdown: HTMLElement, button: HTMLElement): void {
   const rect = button.getBoundingClientRect();
+  const viewportH = window.innerHeight || document.documentElement.clientHeight;
+  const viewportW = window.innerWidth || document.documentElement.clientWidth;
+
   dropdown.style.display = 'block';
-  const dropHeight = dropdown.offsetHeight || 200;
-  dropdown.style.left = Math.max(8, rect.left - 120) + 'px';
-  dropdown.style.top = Math.max(8, rect.top - dropHeight - 6) + 'px';
+  dropdown.style.top = 'auto';
+  // Anchor the dropdown's bottom 6px above the button so it always sits above it.
+  dropdown.style.bottom = Math.max(8, viewportH - rect.top + 6) + 'px';
+  // Cap height to the space available above the button.
+  dropdown.style.maxHeight = Math.max(160, rect.top - 16) + 'px';
+
+  const width = dropdown.offsetWidth || 320;
+  const preferredLeft = rect.left - 120;
+  const clampedLeft = Math.min(Math.max(8, preferredLeft), Math.max(8, viewportW - width - 8));
+  dropdown.style.left = clampedLeft + 'px';
 }
 
 // CQ16: Extracted from renderChatboxPromptsDropdown closure
