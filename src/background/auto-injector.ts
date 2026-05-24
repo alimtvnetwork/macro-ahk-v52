@@ -209,6 +209,17 @@ export async function handleNavigationCompleted(
         return;
     }
 
+    // Per-tab dismissed-origin short-circuit (Step B). User explicitly
+    // dismissed the first-attach toast for this (tab, origin); skip everything
+    // until tab close or origin change. See mem://features/auto-attach-policy.md.
+    if (isOriginDismissedForTab(details.tabId, details.url)) {
+        console.log(
+            `[auto-injector] AUTOATTACH_SKIPPED_USER_DISMISSED tab=${details.tabId} url=${details.url} trigger=load`,
+        );
+        return;
+    }
+
+
     // TTL-based dedup: absorb listener double-fires (audit U-1 recommendation).
     // Reloads >5s apart still re-inject; bursts within 5s are squashed.
     const fp = urlFingerprint(details.url);
