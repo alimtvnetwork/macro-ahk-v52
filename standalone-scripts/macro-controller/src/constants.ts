@@ -67,6 +67,18 @@ export const DEFAULT_ENABLE_WORKSPACE_HOVER_DETAILS = true;
 /** Delay before the workspace hover card disappears after mouseleave (ms). */
 export const DEFAULT_HOVERCARD_HIDE_GRACE_PERIOD_MS = 220;
 
+/**
+ * Refill Priority filter window (days).
+ *
+ * Spec: spec/22-app-issues/refill-priority-filter/01-overview.md
+ *
+ * Workspaces refilling within this many days are eligible for the
+ * "Refill priority" sort and the inline `R Nd` badge. The score formula
+ * is `max(0, K - daysToRefill) * available`, so smaller K = stricter
+ * cutoff. Default 10 matches the about-to-refill warning band.
+ */
+export const REFILL_PRIORITY_WINDOW_DAYS = 10;
+
 // Startup / retry
 export const MAX_SDK_ATTEMPTS = 3;
 export const SDK_RETRY_DELAY_MS = 500;
