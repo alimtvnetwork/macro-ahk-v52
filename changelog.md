@@ -7,7 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.9.0] — 2026-05-24 Auto-Attach C9 Gate + Restricted-URL Hardening
+
+### Added
+- **C9 gate — "User dismissed for origin"**: new `src/background/dismissed-origins.ts` adds a ninth auto-attach gate sitting in front of C1..C8. Per-tab in-memory layer (`Map<tabId, Set<origin>>`) plus persistent cross-tab layer in `chrome.storage.local` under `marco_dismissed_origins`. Auto-injector short-circuits T1/T3 navigations with structured log `AUTOATTACH_SKIPPED_USER_DISMISSED`. Boot pre-hydrates the persistent layer.
+- **Broad-rule project audit**: `scripts/audit-project-broad-rules.mjs` flags overly-broad URL patterns (`*`, `<all_urls>`, bare host wildcards, catch-all regex) with HIGH/LOW risk based on `autoStart`.
+- 8 unit tests for `dismissed-origins` covering tab isolation, persistence, hydration, and snapshot listing.
+
+### Fixed
+- `url-trigger.isRestrictedUrl()` now also filters `chrome-untrusted://` and `moz-extension://` so the sentinel inject no longer attempts (and fails) on other extensions' UI pages. Resolves the v3.0.0 report "Cannot access a chrome-extension:// URL of different extension".
+
+### Docs
+- `mem://features/auto-attach-policy` appended with C9 contract, log code, storage key, and boot wiring.
+
 ## [v3.8.0] — 2026-05-24 Prompts Dropdown Viewport Fix
+
 
 ### Fixed
 - Prompts dropdown now portals to `document.body` so it is no longer clipped by the panel's `overflow: hidden`.

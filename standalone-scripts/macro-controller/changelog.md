@@ -1,6 +1,6 @@
 # Macro Controller — Changelog
 
-## v3.8.0 (2026-05-24)
+## v3.9.0 (2026-05-24)
 
 ### Fixed
 - Prompts dropdown portals to `document.body` to escape `overflow: hidden` clipping.
