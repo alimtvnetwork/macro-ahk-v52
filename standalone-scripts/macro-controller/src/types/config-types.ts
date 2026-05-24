@@ -154,6 +154,8 @@ export interface WorkspaceLifecycleConfigInput {
   enableWorkspaceStatusLabels?: boolean;
   /** Master toggle for the rich hover card. Default true. */
   enableWorkspaceHoverDetails?: boolean;
+  /** Delay before the workspace hover card disappears after mouseleave (ms). Default 220. */
+  hoverCardHideGracePeriodMs?: number;
 }
 
 export interface GeneralConfig {
