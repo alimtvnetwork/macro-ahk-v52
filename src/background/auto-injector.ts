@@ -30,6 +30,10 @@ import {
 } from "./state-manager";
 import { urlFingerprint } from "./url-fingerprint";
 import { injectWithCspFallback } from "./csp-fallback";
+import {
+    isOriginDismissedForTab,
+    clearDismissedOriginsForTab,
+} from "./dismissed-origins";
 import { STORAGE_KEY_ALL_SCRIPTS } from "../shared/constants";
 import { ensureBuiltinScriptsExist } from "./builtin-script-guard";
 import { persistInjectionError, persistInjectionWarn } from "./injection-diagnostics";
