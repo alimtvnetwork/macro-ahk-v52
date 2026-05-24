@@ -193,6 +193,52 @@ export function removeWsContextMenu(): void {
   if (existing) existing.remove();
 }
 
+/**
+ * Open the GitHub repo linked to (wsId, projectId).
+ *
+ * v3.10.0 — spec/22-app-issues/workspace-github-open/01-overview.md.
+ *
+ * Flow:
+ *   1. If `forceRefresh` is true, drop any cached row first.
+ *   2. Check the SQLite gitsync cache. If we already know the repo URL,
+ *      open it directly — zero network. If we already know it's
+ *      `not_linked`, toast and stop — zero network.
+ *   3. Otherwise call the gitsync API once (no retry) and cache the
+ *      result, including the negative case so future right-clicks stay
+ *      offline.
+ */
+async function openGithubRepoFlow(
+  wsId: string,
+  pid: string,
+  forceRefresh: boolean,
+): Promise<void> {
+  if (forceRefresh) invalidateGitsyncCache(wsId, pid);
+
+  const cached = forceRefresh ? null : await getGitsyncCache(wsId, pid);
+  if (cached && cached.Status === 'found' && cached.RepoUrl) {
+    window.open(cached.RepoUrl, '_blank', 'noopener,noreferrer');
+    return;
+  }
+  if (cached && cached.Status === 'not_linked') {
+    showToast('🐙 No GitHub repo linked (cached). Use Refresh gitsync to re-check.', 'warn');
+    return;
+  }
+
+  const outcome = await fetchGitsyncConfig(wsId, pid);
+  if (outcome.status === 'found') {
+    setGitsyncCache(wsId, pid, 'found', outcome.repoUrl);
+    window.open(outcome.repoUrl, '_blank', 'noopener,noreferrer');
+    return;
+  }
+  if (outcome.status === 'not_linked') {
+    setGitsyncCache(wsId, pid, 'not_linked');
+    showToast('🐙 No GitHub repo linked to this project.', 'warn');
+    return;
+  }
+  setGitsyncCache(wsId, pid, 'error');
+  showToast('❌ Failed to fetch GitHub repo: ' + outcome.message, 'error');
+}
+
 // ── Inline rename helpers ──
 
 function buildIconButton(
