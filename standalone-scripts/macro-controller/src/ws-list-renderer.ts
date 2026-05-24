@@ -45,8 +45,9 @@ import { showWsContextMenu } from './ws-context-menu';
 import { logError } from './error-utils';
 
 // ── Centralized constants ──
-import { SEL_LOOP_WS_ITEM } from './constants';
+import { SEL_LOOP_WS_ITEM, REFILL_PRIORITY_WINDOW_DAYS } from './constants';
 import { DataAttr, DomId } from './types';
+import { sortByRefillPriority, daysToRefillForWs } from './workspace-refill-priority';
 
 // ============================================
 // CQ11/CQ17: Encapsulated view-filter state
