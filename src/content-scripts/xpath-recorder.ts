@@ -123,19 +123,53 @@ function onElementClick(event: MouseEvent): void {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Visual Highlight                                                   */
+/*  Visual Highlight (PERF-R5 — bounded timeouts, per-element reset)   */
 /* ------------------------------------------------------------------ */
 
-/** Briefly highlights the clicked element. */
+const HIGHLIGHT_DURATION_MS = 1500;
+const MAX_CONCURRENT_HIGHLIGHTS = 32;
+
+/** Active highlight timers keyed by element so re-clicks reset cleanly. */
+const activeHighlights = new Map<HTMLElement, { timerId: number; originalOutline: string }>();
+
+/** Clears a single element's highlight and restores its outline. */
+function clearHighlight(htmlElement: HTMLElement): void {
+    const entry = activeHighlights.get(htmlElement);
+    if (entry === undefined) return;
+    window.clearTimeout(entry.timerId);
+    htmlElement.style.outline = entry.originalOutline;
+    activeHighlights.delete(htmlElement);
+}
+
+/** Clears every active highlight (called on stop / pagehide). */
+function clearAllHighlights(): void {
+    Array.from(activeHighlights.keys()).forEach((el) => clearHighlight(el));
+}
+
+/** Drops the oldest highlight if the bound is exceeded. */
+function trimHighlightStack(): void {
+    if (activeHighlights.size < MAX_CONCURRENT_HIGHLIGHTS) return;
+    const oldest = activeHighlights.keys().next().value;
+    if (oldest !== undefined) clearHighlight(oldest);
+}
+
+/** Briefly highlights the clicked element. Bounded + per-element idempotent. */
 function highlightElement(element: Element): void {
     const htmlElement = element as HTMLElement;
-    const originalOutline = htmlElement.style.outline;
+    clearHighlight(htmlElement);
+    trimHighlightStack();
 
+    const originalOutline = htmlElement.style.outline;
     htmlElement.style.outline = "2px solid #ff6b35";
 
-    setTimeout(() => {
-        htmlElement.style.outline = originalOutline;
-    }, 1500);
+    const timerId = window.setTimeout(() => {
+        const entry = activeHighlights.get(htmlElement);
+        if (entry === undefined) return;
+        htmlElement.style.outline = entry.originalOutline;
+        activeHighlights.delete(htmlElement);
+    }, HIGHLIGHT_DURATION_MS);
+
+    activeHighlights.set(htmlElement, { timerId, originalOutline });
 }
 
 /* ------------------------------------------------------------------ */
@@ -148,16 +182,25 @@ function startRecorder(): void {
     console.log("[Marco] XPath recorder started");
 }
 
-/** Stops the XPath recorder. */
+/** Stops the XPath recorder. Tears down listeners + outstanding timers. */
 function stopRecorder(): void {
     isActive = false;
     document.removeEventListener("click", onElementClick, true);
+    clearAllHighlights();
+    window.removeEventListener("pagehide", onPageHide);
     console.log("[Marco] XPath recorder stopped");
+}
+
+/** Pagehide teardown — mem://standards/timer-and-observer-teardown. */
+function onPageHide(): void {
+    stopRecorder();
 }
 
 /** Listens for the stop event from the background handler. */
 window.addEventListener("marco-xpath-stop", () => {
     stopRecorder();
 });
+
+window.addEventListener("pagehide", onPageHide);
 
 startRecorder();
