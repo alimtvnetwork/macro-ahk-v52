@@ -641,31 +641,7 @@ async function injectAllScripts(
     return results;
 }
 
-/**
- * Pre-flight syntax validation. Returns the SyntaxError message if user code
- * is unparsable, otherwise null. We must do this *before* handing the script
- * to chrome.userScripts.execute() / chrome.scripting.executeScript() because
- * those APIs swallow parse failures silently and report success — see
- * spec/22-app-issues for the regression that broke the bad-syntax e2e test.
- */
-function detectSyntaxError(code: string): string | null {
-    try {
-        parse(`(function(){\n${code}\n});`, {
-            ecmaVersion: "latest",
-            sourceType: "script",
-            allowReturnOutsideFunction: false,
-        });
-        return null;
-    } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.debug(
-            "[injection:syntax-preflight] detectSyntaxError caught parse error (codeLen=%d): %s",
-            code.length,
-            message,
-        );
-        return message;
-    }
-}
+// detectSyntaxError moved to ./injection-syntax-preflight (PERF-R2b step 1).
 
 /**
  * Splits a list of prepared scripts into the ones that parse cleanly and a
