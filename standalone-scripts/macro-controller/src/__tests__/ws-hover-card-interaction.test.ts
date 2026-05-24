@@ -17,8 +17,11 @@
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { attachWorkspaceHoverCard, hideWorkspaceHoverCard } from '../ws-hover-card';
-import { setWorkspaceLifecycleConfigOverride } from '../workspace-lifecycle-config';
 import type { WorkspaceCredit } from '../types';
+
+declare global {
+  interface Window { __MARCO_CONFIG__?: Record<string, unknown>; }
+}
 
 const HOVERCARD_ID = 'marco-ws-hovercard';
 const GAP = 8;
