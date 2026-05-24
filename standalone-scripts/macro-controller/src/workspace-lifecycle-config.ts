@@ -85,6 +85,14 @@ export function getWorkspaceLifecycleConfigFor(wsId: string | undefined): Worksp
     ? (raw.enableWorkspaceHoverDetails !== undefined ? raw.enableWorkspaceHoverDetails : DEFAULT_ENABLE_WORKSPACE_HOVER_DETAILS)
     : false;
 
+  const hideGrace = typeof perWs?.hoverCardHideGracePeriodMs === 'number' && perWs.hoverCardHideGracePeriodMs >= 0
+    ? perWs.hoverCardHideGracePeriodMs
+    : (typeof overrides.hoverCardHideGracePeriodMs === 'number' && overrides.hoverCardHideGracePeriodMs >= 0
+      ? overrides.hoverCardHideGracePeriodMs
+      : (typeof raw.hoverCardHideGracePeriodMs === 'number' && raw.hoverCardHideGracePeriodMs >= 0
+        ? raw.hoverCardHideGracePeriodMs
+        : DEFAULT_HOVERCARD_HIDE_GRACE_PERIOD_MS));
+
   return {
     expiryGracePeriodDays: grace,
     refillWarningThresholdDays: refill,
@@ -94,5 +102,6 @@ export function getWorkspaceLifecycleConfigFor(wsId: string | undefined): Worksp
     enableWorkspaceHoverDetails: typeof overrides.enableWorkspaceHoverDetails === 'boolean'
       ? overrides.enableWorkspaceHoverDetails
       : rawHover,
+    hoverCardHideGracePeriodMs: hideGrace,
   };
 }
