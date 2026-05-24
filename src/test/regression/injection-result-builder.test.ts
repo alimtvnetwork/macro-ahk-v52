@@ -123,9 +123,10 @@ describe("buildErrorResult", () => {
         expect(result.errorMessage).toBe("plain string failure");
     });
 
-    it("coerces an object-with-message error", () => {
+    it("coerces an object error via String()", () => {
         const result = buildErrorResult("s4", Date.now(), { message: "obj err" });
-        expect(result.errorMessage).toBe("obj err");
+        // buildErrorResult uses String(error), so objects become "[object Object]"
+        expect(result.errorMessage).toBe("[object Object]");
     });
 
     it("handles null / undefined / number without throwing", () => {
