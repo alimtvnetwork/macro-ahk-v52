@@ -332,6 +332,7 @@ function buildPromptsDropdown(_deps: PanelBuilderDeps, btnStyle: string): Prompt
     const isOpen = promptsDropdown.style.display !== 'none';
     promptsDropdown.style.display = isOpen ? 'none' : 'block';
     if (!isOpen) {
+      positionPromptsDropdown(promptsBtn, promptsDropdown);
       loadTaskNextSettings(taskNextDeps);
       if (isPromptsCached()) {
         // Prompts already in memory — render instantly, no loading indicator
@@ -362,11 +363,39 @@ function buildPromptsDropdown(_deps: PanelBuilderDeps, btnStyle: string): Prompt
       }
     }
   };
-  document.addEventListener('click', function() { promptsDropdown.style.display = 'none'; const sub = document.querySelector('[data-task-next-sub]') as HTMLElement | null; if (sub) sub.style.display = 'none'; });
+  document.addEventListener('click', function(ev: Event) {
+    const target = ev.target as Node | null;
+    const insideDropdown = target !== null && promptsDropdown.contains(target);
+    const onButton = target !== null && promptsBtn.contains(target);
+    if (insideDropdown || onButton) { return; }
+    promptsDropdown.style.display = 'none';
+    const sub = document.querySelector('[data-task-next-sub]') as HTMLElement | null;
+    if (sub) { sub.style.display = 'none'; }
+  });
+  // Reposition on viewport changes while open
+  const onReflow = function(): void {
+    if (promptsDropdown.style.display !== 'none') {
+      positionPromptsDropdown(promptsBtn, promptsDropdown);
+    }
+  };
+  window.addEventListener('resize', onReflow);
+  window.addEventListener('scroll', onReflow, true);
   promptsContainer.appendChild(promptsBtn);
-  promptsContainer.appendChild(promptsDropdown);
+  // Portal the dropdown to <body> so it escapes the panel's overflow:hidden.
+  document.body.appendChild(promptsDropdown);
 
   return { promptsContainer, promptsBtn, promptCtx, taskNextDeps };
+}
+
+// ============================================
+// Prompts dropdown positioning (Step 3 lands real flip logic here)
+// ============================================
+
+function positionPromptsDropdown(triggerBtn: HTMLElement, dropdown: HTMLElement): void {
+  const rect = triggerBtn.getBoundingClientRect();
+  const gap = 4;
+  dropdown.style.top = Math.round(rect.bottom + gap) + 'px';
+  dropdown.style.left = Math.round(rect.left) + 'px';
 }
 
 // ============================================
