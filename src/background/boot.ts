@@ -36,6 +36,9 @@ import { configureUserScriptWorld } from "./csp-fallback";
 import { markInitialized, drainBuffer } from "./message-buffer";
 import { cacheScriptCode, getCachedScriptCode, purgeStaleEntries, syncCacheWithBuildId, invalidateCacheOnDeploy } from "./injection-cache";
 import { invalidateNamespaceCache } from "./namespace-cache";
+import { preloadDismissedOrigins } from "./dismissed-origins";
+import { preloadSeenOrigins } from "./seen-origins";
+import { registerFirstAttachToastBridge } from "./first-attach-toast";
 import { logCaughtError, logBgWarnError, logSampledDebug, BgLogTag} from "./bg-logger";
 
 const BUILD_META_URL = "build-meta.json";

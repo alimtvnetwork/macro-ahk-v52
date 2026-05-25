@@ -34,6 +34,7 @@ import {
     isOriginDismissedForTab,
     clearDismissedOriginsForTab,
 } from "./dismissed-origins";
+import { maybeShowFirstAttachToast } from "./first-attach-toast";
 import { STORAGE_KEY_ALL_SCRIPTS } from "../shared/constants";
 import { ensureBuiltinScriptsExist } from "./builtin-script-guard";
 import { persistInjectionError, persistInjectionWarn } from "./injection-diagnostics";
