@@ -161,7 +161,7 @@ export async function handleInjectScripts(
         const cachedPayload = await time("cache_gate", () =>
             cacheGet<PipelineCachePayload>(PIPELINE_CACHE_CATEGORY, PIPELINE_CACHE_KEY));
         const cachedFingerprint = cachedPayload?.requestFingerprint ?? "";
-        const cacheLaunchSource = cachedPayload?.launchSource ?? "manual";
+        const cacheLaunchSource = cachedPayload?.launchSource;
         const cacheMatchesRequest = cachedPayload !== null
             && cachedFingerprint.length > 0
             && requestedFingerprint === cachedFingerprint
