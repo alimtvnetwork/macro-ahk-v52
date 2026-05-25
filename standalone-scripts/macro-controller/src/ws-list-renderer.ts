@@ -348,46 +348,41 @@ function wsRowBgStyle(isCurrent: boolean, isSel: boolean): string {
 }
 
 /**
- * Visual styling per status pill kind.
- * Uses semantic-token-aligned RGBA backgrounds and named foreground hexes
- * (matching the dark theme palette already used by tierBadge above).
+ * Build the lifecycle status pill HTML.
+ *
+ * Issue 115 (v3.12.0): collapses the granular `WorkspaceStatus` into a single
+ * display badge via `classifyFromStatus`. The legacy duplicated badge pair
+ * (`EXPIRED` + `EXPIRED (CANCELED)`, `ABOUT TO EXPIRE` + `EXPIRED`) is gone:
+ * each row now renders **at most one** status pill with one short label
+ * (`Cancel`, `Refill 5d`, `Expire 3d`, `Expired 2d`).
+ *
+ * Returns empty string for `normal` rows.
  */
-const STATUS_PILL_STYLES: Record<string, { bg: string; fg: string; border: string }> = {
-  'fully-expired':    { bg: 'rgba(127,29,29,0.85)',  fg: '#fee2e2', border: '#dc2626' },   // red-600 deep
-  'expired-canceled': { bg: 'rgba(153,27,27,0.65)',  fg: '#fecaca', border: '#ef4444' },   // red-500
-  'expired':          { bg: 'rgba(127,29,29,0.55)',  fg: '#fca5a5', border: 'transparent' },
-  'about-to-expire':  { bg: 'rgba(180,83,9,0.55)',   fg: '#fde68a', border: '#f59e0b' },   // amber-500
-  'about-to-refill':  { bg: 'rgba(2,132,199,0.45)',  fg: '#bae6fd', border: '#38bdf8' },   // sky-400
-};
-
-/** Build the lifecycle status pill HTML. Returns empty string for kind === 'normal'. */
 function buildStatusPillHtml(status: WorkspaceStatus): string {
-  if (status.kind === 'normal') return '';
-  const style = STATUS_PILL_STYLES[status.kind];
-  if (!style) return '';
-  // Tooltip: explain when applicable
-  const tipParts: string[] = [status.label];
+  const display: WorkspaceDisplayStatus = classifyFromStatus(status, {} as WorkspaceCredit);
+  if (display.kind === 'normal' || !display.label) return '';
+  const style = resolveBadgeStyle(display.tone);
+
+  // Tooltip carries the long-form context (date, internal reason). The
+  // custom hover card consumes this via `data-marco-tip`; native `title=`
+  // is intentionally omitted (spec/22-app-issues/113).
+  const tipParts: string[] = [display.label];
+  if (display.tooltip) tipParts.push(display.tooltip);
   if (status.kind === 'about-to-refill' && status.refillIso) {
-    tipParts.push('Refills ' + formatDateDDMMMYY(status.refillIso) + ' (in ' + formatDayCount(status.daysToRefill) + ')');
+    tipParts.push('Refills ' + formatDateDDMMMYY(status.refillIso)
+      + ' (in ' + formatDayCount(status.daysToRefill) + ')');
   } else if (status.sinceIso) {
     const date = formatDateDDMMMYY(status.sinceIso);
-    if (status.kind === 'expired-canceled') {
-      tipParts.push('Canceled ' + date);
-    } else if (status.kind === 'about-to-expire') {
-      tipParts.push('Past due since ' + date);
-    } else {
-      tipParts.push('Since ' + date + ' (' + formatDayCount(status.daysSince) + ')');
-    }
+    tipParts.push('Since ' + date + ' (' + formatDayCount(status.daysSince) + ')');
   }
   const tip = tipParts.join(' — ').replace(/"/g, '&quot;');
-  return '<span class="marco-ws-status-pill marco-ws-status-' + status.kind
+
+  return '<span class="marco-ws-status-pill marco-ws-status-' + display.kind
     + '" style="font-size:9px;color:' + style.fg
     + ';background:' + style.bg
     + ';border:1px solid ' + style.border
-    + ';padding:1px 5px;border-radius:3px;font-weight:700;margin-left:5px;vertical-align:middle;letter-spacing:0.3px;text-transform:uppercase;"'
-    // Native title= intentionally omitted (spec/22-app-issues/113): custom
-    // hover card in ws-hover-card.ts carries this content. Avoid double-tip.
-    + ' data-marco-tip="' + tip + '">' + status.label + '</span>';
+    + ';padding:1px 5px;border-radius:3px;font-weight:700;margin-left:5px;vertical-align:middle;letter-spacing:0.3px;text-transform:none;"'
+    + ' data-marco-tip="' + tip + '">' + display.label + '</span>';
 }
 
 /**
