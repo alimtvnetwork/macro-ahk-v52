@@ -75,6 +75,11 @@ function handleGlobalsIntact(marker: HTMLElement): IdempotentResult {
     return 'abort';
   }
 
+  if (window.__MARCO_LAUNCH_SOURCE__ === 'passive') {
+    console.log('%c[MacroLoop v' + VERSION + '] Passive attach detected — keeping panel hidden until manual Run script', 'color: #38bdf8; font-weight: bold;');
+    return 'abort';
+  }
+
   // Same version + globals intact, but UI container missing (SPA DOM wipe/race)
   console.warn(Label.LogMacroloopV + VERSION + '] Marker+globals present but UI missing — attempting controller UI recovery');
   return attemptUiRecovery(marker);

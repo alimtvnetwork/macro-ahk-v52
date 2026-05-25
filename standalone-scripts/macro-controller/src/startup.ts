@@ -252,6 +252,11 @@ function createUiAndObserver(): void {
 }
 
 function tryCreateUiNow(mc: MacroController): boolean {
+  if (window.__MARCO_LAUNCH_SOURCE__ === 'passive') {
+    log('Startup: passive injection registered globals only — panel hidden until manual Run script', 'info');
+    return true;
+  }
+
   if (!mc.hasUI) {
     ensureUiManagerRegistered(mc);
   }
