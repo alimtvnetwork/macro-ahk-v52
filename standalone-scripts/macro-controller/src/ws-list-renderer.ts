@@ -517,7 +517,7 @@ function buildWsRow(
   const dailyFree = Math.round(ws.dailyFree || 0);
   const rollover = Math.round(ws.rollover || 0);
   const billingAvail = Math.round(ws.billingAvailable || 0);
-  const totalCap = Math.round(ws.totalCredits || calcTotalCredits(ws.freeGranted, ws.dailyLimit, ws.limit, ws.topupLimit, ws.rolloverLimit, ws.plan));
+  const totalCap = Math.round(ws.totalCredits ?? calcTotalCredits(ws.freeGranted, ws.dailyLimit, ws.limit, ws.topupLimit, ws.rolloverLimit, ws.plan));
   const creditBarHtml = renderCreditBar({
     totalCredits: totalCap, available: Math.round(ws.available || 0), totalUsed: ws.totalCreditsUsed || 0,
     freeRemaining: Math.round(ws.freeRemaining || 0), billingAvail, rollover, dailyFree,
