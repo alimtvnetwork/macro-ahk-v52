@@ -146,6 +146,17 @@ export function getLoopWsExpiredWithCredits(): boolean {
   return viewState().getExpiredWithCredits();
 }
 
+/** Get refill-soon filter state (only show workspaces with display kind = refill-soon). */
+export function getLoopWsRefillSoon(): boolean {
+  return viewState().getRefillSoon();
+}
+
+/** Set refill-soon filter state. */
+export function setLoopWsRefillSoon(val: boolean): void {
+  viewState().setRefillSoon(val);
+}
+
+
 /** Set expired-with-credits filter state. */
 export function setLoopWsExpiredWithCredits(val: boolean): void {
   viewState().setExpiredWithCredits(val);
