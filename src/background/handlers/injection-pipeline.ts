@@ -19,7 +19,7 @@
  * @see src/background/handlers/injection-result-builder.ts — Step 3
  */
 
-import type { MessageRequest } from "../../shared/messages";
+import { MessageType, type MessageRequest } from "../../shared/messages";
 import type { InjectableScript, InjectionResult } from "../../shared/injection-types";
 import { logBgWarnError, logCaughtError, BgLogTag } from "../bg-logger";
 import { wrapWithIsolation } from "./injection-wrapper";
