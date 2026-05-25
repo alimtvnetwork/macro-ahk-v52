@@ -18,7 +18,7 @@
  *   - standalone-scripts/xpath/dist/instruction.json           (version)
  *
  * Also updates:
- *   - CHANGELOG.md              (inserts new version section header)
+ *   - changelog.md              (inserts new version section header)
  *   - plan.md                   (updates Chrome Extension version refs)
  *
  * After running, both check-version-sync.mjs AND check-manifest-version.mjs will pass.
@@ -199,9 +199,9 @@ for (const target of getTargets(newVer)) {
 
 /* ── Changelog: insert new version section ───────────────────── */
 function updateChangelog(oldV, newV) {
-  const changelogPath = resolve(ROOT, "CHANGELOG.md");
+  const changelogPath = resolve(ROOT, "changelog.md");
   if (!existsSync(changelogPath)) {
-    console.log(`  [SKIP] CHANGELOG.md (not found)`);
+    console.log(`  [SKIP] changelog.md (not found)`);
     return false;
   }
 
@@ -209,7 +209,7 @@ function updateChangelog(oldV, newV) {
 
   // Don't insert if section already exists
   if (content.includes(`## [v${newV}]`)) {
-    console.log(`  [--]   CHANGELOG.md (v${newV} section already exists)`);
+    console.log(`  [--]   changelog.md (v${newV} section already exists)`);
     return false;
   }
 
@@ -231,14 +231,14 @@ function updateChangelog(oldV, newV) {
   // Insert after the first "---" separator (which follows the header)
   const firstSepIdx = content.indexOf("\n---\n");
   if (firstSepIdx === -1) {
-    console.log(`  [SKIP] CHANGELOG.md (could not find insertion point)`);
+    console.log(`  [SKIP] changelog.md (could not find insertion point)`);
     return false;
   }
 
   const insertAt = firstSepIdx + "\n---\n".length;
   const updatedContent = content.slice(0, insertAt) + "\n" + newSection + content.slice(insertAt);
   writeFileSync(changelogPath, updatedContent, "utf-8");
-  console.log(`  [OK]   CHANGELOG.md (inserted v${newV} section)`);
+  console.log(`  [OK]   changelog.md (inserted v${newV} section)`);
   return true;
 }
 

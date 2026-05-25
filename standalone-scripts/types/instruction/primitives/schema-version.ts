@@ -20,7 +20,7 @@
  *   2. Update `CURRENT_SCHEMA_VERSION` in both files.
  *   3. Update every `standalone-scripts/<name>/src/instruction.ts`
  *      `SchemaVersion: "X.Y"` literal.
- *   4. Document the breaking shape change in `CHANGELOG.md` and the
+ *   4. Document the breaking shape change in `changelog.md` and the
  *      migration path (see runtime `manifest-seeder.ts`).
  *
  * The pattern intentionally requires a dotted MAJOR.MINOR — single
