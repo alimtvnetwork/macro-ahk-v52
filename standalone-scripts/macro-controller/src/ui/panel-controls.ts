@@ -425,8 +425,18 @@ function attachPromptsDropdownBehavior(
       positionPromptsDropdown(promptsBtn, promptsDropdown);
     }
   };
+  // Ignore scroll events that originate inside the dropdown itself —
+  // otherwise positionPromptsDropdown resets maxHeight on every wheel tick,
+  // causing layout thrash that prevents scrolling past the initial viewport.
+  const onScrollReflow = function(ev: Event): void {
+    const tgt = ev.target as Node | null;
+    if (tgt !== null && (tgt === promptsDropdown || (tgt instanceof Node && promptsDropdown.contains(tgt)))) {
+      return;
+    }
+    onReflow();
+  };
   window.addEventListener('resize', onReflow);
-  window.addEventListener('scroll', onReflow, true);
+  window.addEventListener('scroll', onScrollReflow, true);
 }
 
 // ============================================
