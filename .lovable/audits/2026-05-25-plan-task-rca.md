@@ -1,63 +1,60 @@
-# 2026-05-25 — Plan Task Button RCA
+# RCA — `🧠 Plan Task` button "doesn't work properly"
 
-**Symptom:** User clicks `🧠 Plan Task → Plan in N steps`. Either nothing visible happens, or a red **"❌ Plan prompt: editor not found"** toast appears even when the prompt was actually placed on the clipboard / injected.
+Date: 2026-05-25  ·  Reporter: user  ·  Module: `standalone-scripts/macro-controller/src/ui/plan-task-ui.ts`
 
 ## Reproduction
+1. Open Lovable dashboard (or any page where the project editor is NOT mounted).
+2. Open Macro Controller → Prompts dropdown → click `🧠 Plan Task`.
+3. Click `Plan in 10 steps` (or any preset / custom).
+4. Observed: dropdown closes; either nothing visible happens or a brief red error toast flashes by; the planned prompt is not in the editor.
 
-1. Open extension panel on any Lovable page.
-2. Click `Prompts` → `🧠 Plan Task` → e.g. `Plan in 10 steps`.
-3. Observe toasts.
+Secondary repro (menu collapse):
+1. Open `🧠 Plan Task` sub-accordion.
+2. Slowly move mouse from header `🧠 Plan Task` row toward a preset; if the pointer crosses the panel border for >120 ms, the sub silently collapses; click on a row that just disappeared is lost.
 
-## Root causes
+## Root causes (confirmed)
 
-### RC-1 (primary) — Double, contradictory toast
+### RC-1 — Double / contradictory toasts mask success
+`pasteIntoEditor` (prompt-utils.ts L233–245) **already** shows its own toast(s) when no editor target exists:
+- success path: `📋 Copied to clipboard — paste manually with Ctrl+V`
+- failure path: `❌ Could not paste or copy — editor target not found`
 
-`standalone-scripts/macro-controller/src/ui/plan-task-ui.ts:50-55`
+But it returns `false` **even when the clipboard fallback succeeded**. `plan-task-ui.ts` L52–54 then adds a second toast: `❌ Plan prompt: editor not found`. Result: user sees a red "failed" toast on top of a successful clipboard copy — concludes "button is broken" while the prompt is actually in the clipboard.
 
-```ts
-function injectPlanPrompt(n: number): void {
-  const text = buildPlanTaskPrompt(n);
-  const ok = pasteIntoEditor(text, getPromptsConfig(), adapterGetByXPath);
-  if (ok) showPasteToast('🧠 Plan prompt injected (' + n + ' steps)', false);
-  else showPasteToast('❌ Plan prompt: editor not found', true);
-}
-```
+### RC-2 — `injectPlanPrompt` discards the real outcome
+Caller cannot distinguish:
+- editor found + paste OK,
+- no editor + clipboard OK (still useful),
+- no editor + clipboard failed.
+All three collapse into one boolean, then a misleading error toast is appended.
 
-But `pasteIntoEditor` (`prompt-utils.ts:233-275`) **already** surfaces its own toast on every code path:
+### RC-3 — 120 ms `onmouseleave` auto-collapse races with click
+`plan-task-ui.ts` L101: `item.onmouseleave = function() { setTimeout(... 120) }`. On any mouse jiggle that briefly leaves `item` (e.g. crossing the 1px purple border) the sub is hidden 120ms later — a click that lands on the now-hidden preset row produces no effect. There is no equivalent on `dropdown` itself, so other prompt rows do not have this problem.
 
-| Inner result | Inner toast |
-|---|---|
-| target found + injected | `✓ Prompt injected (N chars)` |
-| no target → clipboard ok | `📋 Copied to clipboard — paste manually with Ctrl+V` |
-| no target → clipboard fail | `❌ Could not paste or copy — editor target not found` |
-| target found, inject threw | `⚠️ Inject failed — copied to clipboard, try Ctrl+V` |
+### RC-4 — `parseInt` without radix
+`plan-task-ui.ts` L145: `parseInt(inp.value)` — no explicit `10`. Inputs like `08`, `0x10` behave differently across engines; also violates `radix` lint rule.
 
-When the editor target is missing, `pasteIntoEditor` returns `false` **synchronously** while the clipboard write is in flight. The caller then immediately fires the red `❌ Plan prompt: editor not found` toast, which:
+### RC-5 — Dropdown closed before paste runs (cosmetic)
+L121/147: `dropdown.style.display = 'none'` runs **before** `injectPlanPrompt`. By the time clipboard / inject toasts appear, the user has lost the visual cue that their click was on Plan Task. Minor, but compounds RC-1 confusion.
 
-- contradicts the success clipboard toast that lands ~1 frame later, and
-- makes the user believe the action failed even though the prompt is on the clipboard.
+## Severity & priority
+- RC-1 + RC-2: P0 — user-facing "broken button" perception.
+- RC-3: P1 — intermittent click loss.
+- RC-4: P2 — lint + edge-case parsing.
+- RC-5: P3 — UX polish.
 
-### RC-2 — Hover-leave timeout collapses submenu mid-click
+## Fix outline (executed in Step 2)
+1. Change `pasteIntoEditor` return to a discriminated result `{ ok, mode: 'injected'|'clipboard'|'failed', chars }` (or simpler: a 3-state string). Suppress duplicate toasts in caller.
+2. In `plan-task-ui.ts`, only show a caller-side toast when `pasteIntoEditor` returned `'failed'` — let the success / clipboard toasts from `prompt-utils` stand.
+3. Remove the 120ms `onmouseleave` auto-collapse; rely on outside-click handler already wired in `prompts-dropdown.ts` (consistent with the rest of the menu).
+4. `parseInt(inp.value, 10)`.
+5. Move `dropdown.style.display = 'none'` to AFTER `injectPlanPrompt` returns.
 
-`plan-task-ui.ts:101` — `item.onmouseleave` waits 120 ms then forces `display:none` on the submenu. On narrow tracks the cursor briefly leaves `item` while transitioning between the trigger row and the first `Plan in N` row (1-px gap or border), which dismisses the menu before `mousedown` lands.
-
-### RC-3 — `parseInt` missing radix (lint + edge case)
-
-`plan-task-ui.ts:145` — `parseInt(inp.value)` accepts a leading `0` and falls back to octal in legacy engines. Lint flags this; functionally low-risk but should be `parseInt(inp.value, 10)`.
-
-### RC-4 (minor) — `dropdown.style.display = 'none'` before `injectPlanPrompt`
-
-The dropdown closes synchronously before the inject runs. If `pasteIntoEditor` throws synchronously the toast still fires, but the user has already lost the visual association.
-
-## Fix plan (Step 2)
-
-1. Remove the caller-side `showPasteToast(...)` pair from `injectPlanPrompt`. Trust the inner `pasteIntoEditor` toast. Add **only** a Plan-specific success toast (`🧠 Plan prompt: N steps`) **after** a confirmed `ok === true` — no failure toast (the inner one already exists).
-2. Replace the `item.onmouseleave` 120 ms auto-close with an outside-click listener registered on `document` while the submenu is open. Removed on collapse.
-3. `parseInt(inp.value, 10)` with `Number.isFinite` guard.
-4. Close dropdown **after** `injectPlanPrompt` returns so the toast feels attached.
-
-## Test plan (Step 3)
-
-- `buildPlanTaskPrompt.test.ts` — snapshot 5/10/15/custom variants (ensure no `injectPlanPrompt` regressions).
-- `plan-task-submenu.test.ts` (JSDOM) — clicking a preset triggers `pasteIntoEditor` once; no double toast.
-- `e2e-plan-task.spec.ts` (Playwright) — open extension, click `Plan in 10 steps`, assert exactly one toast and clipboard content equals `buildPlanTaskPrompt(10)`.
+## Regression-test coverage (Step 3)
+- Unit: `buildPlanTaskPrompt(5|10|15|99)` text shape.
+- Component (JSDOM):
+  - clicking preset row with editor mounted → inject called once, success toast only.
+  - clicking preset row with NO editor → clipboard toast only, NO red "editor not found".
+  - mouseleave then click within 120ms → click still fires (no auto-collapse).
+  - custom input `"08"` → parsed as 8, not 0.
+- E2E: load extension on lovable.dev project page → open Plan Task → click "Plan in 10 steps" → assert editor contains `## **10** steps Plan`.
