@@ -42,6 +42,8 @@ Trigger phrases the user may type to query this file:
 - [x] **TS Migration V2 Phase 02** — class architecture (S-046) — verified complete 2026-04-23 (v2.225.0)
 - [x] **TS Migration V2 Phase 04** — performance & logging (S-047) — verified complete 2026-04-23 (v2.225.0)
 - [x] **TS Migration V2 Phase 05** — JSON config pipeline (S-048) — verified + activity-log routing + 7 unit tests, 2026-04-23 (v2.225.0)
+- [ ] **Injection pipeline split — Step 9** — E2E `e2e-21-injection-pipeline-split.spec.ts` (preflight/run/result-builder stage boundaries). See `mem://workflow/14-injection-pipeline-split-session`.
+- [ ] **Recorder xpath batch — Step 10** — E2E `e2e-22-recorder-xpath-batch.spec.ts` (≥8 events → single batched IPC). See `mem://workflow/14-injection-pipeline-split-session`.
 
 ## P2 — Spec / Owner Pending
 
