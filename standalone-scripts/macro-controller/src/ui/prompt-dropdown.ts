@@ -192,16 +192,26 @@ function _renderFresh(
   _persistSnapshot(promptsDropdown, entries, dataHash, categoryFilter);
 }
 
-/** Append header, Task Next + Plan Task + Filter inline menus. */
+/** Append header, Task Next + Plan Task (collapsed by default) + Filter inline menus. */
 function _appendHeaderAndSubmenu(
   container: HTMLElement,
   entries: LoaderPromptEntry[],
   ctx: PromptContext,
   taskNextDeps: TaskNextDeps,
 ): void {
+  // Mark dropdown so the Tasks toggle can find the group from any descendant click.
+  if (!container.hasAttribute('data-prompts-dropdown')) container.setAttribute('data-prompts-dropdown', '1');
   container.appendChild(buildDropdownHeader(ctx, taskNextDeps));
-  renderTaskNextSubmenu(container, ctx, taskNextDeps);
-  renderPlanTaskSubmenu(container, ctx);
+
+  // Collapsible group hosting Task Next + Plan Task. Hidden by default so the prompts list
+  // is the primary content; user opens it via the 🎯 Tasks toggle in the header.
+  const tasksGroup = document.createElement('div');
+  tasksGroup.setAttribute('data-tasks-group', '1');
+  tasksGroup.style.cssText = 'display:none;border-bottom:1px solid rgba(124,58,237,0.4);background:rgba(124,58,237,0.06);';
+  renderTaskNextSubmenu(tasksGroup, ctx, taskNextDeps);
+  renderPlanTaskSubmenu(tasksGroup, ctx);
+  container.appendChild(tasksGroup);
+
   const categories = collectUniqueCategories(entries);
   renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
 }
