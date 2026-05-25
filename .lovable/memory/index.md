@@ -40,6 +40,7 @@ Updated: just now
 - [Versioning policy](mem://workflow/versioning-policy) — Unified versioning across manifest, constants.ts, scripts
 - [Planning roadmap](mem://workflow/planning-roadmap) — plan.md as authoritative prioritized backlog
 - [Next commands backlog](mem://workflow/13-next-commands) — Persistent prioritized task list, queryable via "what's next"/"remaining tasks", auto-surfaced in session closing summary
+- [Injection pipeline split session](mem://workflow/14-injection-pipeline-split-session) — 10-step plan log; steps 1-8 done (pipeline split + PERF-R6 batch + tests + TS sweep + changelog rename), 9-10 (E2E specs) pending
 - [Suggestions convention](mem://workflow/suggestions-convention) — Single file tracking in .lovable/memory/suggestions/
 - [File naming convention](mem://workflow/file-naming-convention) — Numeric naming for workflow memory files
 - [Spec organization](mem://architecture/spec-organization) — Numeric hierarchy for specs (00 to 08)
