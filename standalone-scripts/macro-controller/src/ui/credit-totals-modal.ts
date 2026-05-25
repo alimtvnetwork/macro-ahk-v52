@@ -248,16 +248,15 @@ export function buildBreakdownTable(workspaces: ReadonlyArray<WorkspaceCredit>):
   let order: ReadonlyArray<WorkspaceCredit> = workspaces.slice();
   let filters: FilterState = { low: false, empty: false, free: false };
 
-  const filterBar = buildFilterBar(filters, function (next) {
+  let filterBar: HTMLElement;
+  function handleFilterChange(next: FilterState): void {
     filters = next;
-    // Re-render filter bar chips so active state updates
-    const newBar = buildFilterBar(filters, arguments.callee as (next: FilterState) => void);
+    const newBar = buildFilterBar(filters, handleFilterChange);
     wrap.replaceChild(newBar, filterBar);
-    // Update local ref so replaceChild works next time
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _ = filterBar; // old node discarded
+    filterBar = newBar;
     renderBody();
-  });
+  }
+  filterBar = buildFilterBar(filters, handleFilterChange);
 
   const header = document.createElement('div');
   header.setAttribute('data-credit-totals-header', '1');
