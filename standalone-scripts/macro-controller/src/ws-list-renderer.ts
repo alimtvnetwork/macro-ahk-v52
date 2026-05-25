@@ -265,6 +265,7 @@ interface WsFilterState {
   billingOnly: boolean;
   minCredits: number;
   expiredWithCredits: boolean;
+  refillSoon: boolean;
 }
 
 /** Read filter state from DOM elements once, outside the loop. */
@@ -279,6 +280,7 @@ function readFilterState(filter: string): WsFilterState {
     billingOnly: billingEl?.getAttribute(DataAttr.Active) === 'true',
     minCredits: minEl ? parseInt((minEl as HTMLInputElement).value, 10) || 0 : 0,
     expiredWithCredits: viewState().getExpiredWithCredits(),
+    refillSoon: viewState().getRefillSoon(),
   };
 }
 
@@ -289,6 +291,19 @@ function isCurrentWorkspace(ws: WorkspaceCredit, currentName: string): boolean {
   const lcn = currentName.toLowerCase();
   return (ws.fullName || '').toLowerCase().indexOf(lcn) !== -1 ||
          lcn.indexOf((ws.fullName || '').toLowerCase()) !== -1;
+}
+
+/** Check if a workspace currently classifies as "refill-soon" (about-to-refill). */
+function isRefillSoonWs(ws: WorkspaceCredit): boolean {
+  try {
+    const cfg = getWorkspaceLifecycleConfig();
+    const source = getEffectiveStatus(ws, cfg);
+    const display = classifyFromStatus(source, ws);
+    return display.kind === 'refill-soon';
+  } catch (e: unknown) {
+    logError('passesFilters.refillSoon', 'Failed to classify workspace for refill-soon filter', e);
+    return false;
+  }
 }
 
 /** Check if a workspace passes all active filters. */
@@ -305,8 +320,10 @@ function passesFilters(ws: WorkspaceCredit, fs: WsFilterState): boolean {
     if (!isExpiredWs(ws)) return false;
     if ((ws.available || 0) <= EXPIRED_WITH_CREDITS_MIN) return false;
   }
+  if (fs.refillSoon && !isRefillSoonWs(ws)) return false;
   return true;
 }
+
 
 /**
  * Recovery score for the "expired with credits" sort.
