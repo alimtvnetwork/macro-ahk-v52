@@ -39,7 +39,7 @@ Spec: `spec/22-app-issues/114-pro-zero-credit-balance-calculation.md`
 ### Active — Release Page CI/CD Hardening Plan (8 steps)
 Spec: `plan.md` ("Release Page CI/CD Hardening Plan — 8 Steps")
 - [x] Step 1 — Fix release checkout/ref resolution in `setup` job (added `git checkout` of resolved ref after version step).
-- [ ] Step 2 — Fix release-notes changelog range (already implemented in release.yml; verify & mark done).
+- [x] Step 2 — Fix release-notes changelog range (verified: release.yml already excludes current tag with `grep -v -x "${VER}"`; nearest lower tag via `--sort=-version:refname`).
 - [ ] Step 3 — Add required release-asset verification before publish.
 - [ ] Step 4 — Make Release page install/download instructions complete.
 - [ ] Step 5 — Add release-audit workflow for existing tags.
