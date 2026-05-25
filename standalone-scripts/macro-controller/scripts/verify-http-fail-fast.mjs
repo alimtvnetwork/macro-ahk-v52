@@ -115,9 +115,9 @@ for (const { status, url, method, reasonNeedle } of SHAPE_CASES) {
             constructor(type, init) { this.type = type; this.detail = init?.detail ?? null; }
         };
     }
-    // allow-swallow: httpFailFast is expected to throw on non-2xx — this verifier asserts the side-effect (event dispatch), not the throw
     try {
         await httpFailFast(mkResponse(418, "teapot"), { method: "GET", url: "/tea" });
+        // allow-swallow: httpFailFast is expected to throw on non-2xx — this verifier asserts the side-effect (event dispatch), not the throw
     } catch { /* intentionally empty */ }
     delete globalThis.window;
 
