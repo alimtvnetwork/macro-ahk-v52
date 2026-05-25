@@ -9,23 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ## [v3.17.0] — 2026-05-25
 
-### Added
-
 ### Fixed
+- **Refill-soon filter ignored credit ranking.** When the workspace "Refill-soon" filter chip was active, the surviving rows kept their raw API order, so workspaces with `available=0` appeared above workspaces with hundreds of credits (all sharing the same `Refill 1d` badge). `ws-list-renderer.ts::filterAndSortWorkspaces` now applies `sortByRefillPriority` whenever either the dedicated refill-priority toggle OR the refill-soon filter is active. Highest-credit workspaces now float to the top; zero-credit ones fall to the bottom.
+- Added 2 unit tests (`ws-refill-soon-sort.test.ts`): source-invariant guard + behavioural test mirroring the exact 7-row screenshot scenario (all `Refill 1d`, credits 0/0/0/169/15/200/63 → expected order A0087, A0084, A0088, A0086, A0081, A0082, A0083).
 
 ### Changed
-- Version bump: 3.16.1 → 3.17.0 (all version files synced)
+- Version bump: 3.16.1 → 3.17.0 (all version files synced); readme.md pinned-version references updated to `v3.17.0`.
 
 ---
 
 ## [v3.16.1] — 2026-05-25
 
-### Added
-
-### Fixed
-
 ### Changed
-- Version bump: 3.16.0 → 3.16.1 (all version files synced)
+- Internal version bump (rolled into v3.17.0).
 
 ---
 
