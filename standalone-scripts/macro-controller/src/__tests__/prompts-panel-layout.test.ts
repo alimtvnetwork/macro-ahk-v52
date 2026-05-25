@@ -98,8 +98,9 @@ describe('Prompts panel — structural invariants', () => {
     expect(source).toContain("setAttribute('data-tasks-toggle', '1')");
   });
 
-  it('tasks group uses data-tasks-group hook with display:none default', () => {
+  it('tasks group uses data-tasks-group hook with display:none default (right-anchored, Step 4)', () => {
     expect(source).toContain('data-tasks-group');
-    expect(source).toMatch(/tasksGroup\.style\.cssText\s*=\s*'display:none/);
+    // Step 4: cssText is now array-joined for the right-anchored floating panel.
+    expect(source).toMatch(/'display:none'/);
   });
 });
