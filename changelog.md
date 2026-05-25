@@ -7,7 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.12.0] — 2026-05-25
+
+### Changed
+- **Macro Controller — Workspace status badges unified** (Issue 115). All `expired*` variants collapse to a single muted gray `Cancel` badge; `about-to-expire` → `Expire Nd` (amber); past lapsed past_due → `Expired Nd` (red); `about-to-refill` → `Refill Nd` / `Refill today` (sky). Single classifier + tone resolver shared by row list and hover card.
+
+### Added
+- **Refill-soon filter chip** in the workspace filter menu — shows only workspaces currently classified as `about-to-refill`.
+- 28 new tests covering the classifier, tone resolver, badge composition, and the new chip.
+
+### Internal
+- Version bump: 3.11.1 → 3.12.0 (all version files synced).
+
 ## [v3.11.1] — 2026-05-25
+
 
 ### Added
 
