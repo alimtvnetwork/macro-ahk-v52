@@ -195,39 +195,51 @@ function Build-AllStandaloneScripts([string]$RootDir, [string]$BuildMode = "prod
         return 0
     }
 
-    # ── Launch parallel jobs ──
-    $jobs = @()
+    # ── Launch parallel jobs (throttled) ──
+    # Running all 7 tsc processes at once with --max-old-space-size=8192 each
+    # collectively requests ~56 GB of V8 heap and triggers
+    # "Fatal process out of memory: Zone" on typical 16–32 GB Windows dev boxes.
+    # Throttle concurrency so each tsc has room to allocate its zone.
+    # Reason: WindowsTscZoneOOM; ReasonDetail=parallel tsc heap pressure.
+    # Override via env var MARCO_STANDALONE_PARALLEL (default 2).
+    $maxConcurrent = if ($env:MARCO_STANDALONE_PARALLEL) { [int]$env:MARCO_STANDALONE_PARALLEL } else { 2 }
+    if ($maxConcurrent -lt 1) { $maxConcurrent = 1 }
+    Write-Host "    [INFO] standalone build concurrency = $maxConcurrent (override with MARCO_STANDALONE_PARALLEL)" -ForegroundColor DarkGray
+
     $thisModulePath = $PSCommandPath
-
-    foreach ($dir in $scriptDirs) {
-        $scriptName = $dir.Name
-        $scriptPath = $dir.FullName
-        Write-Host "    [START] $scriptName ($BuildMode)" -ForegroundColor DarkCyan
-
-        $job = Start-Job -ScriptBlock {
-            param($ModulePath, $ScriptDirPath, $ScriptName, $RootDir, $Mode)
-            . $ModulePath
-            Build-StandaloneScript -ScriptDirPath $ScriptDirPath -ScriptName $ScriptName -RootDir $RootDir -BuildMode $Mode
-        } -ArgumentList $thisModulePath, $scriptPath, $scriptName, $RootDir, $BuildMode
-
-        $jobs += $job
-    }
-
-    # ── Wait and collect results ──
     $allResults = @()
     $failedScripts = @()
-    $timeout = 120  # seconds per job
+    $queue = [System.Collections.Generic.Queue[object]]::new()
+    foreach ($d in $scriptDirs) { $queue.Enqueue($d) }
+    $active = @{}
 
-    foreach ($job in $jobs) {
-        $result = Receive-Job -Job $job -Wait -AutoRemoveJob -ErrorAction SilentlyContinue
+    while ($queue.Count -gt 0 -or $active.Count -gt 0) {
+        # Fill up to maxConcurrent
+        while ($active.Count -lt $maxConcurrent -and $queue.Count -gt 0) {
+            $d = $queue.Dequeue()
+            $name = $d.Name
+            $path = $d.FullName
+            Write-Host "    [START] $name ($BuildMode)" -ForegroundColor DarkCyan
+            $j = Start-Job -ScriptBlock {
+                param($ModulePath, $ScriptDirPath, $ScriptName, $RootDir, $Mode)
+                . $ModulePath
+                Build-StandaloneScript -ScriptDirPath $ScriptDirPath -ScriptName $ScriptName -RootDir $RootDir -BuildMode $Mode
+            } -ArgumentList $thisModulePath, $path, $name, $RootDir, $BuildMode
+            $active[$j.Id] = $j
+        }
+
+        if ($active.Count -eq 0) { break }
+
+        $finished = Wait-Job -Job @($active.Values) -Any
+        $result = Receive-Job -Job $finished -ErrorAction SilentlyContinue
+        Remove-Job -Job $finished -Force -ErrorAction SilentlyContinue
+        $active.Remove($finished.Id) | Out-Null
+
         if ($null -eq $result) {
-            # Job failed entirely — fallback info
-            $failedScripts += "unknown (job $($job.Id))"
+            $failedScripts += "unknown (job $($finished.Id))"
             continue
         }
         $allResults += $result
-
-        # Print collected output
         Write-Host "    [$($result.Name)]" -ForegroundColor $(if ($result.Success) { "Green" } else { "Red" })
         foreach ($line in $result.Output) {
             $color = "DarkCyan"
@@ -236,10 +248,7 @@ function Build-AllStandaloneScripts([string]$RootDir, [string]$BuildMode = "prod
             elseif ($line -match '\[WARN\]') { $color = "Yellow" }
             Write-Host "      $line" -ForegroundColor $color
         }
-
-        if (-not $result.Success) {
-            $failedScripts += $result.Name
-        }
+        if (-not $result.Success) { $failedScripts += $result.Name }
     }
 
     # ── Report ──
