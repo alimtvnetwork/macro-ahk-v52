@@ -21,6 +21,7 @@
 
 import { MessageType, type MessageRequest } from "../../shared/messages";
 import type { InjectableScript, InjectionResult } from "../../shared/injection-types";
+import type { InjectionLaunchSource } from "../../shared/injection-types";
 import { logBgWarnError, logCaughtError, BgLogTag } from "../bg-logger";
 import { wrapWithIsolation } from "./injection-wrapper";
 import { injectWithCspFallback } from "../csp-fallback";
@@ -56,6 +57,7 @@ export type PipelineCachePayload = {
     code: string;
     scriptMeta: PipelineCacheMeta[];
     requestFingerprint: string;
+    launchSource?: InjectionLaunchSource;
 };
 
 export function hashScriptCode(code: string): string {
@@ -113,6 +115,7 @@ export type PreparedScript = {
 export async function injectAllScripts(
     tabId: number,
     scripts: PreparedScript[],
+    launchSource: InjectionLaunchSource = "manual",
 ): Promise<InjectionResult[]> {
     if (scripts.length === 0) return [];
 
@@ -135,7 +138,7 @@ export async function injectAllScripts(
     if (hasCssScript) {
         console.log("[injection] 3/4 ORDER    — CSS-bearing chain detected, forcing sequential ordered injection (%d scripts)", orderedScripts.length);
         for (const script of orderedScripts) {
-            const result = await injectSingleScript(tabId, script.injectable, script.configJson, script.themeJson, script.codeSource);
+            const result = await injectSingleScript(tabId, script.injectable, script.configJson, script.themeJson, script.codeSource, launchSource);
             results.push(result);
         }
         return results;
@@ -157,7 +160,7 @@ export async function injectAllScripts(
             const scriptMeta: PipelineCacheMeta[] = [];
 
             for (const script of goodScripts) {
-                const wrapped = wrapWithIsolation(script.injectable, script.configJson, script.themeJson);
+                const wrapped = wrapWithIsolation(script.injectable, script.configJson, script.themeJson, launchSource);
                 wrappedParts.push(wrapped);
                 scriptMeta.push({
                     id: script.injectable.id,
@@ -173,7 +176,7 @@ export async function injectAllScripts(
             );
             console.log("[injection] 3/4 BATCH    — %d scripts combined (%d chars)", goodScripts.length, combinedCode.length);
 
-            void cacheSet(PIPELINE_CACHE_CATEGORY, { code: combinedCode, scriptMeta, requestFingerprint }, PIPELINE_CACHE_KEY)
+            void cacheSet(PIPELINE_CACHE_CATEGORY, { code: combinedCode, scriptMeta, requestFingerprint, launchSource }, PIPELINE_CACHE_KEY)
                 .then(() => console.log("[injection] CACHE STORE — payload cached for version=%s, size=%d bytes", EXTENSION_VERSION, combinedCode.length))
                 .catch(() => { /* best-effort cache write */ }); // allow-swallow: best-effort IndexedDB cache write
 
@@ -204,7 +207,7 @@ export async function injectAllScripts(
         } catch (batchError) {
             logCaughtError(BgLogTag.INJECTION, "Batch injection failed, falling back to sequential", batchError);
             for (const script of goodScripts) {
-                const result = await injectSingleScript(tabId, script.injectable, script.configJson, script.themeJson, script.codeSource);
+                const result = await injectSingleScript(tabId, script.injectable, script.configJson, script.themeJson, script.codeSource, launchSource);
                 results.push(result);
             }
         }
