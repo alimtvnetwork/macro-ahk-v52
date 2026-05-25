@@ -34,8 +34,13 @@ import { showWsMembersPanel, hideWsMembersPanel } from '../ws-members-panel';
 const PANEL_ID = 'marco-ws-members-panel';
 
 describe('ws-members-panel dispatch', () => {
-  beforeEach(() => { document.body.innerHTML = ''; });
-  afterEach(() => { hideWsMembersPanel(); document.body.innerHTML = ''; });
+  beforeEach(() => { vi.useFakeTimers(); document.body.innerHTML = ''; });
+  afterEach(() => {
+    hideWsMembersPanel();
+    vi.clearAllTimers();
+    vi.useRealTimers();
+    document.body.innerHTML = '';
+  });
 
   it('mounts a single panel with the workspace name', () => {
     showWsMembersPanel('ws_1', 'Alpha', 100, 100);
