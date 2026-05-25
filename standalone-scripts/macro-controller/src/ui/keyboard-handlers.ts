@@ -150,6 +150,7 @@ function handleCtrlAltShortcut(e: KeyboardEvent, deps: KeyboardHandlerDeps): boo
       stopLoop();
     } else {
       log('Starting loop ' + dir.toUpperCase() + ' via Ctrl+Alt+' + dir.charAt(0).toUpperCase() + dir.slice(1));
+      markUserGesture('keyboard-handlers/ctrl-alt-' + dir);
       startLoop(dir);
     }
     return true;
