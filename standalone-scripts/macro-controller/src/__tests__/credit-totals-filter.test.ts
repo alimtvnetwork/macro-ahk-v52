@@ -109,8 +109,9 @@ describe('buildBreakdownTable — filter chips DOM', () => {
     ]);
     document.body.appendChild(table);
 
-    const lowChip = table.querySelector('[data-chip="low"]') as HTMLButtonElement;
+    let lowChip = table.querySelector('[data-chip="low"]') as HTMLButtonElement;
     lowChip.click();
+    lowChip = table.querySelector('[data-chip="low"]') as HTMLButtonElement;
     expect(lowChip.getAttribute('data-active')).toBe('true');
     expect(rowIds()).toEqual(['low']);
   });
@@ -159,9 +160,10 @@ describe('buildBreakdownTable — filter chips DOM', () => {
     ]);
     document.body.appendChild(table);
 
-    const lowChip = table.querySelector('[data-chip="low"]') as HTMLButtonElement;
+    let lowChip = table.querySelector('[data-chip="low"]') as HTMLButtonElement;
     lowChip.click(); // on
     expect(rowIds()).toEqual(['bravo']);
+    lowChip = table.querySelector('[data-chip="low"]') as HTMLButtonElement;
     lowChip.click(); // off
     expect(rowIds()).toEqual(['alpha', 'bravo']);
   });
