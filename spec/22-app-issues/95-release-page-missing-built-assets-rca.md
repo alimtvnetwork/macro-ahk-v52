@@ -151,5 +151,6 @@ Audit job writes a Step Summary table listing every `v*` tag and its asset state
 - [x] `release.yml` updated with `workflow_dispatch` + `version` input
 - [x] `spec/21-app/02-features/chrome-extension/release-procedure.md` added
 - [x] `.gitmap/release/v2.192.0.json` annotated with rcaRef
-- [ ] Audit job + publish script (follow-up tasks tracked here)
+- [x] Audit job (`audit-releases.yml`) — scheduled weekly + manual dispatch.
+- [x] Publish script (`scripts/release-publish.mjs`) — pre-flight tag push + workflow-run polling.
 - [ ] v2.192.0 Release replayed via `workflow_dispatch` once the workflow change is merged
