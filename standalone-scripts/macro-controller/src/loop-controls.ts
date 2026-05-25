@@ -23,6 +23,7 @@ import { CONFIG, IDS, TIMING, loopCreditState, state } from './shared-state';
 import { runCycle } from './loop-cycle';
 import { logError } from './error-utils';
 import { emitCreditPollTick } from './credit-poll-events';
+import { requireUserGesture } from './user-gesture-guard';
 
 
 
