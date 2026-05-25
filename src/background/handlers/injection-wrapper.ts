@@ -15,8 +15,7 @@
  * @see .lovable/memory/architecture/marco-sdk-convention.md — SDK convention
  */
 
-import type { InjectableScript } from "../../shared/injection-types";
-import type { InjectionLaunchSource } from "../../shared/injection-types";
+import type { InjectableScript, InjectionLaunchSource } from "../../shared/injection-types";
 import { buildMarcoSdkScript } from "../marco-sdk-template";
 import { getActiveProjectId } from "../state-manager";
 import { logBgWarnSampled, BgLogTag } from "../bg-logger";

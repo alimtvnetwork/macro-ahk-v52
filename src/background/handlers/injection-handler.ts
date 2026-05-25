@@ -17,8 +17,7 @@
 
 import type { MessageRequest } from "../../shared/messages";
 import { logBgWarnError, BgLogTag } from "../bg-logger";
-import type { InjectableScript, InjectionResult, InjectScriptsResponse } from "../../shared/injection-types";
-import type { InjectionLaunchSource } from "../../shared/injection-types";
+import type { InjectableScript, InjectionLaunchSource, InjectionResult, InjectScriptsResponse } from "../../shared/injection-types";
 import type { StoredProject, ScriptEntry } from "../../shared/project-types";
 import {
     requestHasInlineSyntaxError,

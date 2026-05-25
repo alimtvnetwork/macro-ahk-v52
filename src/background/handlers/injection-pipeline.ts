@@ -20,8 +20,7 @@
  */
 
 import { MessageType, type MessageRequest } from "../../shared/messages";
-import type { InjectableScript, InjectionResult } from "../../shared/injection-types";
-import type { InjectionLaunchSource } from "../../shared/injection-types";
+import type { InjectableScript, InjectionLaunchSource, InjectionResult } from "../../shared/injection-types";
 import { logBgWarnError, logCaughtError, BgLogTag } from "../bg-logger";
 import { wrapWithIsolation } from "./injection-wrapper";
 import { injectWithCspFallback } from "../csp-fallback";
