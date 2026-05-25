@@ -1,5 +1,12 @@
 # Macro Controller — Changelog
 
+## v3.15.2 (2026-05-25)
+
+### Fixed
+- pro_0 workspaces with `available === 0` or `totalCredits === 0` no longer crash with `[CODE RED] calcAvailableCredits() called for plan=pro_0`. `ui/ui-status-renderer.ts` and `ws-list-renderer.ts` switched the legacy-fallback expressions from `||` to `??`, so enriched zero values from `pro-zero-credit-calculator` are preserved instead of triggering the legacy aggregator guard.
+
+---
+
 ## v3.15.1 (2026-05-25)
 
 ### Internal
