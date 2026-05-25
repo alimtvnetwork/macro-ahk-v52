@@ -1,5 +1,15 @@
 # Macro Controller — Changelog
 
+## v3.16.0 (2026-05-25)
+
+### Added
+- 20-step plan Step 4 — `Plan Task` + `Task Next` controls now render in a right-anchored floating panel attached to the prompts dropdown's right edge (was a stacked inline group). Keeps the prompts list focused; hidden by default; toggled by the `🎯 Tasks` header button. 5 new source-invariant tests in `src/__tests__/tasks-right-anchor.test.ts`; existing `prompts-panel-layout.test.ts` updated for the new cssText shape.
+
+### Fixed
+- `credit-totals-modal.ts` open-projects double-click handler — replaced silent `/* ignore */` catch with `logError('creditTotalsModal.openProjects', ...)` per Code-Red contract (exact URL + reason).
+
+---
+
 ## v3.15.3 (2026-05-25)
 
 ### Fixed

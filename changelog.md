@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.16.0] — 2026-05-25
+
+### Added
+- `scripts/download-extension.ps1` — lightweight PowerShell helper that downloads the released `marco-extension-<tag>.zip` to the system temp folder, removes any existing target folder, and extracts the contents into the current working directory under a flat folder name (default `marco-extension` — no `v` prefix, no version suffix). Accepts `-Version`, `-Repo`, `-FolderName`. Fail-fast on download/extraction errors with Code-Red logs (exact URL, path, reason).
+- 20-step plan Step 4 — `Plan Task` + `Task Next` controls now render in a right-anchored floating panel attached to the prompts dropdown's right edge (was inline, pushing the prompts list down). Hidden by default, toggled by the `🎯 Tasks` header button. 5 new source-invariant tests in `tasks-right-anchor.test.ts`.
+
+### Fixed
+- Windows standalone build OOM / stack overflow: `scripts/run-standalone-build-step.mjs` now passes `--max-old-space-size=8192` (via `NODE_OPTIONS`) and `--stack-size=8000` (direct V8 flag) to every `tsc --noEmit` child. Eliminates `Fatal process out of memory: Zone` (exit `-2147483645`) and `STATUS_STACK_OVERFLOW` (exit `-1073741571`) intermittently seen on `lovable-common`, `lovable-owner-switch`, and `xpath` builds. `vite` and other node children are unaffected.
+- `credit-totals-modal.ts` open-projects double-click handler — replaced silent `/* ignore */` catch with `logError('creditTotalsModal.openProjects', ...)` per Code-Red contract (exact URL + reason).
+
+### Changed
+- Version bump: 3.15.3 → 3.16.0 (all 10 version files synced).
+- readme.md pinned-version references updated to `v3.16.0` (18 occurrences).
+
+---
+
 ## [v3.15.3] — 2026-05-25
 
 ### Fixed
