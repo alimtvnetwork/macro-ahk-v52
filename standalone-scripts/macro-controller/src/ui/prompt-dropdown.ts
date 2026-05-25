@@ -201,13 +201,31 @@ function _appendHeaderAndSubmenu(
 ): void {
   // Mark dropdown so the Tasks toggle can find the group from any descendant click.
   if (!container.hasAttribute('data-prompts-dropdown')) container.setAttribute('data-prompts-dropdown', '1');
+  // Ensure the container can host an absolutely-positioned right-anchored Tasks panel.
+  if (!container.style.position) container.style.position = 'relative';
   container.appendChild(buildDropdownHeader(ctx, taskNextDeps));
 
-  // Collapsible group hosting Task Next + Plan Task. Hidden by default so the prompts list
-  // is the primary content; user opens it via the 🎯 Tasks toggle in the header.
+  // Step 4 (20-step plan): Tasks (Task Next + Plan Task) live in a right-anchored
+  // floating panel attached to the prompts dropdown's right edge — keeps the prompts
+  // list itself focused and uncluttered. Hidden by default; toggled by 🎯 Tasks button.
   const tasksGroup = document.createElement('div');
   tasksGroup.setAttribute('data-tasks-group', '1');
-  tasksGroup.style.cssText = 'display:none;border-bottom:1px solid rgba(124,58,237,0.4);background:rgba(124,58,237,0.06);';
+  tasksGroup.setAttribute('data-tasks-anchor', 'right');
+  tasksGroup.style.cssText = [
+    'display:none',
+    'position:absolute',
+    'top:0',
+    'left:100%',
+    'margin-left:6px',
+    'width:260px',
+    'max-height:80vh',
+    'overflow-y:auto',
+    'z-index:10001',
+    'border:1px solid rgba(124,58,237,0.5)',
+    'border-radius:' + lDropdownRadius,
+    'background:rgba(20,16,32,0.96)',
+    'box-shadow:0 8px 24px rgba(0,0,0,0.45)',
+  ].join(';') + ';';
   renderTaskNextSubmenu(tasksGroup, ctx, taskNextDeps);
   renderPlanTaskSubmenu(tasksGroup, ctx);
   container.appendChild(tasksGroup);
