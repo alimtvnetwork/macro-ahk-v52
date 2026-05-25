@@ -87,8 +87,13 @@ function main() {
         process.exit(1);
     }
 
+    // Exclude folders that are not runnable projects:
+    //   _*       — private/scratch folders
+    //   prompts  — shared JSON payloads, not a script project
+    //   types    — TypeScript declaration files for the SDK; no instruction.ts
+    const EXCLUDED_FOLDERS = new Set(["prompts", "types"]);
     const folders = readdirSync(STANDALONE_DIR, { withFileTypes: true })
-        .filter(d => d.isDirectory() && !d.name.startsWith("_") && d.name !== "prompts");
+        .filter(d => d.isDirectory() && !d.name.startsWith("_") && !EXCLUDED_FOLDERS.has(d.name));
 
     const projects = [];
 
