@@ -11,11 +11,38 @@ import { CssFragment } from './types';
 // ============================================
 // Credit Calculation Helpers (pure functions)
 // ============================================
-export function calcTotalCredits(granted: number, dailyLimit: number, billingLimit: number, topupLimit: number, rolloverLimit: number): number {
+
+/**
+ * Plan literal used by the legacy-calc guard.
+ * Spec: spec/22-app-issues/114-pro-zero-credit-balance-calculation.md §5 Step 2
+ */
+const PRO_ZERO_PLAN_LITERAL = 'pro_0';
+
+/**
+ * Guard: legacy aggregators MUST NOT be used for pro_0 — the /credit-balance
+ * endpoint is the only source of truth. Throws in dev/test, CODE-RED logs in
+ * prod with exact path + missing item + reasoning per memory.
+ */
+export function assertNotLegacyCalcForProZero(plan: string | undefined, fnName: string): void {
+  if ((plan || '').toLowerCase() !== PRO_ZERO_PLAN_LITERAL) return;
+  const msg = '[CODE RED] ' + fnName + '() called for plan=pro_0. '
+    + 'Path: standalone-scripts/macro-controller/src/credit-api.ts. '
+    + 'Missing item: enriched MacroCreditSummary from pro-zero-credit-calculator. '
+    + 'Reason: legacy aggregator double-counts daily_limit and rollover for pro_0 — '
+    + 'use calculateProZeroCreditSummary(balance) and read enriched WorkspaceCredit fields instead.';
+  const isProd = typeof process !== 'undefined' && process?.env?.NODE_ENV === 'production';
+  if (!isProd) throw new Error(msg);
+  // eslint-disable-next-line no-console
+  console.error(msg);
+}
+
+export function calcTotalCredits(granted: number, dailyLimit: number, billingLimit: number, topupLimit: number, rolloverLimit: number, plan?: string): number {
+  assertNotLegacyCalcForProZero(plan, 'calcTotalCredits');
   return Math.round((granted || 0) + (dailyLimit || 0) + (billingLimit || 0) + (topupLimit || 0) + (rolloverLimit || 0));
 }
 
-export function calcAvailableCredits(totalCredits: number, rolloverUsed: number, dailyUsed: number, billingUsed: number, freeUsed: number): number {
+export function calcAvailableCredits(totalCredits: number, rolloverUsed: number, dailyUsed: number, billingUsed: number, freeUsed: number, plan?: string): number {
+  assertNotLegacyCalcForProZero(plan, 'calcAvailableCredits');
   return Math.max(0, Math.round(totalCredits - (rolloverUsed || 0) - (dailyUsed || 0) - (billingUsed || 0) - (freeUsed || 0)));
 }
 
