@@ -204,7 +204,7 @@ export function createUI(deps: PanelBuilderDeps): void {
 // PANEL_DEFAULT_HEIGHT constant — never an empty string.
 function _restoreMinimizedPanel(ui: HTMLElement, plCtx: PanelLayoutCtx): void {
   for (const el of plCtx.bodyElements) {
-    el.style.display = 'none';
+    hideBodyElementForMinimize(el);
   }
 
   const savedGeometry = loadPanelGeometry();
