@@ -7,6 +7,7 @@
  */
 
 import { log } from '../logging';
+import { markUserGesture } from '../user-gesture-guard';
 import { showDatabaseModal } from './database-modal';
 import { exportWorkspacesAsCsv } from '../logging';
 import { VERSION, cPanelBg, cPanelFgDim, cPanelFgMuted, cPrimary, cBtnMenuBg, cBtnMenuFg, cSectionHeader, lDropdownRadius, lDropdownShadow, tFontSm, trFast, autoAttachCfg, state } from '../shared-state';
@@ -122,9 +123,11 @@ export function buildHamburgerMenu(deps: MenuBuilderDeps): MenuBuilderResult {
 function _addLoopSubmenu(menuCtx: { menuBtnStyle: string; menuDropdown: HTMLElement }, menuDropdown: HTMLElement, startLoop: (dir: string) => void): void {
   const loopMenu = createSubmenu(menuCtx, '🔄', 'Loop');
   loopMenu.panel.appendChild(createMenuItem(menuCtx, '▲', 'Loop Up', 'Start loop in UP direction', function() {
+    markUserGesture('menu-builder/loop-up');
     state.direction = LoopDirection.Up; log('Direction set to: UP'); startLoop('up');
   }));
   loopMenu.panel.appendChild(createMenuItem(menuCtx, '▼', 'Loop Down', 'Start loop in DOWN direction', function() {
+    markUserGesture('menu-builder/loop-down');
     state.direction = LoopDirection.Down; log('Direction set to: DOWN'); startLoop('down');
   }));
   menuDropdown.appendChild(loopMenu.el);

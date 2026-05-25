@@ -23,6 +23,7 @@ import { CONFIG, IDS, TIMING, loopCreditState, state } from './shared-state';
 import { runCycle } from './loop-cycle';
 import { logError } from './error-utils';
 import { emitCreditPollTick } from './credit-poll-events';
+import { requireUserGesture } from './user-gesture-guard';
 
 
 
@@ -176,7 +177,10 @@ function scheduleTimersAfterCheck(checkPromise: Promise<void> | undefined): void
 // startLoop
 // ============================================
 export function startLoop(direction: LoopDirection | string): boolean {
+  // No-autorun guard: refuse any startLoop() that isn't backed by a recent user gesture.
+  if (!requireUserGesture('startLoop')) return false;
   if (!validateLoopPreconditions()) return false;
+
 
   initLoopState(direction);
   logLoopStartInfo();

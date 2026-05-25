@@ -17,6 +17,7 @@
  */
 
 import { log } from '../logging';
+import { markUserGesture } from '../user-gesture-guard';
 import { state } from '../shared-state';
 import { showSettingsDialog } from './settings-ui';
 import { positionLoopController } from './panel-layout';
@@ -150,6 +151,7 @@ function handleCtrlAltShortcut(e: KeyboardEvent, deps: KeyboardHandlerDeps): boo
       stopLoop();
     } else {
       log('Starting loop ' + dir.toUpperCase() + ' via Ctrl+Alt+' + dir.charAt(0).toUpperCase() + dir.slice(1));
+      markUserGesture('keyboard-handlers/ctrl-alt-' + dir);
       startLoop(dir);
     }
     return true;
