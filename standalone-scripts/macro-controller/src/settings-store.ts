@@ -83,7 +83,10 @@ function sanitizePerWorkspace(
     if (isFiniteNonNegative(v.refillWarningThresholdDays)) {
       entry.refillWarningThresholdDays = Math.floor(v.refillWarningThresholdDays);
     }
-    if (entry.expiryGracePeriodDays !== undefined || entry.refillWarningThresholdDays !== undefined) {
+    if (isFiniteNonNegative(v.hoverCardHideGracePeriodMs)) {
+      entry.hoverCardHideGracePeriodMs = Math.floor(v.hoverCardHideGracePeriodMs);
+    }
+    if (entry.expiryGracePeriodDays !== undefined || entry.refillWarningThresholdDays !== undefined || entry.hoverCardHideGracePeriodMs !== undefined) {
       out[wsId] = entry;
     }
   }
