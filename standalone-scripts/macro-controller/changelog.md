@@ -1,5 +1,15 @@
 # Macro Controller — Changelog
 
+## v3.15.0 (2026-05-25)
+
+### Fixed
+- **Toolbar minimize/expand button squish** (Issue 117, 5-step RCA) — Root cause: `toggleMinimize` / `restorePanel` / `_restoreMinimizedPanel` wiped `bodyElements` inline `display` styles (e.g. `btnRow`'s `display:flex`) by setting `el.style.display = ''`, causing `gap` / `justify-content` / `align-items` to become inert after every expand cycle. Durable fix stashes `el.style.display` into `data-macro-prev-display` on minimize and restores it on expand via `_hideBodyElement()` / `_showBodyElement()` helpers. Added 5 regression tests (`panel-minimize-expand-display.test.ts`).
+
+### Internal
+- Version bump: 3.14.2 → 3.15.0 (synced with extension release).
+
+---
+
 ## v3.14.2 (2026-05-25)
 
 ### Internal
