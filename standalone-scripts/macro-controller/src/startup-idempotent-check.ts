@@ -81,7 +81,7 @@ function handleGlobalsIntact(marker: HTMLElement): IdempotentResult {
     return 'proceed';
   }
 
-  if (window.__MARCO_LAUNCH_SOURCE__ === 'passive') {
+  if (window.__MARCO_LAUNCH_SOURCE__ === 'passive' && marker.getAttribute('data-launch-source') === 'passive') {
     console.log('%c[MacroLoop v' + VERSION + '] Passive attach detected — keeping panel hidden until manual Run script', 'color: #38bdf8; font-weight: bold;');
     return 'abort';
   }
