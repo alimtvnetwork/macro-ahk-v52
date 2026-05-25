@@ -43,6 +43,13 @@ Spec: `spec/22-app-issues/114-pro-zero-credit-balance-calculation.md`
 
 ## Completed workstreams (recent)
 
+### v3.12.0 — Workspace Label Refinement (2026-05-25)
+- Unified workspace badge system: all `expired*` variants collapse to muted gray `Cancel`; `about-to-expire` → `Expire Nd` (amber) / `Expired Nd` (red); `about-to-refill` → `Refill Nd` / `Refill today` (sky).
+- Single `classifyFromStatus` + `resolveBadgeStyle` shared by row list and hover card; duplicate pill maps removed.
+- Refill-soon filter chip added to workspace toolbar.
+- 28 tests (classifier, tone resolver, composition, chip).
+- Issue 115 complete; 10 steps done.
+
 ### v3.10.2 — Refill Priority + GitHub Open (2026-05-24)
 - Button row overflow hardened (`min-width:0`, `overflow:visible`)
 - `REFILL_PRIORITY_WINDOW_DAYS = 10` + score/sort helper + 9 unit tests
