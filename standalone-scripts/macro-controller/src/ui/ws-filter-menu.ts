@@ -27,6 +27,7 @@ const ID_FREE_FILTER = 'loop-ws-free-filter';
 const ID_ROLLOVER_FILTER = 'loop-ws-rollover-filter';
 const ID_BILLING_FILTER = 'loop-ws-billing-filter';
 const ID_EXPIRED_CREDITS_FILTER = 'loop-ws-expired-credits-filter';
+const ID_REFILL_SOON_FILTER = 'loop-ws-refill-soon-filter';
 const ID_REFILL_PRIORITY_FILTER = 'loop-ws-refill-priority-filter';
 const ID_COMPACT_TOGGLE = 'loop-ws-compact-toggle';
 const ID_MIN_CREDITS_INPUT = 'loop-ws-min-credits';
