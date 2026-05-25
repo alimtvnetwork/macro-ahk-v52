@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.15.2] — 2026-05-25
+
+### Fixed
+- MacroController: pro_0 workspaces with depleted (0) credits no longer trigger CODE-RED `calcAvailableCredits()` errors. Renderers (`ui-status-renderer.ts`, `ws-list-renderer.ts`) now use nullish coalescing (`??`) instead of `||` so enriched `totalCredits`/`available` of `0` from `pro-zero-credit-calculator` are preserved instead of falling through to the guarded legacy aggregator.
+
+---
+
 ## [v3.15.1] — 2026-05-25
 
 ### Changed
