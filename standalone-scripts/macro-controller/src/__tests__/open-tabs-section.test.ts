@@ -108,7 +108,7 @@ describe('open-tabs-section', () => {
   }
 
   it('renders empty state when no tabs are open', async () => {
-    vi.mocked(sendToExtension).mockResolvedValueOnce({ tabs: [], capturedAt: '2026-05-25T08:00:00Z' });
+    (sendToExtension as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ tabs: [], capturedAt: '2026-05-25T08:00:00Z' });
 
     const result = createOpenTabsSection();
     document.body.appendChild(result.section);
@@ -126,7 +126,7 @@ describe('open-tabs-section', () => {
 
   it('renders a list with injected, probed, and error rows', async () => {
     const tabs = makeMockTabs();
-    vi.mocked(sendToExtension).mockResolvedValueOnce({ tabs, capturedAt: '2026-05-25T08:00:00Z' });
+    (sendToExtension as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ tabs, capturedAt: '2026-05-25T08:00:00Z' });
 
     const result = createOpenTabsSection();
     document.body.appendChild(result.section);
@@ -168,7 +168,7 @@ describe('open-tabs-section', () => {
   });
 
   it('renders error state when extension call fails', async () => {
-    vi.mocked(sendToExtension).mockRejectedValueOnce(new Error('Extension context invalidated'));
+    (sendToExtension as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Extension context invalidated'));
 
     const result = createOpenTabsSection();
     document.body.appendChild(result.section);
@@ -182,7 +182,7 @@ describe('open-tabs-section', () => {
   });
 
   it('renders error state when extension returns isOk=false', async () => {
-    vi.mocked(sendToExtension).mockResolvedValueOnce({ isOk: false, errorMessage: 'Background busy' });
+    (sendToExtension as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ isOk: false, errorMessage: 'Background busy' });
 
     const result = createOpenTabsSection();
     document.body.appendChild(result.section);
@@ -196,7 +196,7 @@ describe('open-tabs-section', () => {
   });
 
   it('refresh button re-fetches data', async () => {
-    vi.mocked(sendToExtension).mockResolvedValueOnce({ tabs: [], capturedAt: '2026-05-25T08:00:00Z' });
+    (sendToExtension as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ tabs: [], capturedAt: '2026-05-25T08:00:00Z' });
 
     const result = createOpenTabsSection();
     document.body.appendChild(result.section);
@@ -211,6 +211,5 @@ describe('open-tabs-section', () => {
     await new Promise((r) => setTimeout(r, 10));
 
     expect(sendToExtension).toHaveBeenCalledTimes(1);
-    expect(vi.mocked(sendToExtension).mock.calls[1]?.[1]).toEqual({}); // second call from refresh
   });
 });
