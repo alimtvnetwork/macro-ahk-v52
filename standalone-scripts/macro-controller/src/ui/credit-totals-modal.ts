@@ -83,8 +83,24 @@ export function buildCard(heading: string, rows: ReadonlyArray<{ label: string; 
   return card;
 }
 
+/** One-time injection of row hover + zebra stripe CSS (Step 8). */
+const ZEBRA_STYLE_ID = 'marco-credit-totals-style';
+function ensureRowStyles(): void {
+  if (typeof document === 'undefined') return;
+  if (document.getElementById(ZEBRA_STYLE_ID)) return;
+  const s = document.createElement('style');
+  s.id = ZEBRA_STYLE_ID;
+  s.textContent =
+    '[data-credit-totals-row]{transition:background-color 120ms ease,color 120ms ease;}'
+    + '[data-credit-totals-row][data-zebra="1"]{background:rgba(124,58,237,0.04);}'
+    + '[data-credit-totals-row]:hover{background:rgba(124,58,237,0.18) !important;color:#ffffff;cursor:default;}'
+    + '[data-credit-totals-row]:hover [data-cell="name"]{color:#ffffff;}';
+  document.head.appendChild(s);
+}
+
 /** Build the per-workspace breakdown table. */
 export function buildBreakdownTable(workspaces: ReadonlyArray<WorkspaceCredit>): HTMLElement {
+  ensureRowStyles();
   const wrap = document.createElement('div');
   wrap.style.cssText = 'background:rgba(0,0,0,0.30);border:1px solid rgba(124,58,237,0.30);border-radius:6px;overflow:hidden;';
 
@@ -108,20 +124,23 @@ export function buildBreakdownTable(workspaces: ReadonlyArray<WorkspaceCredit>):
     empty.textContent = 'No workspaces cached. Open the workspace panel to sync.';
     body.appendChild(empty);
   } else {
-    for (const ws of workspaces) {
-      body.appendChild(buildRow(ws));
-    }
+    workspaces.forEach((ws, idx) => {
+      body.appendChild(buildRow(ws, idx));
+    });
   }
   wrap.appendChild(body);
   return wrap;
 }
 
-function buildRow(ws: WorkspaceCredit): HTMLElement {
+function buildRow(ws: WorkspaceCredit, index: number = 0): HTMLElement {
   const row = document.createElement('div');
-  row.style.cssText = 'display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr 0.7fr 0.7fr;gap:6px;padding:4px 8px;font-size:10px;color:#cbd5e1;border-bottom:1px solid rgba(124,58,237,0.08);font-variant-numeric:tabular-nums;';
+  row.setAttribute('data-credit-totals-row', '1');
+  if (index % 2 === 1) row.setAttribute('data-zebra', '1');
+  row.style.cssText = 'display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr 0.7fr 0.7fr;gap:6px;padding:5px 8px;font-size:10px;color:#cbd5e1;border-bottom:1px solid rgba(124,58,237,0.08);font-variant-numeric:tabular-nums;';
 
   const name = document.createElement('span');
-  name.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+  name.setAttribute('data-cell', 'name');
+  name.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e2e8f0;font-weight:600;';
   name.title = ws.fullName || ws.name;
   name.textContent = ws.fullName || ws.name || ws.id;
 
