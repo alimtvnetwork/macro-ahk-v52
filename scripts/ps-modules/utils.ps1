@@ -276,12 +276,34 @@ function Invoke-PackageScriptDirect([string]$PackageDir, [string]$ScriptName) {
         $env:Path = "$binPath$([IO.Path]::PathSeparator)$oldPath"
         $env:npm_lifecycle_event = $ScriptName
         $env:npm_package_name = if ($packageJson.name) { [string]$packageJson.name } else { "package" }
+
+        # Tee combined stdout+stderr to build.error.log so the real Rollup/plugin
+        # error survives the wrapper. Without this the PowerShell caller only
+        # sees "ERROR: Build failed" and the actual stack disappears with cmd.exe.
+        # See .lovable/question-and-ambiguity/56-windows-vite-build-failed-opaque.md
+        $logPath = Join-Path $PackageDir "build.error.log"
+        try { Remove-Item $logPath -Force -ErrorAction SilentlyContinue } catch { <# log is best-effort #> }
+
         if ($IsWindows -or $env:OS -eq "Windows_NT") {
-            & cmd.exe /d /s /c $scriptCommand
+            & cmd.exe /d /s /c "$scriptCommand 2>&1" | Tee-Object -FilePath $logPath
         } else {
-            & /bin/sh -c $scriptCommand
+            & /bin/sh -c "$scriptCommand 2>&1" | Tee-Object -FilePath $logPath
         }
-        return $LASTEXITCODE
+        $capturedExit = $LASTEXITCODE
+
+        if ($capturedExit -ne 0 -and (Test-Path $logPath)) {
+            Write-Host ""
+            Write-Host "──────── captured build output (tail of build.error.log) ────────" -ForegroundColor Red
+            try {
+                Get-Content $logPath -Tail 60 | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray }
+            } catch {
+                Write-Host "  [WARN] could not read $logPath ($($_.Exception.Message))" -ForegroundColor Yellow
+            }
+            Write-Host "─────────────────────────────────────────────────────────────────" -ForegroundColor Red
+            Write-Host "  Full log: $logPath" -ForegroundColor Yellow
+        }
+
+        return $capturedExit
     } finally {
         $env:Path = $oldPath
         $env:npm_lifecycle_event = $oldLifecycleEvent
