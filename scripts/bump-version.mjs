@@ -18,7 +18,7 @@
  *   - standalone-scripts/xpath/dist/instruction.json           (version)
  *
  * Also updates:
- *   - CHANGELOG.md              (inserts new version section header)
+ *   - changelog.md              (inserts new version section header)
  *   - plan.md                   (updates Chrome Extension version refs)
  *
  * After running, both check-version-sync.mjs AND check-manifest-version.mjs will pass.
