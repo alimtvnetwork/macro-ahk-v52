@@ -102,7 +102,7 @@ export function buildCard(heading: string, rows: ReadonlyArray<{ label: string; 
     label.textContent = r.label;
     const value = document.createElement('span');
     const color = toneColor(r.tone);
-    const isNumeric = /^[\d,.\s\/—–-]+$/.test(r.value);
+    const isNumeric = /^[\d,.\s/—–-]+$/.test(r.value);
     const size = isNumeric ? '16px' : '12px';
     value.style.cssText = 'color:' + color + ';font-weight:700;font-variant-numeric:tabular-nums;font-size:' + size + ';letter-spacing:0.2px;';
     value.textContent = r.value;
@@ -268,27 +268,113 @@ function buildFilterBar(
   return bar;
 }
 
+interface TableCtx {
+  wrap: HTMLElement;
+  header: HTMLElement;
+  body: HTMLElement;
+  filterBar: HTMLElement;
+  sortState: SortState;
+  filters: FilterState;
+  order: ReadonlyArray<WorkspaceCredit>;
+}
+
+const EMPTY_CSS = 'padding:14px 10px;text-align:center;font-size:11px;font-style:italic;color:';
+
+function renderHeaderCells(ctx: TableCtx): void {
+  while (ctx.header.firstChild) ctx.header.removeChild(ctx.header.firstChild);
+  for (const col of COLUMNS) {
+    const cell = document.createElement('span');
+    cell.setAttribute('data-sort-key', col.key);
+    cell.style.cursor = 'pointer';
+    cell.style.userSelect = 'none';
+    cell.style.textAlign = col.align;
+    const isActive = ctx.sortState.key === col.key && ctx.sortState.dir !== 'none';
+    const arrow = isActive ? (ctx.sortState.dir === 'asc' ? ' ▲' : ' ▼') : '';
+    cell.textContent = col.label + arrow;
+    if (isActive) cell.style.color = '#ffffff';
+    cell.onclick = function (): void {
+      ctx.sortState = nextSortDir(col.key, ctx.sortState);
+      renderHeaderCells(ctx);
+      renderBodyRows(ctx);
+    };
+    ctx.header.appendChild(cell);
+  }
+}
+
+function attachDragHandlers(ctx: TableCtx, row: HTMLElement, dispIdx: number): void {
+  const isManualOrder = ctx.sortState.dir === 'none';
+  row.draggable = isManualOrder;
+  row.style.cursor = isManualOrder ? 'grab' : 'default';
+  row.setAttribute('data-row-index', String(dispIdx));
+  if (!isManualOrder) return;
+
+  row.addEventListener('dragstart', (e: DragEvent) => {
+    row.style.opacity = '0.4';
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(dispIdx));
+    }
+  });
+  row.addEventListener('dragend', () => {
+    row.style.opacity = '';
+    ctx.body.querySelectorAll<HTMLElement>('[data-drop-target="1"]').forEach((el) => {
+      el.removeAttribute('data-drop-target');
+      el.style.borderTop = '';
+    });
+  });
+  row.addEventListener('dragover', (e: DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+    row.setAttribute('data-drop-target', '1');
+    row.style.borderTop = '2px solid ' + cPrimaryLighter;
+  });
+  row.addEventListener('dragleave', () => {
+    row.removeAttribute('data-drop-target');
+    row.style.borderTop = '';
+  });
+  row.addEventListener('drop', (e: DragEvent) => {
+    e.preventDefault();
+    const fromStr = e.dataTransfer?.getData('text/plain') || '';
+    const from = Number(fromStr);
+    const to = dispIdx;
+    if (!Number.isFinite(from) || from === to) return;
+    ctx.order = reorderArray(ctx.order, from, to);
+    renderBodyRows(ctx);
+  });
+}
+
+function appendEmptyState(body: HTMLElement, text: string): void {
+  const empty = document.createElement('div');
+  empty.style.cssText = EMPTY_CSS + cPanelFgDim + ';';
+  empty.textContent = text;
+  body.appendChild(empty);
+}
+
+function renderBodyRows(ctx: TableCtx): void {
+  while (ctx.body.firstChild) ctx.body.removeChild(ctx.body.firstChild);
+  if (ctx.order.length === 0) {
+    appendEmptyState(ctx.body, 'No workspaces cached. Open the workspace panel to sync.');
+    return;
+  }
+  const filtered = applyFilters(ctx.order, ctx.filters);
+  const sorted = sortWorkspaces(filtered, ctx.sortState);
+  if (sorted.length === 0) {
+    appendEmptyState(ctx.body, 'No workspaces match the active filters.');
+    return;
+  }
+  sorted.forEach((ws, idx) => {
+    const row = buildRow(ws, idx);
+    attachDragHandlers(ctx, row, idx);
+    ctx.body.appendChild(row);
+  });
+}
+
 /** Build the per-workspace breakdown table. */
 export function buildBreakdownTable(workspaces: ReadonlyArray<WorkspaceCredit>): HTMLElement {
   ensureRowStyles();
   const wrap = document.createElement('div');
   wrap.setAttribute('data-credit-totals-table', '1');
   wrap.style.cssText = 'background:rgba(0,0,0,0.30);border:1px solid rgba(124,58,237,0.30);border-radius:6px;overflow:hidden;';
-
-  let sortState: SortState = { key: 'rem', dir: 'none' };
-  // Mutable manual order (Step 10). Drag-drop edits this; sort uses it as input.
-  let order: ReadonlyArray<WorkspaceCredit> = workspaces.slice();
-  let filters: FilterState = { low: false, empty: false, free: false };
-
-  let filterBar: HTMLElement;
-  function handleFilterChange(next: FilterState): void {
-    filters = next;
-    const newBar = buildFilterBar(filters, handleFilterChange);
-    wrap.replaceChild(newBar, filterBar);
-    filterBar = newBar;
-    renderBody();
-  }
-  filterBar = buildFilterBar(filters, handleFilterChange);
 
   const header = document.createElement('div');
   header.setAttribute('data-credit-totals-header', '1');
@@ -298,97 +384,25 @@ export function buildBreakdownTable(workspaces: ReadonlyArray<WorkspaceCredit>):
   body.style.cssText = 'max-height:260px;overflow-y:auto;';
   body.setAttribute('data-credit-totals-rows', '1');
 
-  function renderHeader(): void {
-    while (header.firstChild) header.removeChild(header.firstChild);
-    for (const col of COLUMNS) {
-      const cell = document.createElement('span');
-      cell.setAttribute('data-sort-key', col.key);
-      cell.style.cursor = 'pointer';
-      cell.style.userSelect = 'none';
-      cell.style.textAlign = col.align;
-      const isActive = sortState.key === col.key && sortState.dir !== 'none';
-      const arrow = isActive ? (sortState.dir === 'asc' ? ' ▲' : ' ▼') : '';
-      cell.textContent = col.label + arrow;
-      if (isActive) cell.style.color = '#ffffff';
-      cell.onclick = function (): void {
-        sortState = nextSortDir(col.key, sortState);
-        renderHeader();
-        renderBody();
-      };
-      header.appendChild(cell);
-    }
+  const ctx: TableCtx = {
+    wrap, header, body,
+    filterBar: document.createElement('div'),
+    sortState: { key: 'rem', dir: 'none' },
+    filters: { low: false, empty: false, free: false },
+    order: workspaces.slice(),
+  };
+  function handleFilterChange(next: FilterState): void {
+    ctx.filters = next;
+    const newBar = buildFilterBar(ctx.filters, handleFilterChange);
+    wrap.replaceChild(newBar, ctx.filterBar);
+    ctx.filterBar = newBar;
+    renderBodyRows(ctx);
   }
+  ctx.filterBar = buildFilterBar(ctx.filters, handleFilterChange);
 
-  function attachDrag(row: HTMLElement, dispIdx: number): void {
-    const isManualOrder = sortState.dir === 'none';
-    row.draggable = isManualOrder;
-    row.style.cursor = isManualOrder ? 'grab' : 'default';
-    row.setAttribute('data-row-index', String(dispIdx));
-    if (!isManualOrder) return;
-
-    row.addEventListener('dragstart', (e: DragEvent) => {
-      row.style.opacity = '0.4';
-      if (e.dataTransfer) {
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', String(dispIdx));
-      }
-    });
-    row.addEventListener('dragend', () => {
-      row.style.opacity = '';
-      body.querySelectorAll<HTMLElement>('[data-drop-target="1"]').forEach((el) => {
-        el.removeAttribute('data-drop-target');
-        el.style.borderTop = '';
-      });
-    });
-    row.addEventListener('dragover', (e: DragEvent) => {
-      e.preventDefault();
-      if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
-      row.setAttribute('data-drop-target', '1');
-      row.style.borderTop = '2px solid ' + cPrimaryLighter;
-    });
-    row.addEventListener('dragleave', () => {
-      row.removeAttribute('data-drop-target');
-      row.style.borderTop = '';
-    });
-    row.addEventListener('drop', (e: DragEvent) => {
-      e.preventDefault();
-      const fromStr = e.dataTransfer?.getData('text/plain') || '';
-      const from = Number(fromStr);
-      const to = dispIdx;
-      if (!Number.isFinite(from) || from === to) return;
-      order = reorderArray(order, from, to);
-      renderBody();
-    });
-  }
-
-  function renderBody(): void {
-    while (body.firstChild) body.removeChild(body.firstChild);
-    if (order.length === 0) {
-      const empty = document.createElement('div');
-      empty.style.cssText = 'padding:14px 10px;text-align:center;color:' + cPanelFgDim + ';font-size:11px;font-style:italic;';
-      empty.textContent = 'No workspaces cached. Open the workspace panel to sync.';
-      body.appendChild(empty);
-      return;
-    }
-    const filtered = applyFilters(order, filters);
-    const sorted = sortWorkspaces(filtered, sortState);
-    if (sorted.length === 0) {
-      const empty = document.createElement('div');
-      empty.style.cssText = 'padding:14px 10px;text-align:center;color:' + cPanelFgDim + ';font-size:11px;font-style:italic;';
-      empty.textContent = 'No workspaces match the active filters.';
-      body.appendChild(empty);
-      return;
-    }
-    sorted.forEach((ws, idx) => {
-      const row = buildRow(ws, idx);
-      attachDrag(row, idx);
-      body.appendChild(row);
-    });
-  }
-
-  renderHeader();
-  renderBody();
-  wrap.appendChild(filterBar);
+  renderHeaderCells(ctx);
+  renderBodyRows(ctx);
+  wrap.appendChild(ctx.filterBar);
   wrap.appendChild(header);
   wrap.appendChild(body);
   return wrap;
