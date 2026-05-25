@@ -23,6 +23,7 @@ import {
     buildRelativeXPath,
 } from "./xpath-anchor-strategies";
 import { suggestVariableName } from "./xpath-label-suggester";
+import { enqueueCapture, flushNow } from "./xpath-capture-coalescer";
 
 /* ------------------------------------------------------------------ */
 /*  State                                                              */
