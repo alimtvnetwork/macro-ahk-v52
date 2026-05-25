@@ -164,4 +164,18 @@ describe('showCreditTotalsModal / removeCreditTotalsModal', () => {
     closeIcon.click();
     expect(document.getElementById('marco-credit-totals-modal')).toBeNull();
   });
+
+  it('ESC key closes the dialog', () => {
+    showCreditTotalsModal();
+    expect(document.getElementById('marco-credit-totals-modal')).not.toBeNull();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(document.getElementById('marco-credit-totals-modal')).toBeNull();
+  });
+
+  it('sets aria-modal=true and is focusable', () => {
+    showCreditTotalsModal();
+    const dialog = document.getElementById('marco-credit-totals-modal');
+    expect(dialog!.getAttribute('aria-modal')).toBe('true');
+    expect(dialog!.tabIndex).toBe(-1);
+  });
 });
