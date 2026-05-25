@@ -593,7 +593,7 @@ export function renderLoopWorkspaceList(
   const countLabel = document.getElementById('loop-ws-count-label');
   if (countLabel) {
     const total = workspaces.length;
-    countLabel.textContent = (filter || getLoopWsFreeOnly() || getLoopWsExpiredWithCredits() || count !== total)
+    countLabel.textContent = (filter || getLoopWsFreeOnly() || getLoopWsExpiredWithCredits() || getLoopWsRefillSoon() || count !== total)
       ? 'Workspaces (' + count + '/' + total + ')'
       : 'Workspaces (' + total + ')';
   }
