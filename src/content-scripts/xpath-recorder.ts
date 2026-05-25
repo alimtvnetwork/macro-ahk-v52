@@ -118,7 +118,8 @@ function onElementClick(event: MouseEvent): void {
     event.stopPropagation();
 
     const payload = buildCapturePayload(target);
-    void chrome.runtime.sendMessage(payload);
+    // PERF-R6: batch/coalesce captures instead of one sendMessage per click.
+    enqueueCapture(payload);
 
     highlightElement(target);
 }
