@@ -345,18 +345,22 @@ async function logInjectionSuccess(
     const codeSnippet = script.code.slice(0, 200);
     const sourceTag = codeSource ? ` [source: ${codeSource}]` : "";
 
-    const isMacroLooping = script.name.includes("macro-looping") || script.id.includes("macro-looping");
+    const scriptName = script.name ?? "";
+    const isMacroLooping = scriptName.includes("macro-looping") || script.id.includes("macro-looping");
     if (isMacroLooping) {
         const injectedVersion = extractMacroVersion(script.code);
         if (injectedVersion && injectedVersion !== EXTENSION_VERSION) {
-            const legacyMsg = `LEGACY SCRIPT DETECTED\n  Path: chrome.storage.local script="${script.name}" id="${script.id}"\n  Missing: Current version macro-looping.js v${EXTENSION_VERSION}\n  Reason: Injected script is v${injectedVersion} but extension is v${EXTENSION_VERSION} — stale cache or embedded code fallback. Source: ${codeSource ?? "unknown"}`;
+            const legacyMsg = `LEGACY SCRIPT DETECTED\n  Path: chrome.storage.local script="${scriptName}" id="${script.id}"\n  Missing: Current version macro-looping.js v${EXTENSION_VERSION}\n  Reason: Injected script is v${injectedVersion} but extension is v${EXTENSION_VERSION} — stale cache or embedded code fallback. Source: ${codeSource ?? "unknown"}`;
             logCaughtError(BgLogTag.INJECTION, legacyMsg, new Error(`LEGACY_SCRIPT_INJECTED v=${injectedVersion} expected=${EXTENSION_VERSION}`));
             try {
                 await handleLogError({
-                    type: "LOG_ERROR",
-                    code: "LEGACY_SCRIPT_INJECTED",
+                    type: MessageType.LOG_ERROR,
+                    level: "ERROR",
+                    source: "background",
+                    category: "injection",
+                    errorCode: "LEGACY_SCRIPT_INJECTED",
                     message: legacyMsg,
-                    stack: `Injected version: ${injectedVersion}, Expected: ${EXTENSION_VERSION}, Source: ${codeSource ?? "unknown"}, Code length: ${script.code.length}`,
+                    stackTrace: `Injected version: ${injectedVersion}, Expected: ${EXTENSION_VERSION}, Source: ${codeSource ?? "unknown"}, Code length: ${script.code.length}`,
                 } as MessageRequest);
             } catch (logErr) {
                 logBgWarnError(BgLogTag.INJECTION, `handleLogError(LEGACY_SCRIPT_INJECTED) failed for "${script.name}" — telemetry suppressed but injection continues`, logErr);
