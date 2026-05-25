@@ -9,12 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ## [v3.14.2] — 2026-05-25
 
-### Added
-
-### Fixed
-
 ### Changed
-- Version bump: 3.14.1 → 3.14.2 (all version files synced)
+- Release Page CI/CD Hardening Plan — Steps 3–8:
+  - Required-asset verification gate (`release.yml` lines 733–788) blocks publish if any built ZIP, installer, checksum, or notes file is missing or under minimum size.
+  - Release notes generation includes pinned + latest install one-liners, manual Chrome unpack instructions, SLSA attestation verification, and full asset table.
+  - Scheduled release-audit workflow (`audit-releases.yml`) audits every published `v*` release for missing assets.
+  - Pre-flight publish script (`scripts/release-publish.mjs`) wraps tag push and polls for the Release Build workflow run.
+  - Release procedure spec linked from `readme.md` CI/CD section.
+- Version bump: 3.14.1 → 3.14.2 (all version files synced).
 
 ---
 
