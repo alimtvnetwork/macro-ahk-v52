@@ -1,5 +1,21 @@
 # Macro Controller — Changelog
 
+## v3.14.0 (2026-05-25)
+
+### Added
+- **Credit Totals Modal** (Issue 116) — `💰 Credit Totals` right-click menu entry opens a summary modal:
+  - `This Billing Cycle` card (total granted / used / remaining) and `Free Daily Credits` card (used today / 5 daily).
+  - Per-workspace breakdown table with `Credits Used / Granted` and `Available`.
+  - Missing-data warning row for workspaces without cached credit data.
+  - `↻ Refresh` button re-renders from the latest snapshot.
+- A11y: focus trap + `Escape` to close (`aria-modal="true"`, `tabIndex="-1"`).
+- 25 unit tests (credit totals logic, modal rendering, dialog lifecycle, a11y handlers).
+
+### Internal
+- Version bump: 3.13.0 → 3.14.1.
+
+---
+
 ## v3.13.0 (2026-05-25)
 
 ### Fixed

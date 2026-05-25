@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.14.0] — 2026-05-25
+
+### Added
+- **Credit Totals Modal** (Issue 116). Right-click menu item `💰 Credit Totals` opens a modal summarizing all workspace credits:
+  - **This Billing Cycle** card — total granted, total used, and total remaining across all workspaces.
+  - **Free Daily Credits** card — used today vs the 5-credit daily allowance.
+  - Per-workspace breakdown table with `Credits Used / Granted` and `Available` columns.
+  - Missing-data warning row when a workspace has no cached credit data.
+  - `↻ Refresh` button re-renders the modal from the latest snapshot.
+- Focus trap + `Escape`-to-close for keyboard accessibility (`aria-modal="true"`, `tabIndex="-1"`).
+- 25 unit tests covering credit calculation, modal rendering, dialog lifecycle, and a11y handlers.
+
+### Internal
+- Version bump: 3.13.0 → 3.14.0 (manifest, constants, shared-state, instruction, readme pinned).
+
+---
+
 ## [v3.13.0] — 2026-05-25
 
 ### Fixed
