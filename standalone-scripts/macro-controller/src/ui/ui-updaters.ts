@@ -161,6 +161,11 @@ export function setLoopInterval(newIntervalMs: number): boolean {
 
 /**
  * Fully destroy the controller panel and clean up globals for re-injection.
+ *
+ * v3.18.0 fix: also tear down the MacroController singleton so that re-running
+ * the script in the same page (without a full refresh) builds a fresh instance
+ * instead of reusing the stale one with `_initialized=true` and dead manager
+ * references pointing at a removed DOM container.
  */
 export function destroyPanel(): void {
   log('MacroLoop panel DESTROYED by user — remove marker + globals for clean re-inject', 'warn');
@@ -172,6 +177,15 @@ export function destroyPanel(): void {
   if (marker) marker.remove();
   const container = document.getElementById(IDS.CONTAINER);
   if (container) container.remove();
+
+  // Tear down the singleton so the next injection bootstraps a fresh one
+  // instead of reusing a stale `_initialized=true` instance with dead refs.
+  try {
+    const mc = MacroController.getInstance() as unknown as { destroy?: () => void };
+    if (typeof mc.destroy === 'function') mc.destroy();
+  } catch (e) {
+    log('destroyPanel: MacroController.destroy failed — ' + (e instanceof Error ? e.message : String(e)), 'warn');
+  }
 
   log('Teardown complete — re-inject script to restore controller', 'success');
 }
