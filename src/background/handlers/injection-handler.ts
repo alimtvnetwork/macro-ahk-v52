@@ -501,24 +501,7 @@ async function mirrorSkippedResultsToTab(
     );
 }
 
-
-/** Executes wrapped code in the specified tab using CSP-aware fallback. */
-async function executeInTab(tabId: number, code: string): Promise<{ path: string; domTarget?: string }> {
-    const result = await injectWithCspFallback(tabId, code, "MAIN");
-
-    if (!result.isSuccess) {
-        throw new Error(result.errorMessage ?? "Injection failed in MAIN and ISOLATED worlds.");
-    }
-
-    if (result.isFallback) {
-        logBgWarnError(
-            BgLogTag.INJECTION,
-            `Script executed via ${result.world} fallback (tab ${tabId}) — window.marco created in non-MAIN world, RiseupAsiaMacroExt.Projects.* may not be accessible from the page console.`,
-        );
-    }
-
-    return { path: resolveInjectionPath(result), domTarget: result.domTarget ?? "unknown" };
-}
+// executeInTab moved to ./injection-pipeline (PERF-R2b step 5).
 
 // buildSuccessResult / resolveInjectionPath / buildErrorResult moved to ./injection-result-builder (PERF-R2b step 3).
 
