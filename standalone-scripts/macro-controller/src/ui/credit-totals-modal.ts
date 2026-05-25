@@ -220,11 +220,18 @@ function buildFooter(totals: CreditTotals): HTMLElement {
   const left = document.createElement('span');
   left.textContent = 'Snapshot age: ' + formatSnapshotAge(loopCreditState.lastCheckedAt) + '  ·  ' + totals.totalCount + ' workspace' + (totals.totalCount === 1 ? '' : 's');
   const right = document.createElement('span');
+  right.style.cssText = 'display:flex;gap:6px;';
+  const refresh = document.createElement('button');
+  refresh.textContent = '↻ Refresh';
+  refresh.setAttribute('aria-label', 'Refresh credit snapshot');
+  refresh.style.cssText = 'background:transparent;border:1px solid ' + cPrimary + ';color:' + cPrimaryLighter + ';padding:3px 10px;border-radius:4px;font-size:10px;cursor:pointer;';
+  refresh.onclick = function (): void { showCreditTotalsModal(); };
   const close = document.createElement('button');
   close.textContent = 'Close';
   close.setAttribute('aria-label', 'Close dialog');
   close.style.cssText = 'background:rgba(124,58,237,0.20);border:1px solid ' + cPrimary + ';color:' + cPrimaryLighter + ';padding:3px 10px;border-radius:4px;font-size:10px;cursor:pointer;';
   close.onclick = function (): void { removeCreditTotalsModal(); };
+  right.appendChild(refresh);
   right.appendChild(close);
   footer.appendChild(left);
   footer.appendChild(right);
