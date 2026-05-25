@@ -190,6 +190,8 @@ function stopRecorder(): void {
     document.removeEventListener("click", onElementClick, true);
     clearAllHighlights();
     window.removeEventListener("pagehide", onPageHide);
+    // PERF-R6: drain any queued captures before teardown.
+    void flushNow();
     console.log("[Marco] XPath recorder stopped");
 }
 
