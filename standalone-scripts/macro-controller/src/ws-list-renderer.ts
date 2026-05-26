@@ -620,6 +620,19 @@ function filterAndSortWorkspaces(
     survivors.sort(function (a, b) {
       return _expiredRecoveryScore(b.ws) - _expiredRecoveryScore(a.ws);
     });
+  } else if (fs.expiring) {
+    // Issue 118: sort expiring workspaces by urgency (days passed desc),
+    // breaking ties by available credits desc so the most critical rows
+    // surface first.
+    survivors.sort(function (a, b) {
+      const cfg = getWorkspaceLifecycleConfig();
+      const statusA = getEffectiveStatus(a.ws, cfg);
+      const statusB = getEffectiveStatus(b.ws, cfg);
+      const daysA = statusA.daysSince || 0;
+      const daysB = statusB.daysSince || 0;
+      if (daysB !== daysA) return daysB - daysA;
+      return (b.ws.available || 0) - (a.ws.available || 0);
+    });
   } else if (viewState().getRefillPriority() || fs.refillSoon) {
     // v3.16.1 bug fix — When the "Refill-soon" filter is active, ALL surviving rows
     // are refill-soon (often with identical `daysToRefill`, e.g. all "1d"), so the
