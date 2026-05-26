@@ -9,12 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ## [v3.23.0] — 2026-05-26
 
-### Added
+### Fixed — Workspace rows showed both "EXPIRED" tier badge AND "Cancel" status pill (RCA)
 
-### Fixed
+**Symptom**: Canceled workspaces (tier=`EXPIRED`, `subscriptionStatus=canceled`) rendered TWO badges side-by-side in the Macro Controller workspace list: a red `EXPIRED` tier badge **plus** a muted gray `Cancel` status pill. The user had previously asked (Issue 115 / v3.12.0) for these to collapse into a single badge.
+
+**Root cause**: `buildTierBadgeHtml` in `standalone-scripts/macro-controller/src/ws-list-renderer.ts` renders two independent badges per row:
+1. The **tier badge** (`WS_TIER_LABELS[wsTier].label`) — always emitted, including the red `EXPIRED` label when `tier === 'EXPIRED'`.
+2. The **status pill** (`buildStatusPillHtml`) — emitted when `enableWorkspaceStatusLabels` is true, which for canceled rows is `Cancel` (muted gray, via `classifyFromStatus → kind: 'canceled'`).
+
+The Issue 115 fix (v3.12.0) collapsed the *status pill side* to a single label but never touched the *tier-badge side*. Result: tier=`EXPIRED` + canceled subscription emitted both — the redundant red `EXPIRED` next to the authoritative `Cancel` pill (visible in the user's screenshot, three workspaces P0888 / P0891 / P0092 all showing the double badge).
+
+**Fix**: In `buildTierBadgeHtml`, when `cfg.enableWorkspaceStatusLabels` is true AND `tier === 'EXPIRED'` AND the classified display kind is `canceled`, suppress the EXPIRED tier badge entirely. The row now carries one badge — the muted `Cancel` pill — exactly as Issue 115 intended. Non-canceled `EXPIRED` rows (where `display.kind` is `expired` or `expire-soon`) still keep the red tier badge so plain past-due/expired-without-cancel state remains visually distinct.
+
+**Tests**: new `standalone-scripts/macro-controller/src/__tests__/ws-tier-badge-cancel-suppression.test.ts` covers:
+- canceled + tier=EXPIRED → renders **no** `EXPIRED` text, renders exactly one `Cancel` pill,
+- past_due + tier=EXPIRED (no cancel) → still renders `EXPIRED` tier badge,
+- non-EXPIRED canceled tiers (defensive) → no suppression regression.
 
 ### Changed
-- Version bump: 3.22.0 → 3.23.0 (all version files synced)
+- Version bump: 3.22.0 → 3.23.0 (all version files synced, `readme.md` pin updated).
+
 
 ---
 
