@@ -184,6 +184,8 @@ beforeEach(() => {
 import {
   exportAllAsSqliteZip,
   importFromSqliteZip,
+  mergeFromSqliteZip,
+  previewSqliteZip,
 } from "@/lib/sqlite-bundle";
 import initSqlJs from "sql.js";
 
