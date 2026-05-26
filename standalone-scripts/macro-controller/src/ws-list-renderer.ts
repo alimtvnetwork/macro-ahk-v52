@@ -11,6 +11,7 @@ import type {
   WorkspaceCredit,
   HTMLElementWithHandlers,
 } from './types';
+import { WsTierValue, isExpiredTier } from './types/subscription-status';
 import {
   loopCreditState,
   state,
@@ -197,7 +198,7 @@ export function fetchLoopCreditsWithDetect(isRetry?: boolean): void {
 
 function buildTooltipProfileLines(ws: WorkspaceCredit): string[] {
   const lines: string[] = ['🪪 PROFILE:'];
-  lines.push('  Plan: ' + (ws.planType || ws.tier || 'FREE'));
+  lines.push('  Plan: ' + (ws.planType || ws.tier || WsTierValue.FREE));
   lines.push('  Role: ' + (ws.membershipRole || ws.role || 'N/A'));
   if (typeof ws.numProjects === 'number' && ws.numProjects > 0) {
     lines.push('  Projects: ' + ws.numProjects);
@@ -483,11 +484,11 @@ function resolveStatusPill(
   ws: WorkspaceCredit, cfg: ReturnType<typeof getWorkspaceLifecycleConfig>,
 ): { pillHtml: string; suppressTier: boolean } {
   if (!cfg.enableWorkspaceStatusLabels) return { pillHtml: '', suppressTier: false };
-  const wsTier = ws.tier || 'FREE';
+  const wsTier = ws.tier || WsTierValue.FREE;
   const status = getEffectiveStatus(ws, cfg);
   const pillHtml = buildStatusPillHtml(status, ws);
   let suppressTier = false;
-  if (wsTier === 'EXPIRED') {
+  if (isExpiredTier(wsTier)) {
     const display = classifyFromStatus(status, ws);
     if (display.kind !== 'normal') suppressTier = true;
   }
@@ -508,8 +509,8 @@ function buildLegacyExpiredBadge(ws: WorkspaceCredit): string {
 
 /** Build the inner HTML for a workspace row. Exported for tests. */
 export function buildTierBadgeHtml(ws: WorkspaceCredit): string {
-  const wsTier = ws.tier || 'FREE';
-  const tierMeta = WS_TIER_LABELS[wsTier] || WS_TIER_LABELS['FREE'];
+  const wsTier = ws.tier || WsTierValue.FREE;
+  const tierMeta = WS_TIER_LABELS[wsTier] || WS_TIER_LABELS[WsTierValue.FREE];
   const cfg = getWorkspaceLifecycleConfig();
   const { pillHtml: statusPillHtml, suppressTier: suppressTierBadge } = resolveStatusPill(ws, cfg);
 
@@ -519,7 +520,7 @@ export function buildTierBadgeHtml(ws: WorkspaceCredit): string {
 
   if (cfg.enableWorkspaceStatusLabels) {
     tierBadge += statusPillHtml;
-  } else if (wsTier === 'EXPIRED') {
+  } else if (isExpiredTier(wsTier)) {
     tierBadge += buildLegacyExpiredBadge(ws);
   }
   if (!cfg.enableWorkspaceStatusLabels) {
