@@ -224,6 +224,7 @@ function expiryLabelFor(kind: WorkspaceStatus['kind']): string {
   if (kind === 'expired-canceled') return 'Canceled on';
   if (kind === 'fully-expired') return 'Fully expired since';
   if (kind === 'about-to-expire') return 'Past due since';
+  if (kind === 'past-due-expiring') return 'Past due since';
   if (kind === 'expired') return 'Expired since';
   return 'Since';
 }
