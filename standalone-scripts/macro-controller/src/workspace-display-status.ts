@@ -29,6 +29,7 @@ export type WorkspaceDisplayKind =
   | 'canceled'
   | 'expired'
   | 'expire-soon'
+  | 'past-due-expiring'
   | 'refill-soon'
   | 'normal';
 
@@ -36,7 +37,8 @@ export type WorkspaceDisplayKind =
 export type WorkspaceDisplayTone =
   | 'muted'      // canceled — gray bg, light text, no red
   | 'danger'     // expired — red
-  | 'warning'    // expire-soon — amber
+  | 'warning'    // expire-soon / past-due 0–4d — amber
+  | 'orange'     // past-due 5–9d — orange
   | 'info'       // refill-soon — sky
   | 'none';      // normal — no badge
 

@@ -24,6 +24,7 @@ export type WorkspaceStatusKind =
   | 'expired-canceled'
   | 'expired'
   | 'about-to-expire'
+  | 'past-due-expiring'
   | 'about-to-refill'
   | 'normal';
 
