@@ -409,7 +409,9 @@ function isProExpiringWs(ws: WorkspaceCredit): boolean {
     const cfg = getWorkspaceLifecycleConfig();
     const source = getEffectiveStatus(ws, cfg);
     const display = classifyFromStatus(source, ws);
-    return display.kind === 'past-due-expiring' || display.kind === 'expired';
+    return display.kind === 'past-due-expiring'
+      || display.kind === 'canceled'
+      || display.kind === 'expire-soon';
   } catch (e: unknown) {
     logError('passesFilters.proExpiring',
       'Failed to classify workspace for pro credit-sort filter', e);
