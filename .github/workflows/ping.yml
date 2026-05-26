@@ -1,0 +1,22 @@
+# Minimal diagnostic workflow: proves GitHub Actions fires on every
+# push to every branch. If THIS does not run on a Lovable commit, the
+# problem is repo-level (Actions disabled, app permissions, or the
+# "Require approval for first-time contributors" gate) — not ci.yml.
+name: Ping
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo trigger context
+        run: |
+          echo "event=${{ github.event_name }}"
+          echo "ref=${{ github.ref }}"
+          echo "actor=${{ github.actor }}"
+          echo "sha=${{ github.sha }}"
