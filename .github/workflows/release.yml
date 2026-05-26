@@ -467,6 +467,7 @@ jobs:
           pnpm run build:lovable-common
           pnpm run build:lovable-owner-switch
           pnpm run build:lovable-user-add
+          pnpm run build:lovable-dashboard
 
       - name: Build Chrome extension
         run: pnpm run build:extension
@@ -545,6 +546,7 @@ jobs:
             "lovable-common"
             "lovable-owner-switch"
             "lovable-user-add"
+            "lovable-dashboard"
           )
           for plugin in "${PLUGINS[@]}"; do
             if [ ! -d "standalone-scripts/${plugin}" ]; then
