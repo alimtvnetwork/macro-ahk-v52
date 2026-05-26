@@ -50,6 +50,11 @@ completion. Known causes:
 7. Recovery/release workflows that package a non-existent build-output folder
    such as `chrome-extension/` before `pnpm run build:extension` creates it will
    fail before upload and leave the Release page source-only.
+8. A downstream watcher/guard job can reference an empty release version if it
+   reads `needs.resolve-release.outputs.tag` without listing `resolve-release`
+   as a direct job dependency. GitHub Actions only exposes outputs from direct
+   `needs`, so release asset guards must depend on both the resolver and the
+   build/upload job.
 
 ## Required CI/CD behavior
 
@@ -71,6 +76,9 @@ completion. Known causes:
 - Descriptor-based recovery may pass a fixed `source_ref` while keeping
   `version=vX.Y.Z` as the upload target, so an already-published source-only
   release can be repaired in place without another version bump.
+- Any Release Watcher guard that uses `needs.resolve-release.outputs.tag` must
+  list `resolve-release` in its own `needs` array, alongside `run-release`; do
+  not rely on transitive `needs` outputs.
 
 ## Operator rule
 

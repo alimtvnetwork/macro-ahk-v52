@@ -175,7 +175,9 @@ jobs:
 
   release-asset-guard:
     name: Verify release page has built assets
-    needs: run-release
+    needs:
+      - resolve-release
+      - run-release
     if: always() && needs.resolve-release.outputs.skip != 'true'
     runs-on: ubuntu-latest
     permissions:

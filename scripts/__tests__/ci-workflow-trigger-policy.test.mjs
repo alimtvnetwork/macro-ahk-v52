@@ -19,6 +19,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..");
 const CI_WORKFLOW = resolve(REPO_ROOT, ".github/workflows/ci.yml");
 const PING_WORKFLOW = resolve(REPO_ROOT, ".github/workflows/ping.yml");
+const RELEASE_WATCHER_WORKFLOW = resolve(REPO_ROOT, ".github/workflows/release-watcher.yml");
 
 /**
  * Naïve YAML top-level key extractor.  Only needs to recognise:
@@ -110,6 +111,52 @@ function pushHasNoFilters(raw) {
     return true;
 }
 
+function extractIndentedBlock(raw, key, indent) {
+    const lines = raw.split(/\r?\n/);
+    const expectedPrefix = " ".repeat(indent);
+    const start = lines.findIndex((line) => line === `${expectedPrefix}${key}:`);
+    if (start === -1) return null;
+
+    const block = [];
+    for (let i = start + 1; i < lines.length; i++) {
+        const line = lines[i];
+        if (/^\s*$/.test(line) || /^\s*#/.test(line)) {
+            block.push(line);
+            continue;
+        }
+        const indentMatch = line.match(/^(\s*)/);
+        const currentIndent = indentMatch ? indentMatch[1].length : 0;
+        if (currentIndent <= indent) break;
+        block.push(line);
+    }
+    return block.join("\n");
+}
+
+function extractNeeds(block) {
+    const lines = block.split(/\r?\n/);
+    const needsLineIndex = lines.findIndex((line) => /^\s+needs:\s*/.test(line));
+    if (needsLineIndex === -1) return [];
+
+    const line = lines[needsLineIndex].trim();
+    if (/^needs:\s*\[/.test(line)) {
+        return line.replace(/^needs:\s*\[/, "").replace(/\].*$/, "").split(",").map((value) => value.trim()).filter(Boolean);
+    }
+    const single = line.match(/^needs:\s+(.+)$/);
+    if (single) return [single[1].trim()];
+
+    const needs = [];
+    for (let i = needsLineIndex + 1; i < lines.length; i++) {
+        const current = lines[i];
+        const item = current.trim().match(/^-\s+(.+)$/);
+        if (item) {
+            needs.push(item[1].trim());
+            continue;
+        }
+        if (/^\s+\w/.test(current)) break;
+    }
+    return needs;
+}
+
 test("CI Build triggers on every branch push (no filters)", () => {
     assert.ok(existsSync(CI_WORKFLOW), `Workflow missing at ${CI_WORKFLOW}`);
     const src = readFileSync(CI_WORKFLOW, "utf8");
@@ -131,4 +178,14 @@ test("Ping diagnostic workflow exists and triggers on every push", () => {
     const src = readFileSync(PING_WORKFLOW, "utf8");
     assert.ok(hasTopLevelPush(src), "ping.yml must trigger on push");
     assert.ok(pushHasNoFilters(src), "ping.yml push must not have filters");
+});
+
+test("Release Watcher asset guard can read the resolved release tag", () => {
+    assert.ok(existsSync(RELEASE_WATCHER_WORKFLOW), `Workflow missing at ${RELEASE_WATCHER_WORKFLOW}`);
+    const src = readFileSync(RELEASE_WATCHER_WORKFLOW, "utf8");
+    const guardBlock = extractIndentedBlock(src, "release-asset-guard", 2);
+    assert.ok(guardBlock, "release-asset-guard job must exist");
+    const needs = extractNeeds(guardBlock);
+    assert.ok(needs.includes("resolve-release"), "release-asset-guard must directly need resolve-release so VER is not empty");
+    assert.ok(needs.includes("run-release"), "release-asset-guard must wait for run-release before checking assets");
 });
