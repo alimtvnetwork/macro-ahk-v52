@@ -9,12 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ## [v3.22.0] — 2026-05-26
 
-### Added
+### Fixed — Release page has no built assets (RCA)
 
-### Fixed
+**Symptom**: GitHub Release `v3.21.0` was published but the Release page only showed GitHub's auto-generated source archives — every `marco-extension-*.zip`, `macro-controller-*.zip`, `lovable-dashboard-*.zip`, `install.{ps1,sh}`, `checksums.txt`, etc. was missing. Same regression class as v2.243.0 and v3.4.2.
+
+**Root cause**: `.github/workflows/release.yml` only fires asset upload when its `setup` → `build-*` → `release` job chain succeeds end-to-end. Recent CI breakage (lint/test failures fixed in PRs #43–#45 and the missing `build:lovable-dashboard` step in `tests/e2e/global-setup.ts`) caused the `setup` job for the `v3.21.0` tag to fail before any build artefact was produced, so the `release` job that uploads assets to the GitHub Release was never reached. The Release page itself had been created by an out-of-band path (Lovable release tooling landing `.gitmap/release/v3.21.0.json`), but `release-watcher.yml` only re-triggers `release.yml` when that descriptor file changes on `main` — it does **not** react to an existing-but-empty Release. The weekly `audit-releases.yml` would have caught it, but only on its Monday 02:00 UTC schedule, days after the fact.
+
+**Fix**:
+1. `.github/workflows/release-watcher.yml` now ALSO triggers on `release: types: [published, created, edited]` and calls `release.yml` with the published tag — so any empty Release auto-heals within minutes regardless of how the tag/release was created.
+2. New `release-asset-guard` job in `release-watcher.yml` runs the same required-asset check as `audit-releases.yml` against the just-published Release and fails the workflow if assets are missing — guaranteeing a red signal instead of a silently-broken Release page.
+3. `audit-releases.yml` now ALSO runs on every push to `main` touching `release.yml`, `release-watcher.yml`, or `manifest.json`, in addition to its weekly cron — so version bumps land with an immediate audit.
+
+**Never-again guard**: the `release` job in `release.yml` already has a `Verify GitHub Release upload completed` post-publish step (see lines 836–878). The new watcher trigger ensures that gate also runs for tags/releases created out-of-band, not only for the in-process `push: tags: v*` path.
 
 ### Changed
-- Version bump: 3.21.0 → 3.22.0 (all version files synced)
+- Version bump: 3.21.0 → 3.22.0 (all version files synced, `readme.md` pin updated).
+
 
 ---
 
