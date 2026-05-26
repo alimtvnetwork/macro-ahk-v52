@@ -139,6 +139,20 @@ irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v39/main/scripts/i
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v39/main/scripts/install.sh | bash
 ```
 
+#### 📁 Latest into the current folder (one-liner, no version, drops into `.\marco-extension`)
+
+Downloads the latest build straight into the directory you're standing in — no version number anywhere in the URL, no `~/marco-extension` default. The installer creates a `marco-extension` subfolder inside the current working directory.
+
+```powershell
+# PowerShell (Windows) — installs to .\marco-extension under the current folder
+& { $env:MARCO_INSTALL_HERE=1; iex (irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v39/main/scripts/install.ps1) } -InstallDir (Join-Path $PWD 'marco-extension')
+```
+
+```bash
+# Bash (Linux / macOS) — installs to ./marco-extension under the current folder
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v39/main/scripts/install.sh | bash -s -- --dir "$PWD/marco-extension"
+```
+
 #### Override the resolved version
 
 ```powershell
