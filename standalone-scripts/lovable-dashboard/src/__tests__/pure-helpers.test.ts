@@ -85,9 +85,28 @@ describe("isHomeUrlAllowed", () => {
             expect(isHomeUrlAllowed(url)).toBe(true);
         }
     });
-    it("rejects near-misses", () => {
-        expect(isHomeUrlAllowed("https://lovable.dev/dashboard?x=1")).toBe(false);
-        expect(isHomeUrlAllowed("https://lovable.dev/projects/abc")).toBe(false);
-        expect(isHomeUrlAllowed("https://lovable.dev/dashboard/")).toBe(false);
+    it("accepts ONLY the exact /dashboard URL (v3.21.0 contract)", () => {
+        // The enum must contain exactly one value — DASHBOARD.
+        const values = Object.values(AllowedHomeUrl);
+        expect(values).toHaveLength(1);
+        expect(values[0]).toBe("https://lovable.dev/dashboard");
+        expect(isHomeUrlAllowed("https://lovable.dev/dashboard")).toBe(true);
+    });
+    it("rejects near-misses (origin, trailing slash, query, paths)", () => {
+        const rejected = [
+            "https://lovable.dev",
+            "https://lovable.dev/",
+            "https://lovable.dev/dashboard/",
+            "https://lovable.dev/dashboard?x=1",
+            "https://lovable.dev/dashboard#hash",
+            "https://lovable.dev/projects/abc",
+            "http://lovable.dev/dashboard",
+            "https://www.lovable.dev/dashboard",
+            "",
+        ];
+        for (const url of rejected) {
+            expect(isHomeUrlAllowed(url)).toBe(false);
+        }
     });
 });
+
