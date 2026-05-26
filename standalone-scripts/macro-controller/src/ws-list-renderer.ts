@@ -413,7 +413,7 @@ function wsRowBgStyle(isCurrent: boolean, isSel: boolean): string {
  *
  * Returns empty string for `normal` rows.
  */
-function buildStatusPillHtml(status: WorkspaceStatus, ws: WorkspaceCredit): string {
+export function buildStatusPillHtml(status: WorkspaceStatus, ws: WorkspaceCredit): string {
   const display: WorkspaceDisplayStatus = classifyFromStatus(status, ws);
   if (display.kind === 'normal' || !display.label) return '';
   const style = resolveBadgeStyle(display.tone);
