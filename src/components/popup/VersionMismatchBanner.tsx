@@ -6,12 +6,19 @@
  * This usually means a rebuild/redeploy is needed.
  */
 
-import { AlertTriangle, X } from "lucide-react";
+import { AlertTriangle, RefreshCw, X } from "lucide-react";
 import { useState } from "react";
 import type { VersionCheckResult } from "@/hooks/use-version-check";
 
 interface Props {
   versionCheck: VersionCheckResult;
+}
+
+function reloadExtension(): void {
+  const runtime = (globalThis as { chrome?: { runtime?: { reload?: () => void } } }).chrome?.runtime;
+  if (typeof runtime?.reload === "function") {
+    runtime.reload();
+  }
 }
 
 export function VersionMismatchBanner({ versionCheck }: Props) {
@@ -40,8 +47,16 @@ export function VersionMismatchBanner({ versionCheck }: Props) {
           </span>
         </p>
         <p className="text-muted-foreground">
-          Rebuild &amp; redeploy the extension to sync versions.
+          Rebuild, redeploy, then reload the extension to sync versions.
         </p>
+        <button
+          onClick={reloadExtension}
+          className="mt-1 inline-flex items-center gap-1 rounded-sm border border-[hsl(var(--warning))]/30 px-2 py-1 font-medium text-[hsl(var(--warning))] transition-colors hover:bg-[hsl(var(--warning))]/15"
+          aria-label="Reload extension"
+        >
+          <RefreshCw className="h-3 w-3" />
+          Reload extension
+        </button>
       </div>
       <button
         onClick={() => setDismissed(true)}
