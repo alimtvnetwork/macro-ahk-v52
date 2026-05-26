@@ -229,6 +229,16 @@ export function setLoopWsRefillPriority(val: boolean): void {
   viewState().setRefillPriority(val);
 }
 
+/** Get the active credit-sort mode (v3.30.0 — credit-sort hamburger row). */
+export function getLoopWsCreditSortMode(): CreditSortMode {
+  return viewState().getCreditSortMode();
+}
+
+/** Set the active credit-sort mode (persists to localStorage). */
+export function setLoopWsCreditSortMode(val: CreditSortMode): void {
+  viewState().setCreditSortMode(val);
+}
+
 // ============================================
 // Helper: fetch credits with auto-detect (used by ws-context-menu)
 // ============================================
