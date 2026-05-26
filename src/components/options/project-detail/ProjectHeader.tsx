@@ -262,7 +262,7 @@ export function ProjectHeader({ project, onSave, onDelete, onBack, onSwitchTab }
             </IconButtonWithTooltip>
           )}
           <IconButtonWithTooltip
-            tooltip="Check for updates"
+            tooltip="Script updates"
             className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:bg-accent/20 hover:text-accent transition-all duration-200"
             onClick={handleUpdate}
           >
