@@ -74,6 +74,7 @@ export interface ProjectHeaderProps {
   onSave: (project: Partial<StoredProject>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onBack: () => void;
+  onSwitchTab?: (tab: string) => void;
 }
 
 /* ------------------------------------------------------------------ */
@@ -81,7 +82,7 @@ export interface ProjectHeaderProps {
 /* ------------------------------------------------------------------ */
 
 // eslint-disable-next-line max-lines-per-function
-export function ProjectHeader({ project, onSave, onDelete, onBack }: ProjectHeaderProps) {
+export function ProjectHeader({ project, onSave, onDelete, onBack, onSwitchTab }: ProjectHeaderProps) {
   const [editName, setEditName] = useState(project.name);
   const [editVersion, setEditVersion] = useState(project.version);
   const [editDesc, setEditDesc] = useState(project.description ?? "");
