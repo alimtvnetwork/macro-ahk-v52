@@ -7,7 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.24.0] — 2026-05-26
+
+### Fixed — `pro_0` `past_due` workspaces with live credits showed "Expired Nd" + hidden balance (Issue 117 RCA)
+
+**Symptom**: Workspace `A0064 D3v064 WG` (`plan=pro_0`, `subscription_status=past_due`, `total_remaining=225`, billing grant of 20 + rollover grant of 200 valid until `2026-06-26`) rendered as **"Expire 31d"** with `Available=0` / `Total=0` in the Macro Controller panel — even though Stripe `past_due` keeps credits live until `expires_at`, and the user could still spend the 225 credits in the Lovable app. See `spec/22-app-issues/117-past-due-badge-credit-display-rca.md` for the full RCA.
+
+**Root cause** (two-layer bug):
+1. **Override too aggressive** — `shouldApplyCanceledOverride` in `workspace-status.ts` fired for `about-to-expire` (which includes `past_due`), forcing `ws.available = 0` and erasing live grants.
+2. **Wrong status label** — `getEffectiveStatus` classified any `past_due` row as `about-to-expire` (red "Expire Nd"), ignoring that `past_due` with live billing grants is operationally a *refill-pending* state, not an expiry state.
+
+**Fix** (frontend-only, no schema change):
+- `shouldApplyCanceledOverride` now excludes `about-to-expire` — it only fires for true cancel/expired states (`expired-canceled`, `fully-expired`, `expired`). New `hasLiveGrants(ws)` helper guards the override against any wallet with `available > 0`, `rollover > 0`, or `billingAvailable > 0`.
+- `getEffectiveStatus` reroutes `past_due` rows that still have live grants → `about-to-refill` (label `Refill Nd`, using `billingPeriodEndAt`). Empty-wallet `past_due` still classifies as `about-to-expire`.
+- `buildTierBadgeHtml` `shouldSuppressTierBadge` broadened from `display.kind === 'canceled'` to `display.kind !== 'normal'` — any non-normal status pill (Cancel, Expire Nd, Expired Nd, Refill Nd) now hides the redundant red `EXPIRED` tier badge. One badge per row, always.
+
+**Tests** (all green, 468/468 macro-controller):
+- `workspace-status.test.ts` — 3 new Issue-117 cases (`past_due` + live grants → `about-to-refill`; `past_due` + empty wallet → `about-to-expire`; `shouldApplyCanceledOverride` returns `false` for `past_due`).
+- `ws-tier-badge-cancel-suppression.test.ts` — 4 new cases covering EXPIRED-badge suppression for past_due (empty + live), standalone EXPIRED + cancel, and non-suppression for normal PRO + refill-soon.
+- `past-due-credit-pipeline.test.ts` (new) — feeds the **exact** RCA JSON through the real `calculateProZeroCreditSummary` → override → `getEffectiveStatus` → `classifyFromStatus` → `buildTierBadgeHtml` pipeline and asserts `available=225`, label `Refill 31d`, one pill, zero `EXPIRED` text. Two permanent invariants encoded: `total_remaining > 0 ⇒ ws.available > 0`, and any status pill ⇒ no EXPIRED tier badge.
+
+### Changed
+- Version bump: 3.23.0 → 3.24.0 (all version files synced, `readme.md` pin updated).
+
+---
+
 ## [v3.23.0] — 2026-05-26
+
 
 ### Fixed — Workspace rows showed both "EXPIRED" tier badge AND "Cancel" status pill (RCA)
 
