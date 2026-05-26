@@ -95,8 +95,8 @@ describe('classifyWorkspaceDisplayStatus — refill-soon', () => {
   });
 });
 
-describe('classifyWorkspaceDisplayStatus — past-due-expiring (Issue 118)', () => {
-  it('past_due, daysSince=0 → past-due-expiring / Expire / Today / warning', () => {
+describe('classifyWorkspaceDisplayStatus — past-due-expiring (Issue 118 rev)', () => {
+  it('past_due, daysSince=0 → past-due-expiring / Expire / Today / muted', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       subscriptionStatusChangedAt: new Date(NOW).toISOString(),
@@ -105,10 +105,10 @@ describe('classifyWorkspaceDisplayStatus — past-due-expiring (Issue 118)', () 
     expect(d.kind).toBe('past-due-expiring');
     expect(d.label).toBe('Expire');
     expect(d.sublabel).toBe('Today');
-    expect(d.tone).toBe('warning');
+    expect(d.tone).toBe('muted');
   });
 
-  it('past_due, daysSince=2 → past-due-expiring / Expire / Passed 2d / warning', () => {
+  it('past_due, daysSince=2 → past-due-expiring / Expire / Passed 2d / muted', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       subscriptionStatusChangedAt: new Date(NOW - 2 * 86_400_000).toISOString(),
@@ -117,17 +117,17 @@ describe('classifyWorkspaceDisplayStatus — past-due-expiring (Issue 118)', () 
     expect(d.kind).toBe('past-due-expiring');
     expect(d.label).toBe('Expire');
     expect(d.sublabel).toBe('Passed 2d');
-    expect(d.tone).toBe('warning');
+    expect(d.tone).toBe('muted');
   });
 
-  it('past_due, daysSince=7 → past-due-expiring / orange tone', () => {
+  it('past_due, daysSince=7 → past-due-expiring / warning tone', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       subscriptionStatusChangedAt: new Date(NOW - 7 * 86_400_000).toISOString(),
     });
     const d = classifyWorkspaceDisplayStatus(ws, CFG, NOW);
     expect(d.kind).toBe('past-due-expiring');
-    expect(d.tone).toBe('orange');
+    expect(d.tone).toBe('warning');
   });
 
   it('past_due, daysSince=12 → past-due-expiring / danger tone', () => {
@@ -163,8 +163,11 @@ describe('display token map', () => {
   it('canceled tone is muted (not danger) — no red', () => {
     expect(WORKSPACE_BADGE_DISPLAY['canceled'].tone).toBe('muted');
   });
+  it('expire-soon tone is danger (red)', () => {
+    expect(WORKSPACE_BADGE_DISPLAY['expire-soon'].tone).toBe('danger');
+  });
   it('all kinds have a tone entry', () => {
-    const kinds = ['canceled', 'expired', 'expire-soon', 'refill-soon', 'normal'] as const;
+    const kinds = ['canceled', 'expired', 'expire-soon', 'past-due-expiring', 'refill-soon', 'normal'] as const;
     for (const k of kinds) {
       expect(WORKSPACE_BADGE_DISPLAY[k]).toBeDefined();
     }

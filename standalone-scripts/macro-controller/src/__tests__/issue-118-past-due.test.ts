@@ -74,21 +74,21 @@ describe('Issue 118 — getEffectiveStatus for past_due', () => {
 });
 
 describe('Issue 118 — pickPastDueTone', () => {
-  it('0–4d → warning', () => {
-    expect(pickPastDueTone(0)).toBe('warning');
-    expect(pickPastDueTone(4)).toBe('warning');
+  it('0–2d → muted (gray)', () => {
+    expect(pickPastDueTone(0)).toBe('muted');
+    expect(pickPastDueTone(2)).toBe('muted');
   });
-  it('5–9d → orange', () => {
-    expect(pickPastDueTone(5)).toBe('orange');
-    expect(pickPastDueTone(9)).toBe('orange');
+  it('3–9d → warning (amber)', () => {
+    expect(pickPastDueTone(3)).toBe('warning');
+    expect(pickPastDueTone(9)).toBe('warning');
   });
-  it('≥10d → danger', () => {
+  it('≥10d → danger (red)', () => {
     expect(pickPastDueTone(10)).toBe('danger');
     expect(pickPastDueTone(30)).toBe('danger');
   });
-  it('negative / NaN → warning fallback', () => {
-    expect(pickPastDueTone(-1)).toBe('warning');
-    expect(pickPastDueTone(NaN)).toBe('warning');
+  it('negative / NaN → muted fallback', () => {
+    expect(pickPastDueTone(-1)).toBe('muted');
+    expect(pickPastDueTone(NaN)).toBe('muted');
   });
 });
 
@@ -99,20 +99,20 @@ describe('Issue 118 — formatPassedLabel', () => {
 });
 
 describe('Issue 118 — classifyWorkspaceDisplayStatus past-due', () => {
-  it('produces Expire + Today for daysSince=0', () => {
+  it('produces Expire + Today + muted for daysSince=0', () => {
     const ws = makeWs({ subscriptionStatus: 'past_due', subscriptionStatusChangedAt: new Date(NOW).toISOString() });
     const d = classifyWorkspaceDisplayStatus(ws, CFG, NOW);
     expect(d.label).toBe('Expire');
     expect(d.sublabel).toBe('Today');
-    expect(d.tone).toBe('warning');
+    expect(d.tone).toBe('muted');
   });
 
-  it('produces Expire + Passed Nd for daysSince>0', () => {
+  it('produces Expire + Passed Nd + warning for daysSince=6', () => {
     const ws = makeWs({ subscriptionStatus: 'past_due', subscriptionStatusChangedAt: new Date(NOW - 6 * 86_400_000).toISOString() });
     const d = classifyWorkspaceDisplayStatus(ws, CFG, NOW);
     expect(d.label).toBe('Expire');
     expect(d.sublabel).toBe('Passed 6d');
-    expect(d.tone).toBe('orange');
+    expect(d.tone).toBe('warning');
   });
 });
 
