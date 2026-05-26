@@ -4,7 +4,7 @@
  * Spec: spec/22-app-issues/workspace-status-tooltip/01-overview.md (Phase 2)
  *
  * Single source of truth for:
- *   - Effective lifecycle status (canceled / fully-expired / expired / past-due / about-to-refill / normal)
+ *   - Effective lifecycle status (canceled / fully-expired / expired / past-due-expiring / about-to-refill / normal)
  *   - DD MMM YY date formatting
  *   - "Nd ago" / "in Nd" duration formatting
  *   - Canceled-workspace credit override (zeros billing + rollover)
