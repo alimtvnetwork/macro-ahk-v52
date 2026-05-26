@@ -41,6 +41,8 @@ export interface WsFilterMenuDeps {
   setLoopWsCompactMode: (v: boolean) => void;
   getLoopWsExpiredWithCredits: () => boolean;
   setLoopWsExpiredWithCredits: (v: boolean) => void;
+  getLoopWsExpiring: () => boolean;
+  setLoopWsExpiring: (v: boolean) => void;
   getLoopWsRefillSoon: () => boolean;
   setLoopWsRefillSoon: (v: boolean) => void;
   getLoopWsRefillPriority: () => boolean;
