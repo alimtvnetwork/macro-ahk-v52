@@ -17,33 +17,7 @@
 
 ## Install
 
-Marco is a **Windows-first** project. The commands below auto-update to the **latest** release. Prefer a pinned version? Use the second block.
-
-### 🪟 Windows · PowerShell (latest)
-
-```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v40/main/scripts/install.ps1 | iex
-```
-
-### 🐧 macOS · Linux · Bash (latest)
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v40/main/scripts/install.sh | bash
-```
-
-### 📌 Pinned version (`v3.28.0`)
-
-```powershell
-# Windows · PowerShell
-irm https://github.com/alimtvnetwork/macro-ahk-v40/releases/download/v3.28.0/install.ps1 | iex
-```
-
-```bash
-# macOS · Linux · Bash
-curl -fsSL https://github.com/alimtvnetwork/macro-ahk-v40/releases/download/v3.28.0/install.sh | bash
-```
-
-**Pinned version:** `v3.28.0` &nbsp;•&nbsp; **Macro Controller:** `v3.28.0`
+Marco is a **Windows-first** project. For quick local testing, start with the extension ZIP download. The installer one-liners are listed after it.
 
 ### 📦 Download-only (unpack into current folder)
 
@@ -68,6 +42,32 @@ $env:MARCO_DL_VERSION='v3.28.0'; $env:MARCO_DL_FOLDER='marco'; irm https://raw.g
 ```
 
 After it finishes, load the resulting folder via `chrome://extensions → Load unpacked`. The `marco-extension-v3.28.0.zip` backup sits next to it.
+
+### 🪟 Windows · PowerShell installer (latest)
+
+```powershell
+irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v40/main/scripts/install.ps1 | iex
+```
+
+### 🐧 macOS · Linux · Bash installer (latest)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v40/main/scripts/install.sh | bash
+```
+
+### 📌 Pinned version (`v3.28.0`)
+
+```powershell
+# Windows · PowerShell
+irm https://github.com/alimtvnetwork/macro-ahk-v40/releases/download/v3.28.0/install.ps1 | iex
+```
+
+```bash
+# macOS · Linux · Bash
+curl -fsSL https://github.com/alimtvnetwork/macro-ahk-v40/releases/download/v3.28.0/install.sh | bash
+```
+
+**Pinned version:** `v3.28.0` &nbsp;•&nbsp; **Macro Controller:** `v3.28.0`
 
 > **v2.243.0 release-asset fix (historical):** the previous release pipeline pointed at a legacy `chrome-extension/dist/` subfolder that no longer exists (the unpacked extension is built into `chrome-extension/` itself — see `vite.config.extension.ts` and `powershell.json → distDir`). That mismatch caused `marco-extension-{VER}.zip` to be silently absent from the GitHub Releases page. The workflow now zips `chrome-extension/` directly and fails fast if the extension zip is missing or `< 10 KiB`. RCA: [`mem://constraints/chrome-extension-dist-path`](.lovable/memory/constraints/chrome-extension-dist-path.md).
 
