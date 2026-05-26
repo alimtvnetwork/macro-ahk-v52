@@ -7,12 +7,14 @@
 ```ts
 export enum AllowedHomeUrl {
     DASHBOARD = "https://lovable.dev/dashboard",
-    ROOT_SLASH = "https://lovable.dev/",
-    ROOT = "https://lovable.dev",
 }
 ```
 
-Confirmed by user: **all three** must remain allowed exact matches.
+Confirmed by user (supersedes earlier 3-URL variant): **only** the exact
+`/dashboard` URL must activate. `ROOT` and `ROOT_SLASH` were removed because
+activation on the bare origin caused unwanted mutations on non-dashboard
+pages. Any change here is a behavior change — update this spec first, then
+`standalone-scripts/lovable-dashboard/src/allowed-home-url.enum.ts`.
 
 ## Guard contract
 
@@ -73,8 +75,8 @@ If the URL leaves the allowed set after activation, call `unmountHomeScreenFeatu
 ## Acceptance
 
 1. On `https://lovable.dev/dashboard` → activates.
-2. On `https://lovable.dev/` → activates.
-3. On `https://lovable.dev` → activates.
+2. On `https://lovable.dev/` → does NOT activate.
+3. On `https://lovable.dev` → does NOT activate.
 4. On `https://lovable.dev/projects/abc` → does NOT activate.
 5. On `https://lovable.dev/dashboard?x=1` → does NOT activate (exact match).
-6. SPA navigation away from an allowed URL unmounts the UI.
+6. SPA navigation away from `/dashboard` unmounts the UI.

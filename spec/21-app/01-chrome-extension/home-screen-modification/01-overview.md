@@ -55,6 +55,16 @@ All execution is gated by a strict URL guard (file 02) and driven from a single 
 
 Per memory `spec-slot-rules.md`, the chrome-extension spec is at `spec/21-app/01-chrome-extension/`. This feature is a subfolder of that spec.
 
+## Implementation location (v3.21.0)
+
+The implementation lives in the standalone project
+`standalone-scripts/lovable-dashboard/` (previously embedded inside
+`src/content-scripts/home-screen/` and booted from `message-relay.ts`).
+It is built by `vite.config.lovable-dashboard.ts` and auto-injected via
+the standalone-seeder pipeline (`scripts/build-standalone.mjs` —
+`PROJECTS` array). The URL guard above gates activation; auto-injection
+is ON by default for the exact `AllowedHomeUrl.DASHBOARD` value only.
+
 ## Screen isolation rule (STRICT)
 
 `HomepageDashboardVariables` is **screen-scoped**. No keys may collide with any other screen's config object. Persisted to memory in `.lovable/memory/architecture/screen-scoped-variables-rule.md`.
