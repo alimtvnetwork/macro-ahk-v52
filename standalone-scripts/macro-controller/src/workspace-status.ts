@@ -24,6 +24,7 @@ export type WorkspaceStatusKind =
   | 'expired-canceled'
   | 'expired'
   | 'about-to-expire'
+  | 'past-due-expiring'
   | 'about-to-refill'
   | 'normal';
 
@@ -154,8 +155,8 @@ function buildStatus(
  *   2. canceled                  → expired-canceled
  *   3. tier === EXPIRED + grace  → fully-expired
  *   4. tier === EXPIRED          → expired
- *   5. past_due                  → about-to-expire
- *   6. refill within window      → about-to-refill (suppressed for past_due/canceled/expired)
+ *   5. past_due                  → past-due-expiring (Issue 118: always Expire + Passed Nd)
+ *   6. refill within window      → about-to-refill (active rows only)
  *   7. otherwise                 → normal
  */
 function resolveCanceledStatus(
@@ -177,18 +178,11 @@ function resolveTierExpiredStatus(
 }
 
 function resolvePastDueStatus(
-  ws: WorkspaceCredit, changedIso: string | undefined, daysSinceChange: number, nowMs?: number,
+  changedIso: string | undefined, daysSinceChange: number,
 ): WorkspaceStatus {
-  if (hasLiveGrants(ws)) {
-    const refillIsoLive = pickRefillIso(ws);
-    if (refillIsoLive) {
-      const dToRefillLive = daysUntil(refillIsoLive, nowMs);
-      if (dToRefillLive >= 0) {
-        return buildStatus('about-to-refill', { refillIso: refillIsoLive, daysToRefill: dToRefillLive });
-      }
-    }
-  }
-  return buildStatus('about-to-expire', { sinceIso: changedIso, daysSince: daysSinceChange });
+  // Issue 118: past_due always maps to past-due-expiring regardless of
+  // remaining credits. Refill semantics are reserved for active rows.
+  return buildStatus('past-due-expiring', { sinceIso: changedIso, daysSince: daysSinceChange });
 }
 
 function resolveRefillStatus(
@@ -219,7 +213,7 @@ export function getEffectiveStatus(
 
   if (isCanceled) return resolveCanceledStatus(changedIso, daysSinceChange, grace);
   if (tier === 'EXPIRED' && !isPastDue) return resolveTierExpiredStatus(changedIso, daysSinceChange, grace);
-  if (isPastDue) return resolvePastDueStatus(ws, changedIso, daysSinceChange, nowMs);
+  if (isPastDue) return resolvePastDueStatus(changedIso, daysSinceChange);
 
   const refillStatus = resolveRefillStatus(ws, cfg, nowMs);
   if (refillStatus) return refillStatus;

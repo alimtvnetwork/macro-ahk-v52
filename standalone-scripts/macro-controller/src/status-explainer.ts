@@ -138,7 +138,7 @@ export function explainEffectiveStatus(
   // 5. past_due
   add(
     'past_due',
-    'subscription_status is past_due / unpaid → about-to-expire',
+    'subscription_status is past_due / unpaid → past-due-expiring (Issue 118)',
     isPastDue,
     'subscription_status is "' + (subStatus || 'empty') + '" (not past_due / unpaid)',
   );

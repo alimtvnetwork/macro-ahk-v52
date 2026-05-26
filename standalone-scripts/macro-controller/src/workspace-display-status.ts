@@ -29,6 +29,7 @@ export type WorkspaceDisplayKind =
   | 'canceled'
   | 'expired'
   | 'expire-soon'
+  | 'past-due-expiring'
   | 'refill-soon'
   | 'normal';
 
@@ -36,7 +37,8 @@ export type WorkspaceDisplayKind =
 export type WorkspaceDisplayTone =
   | 'muted'      // canceled — gray bg, light text, no red
   | 'danger'     // expired — red
-  | 'warning'    // expire-soon — amber
+  | 'warning'    // expire-soon / past-due 0–4d — amber
+  | 'orange'     // past-due 5–9d — orange
   | 'info'       // refill-soon — sky
   | 'none';      // normal — no badge
 
@@ -44,6 +46,8 @@ export interface WorkspaceDisplayStatus {
   kind: WorkspaceDisplayKind;
   /** Short badge label, ≤10 chars. Empty for `normal`. */
   label: string;
+  /** Secondary pill text (e.g. 'Passed 7d' / 'Today') — only set for past-due. */
+  sublabel?: string;
   tone: WorkspaceDisplayTone;
   /** Long-form tooltip text, may include dates / internal reason. */
   tooltip: string;
@@ -97,6 +101,31 @@ export function formatExpiredLabel(daysSinceExpiry: number): string {
   return 'Expired ' + d + 'd';
 }
 
+/** Issue 118: past-due countdown label — 'Today' when 0d, 'Passed Nd' otherwise. */
+export function formatPassedLabel(daysPassed: number): string {
+  const d = clampDays(daysPassed);
+  if (d === 0) return 'Today';
+  return 'Passed ' + d + 'd';
+}
+
+/* ------------------------------------------------------------------ */
+/*  Tone ramp for past-due                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Issue 118: pick the display tone for a past-due row based on how many
+ * days have passed since subscription_status_changed_at.
+ *   0–4d  → warning (amber)
+ *   5–9d  → orange
+ *   ≥10d  → danger (red)
+ */
+export function pickPastDueTone(daysPassed: number): WorkspaceDisplayTone {
+  if (!Number.isFinite(daysPassed) || daysPassed < 0) return 'warning';
+  if (daysPassed >= 10) return 'danger';
+  if (daysPassed >= 5) return 'orange';
+  return 'warning';
+}
+
 /* ------------------------------------------------------------------ */
 /*  Classifier                                                         */
 /* ------------------------------------------------------------------ */
@@ -127,21 +156,22 @@ export function classifyFromStatus(
     };
   }
 
-  // about-to-expire: distinguish "expire-soon" (future) vs "already expired" (past_due that lapsed)
+  // Issue 118: past-due-expiring — always Expire + Passed Nd / Today.
+  if (source.kind === 'past-due-expiring') {
+    const daysPassed = source.daysSince;
+    return {
+      kind: 'past-due-expiring',
+      label: 'Expire',
+      sublabel: formatPassedLabel(daysPassed),
+      tone: pickPastDueTone(daysPassed),
+      tooltip: 'Past due since ' + (source.sinceIso || 'unknown'),
+      source,
+    };
+  }
+
+  // about-to-expire: kept for backward compat; no longer produced by
+  // getEffectiveStatus for past_due as of Issue 118.
   if (source.kind === 'about-to-expire') {
-    // daysSince tracks days since subscription_status_changed_at — when
-    // positive it means the past_due event already lapsed → "Expired Nd".
-    if (source.daysSince > 0) {
-      return {
-        kind: 'expired',
-        label: formatExpiredLabel(source.daysSince),
-        tone: 'danger',
-        tooltip: 'Past due since ' + (source.sinceIso || 'unknown'),
-        source,
-      };
-    }
-    // Otherwise: future expiry — try to compute "days until expiry" from the
-    // billing period end. Falls back to "Expire soon" when no date available.
     const daysUntilExpiry = computeDaysUntilExpiry(ws, nowMs);
     return {
       kind: 'expire-soon',

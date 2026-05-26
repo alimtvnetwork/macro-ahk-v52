@@ -378,6 +378,9 @@ function wsRowBgStyle(isCurrent: boolean, isSel: boolean): string {
  * each row now renders **at most one** status pill with one short label
  * (`Cancel`, `Refill 5d`, `Expire 3d`, `Expired 2d`).
  *
+ * Issue 118: past-due rows render a main label (`Expire`) plus an optional
+ * sublabel (`Today` / `Passed Nd`) as a second adjacent pill.
+ *
  * Returns empty string for `normal` rows.
  */
 function buildStatusPillHtml(status: WorkspaceStatus, ws: WorkspaceCredit): string {
@@ -389,6 +392,7 @@ function buildStatusPillHtml(status: WorkspaceStatus, ws: WorkspaceCredit): stri
   // custom hover card consumes this via `data-marco-tip`; native `title=`
   // is intentionally omitted (spec/22-app-issues/113).
   const tipParts: string[] = [display.label];
+  if (display.sublabel) tipParts.push(display.sublabel);
   if (display.tooltip) tipParts.push(display.tooltip);
   if (status.kind === 'about-to-refill' && status.refillIso) {
     tipParts.push('Refills ' + formatDateDDMMMYY(status.refillIso)
@@ -399,12 +403,22 @@ function buildStatusPillHtml(status: WorkspaceStatus, ws: WorkspaceCredit): stri
   }
   const tip = tipParts.join(' — ').replace(/"/g, '&quot;');
 
-  return '<span class="marco-ws-status-pill marco-ws-status-' + display.kind
+  let html = '<span class="marco-ws-status-pill marco-ws-status-' + display.kind
     + '" style="font-size:9px;color:' + style.fg
     + CSS_BG + style.bg
     + ';border:1px solid ' + style.border
     + ';padding:1px 5px;border-radius:3px;font-weight:700;margin-left:5px;vertical-align:middle;letter-spacing:0.3px;text-transform:none;"'
     + ' data-marco-tip="' + tip + '">' + display.label + '</span>';
+
+  if (display.sublabel) {
+    html += '<span class="marco-ws-status-sublabel marco-ws-status-' + display.kind + '-sublabel" style="font-size:9px;color:' + style.fg
+      + ';background:' + style.bg.replace('0.55', '0.30').replace('0.45', '0.22')
+      + ';border:1px solid ' + style.border
+      + ';padding:1px 4px;border-radius:3px;font-weight:600;margin-left:3px;vertical-align:middle;letter-spacing:0.3px;text-transform:none;"'
+      + ' data-marco-tip="' + tip + '">' + display.sublabel + '</span>';
+  }
+
+  return html;
 }
 
 /**

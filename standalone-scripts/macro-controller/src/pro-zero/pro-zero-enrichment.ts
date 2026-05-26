@@ -44,6 +44,11 @@ export function applySummaryToRow(ws: WorkspaceCredit, summary: MacroCreditSumma
     ws[PRO_ZERO_DAILY_REMAINING_FIELD] = summary.DailyRemaining;
     ws[PRO_ZERO_BALANCE_JSON_FIELD] = balanceJson;
     ws[PRO_ZERO_SOURCE_FIELD] = summary.Source;
+    // Issue 118: sync direct fields so credit-bar segments and hover card
+    // read the enriched values instead of stale workspace-API estimates.
+    ws.rollover = summary.RolloverRemaining;
+    ws.dailyFree = summary.DailyRemaining;
+    ws.dailyLimit = summary.DailyLimit;
 }
 
 async function enrichOne(ws: WorkspaceCredit): Promise<boolean> {

@@ -37,8 +37,10 @@ const TONE_STYLES: Record<WorkspaceDisplayTone, BadgeStyle> = {
   muted:   { bg: 'rgba(71,85,105,0.55)',  fg: '#e2e8f0', border: 'rgba(148,163,184,0.6)' },
   // Red-600 — preserved for the rare hard-expired badge (Step 5 fallback).
   danger:  { bg: 'rgba(127,29,29,0.85)',  fg: '#fee2e2', border: '#dc2626' },
-  // Amber-500 — about-to-expire warning.
+  // Amber-500 — about-to-expire warning / past-due 0–4d.
   warning: { bg: 'rgba(180,83,9,0.55)',   fg: '#fde68a', border: '#f59e0b' },
+  // Orange-600 — past-due 5–9d intensification.
+  orange:  { bg: 'rgba(194,65,12,0.55)',  fg: '#fed7aa', border: '#f97316' },
   // Sky-400 — refill-soon info.
   info:    { bg: 'rgba(2,132,199,0.45)',  fg: '#bae6fd', border: '#38bdf8' },
   // Sentinel — `normal` rows render no badge; resolver returns transparent.
