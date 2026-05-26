@@ -187,7 +187,7 @@ function estimatedRefillRow(ws: WorkspaceCredit, status: WorkspaceStatus, estima
 }
 
 /** Calendar projection of the active refill warning threshold:
- *    warningStart = estimateIso − cfg.refillWarningThresholdDays
+ *    warningStart = estimateIso − config.refillWarningThresholdDays
  *  Lets the user see exactly which day the "About To Refill" pill will trigger. */
 function warningStartRow(estimateIso: string, refillWarningDays: number): string {
   if (!estimateIso || refillWarningDays <= 0) return '';
@@ -209,14 +209,14 @@ function warningStartRow(estimateIso: string, refillWarningDays: number): string
 function buildRefillSection(
   ws: WorkspaceCredit,
   status: WorkspaceStatus,
-  cfg: WorkspaceLifecycleConfig,
+  config: WorkspaceLifecycleConfig,
 ): string {
   const estimateIso = pickRefillEstimateIso(ws);
   if (!estimateIso && status.kind !== KIND_ABOUT_TO_REFILL) return '';
   const rows = [
     activeRefillRow(status),
     estimatedRefillRow(ws, status, estimateIso),
-    warningStartRow(estimateIso, cfg.refillWarningThresholdDays),
+    warningStartRow(estimateIso, config.refillWarningThresholdDays),
   ].filter((s) => s.length > 0);
   if (rows.length === 0) return '';
   return sectionHeaderHtml('Refill') + rows.join('');
@@ -280,10 +280,10 @@ function buildMetaSection(ws: WorkspaceCredit): string {
  * refill warning window are currently in effect (including any user override
  * applied via the Settings modal).
  */
-function buildThresholdsSection(cfg: WorkspaceLifecycleConfig): string {
+function buildThresholdsSection(config: WorkspaceLifecycleConfig): string {
   const out: string[] = [sectionHeaderHtml('Thresholds (active)')];
-  out.push(rowHtml('Expiry grace', formatDayCount(cfg.expiryGracePeriodDays)));
-  out.push(rowHtml('Refill warning', formatDayCount(cfg.refillWarningThresholdDays)));
+  out.push(rowHtml('Expiry grace', formatDayCount(config.expiryGracePeriodDays)));
+  out.push(rowHtml('Refill warning', formatDayCount(config.refillWarningThresholdDays)));
   return out.join('');
 }
 
@@ -459,16 +459,16 @@ function pastDueCompactRow(status: WorkspaceStatus): string {
 function buildPriorityDetailsHtml(
   ws: WorkspaceCredit,
   status: WorkspaceStatus,
-  cfg: WorkspaceLifecycleConfig,
+  config: WorkspaceLifecycleConfig,
   explanation: StatusExplanation,
 ): string {
   const inner = buildCreditsSection(ws)
     + buildSubscriptionSection(ws)
-    + buildRefillSection(ws, status, cfg)
+    + buildRefillSection(ws, status, config)
     + buildExpirySection(ws, status)
     + buildPastDueSection(ws, status)
     + buildMetaSection(ws)
-    + buildThresholdsSection(cfg)
+    + buildThresholdsSection(config)
     + buildStatusTraceSection(explanation);
   return '<details data-marco-tip-details style="margin-top:8px;border-top:1px solid rgba(148,163,184,0.18);padding-top:6px;">'
     + '<summary style="cursor:pointer;font-size:10px;font-weight:700;color:' + C_ACCENT
@@ -481,9 +481,9 @@ function buildPriorityDetailsHtml(
 export function buildWorkspaceHoverHtml(
   ws: WorkspaceCredit,
   status: WorkspaceStatus,
-  cfg: WorkspaceLifecycleConfig = getWorkspaceLifecycleConfig(),
+  config: WorkspaceLifecycleConfig = getWorkspaceLifecycleConfig(),
 ): string {
-  const explanation = explainEffectiveStatus(ws, cfg);
+  const explanation = explainEffectiveStatus(ws, config);
   const header = '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;'
     + 'font-size:13px;font-weight:700;color:#f1f5f9;margin-bottom:6px;line-height:1.3;">'
     + '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
@@ -495,7 +495,7 @@ export function buildWorkspaceHoverHtml(
     + refillCompactRow(ws, status)
     + expiresCompactRow(ws, status)
     + pastDueCompactRow(status);
-  return header + priority + buildPriorityDetailsHtml(ws, status, cfg, explanation);
+  return header + priority + buildPriorityDetailsHtml(ws, status, config, explanation);
 }
 
 
@@ -514,8 +514,8 @@ function cancelHideTimer(): void {
 
 function scheduleHide(): void {
   cancelHideTimer();
-  const cfg = getWorkspaceLifecycleConfig();
-  hideTimer = window.setTimeout(hideCard, cfg.hoverCardHideGracePeriodMs);
+  const config = getWorkspaceLifecycleConfig();
+  hideTimer = window.setTimeout(hideCard, config.hoverCardHideGracePeriodMs);
 }
 
 function ensureCardElement(): HTMLDivElement {
@@ -595,8 +595,8 @@ export function attachWorkspaceHoverCard(listEl: HTMLElement, lookup: WsLookup):
   }
 
   const overHandler = function (e: MouseEvent): void {
-    const cfg = getWorkspaceLifecycleConfig();
-    if (!cfg.enableWorkspaceHoverDetails) return;
+    const config = getWorkspaceLifecycleConfig();
+    if (!config.enableWorkspaceHoverDetails) return;
     const target = e.target as HTMLElement | null;
     if (!target) return;
     const nameEl = target.closest(SEL_WS_NAME) as HTMLElement | null;
@@ -608,9 +608,9 @@ export function attachWorkspaceHoverCard(listEl: HTMLElement, lookup: WsLookup):
     const ws = lookup(wsId);
     if (!ws) return;
     cancelHideTimer();
-    const status = getEffectiveStatus(ws, cfg);
+    const status = getEffectiveStatus(ws, config);
     const card = ensureCardElement();
-    card.innerHTML = buildWorkspaceHoverHtml(ws, status, cfg);
+    card.innerHTML = buildWorkspaceHoverHtml(ws, status, config);
     positionCard(card, item);
   };
 

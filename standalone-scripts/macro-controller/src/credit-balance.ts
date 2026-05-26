@@ -23,8 +23,8 @@ import { logError } from './error-utils';
 // ============================================
 // Config — reads from window.__MARCO_CONFIG__.creditStatus.balance
 // ============================================
-const cfg = (window.__MARCO_CONFIG__ || {}) as Record<string, unknown>;
-const creditStatusCfg = (cfg.creditStatus || {}) as Record<string, unknown>;
+const config = (window.__MARCO_CONFIG__ || {}) as Record<string, unknown>;
+const creditStatusCfg = (config.creditStatus || {}) as Record<string, unknown>;
 const balanceCfg = (creditStatusCfg.balance || {}) as Partial<CreditBalanceConfig>;
 
 export const BALANCE_CONFIG: CreditBalanceConfig = {

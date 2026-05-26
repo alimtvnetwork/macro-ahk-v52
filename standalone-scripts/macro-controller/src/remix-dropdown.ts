@@ -45,14 +45,14 @@ export async function actionRemixNext(ctx: RemixActionContext): Promise<void> {
     showToast('Remix Next unavailable — missing project or workspace id', 'warn');
     return;
   }
-  const cfg = getRemixConfig();
+  const config = getRemixConfig();
   showToast('🔀 Resolving next name…', 'info');
   try {
     const existing = await fetchWorkspaceProjectNames(ctx.workspaceId);
     const { name, collisionsResolved } = resolveNextName(ctx.currentProjectName, existing, {
-      nextSuffixSeparator: cfg.nextSuffixSeparator,
-      maxCollisionIncrements: cfg.maxCollisionIncrements,
-      nextVCasing: cfg.nextVCasing,
+      nextSuffixSeparator: config.nextSuffixSeparator,
+      maxCollisionIncrements: config.maxCollisionIncrements,
+      nextVCasing: config.nextVCasing,
     });
     log('[RemixNext] resolved "' + ctx.currentProjectName + '" → "' + name + '"'
       + (collisionsResolved > 0 ? ' (+' + collisionsResolved + ' collision skips)' : ''), 'info');
@@ -61,8 +61,8 @@ export async function actionRemixNext(ctx: RemixActionContext): Promise<void> {
       projectId: ctx.projectId,
       workspaceId: ctx.workspaceId,
       projectName: name,
-      includeHistory: cfg.defaultIncludeHistory,
-      includeCustomKnowledge: cfg.defaultIncludeCustomKnowledge,
+      includeHistory: config.defaultIncludeHistory,
+      includeCustomKnowledge: config.defaultIncludeCustomKnowledge,
     });
     showToast('✅ Remixed → "' + name + '"', 'success');
     recordRemix({

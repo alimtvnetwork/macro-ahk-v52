@@ -92,8 +92,8 @@ function ScriptEntryCard({
 
   const handleAddConfig = (configId: string) => {
     if (configId === "__none__") return;
-    const cfg = availableConfigs.find((c) => c.id === configId);
-    if (!cfg) return;
+    const config = availableConfigs.find((c) => c.id === configId);
+    if (!config) return;
     if (binding.configBindings.some((b) => b.configId === configId)) {
       toast.info("Config already bound");
       return;
@@ -101,7 +101,7 @@ function ScriptEntryCard({
     onUpdate({
       configBindings: [
         ...binding.configBindings,
-        { configId: cfg.id, configName: cfg.name, json: formatJson(cfg.json), order: binding.configBindings.length },
+        { configId: config.id, configName: config.name, json: formatJson(config.json), order: binding.configBindings.length },
       ],
     });
   };
@@ -374,8 +374,8 @@ export function ProjectScriptSelector({ availableScripts, availableConfigs, sele
       : [];
     const configBindings: ScriptConfigEntry[] = bindingIds
       .map((id, i) => {
-        const cfg = availableConfigs.find((c) => c.id === id);
-        return cfg ? { configId: cfg.id, configName: cfg.name, json: formatJson(cfg.json), order: i } : null;
+        const config = availableConfigs.find((c) => c.id === id);
+        return config ? { configId: config.id, configName: config.name, json: formatJson(config.json), order: i } : null;
       })
       .filter((x): x is ScriptConfigEntry => x !== null);
 

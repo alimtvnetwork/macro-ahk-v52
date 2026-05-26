@@ -45,10 +45,10 @@ function escHtml(s: string): string {
 }
 
 function buildHtml(opts: RemixModalOpts, state: ModalState): string {
-  const cfg = getRemixConfig();
+  const config = getRemixConfig();
   const initialName = opts.prefillName || opts.currentProjectName;
-  const histChecked = cfg.defaultIncludeHistory ? 'checked' : '';
-  const knowChecked = cfg.defaultIncludeCustomKnowledge ? 'checked' : '';
+  const histChecked = config.defaultIncludeHistory ? 'checked' : '';
+  const knowChecked = config.defaultIncludeCustomKnowledge ? 'checked' : '';
   const submittingDisabled = state.submitting ? 'disabled' : '';
   const submitLabel = state.submitting ? '⏳ Remixing…' : '🔀 Remix';
 

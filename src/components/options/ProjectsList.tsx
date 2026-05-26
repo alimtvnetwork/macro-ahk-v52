@@ -80,8 +80,8 @@ export function ProjectsList({ projects, loading, onSave, onDelete, availableScr
             : [];
           const cfgBindings = bindingIds
             .map((id, i) => {
-              const cfg = availableConfigs.find((c) => c.id === id);
-              return cfg ? { configId: cfg.id, configName: cfg.name, json: typeof cfg.json === "string" ? cfg.json : "{}", order: i } : null;
+              const config = availableConfigs.find((c) => c.id === id);
+              return config ? { configId: config.id, configName: config.name, json: typeof config.json === "string" ? config.json : "{}", order: i } : null;
             })
             .filter((x): x is { configId: string; configName: string; json: string; order: number } => x !== null);
           return {

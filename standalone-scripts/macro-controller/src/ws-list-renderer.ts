@@ -367,8 +367,8 @@ function isCurrentWorkspace(ws: WorkspaceCredit, currentName: string): boolean {
 /** Check if a workspace currently classifies as "refill-soon" (about-to-refill). */
 function isRefillSoonWs(ws: WorkspaceCredit): boolean {
   try {
-    const cfg = getWorkspaceLifecycleConfig();
-    const source = getEffectiveStatus(ws, cfg);
+    const config = getWorkspaceLifecycleConfig();
+    const source = getEffectiveStatus(ws, config);
     const display = classifyFromStatus(source, ws);
     return display.kind === 'refill-soon';
   } catch (e: unknown) {
@@ -380,8 +380,8 @@ function isRefillSoonWs(ws: WorkspaceCredit): boolean {
 /** Check if a workspace currently classifies as "past-due-expiring" (expiring). */
 function isExpiringWs(ws: WorkspaceCredit): boolean {
   try {
-    const cfg = getWorkspaceLifecycleConfig();
-    const source = getEffectiveStatus(ws, cfg);
+    const config = getWorkspaceLifecycleConfig();
+    const source = getEffectiveStatus(ws, config);
     const display = classifyFromStatus(source, ws);
     return display.kind === 'past-due-expiring';
   } catch (e: unknown) {
@@ -406,8 +406,8 @@ function isProExpiringWs(ws: WorkspaceCredit): boolean {
   try {
     const tier = (ws.tier || WsTierValue.FREE).toUpperCase().trim();
     if (tier === WsTierValue.FREE) return false;
-    const cfg = getWorkspaceLifecycleConfig();
-    const source = getEffectiveStatus(ws, cfg);
+    const config = getWorkspaceLifecycleConfig();
+    const source = getEffectiveStatus(ws, config);
     const display = classifyFromStatus(source, ws);
     return display.kind === 'past-due-expiring'
       || display.kind === 'canceled'
@@ -573,11 +573,11 @@ function buildRefillBadgeHtml(ws: WorkspaceCredit): string {
 }
 
 function resolveStatusPill(
-  ws: WorkspaceCredit, cfg: ReturnType<typeof getWorkspaceLifecycleConfig>,
+  ws: WorkspaceCredit, config: ReturnType<typeof getWorkspaceLifecycleConfig>,
 ): { pillHtml: string; suppressTier: boolean } {
-  if (!cfg.enableWorkspaceStatusLabels) return { pillHtml: '', suppressTier: false };
+  if (!config.enableWorkspaceStatusLabels) return { pillHtml: '', suppressTier: false };
   const wsTier = ws.tier || WsTierValue.FREE;
-  const status = getEffectiveStatus(ws, cfg);
+  const status = getEffectiveStatus(ws, config);
   const pillHtml = buildStatusPillHtml(status, ws);
   let suppressTier = false;
   if (isExpiredTier(wsTier)) {
@@ -603,19 +603,19 @@ function buildLegacyExpiredBadge(ws: WorkspaceCredit): string {
 export function buildTierBadgeHtml(ws: WorkspaceCredit): string {
   const wsTier = ws.tier || WsTierValue.FREE;
   const tierMeta = WS_TIER_LABELS[wsTier] || WS_TIER_LABELS[WsTierValue.FREE];
-  const cfg = getWorkspaceLifecycleConfig();
-  const { pillHtml: statusPillHtml, suppressTier: suppressTierBadge } = resolveStatusPill(ws, cfg);
+  const config = getWorkspaceLifecycleConfig();
+  const { pillHtml: statusPillHtml, suppressTier: suppressTierBadge } = resolveStatusPill(ws, config);
 
   let tierBadge = suppressTierBadge
     ? ''
     : '<span style="font-size:10px;color:' + tierMeta.fg + CSS_BG + tierMeta.bg + ';padding:2px 5px;border-radius:3px;font-weight:700;margin-left:6px;vertical-align:middle;letter-spacing:0.3px;">' + tierMeta.label + '</span>';
 
-  if (cfg.enableWorkspaceStatusLabels) {
+  if (config.enableWorkspaceStatusLabels) {
     tierBadge += statusPillHtml;
   } else if (isExpiredTier(wsTier)) {
     tierBadge += buildLegacyExpiredBadge(ws);
   }
-  if (!cfg.enableWorkspaceStatusLabels) {
+  if (!config.enableWorkspaceStatusLabels) {
     tierBadge += buildRefillBadgeHtml(ws);
   }
   return tierBadge;
@@ -718,9 +718,9 @@ export function filterAndSortWorkspaces(
     // breaking ties by available credits desc so the most critical rows
     // surface first.
     survivors.sort(function (a, b) {
-      const cfg = getWorkspaceLifecycleConfig();
-      const statusA = getEffectiveStatus(a.ws, cfg);
-      const statusB = getEffectiveStatus(b.ws, cfg);
+      const config = getWorkspaceLifecycleConfig();
+      const statusA = getEffectiveStatus(a.ws, config);
+      const statusB = getEffectiveStatus(b.ws, config);
       const daysA = statusA.daysSince || 0;
       const daysB = statusB.daysSince || 0;
       if (daysB !== daysA) return daysB - daysA;

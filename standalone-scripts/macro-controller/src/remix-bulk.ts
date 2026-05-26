@@ -105,7 +105,7 @@ export async function actionBulkRemixNext(hint: BulkRemixSourceHint = {}): Promi
     if (ws && ws.id) wsById.set(ws.id, { id: ws.id, name: ws.fullName || ws.name || ws.id });
   }
 
-  const cfg = getRemixConfig();
+  const config = getRemixConfig();
   const sourceBase = baseFamily(hint.sourceProjectName || '');
 
   showToast('🚀 Bulk Remix Next — ' + checked.length + ' workspace' + (checked.length === 1 ? '' : 's') + '…', 'info');
@@ -127,17 +127,17 @@ export async function actionBulkRemixNext(hint: BulkRemixSourceHint = {}): Promi
       }
       const existing = await fetchWorkspaceProjectNames(wsId);
       const { name } = resolveNextName(target.name, existing, {
-        nextSuffixSeparator: cfg.nextSuffixSeparator,
-        maxCollisionIncrements: cfg.maxCollisionIncrements,
-        nextVCasing: cfg.nextVCasing,
+        nextSuffixSeparator: config.nextSuffixSeparator,
+        maxCollisionIncrements: config.maxCollisionIncrements,
+        nextVCasing: config.nextVCasing,
       });
       log('[BulkRemixNext] ' + wsLabel + ': "' + target.name + '" → "' + name + '"', 'info');
       await submitRemix({
         projectId: target.id,
         workspaceId: wsId,
         projectName: name,
-        includeHistory: cfg.defaultIncludeHistory,
-        includeCustomKnowledge: cfg.defaultIncludeCustomKnowledge,
+        includeHistory: config.defaultIncludeHistory,
+        includeCustomKnowledge: config.defaultIncludeCustomKnowledge,
       });
       recordRemix({
         timestamp: Date.now(),

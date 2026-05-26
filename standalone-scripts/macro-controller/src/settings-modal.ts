@@ -48,8 +48,8 @@ interface ModalHandlerStore {
 }
 
 function readJsonConfigValue(key: 'expiryGracePeriodDays' | 'refillWarningThresholdDays'): number | undefined {
-  const cfg = (window.__MARCO_CONFIG__ || {}) as Record<string, unknown>;
-  const credit = (cfg.creditStatus || {}) as Record<string, unknown>;
+  const config = (window.__MARCO_CONFIG__ || {}) as Record<string, unknown>;
+  const credit = (config.creditStatus || {}) as Record<string, unknown>;
   const lifecycle = (credit.lifecycle || {}) as Record<string, unknown>;
   const v = lifecycle[key];
   return typeof v === 'number' ? v : undefined;
@@ -82,7 +82,7 @@ function inputHtml(elName: string, value: string, disabled: string): string {
 
 // eslint-disable-next-line max-lines-per-function -- HTML template assembly: header + 2 fields + footer in one declarative pass
 function buildHtml(state: ModalState): string {
-  const cfg = getWorkspaceLifecycleConfig();
+  const config = getWorkspaceLifecycleConfig();
   const submittingDisabled = state.submitting ? 'disabled' : '';
 
   const errorHtml = state.error
@@ -107,7 +107,7 @@ function buildHtml(state: ModalState): string {
           label: 'Expiry Grace Period (days)',
           help: 'Days after subscription_status_changed_at before Expired escalates to Fully Expired.',
           valueEl: inputHtml('grace', state.graceInput, submittingDisabled),
-          effective: cfg.expiryGracePeriodDays,
+          effective: config.expiryGracePeriodDays,
           jsonValue: readJsonConfigValue('expiryGracePeriodDays'),
           defaultValue: DEFAULT_EXPIRY_GRACE_PERIOD_DAYS,
         })
@@ -115,7 +115,7 @@ function buildHtml(state: ModalState): string {
           label: 'Refill Warning Threshold (days)',
           help: 'Days before refill date to start showing the About To Refill pill.',
           valueEl: inputHtml('refill', state.refillInput, submittingDisabled),
-          effective: cfg.refillWarningThresholdDays,
+          effective: config.refillWarningThresholdDays,
           jsonValue: readJsonConfigValue('refillWarningThresholdDays'),
           defaultValue: DEFAULT_REFILL_WARNING_THRESHOLD_DAYS,
         })

@@ -188,12 +188,12 @@ function resolvePastDueStatus(
 }
 
 function resolveRefillStatus(
-  ws: WorkspaceCredit, cfg: WorkspaceLifecycleConfig, nowMs?: number,
+  ws: WorkspaceCredit, config: WorkspaceLifecycleConfig, nowMs?: number,
 ): WorkspaceStatus | null {
   const refillIso = pickRefillIso(ws);
   if (!refillIso) return null;
   const dToRefill = daysUntil(refillIso, nowMs);
-  if (dToRefill >= 0 && dToRefill <= cfg.refillWarningThresholdDays) {
+  if (dToRefill >= 0 && dToRefill <= config.refillWarningThresholdDays) {
     return buildStatus('about-to-refill', { refillIso, daysToRefill: dToRefill });
   }
   return null;
@@ -201,13 +201,13 @@ function resolveRefillStatus(
 
 export function getEffectiveStatus(
   ws: WorkspaceCredit,
-  cfg: WorkspaceLifecycleConfig,
+  config: WorkspaceLifecycleConfig,
   nowMs?: number,
 ): WorkspaceStatus {
   const status = normalizeStatus(ws.subscriptionStatus);
   const changedIso = ws.subscriptionStatusChangedAt;
   const daysSinceChange = changedIso ? daysBetween(changedIso, nowMs) : 0;
-  const grace = cfg.expiryGracePeriodDays;
+  const grace = config.expiryGracePeriodDays;
 
   const isCanceled = isCanceledStatus(status);
   const isPastDue = isPastDueStatus(status);
@@ -224,7 +224,7 @@ export function getEffectiveStatus(
     if (isPastDue) return resolvePastDueStatus(changedIso, daysSinceChange);
   }
 
-  const refillStatus = resolveRefillStatus(ws, cfg, nowMs);
+  const refillStatus = resolveRefillStatus(ws, config, nowMs);
   if (refillStatus) return refillStatus;
 
   return buildStatus('normal', {});

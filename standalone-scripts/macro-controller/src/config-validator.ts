@@ -134,19 +134,19 @@ export function validateConfig(raw: unknown): MacroControllerConfig {
     return { ...DEFAULT_CONFIG };
   }
 
-  const cfg = raw as Partial<MacroControllerConfig>;
+  const config = raw as Partial<MacroControllerConfig>;
 
   // Schema version check
-  if (cfg.schemaVersion !== undefined) {
-    validateSchemaVersion('Config', cfg.schemaVersion, SUPPORTED_CONFIG_SCHEMA);
+  if (config.schemaVersion !== undefined) {
+    validateSchemaVersion('Config', config.schemaVersion, SUPPORTED_CONFIG_SCHEMA);
   }
 
   // Type-check critical fields
-  validateFieldType(cfg as Record<string, unknown>, 'macroLoop', 'object', 'Config');
-  validateFieldType(cfg as Record<string, unknown>, 'general', 'object', 'Config');
-  validateFieldType(cfg as Record<string, unknown>, 'autoAttach', 'object', 'Config');
+  validateFieldType(config as Record<string, unknown>, 'macroLoop', 'object', 'Config');
+  validateFieldType(config as Record<string, unknown>, 'general', 'object', 'Config');
+  validateFieldType(config as Record<string, unknown>, 'autoAttach', 'object', 'Config');
 
-  return deepMerge(DEFAULT_CONFIG as Record<string, unknown>, cfg as Record<string, unknown>) as unknown as MacroControllerConfig;
+  return deepMerge(DEFAULT_CONFIG as Record<string, unknown>, config as Record<string, unknown>) as unknown as MacroControllerConfig;
 }
 
 /**

@@ -55,14 +55,14 @@ const FILTER_OPTIONS: Array<{ value: LogLevel; label: string }> = [
 /* ------------------------------------------------------------------ */
 
 function LogRow({ entry }: { entry: LogEntry }) {
-    const cfg = getLevelConfig(entry.level);
-    const Icon = cfg.icon;
+    const config = getLevelConfig(entry.level);
+    const Icon = config.icon;
     const time = new Date(entry.timestamp).toLocaleTimeString();
     const text = entry.message || entry.detail || entry.action || "—";
 
     return (
         <div className="flex items-start gap-2 py-1.5 px-2 border-b border-border/50 last:border-b-0 hover:bg-muted/30 transition-colors text-xs">
-            <Icon className={`h-3.5 w-3.5 mt-0.5 shrink-0 ${cfg.colorClass}`} />
+            <Icon className={`h-3.5 w-3.5 mt-0.5 shrink-0 ${config.colorClass}`} />
             <span className="text-muted-foreground shrink-0 w-16 font-mono">{time}</span>
             <Badge variant="outline" className="text-[10px] px-1 py-0 shrink-0 h-4">
                 {entry.source}

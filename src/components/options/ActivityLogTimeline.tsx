@@ -132,8 +132,8 @@ function StatsBar({ stats }: { stats: { total: number; info: number; warn: numbe
 // eslint-disable-next-line max-lines-per-function -- timeline row with collapsible stack trace
 function TimelineRow({ entry, isLast }: { entry: TimelineEntry; isLast: boolean }) {
   const [stackOpen, setStackOpen] = useState(false);
-  const cfg = getSeverityConfig(entry.level);
-  const Icon = cfg.icon;
+  const config = getSeverityConfig(entry.level);
+  const Icon = config.icon;
   const time = new Date(entry.timestamp).toLocaleTimeString("en-US", {
     hour12: false,
     hour: "2-digit",
@@ -154,9 +154,9 @@ function TimelineRow({ entry, isLast }: { entry: TimelineEntry; isLast: boolean 
     <div className="flex gap-3 group">
       {/* Timeline connector */}
       <div className="flex flex-col items-center pt-1">
-        <div className={`h-2.5 w-2.5 rounded-full ${cfg.dotClass} ring-2 ring-background shrink-0 z-10`} />
+        <div className={`h-2.5 w-2.5 rounded-full ${config.dotClass} ring-2 ring-background shrink-0 z-10`} />
         {!isLast && (
-          <div className={`w-px flex-1 ${cfg.lineClass} min-h-[20px]`} />
+          <div className={`w-px flex-1 ${config.lineClass} min-h-[20px]`} />
         )}
       </div>
 
@@ -168,8 +168,8 @@ function TimelineRow({ entry, isLast }: { entry: TimelineEntry; isLast: boolean 
             <Clock className="h-3 w-3" />
             <span className="font-mono text-[11px]">{time}</span>
           </div>
-          <Badge variant="outline" className={`text-[10px] px-1.5 py-0 h-4 ${cfg.badgeClass}`}>
-            {cfg.label}
+          <Badge variant="outline" className={`text-[10px] px-1.5 py-0 h-4 ${config.badgeClass}`}>
+            {config.label}
           </Badge>
           <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
             {entry.source}

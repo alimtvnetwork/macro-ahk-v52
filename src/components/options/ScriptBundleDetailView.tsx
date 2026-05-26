@@ -161,8 +161,8 @@ export function ScriptBundleDetailView({ script, configs, onSave, onSaveConfig, 
     : [];
   const initialConfigs: BundleConfigEntry[] = bindingIds
     .map((id, i) => {
-      const cfg = configs.find((c) => c.id === id);
-      return cfg ? { id: cfg.id, name: cfg.name, json: formatJson(cfg.json), order: i } : null;
+      const config = configs.find((c) => c.id === id);
+      return config ? { id: config.id, name: config.name, json: formatJson(config.json), order: i } : null;
     })
     .filter((x): x is BundleConfigEntry => x !== null);
 
@@ -225,9 +225,9 @@ export function ScriptBundleDetailView({ script, configs, onSave, onSaveConfig, 
   const addExistingConfig = (configId: string) => {
     if (configId === "__none__") return;
     if (configEntries.some((c) => c.id === configId)) { toast.info("Config already added"); return; }
-    const cfg = configs.find((c) => c.id === configId);
-    if (!cfg) return;
-    setConfigEntries((prev) => [...prev, { id: cfg.id, name: cfg.name, json: formatJson(cfg.json), order: prev.length }]);
+    const config = configs.find((c) => c.id === configId);
+    if (!config) return;
+    setConfigEntries((prev) => [...prev, { id: config.id, name: config.name, json: formatJson(config.json), order: prev.length }]);
     markDirty();
   };
 
@@ -259,9 +259,9 @@ export function ScriptBundleDetailView({ script, configs, onSave, onSaveConfig, 
     if (!name.trim()) { toast.error("Script name is required"); return; }
     if (jsEntries.length === 0) { toast.error("At least one JavaScript file is required"); return; }
 
-    for (const cfg of configEntries) {
-      if (!validateJson(cfg.json)) { toast.error(`Config "${cfg.name}" has invalid JSON`); return; }
-      await onSaveConfig({ id: cfg.id.startsWith("cfg_") ? undefined : cfg.id, name: cfg.name, json: cfg.json });
+    for (const config of configEntries) {
+      if (!validateJson(config.json)) { toast.error(`Config "${config.name}" has invalid JSON`); return; }
+      await onSaveConfig({ id: config.id.startsWith("cfg_") ? undefined : config.id, name: config.name, json: config.json });
     }
 
     setIsSaving(true);
@@ -428,17 +428,17 @@ export function ScriptBundleDetailView({ script, configs, onSave, onSaveConfig, 
                     JSON Configs ({configEntries.length})
                   </span>
                 </div>
-                {[...configEntries].sort((a, b) => a.order - b.order).map((cfg, i) => (
+                {[...configEntries].sort((a, b) => a.order - b.order).map((config, i) => (
                   <EntryRow
-                    key={cfg.id}
+                    key={config.id}
                     icon={FileJson}
-                    name={cfg.name}
+                    name={config.name}
                     badge={`#${i + 1}`}
-                    isActive={editorTab === cfg.id}
-                    onClick={() => setEditorTab(cfg.id)}
-                    onMoveUp={() => moveConfigEntry(cfg.id, -1)}
-                    onMoveDown={() => moveConfigEntry(cfg.id, 1)}
-                    onRemove={() => removeConfigEntry(cfg.id)}
+                    isActive={editorTab === config.id}
+                    onClick={() => setEditorTab(config.id)}
+                    onMoveUp={() => moveConfigEntry(config.id, -1)}
+                    onMoveDown={() => moveConfigEntry(config.id, 1)}
+                    onRemove={() => removeConfigEntry(config.id)}
                     canMoveUp={i > 0}
                     canMoveDown={i < configEntries.length - 1}
                   />

@@ -15,7 +15,7 @@ import type { WorkspaceLifecycleConfig } from '../workspace-lifecycle-config';
 const NOW = Date.parse('2026-04-22T00:00:00Z');
 const MS_PER_DAY = 86_400_000;
 
-function cfg(grace: number, refill: number): WorkspaceLifecycleConfig {
+function config(grace: number, refill: number): WorkspaceLifecycleConfig {
   return {
     expiryGracePeriodDays: grace,
     refillWarningThresholdDays: refill,
@@ -67,7 +67,7 @@ describe('explainEffectiveStatus — final status agrees with getEffectiveStatus
 
   it.each(scenarios)('$name: explanation.status equals getEffectiveStatus result', ({ ws, grace, refill }) => {
     const workspace = makeWs(ws);
-    const c = cfg(grace, refill);
+    const c = config(grace, refill);
     const expl = explainEffectiveStatus(workspace, c, NOW);
     const direct = getEffectiveStatus(workspace, c, NOW);
     expect(expl.status.kind).toBe(direct.kind);
@@ -75,13 +75,13 @@ describe('explainEffectiveStatus — final status agrees with getEffectiveStatus
   });
 
   it.each(scenarios)('$name: exactly one rule has matched=true', ({ ws, grace, refill }) => {
-    const expl = explainEffectiveStatus(makeWs(ws), cfg(grace, refill), NOW);
+    const expl = explainEffectiveStatus(makeWs(ws), config(grace, refill), NOW);
     const matched = expl.steps.filter(s => s.matched);
     expect(matched.length).toBe(1);
   });
 
   it.each(scenarios)('$name: every skipped step has a non-empty reason', ({ ws, grace, refill }) => {
-    const expl = explainEffectiveStatus(makeWs(ws), cfg(grace, refill), NOW);
+    const expl = explainEffectiveStatus(makeWs(ws), config(grace, refill), NOW);
     for (const step of expl.steps) {
       if (!step.matched) expect(step.skippedReason && step.skippedReason.length > 0).toBe(true);
     }
@@ -90,7 +90,7 @@ describe('explainEffectiveStatus — final status agrees with getEffectiveStatus
 
 describe('explainEffectiveStatus — inputs snapshot', () => {
   it('captures active grace and refill thresholds verbatim', () => {
-    const expl = explainEffectiveStatus(makeWs({}), cfg(45, 21), NOW);
+    const expl = explainEffectiveStatus(makeWs({}), config(45, 21), NOW);
     expect(expl.inputs.expiryGracePeriodDays).toBe(45);
     expect(expl.inputs.refillWarningThresholdDays).toBe(21);
   });
@@ -98,7 +98,7 @@ describe('explainEffectiveStatus — inputs snapshot', () => {
   it('reports daysSinceChange computed from changedAt', () => {
     const expl = explainEffectiveStatus(
       makeWs({ subscriptionStatusChangedAt: isoDaysAgo(12) }),
-      cfg(30, 7), NOW,
+      config(30, 7), NOW,
     );
     expect(expl.inputs.daysSinceChange).toBe(12);
   });
@@ -107,7 +107,7 @@ describe('explainEffectiveStatus — inputs snapshot', () => {
     const next = isoDaysAhead(5);
     const expl = explainEffectiveStatus(
       makeWs({ nextRefillAt: next, billingPeriodEndAt: isoDaysAhead(20) }),
-      cfg(30, 7), NOW,
+      config(30, 7), NOW,
     );
     expect(expl.inputs.refillIsoUsed).toBe(next);
   });
@@ -116,7 +116,7 @@ describe('explainEffectiveStatus — inputs snapshot', () => {
     const billing = isoDaysAhead(15);
     const expl = explainEffectiveStatus(
       makeWs({ billingPeriodEndAt: billing }),
-      cfg(30, 7), NOW,
+      config(30, 7), NOW,
     );
     expect(expl.inputs.refillIsoUsed).toBe(billing);
   });
@@ -124,7 +124,7 @@ describe('explainEffectiveStatus — inputs snapshot', () => {
   it('lowercases subscription_status and uppercases tier', () => {
     const expl = explainEffectiveStatus(
       makeWs({ subscriptionStatus: 'PAST_DUE', tier: 'expired' }),
-      cfg(30, 7), NOW,
+      config(30, 7), NOW,
     );
     expect(expl.inputs.subscriptionStatus).toBe('past_due');
     expect(expl.inputs.tier).toBe('EXPIRED');

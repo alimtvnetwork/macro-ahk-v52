@@ -227,7 +227,7 @@ function applyLifecycleOverrides(perWs: import('./types').WorkspaceCredit[]): vo
   }
   let overridden = 0;
   for (const ws of perWs) {
-    // Per-workspace override (grace/refill) trumps global cfg for this row.
+    // Per-workspace override (grace/refill) trumps global config for this row.
     const wsCfg = getWorkspaceLifecycleConfigFor(ws.id);
     const status = getEffectiveStatus(ws, wsCfg);
     if (!shouldApplyCanceledOverride(status)) continue;

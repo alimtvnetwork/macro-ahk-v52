@@ -77,32 +77,32 @@ interface FilterRowConfig {
 }
 
 /** Build a single filter row in the popover. Returns the row element. */
-function buildFilterRow(cfg: FilterRowConfig, populate: () => void): HTMLElement {
+function buildFilterRow(config: FilterRowConfig, populate: () => void): HTMLElement {
   const row = document.createElement('div');
   row.style.cssText =
     'display:flex;align-items:center;gap:6px;padding:5px 8px;cursor:pointer;' +
     'border-radius:3px;transition:background 0.12s;font-size:10px;color:#e2e8f0;';
-  row.setAttribute(DataAttr.Active, cfg.initialActive ? 'true' : 'false');
+  row.setAttribute(DataAttr.Active, config.initialActive ? 'true' : 'false');
 
   // The id-bearing chip is what readFilterState() queries — it must exist in
   // the DOM with the data-active attribute even when the popover is closed,
   // so we make it the row itself.
-  row.id = cfg.id;
+  row.id = config.id;
 
   const checkChip = document.createElement('span');
-  checkChip.textContent = cfg.initialActive ? '☑' : '☐';
+  checkChip.textContent = config.initialActive ? '☑' : '☐';
   checkChip.style.cssText = 'font-size:11px;color:#a78bfa;width:12px;flex-shrink:0;';
 
   const iconSpan = document.createElement('span');
-  iconSpan.textContent = cfg.icon;
+  iconSpan.textContent = config.icon;
   iconSpan.style.cssText = 'font-size:11px;width:14px;text-align:center;flex-shrink:0;';
 
   const labelSpan = document.createElement('span');
-  labelSpan.textContent = cfg.label;
+  labelSpan.textContent = config.label;
   labelSpan.style.cssText = 'flex:1;';
 
   const hintSpan = document.createElement('span');
-  hintSpan.textContent = cfg.hint;
+  hintSpan.textContent = config.hint;
   hintSpan.style.cssText = 'font-size:8px;color:#94a3b8;';
 
   row.appendChild(checkChip);
@@ -119,7 +119,7 @@ function buildFilterRow(cfg: FilterRowConfig, populate: () => void): HTMLElement
     const next = !wasActive;
     row.setAttribute(DataAttr.Active, next ? 'true' : 'false');
     checkChip.textContent = next ? '☑' : '☐';
-    cfg.onToggle(next);
+    config.onToggle(next);
     populate();
   };
 
@@ -329,8 +329,8 @@ function buildPopover(deps: WsFilterMenuDeps): HTMLElement {
     'min-width:220px;background:' + cPanelBg + ';border:1px solid ' + cPrimary +
     ';border-radius:5px;padding:4px;box-shadow:0 6px 20px rgba(0,0,0,.55);';
 
-  for (const cfg of buildFilterRowConfigs(deps)) {
-    popover.appendChild(buildFilterRow(cfg, deps.populateLoopWorkspaceDropdown));
+  for (const config of buildFilterRowConfigs(deps)) {
+    popover.appendChild(buildFilterRow(config, deps.populateLoopWorkspaceDropdown));
   }
   popover.appendChild(buildMinCreditsRow(deps.populateLoopWorkspaceDropdown));
 

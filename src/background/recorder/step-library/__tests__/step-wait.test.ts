@@ -217,7 +217,7 @@ describe("evaluateSelector", () => {
 /* ------------------------------------------------------------------ */
 
 describe("waitForSelector", () => {
-    const cfg: WaitConfig = {
+    const config: WaitConfig = {
         Selector: ".ready",
         Kind: "Css",
         Condition: "Appears",
@@ -240,7 +240,7 @@ describe("waitForSelector", () => {
 
     it("succeeds immediately when the condition is already true", async () => {
         let now = 1000;
-        const r = await waitForSelector(cfg, {
+        const r = await waitForSelector(config, {
             doc: stubDoc,
             root: makeRoot(0, () => now),
             now: () => now,
@@ -252,7 +252,7 @@ describe("waitForSelector", () => {
 
     it("succeeds after polling until the element appears", async () => {
         let now = 1000;
-        const r = await waitForSelector(cfg, {
+        const r = await waitForSelector(config, {
             doc: stubDoc,
             root: makeRoot(1300, () => now),
             now: () => now,
@@ -265,7 +265,7 @@ describe("waitForSelector", () => {
 
     it("times out when the condition never holds", async () => {
         let now = 1000;
-        const r = await waitForSelector(cfg, {
+        const r = await waitForSelector(config, {
             doc: stubDoc,
             root: makeRoot(Infinity, () => now),
             now: () => now,
@@ -281,7 +281,7 @@ describe("waitForSelector", () => {
 
     it("returns InvalidSelector for empty selector without polling", async () => {
         const r = await waitForSelector(
-            { ...cfg, Selector: "" },
+            { ...config, Selector: "" },
             { doc: stubDoc, root: {} as ParentNode },
         );
         expect(r.Ok).toBe(false);

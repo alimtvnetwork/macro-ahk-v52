@@ -41,7 +41,7 @@ export function StatusPanel() {
   const { status, health, loading, refresh } = useStatus();
 
   const state = health?.state ?? "HEALTHY";
-  const cfg = stateConfig[state] ?? stateConfig.HEALTHY;
+  const config = stateConfig[state] ?? stateConfig.HEALTHY;
 
   return (
     <div className="space-y-4">
@@ -64,9 +64,9 @@ export function StatusPanel() {
           </div>
           <div className="flex items-center gap-2">
             <span
-              className={`h-2.5 w-2.5 rounded-full ${cfg.bg} ${cfg.pulse ? "animate-pulse" : ""}`}
+              className={`h-2.5 w-2.5 rounded-full ${config.bg} ${config.pulse ? "animate-pulse" : ""}`}
             />
-            <Badge className={`${cfg.bg} ${cfg.text}`}>
+            <Badge className={`${config.bg} ${config.text}`}>
               {state}
             </Badge>
           </div>

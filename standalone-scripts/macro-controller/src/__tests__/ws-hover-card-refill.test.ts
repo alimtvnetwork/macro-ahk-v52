@@ -21,7 +21,7 @@ const MS_PER_DAY = 86_400_000;
 beforeAll(() => { vi.useFakeTimers(); vi.setSystemTime(new Date(NOW)); });
 afterAll(() => { vi.useRealTimers(); });
 
-function cfg(refillWarn: number): WorkspaceLifecycleConfig {
+function config(refillWarn: number): WorkspaceLifecycleConfig {
   return {
     expiryGracePeriodDays: 30,
     refillWarningThresholdDays: refillWarn,
@@ -82,8 +82,8 @@ function extractRefillSection(html: string): string {
 describe('Refill section — Estimated next refill', () => {
   it('shows Estimated next refill from nextRefillAt when not in warning window', () => {
     const ws = makeWs({ nextRefillAt: isoDaysAhead(20) });
-    const status = getEffectiveStatus(ws, cfg(7), NOW);
-    const html = buildWorkspaceHoverHtml(ws, status, cfg(7));
+    const status = getEffectiveStatus(ws, config(7), NOW);
+    const html = buildWorkspaceHoverHtml(ws, status, config(7));
     const section = extractRefillSection(html);
     expect(section).toContain('Estimated next refill');
     expect(section).toMatch(/\d{2} \w{3} \d{2}/);
@@ -94,8 +94,8 @@ describe('Refill section — Estimated next refill', () => {
 
   it('falls back to billingPeriodEndAt when nextRefillAt missing, with source tag', () => {
     const ws = makeWs({ nextRefillAt: '', billingPeriodEndAt: isoDaysAhead(15) });
-    const status = getEffectiveStatus(ws, cfg(7), NOW);
-    const html = buildWorkspaceHoverHtml(ws, status, cfg(7));
+    const status = getEffectiveStatus(ws, config(7), NOW);
+    const html = buildWorkspaceHoverHtml(ws, status, config(7));
     const section = extractRefillSection(html);
     expect(section).toContain('Estimated next refill');
     expect(section).toContain('[from billing_period_end]');
@@ -103,8 +103,8 @@ describe('Refill section — Estimated next refill', () => {
 
   it('omits Refill section entirely when no refill source is available', () => {
     const ws = makeWs({ nextRefillAt: '', billingPeriodEndAt: '' });
-    const status = getEffectiveStatus(ws, cfg(7), NOW);
-    const html = buildWorkspaceHoverHtml(ws, status, cfg(7));
+    const status = getEffectiveStatus(ws, config(7), NOW);
+    const html = buildWorkspaceHoverHtml(ws, status, config(7));
     expect(html).not.toMatch(/>Refill</);
   });
 });
@@ -112,8 +112,8 @@ describe('Refill section — Estimated next refill', () => {
 describe('Refill section — Warning starts on (threshold projection)', () => {
   it('shows Warning starts on as estimateIso − refillWarningThresholdDays', () => {
     const ws = makeWs({ nextRefillAt: isoDaysAhead(20) });
-    const status = getEffectiveStatus(ws, cfg(7), NOW);
-    const html = buildWorkspaceHoverHtml(ws, status, cfg(7));
+    const status = getEffectiveStatus(ws, config(7), NOW);
+    const html = buildWorkspaceHoverHtml(ws, status, config(7));
     const section = extractRefillSection(html);
     expect(section).toContain('Warning starts on');
     expect(section).toContain('−7d'); // negative-day shorthand
@@ -123,8 +123,8 @@ describe('Refill section — Warning starts on (threshold projection)', () => {
 
   it('marks "active now" when warning window has already opened', () => {
     const ws = makeWs({ nextRefillAt: isoDaysAhead(3) });
-    const status = getEffectiveStatus(ws, cfg(7), NOW);
-    const html = buildWorkspaceHoverHtml(ws, status, cfg(7));
+    const status = getEffectiveStatus(ws, config(7), NOW);
+    const html = buildWorkspaceHoverHtml(ws, status, config(7));
     const section = extractRefillSection(html);
     expect(section).toContain('Warning starts on');
     expect(section).toContain('active now');
@@ -132,8 +132,8 @@ describe('Refill section — Warning starts on (threshold projection)', () => {
 
   it('reflects user-overridden refillWarningThresholdDays', () => {
     const ws = makeWs({ nextRefillAt: isoDaysAhead(20) });
-    const status = getEffectiveStatus(ws, cfg(14), NOW);
-    const html = buildWorkspaceHoverHtml(ws, status, cfg(14));
+    const status = getEffectiveStatus(ws, config(14), NOW);
+    const html = buildWorkspaceHoverHtml(ws, status, config(14));
     const section = extractRefillSection(html);
     expect(section).toContain('−14d');
     // 20 − 14 = 6 days from NOW.
@@ -142,8 +142,8 @@ describe('Refill section — Warning starts on (threshold projection)', () => {
 
   it('omits Warning starts on when threshold is 0', () => {
     const ws = makeWs({ nextRefillAt: isoDaysAhead(20) });
-    const status = getEffectiveStatus(ws, cfg(0), NOW);
-    const html = buildWorkspaceHoverHtml(ws, status, cfg(0));
+    const status = getEffectiveStatus(ws, config(0), NOW);
+    const html = buildWorkspaceHoverHtml(ws, status, config(0));
     const section = extractRefillSection(html);
     expect(section).toContain('Estimated next refill');
     expect(section).not.toContain('Warning starts on');

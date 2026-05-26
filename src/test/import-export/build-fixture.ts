@@ -32,7 +32,7 @@ export function buildFixtureProject(): StoredProject {
       { path: "in-project-script-2", order: 1, runAt: "document_start", code: "globalThis.x=1;" },
       { path: "ExternalLib1", order: 2 },
     ],
-    configs: [{ path: "ExternalCfg1", description: "library cfg ref" }],
+    configs: [{ path: "ExternalCfg1", description: "library config ref" }],
     cookies: [
       { cookieName: "session", url: "https://example.com", role: "session" },
     ],
@@ -65,7 +65,7 @@ export function buildFixtureLibraryScripts(): StoredScript[] {
 export function buildFixtureLibraryConfigs(): StoredConfig[] {
   return [
     {
-      id: "lib-cfg-uid-ExternalCfg1",
+      id: "lib-config-uid-ExternalCfg1",
       name: "ExternalCfg1",
       description: "Library config referenced by FixtureCoverage.",
       json: JSON.stringify({ k: "v" }),

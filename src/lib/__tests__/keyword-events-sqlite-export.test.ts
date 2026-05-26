@@ -18,9 +18,9 @@ vi.mock("sql.js", async () => {
     const real = await vi.importActual<typeof import("sql.js")>("sql.js");
     const realInit = real.default;
     const wasmDir = resolvePath(__dirname, "../../../node_modules/sql.js/dist");
-    const localInit: typeof realInit = ((cfg) =>
+    const localInit: typeof realInit = ((config) =>
         realInit({
-            ...(cfg ?? {}),
+            ...(config ?? {}),
             locateFile: (file: string) => resolvePath(wasmDir, file),
         })) as typeof realInit;
     return { ...real, default: localInit };

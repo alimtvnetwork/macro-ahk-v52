@@ -64,12 +64,12 @@ function nowMalaysiaIso(): string {
 // eslint-disable-next-line max-lines-per-function, sonarjs/cognitive-complexity -- declarative column assembly with per-cell fallback ternaries; splitting hides the column ↔ header alignment that this file is built around
 function buildCsvRow(
   ws: WorkspaceCredit,
-  cfg: WorkspaceLifecycleConfig,
+  config: WorkspaceLifecycleConfig,
   exportedAt: string,
 ): (string | number)[] {
   const r: Record<string, string | number> = ws.raw || {};
   const m: Record<string, string> = (r.membership || {}) as Record<string, string>;
-  const status = getEffectiveStatus(ws, cfg);
+  const status = getEffectiveStatus(ws, config);
   const daysSinceChange = ws.subscriptionStatusChangedAt ? daysBetween(ws.subscriptionStatusChangedAt) : '';
   const refillIso = ws.nextRefillAt || ws.billingPeriodEndAt || '';
   const dToRefill = refillIso ? daysUntil(refillIso) : -1;
@@ -123,8 +123,8 @@ function buildCsvRow(
     csvVal(ws.subscriptionStatusChangedAt || ''),
     daysSinceChange,
     dToRefill >= 0 ? dToRefill : '',
-    cfg.expiryGracePeriodDays,
-    cfg.refillWarningThresholdDays,
+    config.expiryGracePeriodDays,
+    config.refillWarningThresholdDays,
     // Computed ratios — v2.223.0
     pct(ws.available || 0, ws.totalCredits || 0),
     pct(ws.dailyUsed || 0, ws.dailyLimit || 0),
@@ -181,12 +181,12 @@ export function exportWorkspacesAsCsv(): void {
     return (a.fullName || '').toLowerCase().localeCompare((b.fullName || '').toLowerCase());
   });
 
-  const cfg = getWorkspaceLifecycleConfig();
+  const config = getWorkspaceLifecycleConfig();
   const exportedAt = nowMalaysiaIso();
   const lines = [CSV_HEADER];
 
   for (const ws of sorted) {
-    lines.push(buildCsvRow(ws, cfg, exportedAt).join(','));
+    lines.push(buildCsvRow(ws, config, exportedAt).join(','));
   }
 
   downloadCsvBlob(lines.join('\n'), 'workspaces-' + new Date().toISOString().replace(/[:.]/g, '-') + '.csv');
@@ -213,12 +213,12 @@ export function exportAvailableWorkspacesAsCsv(): void {
     return (a.fullName || '').toLowerCase().localeCompare((b.fullName || '').toLowerCase());
   });
 
-  const cfg = getWorkspaceLifecycleConfig();
+  const config = getWorkspaceLifecycleConfig();
   const exportedAt = nowMalaysiaIso();
   const lines = [CSV_HEADER];
 
   for (const ws of sorted) {
-    lines.push(buildCsvRow(ws, cfg, exportedAt).join(','));
+    lines.push(buildCsvRow(ws, config, exportedAt).join(','));
   }
 
   downloadCsvBlob(lines.join('\n'), 'workspaces-available-' + new Date().toISOString().replace(/[:.]/g, '-') + '.csv');

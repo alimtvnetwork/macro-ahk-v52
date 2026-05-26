@@ -111,9 +111,9 @@ vi.mock("sql.js", async () => {
   const wasmDir = resolvePath(
     resolvePath(__dirname, "../../../node_modules/sql.js/dist"),
   );
-  const localInit: typeof realInit = ((cfg) =>
+  const localInit: typeof realInit = ((config) =>
     realInit({
-      ...(cfg ?? {}),
+      ...(config ?? {}),
       // Always resolve from the local install — ignore the caller's URL.
       locateFile: (file: string) => resolvePath(wasmDir, file),
     })) as typeof realInit;
@@ -213,7 +213,7 @@ function buildFixture(): MockStore {
       { pattern: "https://example.com/foo", matchType: "exact" },
     ],
     scripts: [
-      { path: "scripts/main.js", order: 0, runAt: "document_idle", configBinding: "cfg-uid-1" },
+      { path: "scripts/main.js", order: 0, runAt: "document_idle", configBinding: "config-uid-1" },
       { path: "scripts/late.js", order: 1, runAt: "document_end" },
     ],
     configs: [{ path: "configs/app.json", description: "App config" }],
@@ -242,7 +242,7 @@ function buildFixture(): MockStore {
       code: "console.log('hello');",
       order: 0,
       runAt: "document_idle",
-      configBinding: "cfg-uid-1",
+      configBinding: "config-uid-1",
       isIife: true,
       hasDomUsage: false,
       // v5 — auto-update fields must survive round-trip.
@@ -266,7 +266,7 @@ function buildFixture(): MockStore {
 
   const configs: StoredConfig[] = [
     {
-      id: "cfg-uid-1",
+      id: "config-uid-1",
       name: "configs/app.json",
       description: "App config",
       json: JSON.stringify({ apiBase: "https://api.example.com", retries: 3 }),

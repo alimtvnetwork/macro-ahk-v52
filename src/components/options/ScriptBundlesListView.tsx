@@ -185,9 +185,9 @@ function ScriptCard({ script, boundConfigs, index, onEdit, onDelete }: ScriptCar
             </p>
             {boundConfigs.length > 0 && (
               <div className="flex gap-1 flex-wrap mt-0.5">
-                {boundConfigs.map((cfg) => (
-                  <Badge key={cfg.id} variant="outline" className="text-[9px] gap-1 text-primary/70">
-                    <FileJson className="h-2.5 w-2.5" /> {cfg.name}
+                {boundConfigs.map((config) => (
+                  <Badge key={config.id} variant="outline" className="text-[9px] gap-1 text-primary/70">
+                    <FileJson className="h-2.5 w-2.5" /> {config.name}
                   </Badge>
                 ))}
               </div>

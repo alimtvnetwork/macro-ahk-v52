@@ -390,9 +390,9 @@ async function seedBoundConfigs(project: StoredProject): Promise<void> {
     const projectSlug = project.slug || slugify(project.name);
     const mgr = await initProjectDb(projectSlug);
 
-    for (const cfg of allConfigs) {
-        if (bindingIds.includes(cfg.id) && cfg.json) {
-            await seedConfigToDb(mgr, cfg.name || "config.json", cfg.json);
+    for (const config of allConfigs) {
+        if (bindingIds.includes(config.id) && config.json) {
+            await seedConfigToDb(mgr, config.name || "config.json", config.json);
         }
     }
 }

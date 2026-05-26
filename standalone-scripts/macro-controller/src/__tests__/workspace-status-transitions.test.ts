@@ -16,7 +16,7 @@ import type { WorkspaceLifecycleConfig } from '../workspace-lifecycle-config';
 const NOW = Date.parse('2026-04-22T00:00:00Z');
 const MS_PER_DAY = 86_400_000;
 
-function cfg(grace: number, refill: number): WorkspaceLifecycleConfig {
+function config(grace: number, refill: number): WorkspaceLifecycleConfig {
   return {
     expiryGracePeriodDays: grace,
     refillWarningThresholdDays: refill,
@@ -82,7 +82,7 @@ describe('canceled subscription — grace boundary across thresholds', () => {
       subscriptionStatusChangedAt: isoDaysAgo(daysAgo),
       tier: 'EXPIRED',
     });
-    expect(getEffectiveStatus(ws, cfg(grace, 7), NOW).kind).toBe(expected);
+    expect(getEffectiveStatus(ws, config(grace, 7), NOW).kind).toBe(expected);
   });
 
   it('cancelled (UK spelling) is treated identically', () => {
@@ -91,13 +91,13 @@ describe('canceled subscription — grace boundary across thresholds', () => {
       subscriptionStatusChangedAt: isoDaysAgo(40),
       tier: 'EXPIRED',
     });
-    expect(getEffectiveStatus(ws, cfg(30, 7), NOW).kind).toBe('fully-expired');
+    expect(getEffectiveStatus(ws, config(30, 7), NOW).kind).toBe('fully-expired');
   });
 
   it('canceled without changedAt stays expired-canceled regardless of grace', () => {
     const ws = makeWs({ subscriptionStatus: 'canceled', tier: 'EXPIRED' });
-    expect(getEffectiveStatus(ws, cfg(0, 7), NOW).kind).toBe('expired-canceled');
-    expect(getEffectiveStatus(ws, cfg(365, 7), NOW).kind).toBe('expired-canceled');
+    expect(getEffectiveStatus(ws, config(0, 7), NOW).kind).toBe('expired-canceled');
+    expect(getEffectiveStatus(ws, config(365, 7), NOW).kind).toBe('expired-canceled');
   });
 });
 
@@ -120,13 +120,13 @@ describe('tier=EXPIRED (active subscription text) — grace boundary', () => {
       subscriptionStatusChangedAt: isoDaysAgo(daysAgo),
       tier: 'EXPIRED',
     });
-    expect(getEffectiveStatus(ws, cfg(grace, 7), NOW).kind).toBe(expected);
+    expect(getEffectiveStatus(ws, config(grace, 7), NOW).kind).toBe(expected);
   });
 
   it('without changedAt always reports expired (never fully-expired)', () => {
     const ws = makeWs({ subscriptionStatus: 'incomplete', tier: 'EXPIRED' });
-    expect(getEffectiveStatus(ws, cfg(0, 7), NOW).kind).toBe('expired');
-    expect(getEffectiveStatus(ws, cfg(365, 7), NOW).kind).toBe('expired');
+    expect(getEffectiveStatus(ws, config(0, 7), NOW).kind).toBe('expired');
+    expect(getEffectiveStatus(ws, config(365, 7), NOW).kind).toBe('expired');
   });
 });
 
@@ -142,8 +142,8 @@ describe('past_due / unpaid — past-due-expiring wins over refill', () => {
       tier: 'EXPIRED',
       nextRefillAt: isoDaysAhead(2),
     });
-    expect(getEffectiveStatus(ws, cfg(0, 7), NOW).kind).toBe('past-due-expiring');
-    expect(getEffectiveStatus(ws, cfg(365, 30), NOW).kind).toBe('past-due-expiring');
+    expect(getEffectiveStatus(ws, config(0, 7), NOW).kind).toBe('past-due-expiring');
+    expect(getEffectiveStatus(ws, config(365, 30), NOW).kind).toBe('past-due-expiring');
   });
 });
 
@@ -177,7 +177,7 @@ describe('about-to-refill — refill window boundary across thresholds', () => {
       tier: 'PRO',
       nextRefillAt: isoDaysAhead(daysAhead),
     });
-    expect(getEffectiveStatus(ws, cfg(30, refill), NOW).kind).toBe(expected);
+    expect(getEffectiveStatus(ws, config(30, refill), NOW).kind).toBe(expected);
   });
 
   it('past refill date never triggers about-to-refill', () => {
@@ -186,7 +186,7 @@ describe('about-to-refill — refill window boundary across thresholds', () => {
       tier: 'PRO',
       nextRefillAt: isoDaysAgo(3),
     });
-    expect(getEffectiveStatus(ws, cfg(30, 30), NOW).kind).toBe('normal');
+    expect(getEffectiveStatus(ws, config(30, 30), NOW).kind).toBe('normal');
   });
 });
 
@@ -202,7 +202,7 @@ describe('refill date source — nextRefillAt vs billingPeriodEndAt fallback', (
       nextRefillAt: isoDaysAhead(3),
       billingPeriodEndAt: isoDaysAhead(20),
     });
-    const s = getEffectiveStatus(ws, cfg(30, 7), NOW);
+    const s = getEffectiveStatus(ws, config(30, 7), NOW);
     expect(s.kind).toBe('about-to-refill');
     expect(s.daysToRefill).toBe(3);
   });
@@ -213,14 +213,14 @@ describe('refill date source — nextRefillAt vs billingPeriodEndAt fallback', (
       tier: 'PRO',
       billingPeriodEndAt: isoDaysAhead(5),
     });
-    const s = getEffectiveStatus(ws, cfg(30, 7), NOW);
+    const s = getEffectiveStatus(ws, config(30, 7), NOW);
     expect(s.kind).toBe('about-to-refill');
     expect(s.daysToRefill).toBe(5);
   });
 
   it('returns normal when both refill sources missing', () => {
     const ws = makeWs({ subscriptionStatus: 'active', tier: 'PRO' });
-    expect(getEffectiveStatus(ws, cfg(30, 7), NOW).kind).toBe('normal');
+    expect(getEffectiveStatus(ws, config(30, 7), NOW).kind).toBe('normal');
   });
 });
 
@@ -236,7 +236,7 @@ describe('priority interactions — higher rules suppress lower ones', () => {
       tier: 'EXPIRED',
       nextRefillAt: isoDaysAhead(3),
     });
-    expect(getEffectiveStatus(ws, cfg(30, 7), NOW).kind).toBe('expired-canceled');
+    expect(getEffectiveStatus(ws, config(30, 7), NOW).kind).toBe('expired-canceled');
   });
 
   it('past_due within refill window still reports past-due-expiring', () => {
@@ -246,7 +246,7 @@ describe('priority interactions — higher rules suppress lower ones', () => {
       tier: 'EXPIRED',
       nextRefillAt: isoDaysAhead(3),
     });
-    expect(getEffectiveStatus(ws, cfg(30, 7), NOW).kind).toBe('past-due-expiring');
+    expect(getEffectiveStatus(ws, config(30, 7), NOW).kind).toBe('past-due-expiring');
   });
 
   it('tier=EXPIRED with past_due is handled by past_due rule (past-due-expiring), not expired', () => {
@@ -256,7 +256,7 @@ describe('priority interactions — higher rules suppress lower ones', () => {
       tier: 'EXPIRED',
     });
     // past_due wins over tier=EXPIRED + grace per workspace-status.ts:185 condition `!isPastDue`.
-    expect(getEffectiveStatus(ws, cfg(30, 7), NOW).kind).toBe('past-due-expiring');
+    expect(getEffectiveStatus(ws, config(30, 7), NOW).kind).toBe('past-due-expiring');
   });
 
   it('fully-expired (canceled past grace) preempts everything below', () => {
@@ -266,7 +266,7 @@ describe('priority interactions — higher rules suppress lower ones', () => {
       tier: 'EXPIRED',
       nextRefillAt: isoDaysAhead(2),
     });
-    expect(getEffectiveStatus(ws, cfg(30, 7), NOW).kind).toBe('fully-expired');
+    expect(getEffectiveStatus(ws, config(30, 7), NOW).kind).toBe('fully-expired');
   });
 });
 
@@ -282,7 +282,7 @@ describe('threshold extremes', () => {
       tier: 'EXPIRED',
     });
     // changedIso truthy + daysSinceChange (0) >= grace (0) → fully-expired.
-    expect(getEffectiveStatus(ws, cfg(0, 7), NOW).kind).toBe('fully-expired');
+    expect(getEffectiveStatus(ws, config(0, 7), NOW).kind).toBe('fully-expired');
   });
 
   it('grace=Infinity-like (10000) keeps canceled in expired-canceled forever', () => {
@@ -291,7 +291,7 @@ describe('threshold extremes', () => {
       subscriptionStatusChangedAt: isoDaysAgo(5000),
       tier: 'EXPIRED',
     });
-    expect(getEffectiveStatus(ws, cfg(10000, 7), NOW).kind).toBe('expired-canceled');
+    expect(getEffectiveStatus(ws, config(10000, 7), NOW).kind).toBe('expired-canceled');
   });
 
   it('refill=0 — only refills happening *today within ms* qualify (effectively never via daysAhead helper)', () => {
@@ -300,7 +300,7 @@ describe('threshold extremes', () => {
       tier: 'PRO',
       nextRefillAt: isoDaysAhead(1),
     });
-    expect(getEffectiveStatus(ws, cfg(30, 0), NOW).kind).toBe('normal');
+    expect(getEffectiveStatus(ws, config(30, 0), NOW).kind).toBe('normal');
   });
 
   it('refill=365 catches very distant refills', () => {
@@ -309,7 +309,7 @@ describe('threshold extremes', () => {
       tier: 'PRO',
       nextRefillAt: isoDaysAhead(300),
     });
-    const s = getEffectiveStatus(ws, cfg(30, 365), NOW);
+    const s = getEffectiveStatus(ws, config(30, 365), NOW);
     expect(s.kind).toBe('about-to-refill');
     expect(s.daysToRefill).toBe(300);
   });

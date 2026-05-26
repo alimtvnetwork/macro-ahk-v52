@@ -176,11 +176,11 @@ function resolveTokenTtlMs(): number {
   }
 
   try {
-    const cfg = (window as unknown as Record<string, unknown>).__MARCO_CONFIG__ as
+    const config = (window as unknown as Record<string, unknown>).__MARCO_CONFIG__ as
       { authBridge?: { tokenTtlMs?: number } } | undefined;
 
-    if (cfg?.authBridge?.tokenTtlMs) {
-      return cfg.authBridge.tokenTtlMs;
+    if (config?.authBridge?.tokenTtlMs) {
+      return config.authBridge.tokenTtlMs;
     }
   } catch (_e) {
     logDebug('getTokenTtlMs', '__MARCO_CONFIG__ read failed: ' + (_e instanceof Error ? _e.message : String(_e)));

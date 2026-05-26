@@ -508,17 +508,17 @@ function defaultSleep(ms: number): Promise<void> {
  * Returns `null` when there's no persisted config so the caller can
  * skip the wait branch entirely.
  */
-function persistedWaitToSpec(cfg: WaitConfig | null): WaitForSpec | null {
-    if (cfg === null) return null;
-    if (cfg.Condition !== "Appears") {
+function persistedWaitToSpec(config: WaitConfig | null): WaitForSpec | null {
+    if (config === null) return null;
+    if (config.Condition !== "Appears") {
         console.warn(
-            `live-dom-replay: persisted wait condition '${cfg.Condition}' is ` +
+            `live-dom-replay: persisted wait condition '${config.Condition}' is ` +
             `not yet supported by waitForElement; falling back to 'Appears'.`,
         );
     }
     return {
-        Expression: cfg.Selector,
-        Kind: cfg.Kind === "XPath" ? "XPath" : "Css",
-        TimeoutMs: cfg.TimeoutMs,
+        Expression: config.Selector,
+        Kind: config.Kind === "XPath" ? "XPath" : "Css",
+        TimeoutMs: config.TimeoutMs,
     };
 }

@@ -111,16 +111,16 @@ describe("runKeywordEvent — target routing", () => {
     });
 
     it("explicit options.target overrides the event's Target config", async () => {
-        document.body.innerHTML = `<input id="cfg" /><input id="override" />`;
-        const cfg = document.querySelector("#cfg") as HTMLInputElement;
+        document.body.innerHTML = `<input id="config" /><input id="override" />`;
+        const config = document.querySelector("#config") as HTMLInputElement;
         const override = document.querySelector("#override") as HTMLInputElement;
         const seenCfg: string[] = [];
         const seenOverride: string[] = [];
-        cfg.addEventListener("keydown", (e) => seenCfg.push(e.key));
+        config.addEventListener("keydown", (e) => seenCfg.push(e.key));
         override.addEventListener("keydown", (e) => seenOverride.push(e.key));
 
         await runKeywordEvent(
-            mkEvent({ Kind: "Selector", Selector: "#cfg" }),
+            mkEvent({ Kind: "Selector", Selector: "#config" }),
             { target: override },
         );
         expect(seenOverride).toEqual(["Enter"]);

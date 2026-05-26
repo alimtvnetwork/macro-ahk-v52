@@ -24,7 +24,7 @@ describe("config storage", () => {
     });
 
     it("round-trips a full config", () => {
-        const cfg: InputSourceConfig = {
+        const config: InputSourceConfig = {
             Enabled: true,
             Url: "https://api.test/inputs",
             Method: "POST",
@@ -33,8 +33,8 @@ describe("config storage", () => {
             OnFailure: "ContinueWithLocal",
             TimeoutMs: 4_000,
         };
-        saveInputSourceConfig(cfg);
-        expect(loadInputSourceConfig()).toEqual(cfg);
+        saveInputSourceConfig(config);
+        expect(loadInputSourceConfig()).toEqual(config);
     });
 
     it("clamps timeout and normalises method/policy", () => {
@@ -102,7 +102,7 @@ describe("fetchInputSource — skip paths", () => {
 });
 
 describe("fetchInputSource — network paths", () => {
-    const cfg: InputSourceConfig = {
+    const config: InputSourceConfig = {
         Enabled: true,
         Url: "https://api.test/inputs",
         Method: "GET",
@@ -116,7 +116,7 @@ describe("fetchInputSource — network paths", () => {
         const fetchImpl = vi.fn(async () =>
             new Response(JSON.stringify({ Email: "fresh@b", Order: 7 }), { status: 200 }),
         );
-        const r = await fetchInputSource({ config: cfg, fetchImpl });
+        const r = await fetchInputSource({ config: config, fetchImpl });
         expect(r.Ok).toBe(true);
         if (r.Ok && !r.Skipped) {
             expect(r.Bag).toEqual({ Email: "fresh@b", Order: 7 });
@@ -133,7 +133,7 @@ describe("fetchInputSource — network paths", () => {
             new Response(JSON.stringify({ A: 1 }), { status: 200 }),
         );
         await fetchInputSource({
-            config: { ...cfg, Method: "POST", RequestBody: '{"q":1}' },
+            config: { ...config, Method: "POST", RequestBody: '{"q":1}' },
             fetchImpl,
         });
         const init = fetchImpl.mock.calls[0][1] as RequestInit;
@@ -146,7 +146,7 @@ describe("fetchInputSource — network paths", () => {
         const fetchImpl = vi.fn(async () =>
             new Response("[1,2,3]", { status: 200 }),
         );
-        const r = await fetchInputSource({ config: cfg, fetchImpl });
+        const r = await fetchInputSource({ config: config, fetchImpl });
         expect(r.Ok).toBe(false);
         if (!r.Ok) expect(r.Error).toContain("Expected a JSON object");
     });
@@ -155,7 +155,7 @@ describe("fetchInputSource — network paths", () => {
         const fetchImpl = vi.fn(async () =>
             new Response("{not json", { status: 200 }),
         );
-        const r = await fetchInputSource({ config: cfg, fetchImpl });
+        const r = await fetchInputSource({ config: config, fetchImpl });
         expect(r.Ok).toBe(false);
         if (!r.Ok) expect(r.Error).toContain("not valid JSON");
     });
@@ -165,7 +165,7 @@ describe("fetchInputSource — network paths", () => {
             new Response("nope", { status: 500, statusText: "Server Error" }),
         );
         const r = await fetchInputSource({
-            config: { ...cfg, OnFailure: "ContinueWithLocal" },
+            config: { ...config, OnFailure: "ContinueWithLocal" },
             fetchImpl,
         });
         expect(r.Ok).toBe(false);
@@ -182,7 +182,7 @@ describe("fetchInputSource — network paths", () => {
             throw err;
         });
         const r = await fetchInputSource({
-            config: { ...cfg, TimeoutMs: 1_500 },
+            config: { ...config, TimeoutMs: 1_500 },
             fetchImpl,
         });
         expect(r.Ok).toBe(false);

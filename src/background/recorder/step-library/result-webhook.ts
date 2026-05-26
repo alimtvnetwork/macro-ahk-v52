@@ -199,15 +199,15 @@ export function loadWebhookConfig(): WebhookConfig {
     }
 }
 
-export function saveWebhookConfig(cfg: WebhookConfig): WebhookConfig {
+export function saveWebhookConfig(config: WebhookConfig): WebhookConfig {
     const ls = safeLocalStorage();
     const normalized: WebhookConfig = {
-        Enabled: !!cfg.Enabled,
-        Url: typeof cfg.Url === "string" ? cfg.Url : "",
-        TimeoutMs: Number.isFinite(cfg.TimeoutMs) && cfg.TimeoutMs > 0 ? cfg.TimeoutMs : DEFAULT_TIMEOUT_MS,
-        Headers: (cfg.Headers ?? []).map((h) => ({ Name: h.Name ?? "", Value: h.Value ?? "" })),
-        Events: (cfg.Events ?? []).filter((k) => (ALL_WEBHOOK_EVENTS as ReadonlyArray<string>).includes(k)),
-        SecretToken: typeof cfg.SecretToken === "string" ? cfg.SecretToken : "",
+        Enabled: !!config.Enabled,
+        Url: typeof config.Url === "string" ? config.Url : "",
+        TimeoutMs: Number.isFinite(config.TimeoutMs) && config.TimeoutMs > 0 ? config.TimeoutMs : DEFAULT_TIMEOUT_MS,
+        Headers: (config.Headers ?? []).map((h) => ({ Name: h.Name ?? "", Value: h.Value ?? "" })),
+        Events: (config.Events ?? []).filter((k) => (ALL_WEBHOOK_EVENTS as ReadonlyArray<string>).includes(k)),
+        SecretToken: typeof config.SecretToken === "string" ? config.SecretToken : "",
     };
     if (ls) {
         try { ls.setItem(CONFIG_STORAGE_KEY, JSON.stringify(normalized)); } catch { /* quota or storage unavailable */ } // allow-swallow: localStorage quota / unavailable — config in-memory is authoritative this session
@@ -458,7 +458,7 @@ export async function dispatchWebhook(
     payload: WebhookPayload,
     options: DispatchOptions = {},
 ): Promise<WebhookDeliveryResult> {
-    const cfg = options.config ?? loadWebhookConfig();
+    const config = options.config ?? loadWebhookConfig();
     const startedAt = Date.now();
     const emittedAt = nowIso();
 
@@ -467,21 +467,21 @@ export async function dispatchWebhook(
         return entry;
     }
 
-    if (!cfg.Enabled) {
+    if (!config.Enabled) {
         return record<WebhookDeliverySkipped>({
             SchemaVersion: WEBHOOK_RESULT_SCHEMA_VERSION,
             Kind: "skipped",
             Ok: true,
             Skipped: true,
             Event: event,
-            Url: cfg.Url || null,
+            Url: config.Url || null,
             SkipReason: "Webhook disabled",
             DurationMs: 0,
             EmittedAt: emittedAt,
             Payload: payload,
         });
     }
-    if (!cfg.Url || cfg.Url.trim().length === 0) {
+    if (!config.Url || config.Url.trim().length === 0) {
         return record<WebhookDeliverySkipped>({
             SchemaVersion: WEBHOOK_RESULT_SCHEMA_VERSION,
             Kind: "skipped",
@@ -495,14 +495,14 @@ export async function dispatchWebhook(
             Payload: payload,
         });
     }
-    if (cfg.Events.length > 0 && !cfg.Events.includes(event)) {
+    if (config.Events.length > 0 && !config.Events.includes(event)) {
         return record<WebhookDeliverySkipped>({
             SchemaVersion: WEBHOOK_RESULT_SCHEMA_VERSION,
             Kind: "skipped",
             Ok: true,
             Skipped: true,
             Event: event,
-            Url: cfg.Url,
+            Url: config.Url,
             SkipReason: `Event ${event} not subscribed`,
             DurationMs: 0,
             EmittedAt: emittedAt,
@@ -510,21 +510,21 @@ export async function dispatchWebhook(
         });
     }
 
-    const finalUrl = substitute(cfg.Url, payload, event);
+    const finalUrl = substitute(config.Url, payload, event);
     const headers: Record<string, string> = { "Content-Type": "application/json" };
-    for (const h of cfg.Headers) {
+    for (const h of config.Headers) {
         const name = (h.Name ?? "").trim();
         if (!name) continue;
         headers[name] = substitute(h.Value ?? "", payload, event);
     }
-    if (cfg.SecretToken && cfg.SecretToken.trim().length > 0) {
-        headers["X-Marco-Token"] = cfg.SecretToken;
+    if (config.SecretToken && config.SecretToken.trim().length > 0) {
+        headers["X-Marco-Token"] = config.SecretToken;
     }
 
     const body = JSON.stringify({ Event: event, Payload: payload, EmittedAt: emittedAt });
 
     const controller = new AbortController();
-    const timeoutMs = cfg.TimeoutMs > 0 ? cfg.TimeoutMs : DEFAULT_TIMEOUT_MS;
+    const timeoutMs = config.TimeoutMs > 0 ? config.TimeoutMs : DEFAULT_TIMEOUT_MS;
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
     try {

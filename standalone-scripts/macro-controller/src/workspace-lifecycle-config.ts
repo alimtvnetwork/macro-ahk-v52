@@ -27,8 +27,8 @@ export interface WorkspaceLifecycleConfig {
 }
 
 function readRawLifecycleConfig(): Partial<WorkspaceLifecycleConfigInput> {
-  const cfg = (window.__MARCO_CONFIG__ || {}) as Record<string, unknown>;
-  const creditStatus = (cfg.creditStatus || {}) as Record<string, unknown>;
+  const config = (window.__MARCO_CONFIG__ || {}) as Record<string, unknown>;
+  const creditStatus = (config.creditStatus || {}) as Record<string, unknown>;
   return (creditStatus.lifecycle || {}) as Partial<WorkspaceLifecycleConfigInput>;
 }
 

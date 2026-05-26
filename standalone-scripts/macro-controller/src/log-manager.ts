@@ -123,41 +123,41 @@ loadConfig();
 
 /** Check if a log at the given level should be emitted */
 export function shouldLog(level?: string): boolean {
-  const cfg = logConfigState.config;
-  if (!cfg.enabled) { return false; }
+  const config = logConfigState.config;
+  if (!config.enabled) { return false; }
   if (!level) { return true; }
   const normalized = level.toLowerCase();
-  if (cfg.levels[normalized] === undefined) { return true; }
+  if (config.levels[normalized] === undefined) { return true; }
 
-  return cfg.levels[normalized];
+  return config.levels[normalized];
 }
 
 /** Check if console output is enabled */
 export function shouldConsole(): boolean {
-  const cfg = logConfigState.config;
+  const config = logConfigState.config;
 
-  return cfg.enabled && cfg.consoleOutput;
+  return config.enabled && config.consoleOutput;
 }
 
 /** Check if log persistence is enabled */
 export function shouldPersist(): boolean {
-  const cfg = logConfigState.config;
+  const config = logConfigState.config;
 
-  return cfg.enabled && cfg.persistLogs;
+  return config.enabled && config.persistLogs;
 }
 
 /** Check if activity log UI should receive entries */
 export function shouldActivityUi(): boolean {
-  const cfg = logConfigState.config;
+  const config = logConfigState.config;
 
-  return cfg.enabled && cfg.activityLogUi;
+  return config.enabled && config.activityLogUi;
 }
 
 /** Get a read-only copy of current config */
 export function getLogConfig(): LogManagerConfig {
-  const cfg = logConfigState.config;
+  const config = logConfigState.config;
 
-  return { ...cfg, levels: { ...cfg.levels } };
+  return { ...config, levels: { ...config.levels } };
 }
 
 /** Update config (partial merge) and persist */

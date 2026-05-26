@@ -92,8 +92,8 @@ export function ScriptsTabContent({ project, availableScripts, availableConfigs,
       : [];
     const configBindings = bindingIds
       .map((id, i) => {
-        const cfg = findConfig(id);
-        return cfg ? { configId: cfg.id, configName: cfg.name, json: formatJson(cfg.json), order: i } : null;
+        const config = findConfig(id);
+        return config ? { configId: config.id, configName: config.name, json: formatJson(config.json), order: i } : null;
       })
       .filter((x): x is { configId: string; configName: string; json: string; order: number } => x !== null);
 

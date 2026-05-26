@@ -43,8 +43,8 @@ interface RemixConfigInput {
 }
 
 function readRaw(): Partial<RemixConfigInput> {
-  const cfg = (window.__MARCO_CONFIG__ || {}) as Record<string, unknown>;
-  const remix = cfg.remix as Partial<RemixConfigInput> | undefined;
+  const config = (window.__MARCO_CONFIG__ || {}) as Record<string, unknown>;
+  const remix = config.remix as Partial<RemixConfigInput> | undefined;
   return remix || {};
 }
 
@@ -83,8 +83,8 @@ export function getRemixConfig(): RemixConfig {
  * - false → opens a new tab (window.open with noopener)
  */
 export function openRemixRedirect(redirectUrl: string): void {
-  const cfg = getRemixConfig();
-  if (cfg.openInCurrentTab) {
+  const config = getRemixConfig();
+  if (config.openInCurrentTab) {
     window.location.href = redirectUrl;
     return;
   }

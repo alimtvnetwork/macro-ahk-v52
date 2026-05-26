@@ -343,18 +343,18 @@ function BundleViewDialog({
             <TabsTrigger value="js" className="text-xs gap-1.5 h-7">
               <FileCode className="h-3 w-3" /> JavaScript
             </TabsTrigger>
-            {boundConfigs.map((cfg) => (
-              <TabsTrigger key={cfg.id} value={cfg.id} className="text-xs gap-1.5 h-7">
-                <FileJson className="h-3 w-3" /> {cfg.name}
+            {boundConfigs.map((config) => (
+              <TabsTrigger key={config.id} value={config.id} className="text-xs gap-1.5 h-7">
+                <FileJson className="h-3 w-3" /> {config.name}
               </TabsTrigger>
             ))}
           </TabsList>
           <TabsContent value="js" className="mt-2 flex-1 min-h-0">
             <MonacoCodeEditor language="javascript" value={script.code} onChange={() => {}} height="400px" readOnly />
           </TabsContent>
-          {boundConfigs.map((cfg) => (
-            <TabsContent key={cfg.id} value={cfg.id} className="mt-2 flex-1 min-h-0">
-              <MonacoCodeEditor language="json" value={formatJson(cfg.json)} onChange={() => {}} height="400px" readOnly />
+          {boundConfigs.map((config) => (
+            <TabsContent key={config.id} value={config.id} className="mt-2 flex-1 min-h-0">
+              <MonacoCodeEditor language="json" value={formatJson(config.json)} onChange={() => {}} height="400px" readOnly />
             </TabsContent>
           ))}
         </Tabs>
@@ -396,9 +396,9 @@ export function ScriptsList({ scripts, configs, loading, onSave, onDelete, onSav
       : [];
     const configEntries: BundleConfigEntry[] = bindingIds
       .map((id, i) => {
-        const cfg = configs.find((c) => c.id === id);
-        return cfg
-          ? { id: cfg.id, name: cfg.name, json: formatJson(cfg.json), order: i }
+        const config = configs.find((c) => c.id === id);
+        return config
+          ? { id: config.id, name: config.name, json: formatJson(config.json), order: i }
           : null;
       })
       .filter((x): x is BundleConfigEntry => x !== null);
@@ -431,12 +431,12 @@ export function ScriptsList({ scripts, configs, loading, onSave, onDelete, onSav
     }
 
     // Validate all JSON configs
-    for (const cfg of form.configEntries) {
-      if (!validateJson(cfg.json)) {
-        toast.error(`Config "${cfg.name}" has invalid JSON`);
+    for (const config of form.configEntries) {
+      if (!validateJson(config.json)) {
+        toast.error(`Config "${config.name}" has invalid JSON`);
         return;
       }
-      await onSaveConfig({ id: cfg.id.startsWith("cfg_") ? undefined : cfg.id, name: cfg.name, json: cfg.json });
+      await onSaveConfig({ id: config.id.startsWith("cfg_") ? undefined : config.id, name: config.name, json: config.json });
     }
 
     // For now, save the first JS entry as the primary script (backwards compatible)
@@ -538,13 +538,13 @@ export function ScriptsList({ scripts, configs, loading, onSave, onDelete, onSav
       toast.info("Config already added");
       return;
     }
-    const cfg = configs.find((c) => c.id === configId);
-    if (!cfg) return;
+    const config = configs.find((c) => c.id === configId);
+    if (!config) return;
     setForm((f) => ({
       ...f,
       configEntries: [
         ...f.configEntries,
-        { id: cfg.id, name: cfg.name, json: formatJson(cfg.json), order: f.configEntries.length },
+        { id: config.id, name: config.name, json: formatJson(config.json), order: f.configEntries.length },
       ],
     }));
   };
@@ -694,17 +694,17 @@ export function ScriptsList({ scripts, configs, loading, onSave, onDelete, onSav
                       JSON Configs ({form.configEntries.length})
                     </span>
                   </div>
-                  {[...form.configEntries].sort((a, b) => a.order - b.order).map((cfg, i) => (
+                  {[...form.configEntries].sort((a, b) => a.order - b.order).map((config, i) => (
                     <EntryRow
-                      key={cfg.id}
+                      key={config.id}
                       icon={FileJson}
-                      name={cfg.name}
+                      name={config.name}
                       badge={`#${i + 1}`}
-                      isActive={form.editorTab === cfg.id}
-                      onClick={() => setForm((f) => ({ ...f, editorTab: cfg.id }))}
-                      onMoveUp={() => moveConfigEntry(cfg.id, -1)}
-                      onMoveDown={() => moveConfigEntry(cfg.id, 1)}
-                      onRemove={() => removeConfigEntry(cfg.id)}
+                      isActive={form.editorTab === config.id}
+                      onClick={() => setForm((f) => ({ ...f, editorTab: config.id }))}
+                      onMoveUp={() => moveConfigEntry(config.id, -1)}
+                      onMoveDown={() => moveConfigEntry(config.id, 1)}
+                      onRemove={() => removeConfigEntry(config.id)}
                       canMoveUp={i > 0}
                       canMoveDown={i < form.configEntries.length - 1}
                     />
@@ -909,9 +909,9 @@ export function ScriptsList({ scripts, configs, loading, onSave, onDelete, onSav
                   <Badge variant="outline" className="text-[10px]">
                     <RunAtLabel value={script.runAt ?? "document_idle"} />
                   </Badge>
-                  {boundConfigs.map((cfg) => (
-                    <Badge key={cfg.id} variant="outline" className="text-[10px] gap-1 text-primary/70">
-                      <FileJson className="h-2.5 w-2.5" /> {cfg.name}
+                  {boundConfigs.map((config) => (
+                    <Badge key={config.id} variant="outline" className="text-[10px] gap-1 text-primary/70">
+                      <FileJson className="h-2.5 w-2.5" /> {config.name}
                     </Badge>
                   ))}
                 </div>

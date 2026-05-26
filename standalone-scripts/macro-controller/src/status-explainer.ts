@@ -63,23 +63,23 @@ function pickRefillIso(ws: WorkspaceCredit): string {
 // eslint-disable-next-line max-lines-per-function, sonarjs/cognitive-complexity -- linear trace mirroring the 6-rule ladder; splitting hides the priority order and the per-rule skip-reason ternaries are intentionally local for readability
 export function explainEffectiveStatus(
   ws: WorkspaceCredit,
-  cfg: WorkspaceLifecycleConfig,
+  config: WorkspaceLifecycleConfig,
   nowMs?: number,
 ): StatusExplanation {
   const subStatus = (ws.subscriptionStatus || '').toLowerCase().trim();
   const tier = (ws.tier || '').toUpperCase();
   const changedIso = ws.subscriptionStatusChangedAt || '';
   const daysSinceChange = changedIso ? daysBetween(changedIso, nowMs) : 0;
-  const grace = cfg.expiryGracePeriodDays;
+  const grace = config.expiryGracePeriodDays;
   const refillIso = pickRefillIso(ws);
-  const refillWindow = cfg.refillWarningThresholdDays;
+  const refillWindow = config.refillWarningThresholdDays;
   const dToRefill = refillIso ? daysUntil(refillIso, nowMs) : -1;
 
   const isCanceled = isCanceledStatus(subStatus);
   const isPastDue = isPastDueStatus(subStatus);
 
   const steps: StatusTraceStep[] = [];
-  const finalStatus = getEffectiveStatus(ws, cfg, nowMs);
+  const finalStatus = getEffectiveStatus(ws, config, nowMs);
   let claimed = false;
 
   function add(rule: string, desc: string, didMatch: boolean, reason?: string): void {

@@ -71,7 +71,7 @@ export function parseCombo(combo: string): ParsedCombo {
  * fallback by checking the returned node identity.
  */
 export function resolveEventTarget(
-    cfg: KeywordEventTarget | undefined,
+    config: KeywordEventTarget | undefined,
     doc?: Document,
 ): EventTarget {
     const d: Document | undefined = doc ?? (typeof document !== "undefined" ? document : undefined);
@@ -79,7 +79,7 @@ export function resolveEventTarget(
         throw new Error("No DOM target available for keyboard playback");
     }
     const fallback: EventTarget = d.body ?? d;
-    const target = cfg ?? DEFAULT_KEYWORD_EVENT_TARGET;
+    const target = config ?? DEFAULT_KEYWORD_EVENT_TARGET;
     switch (target.Kind) {
         case "ActiveElement":
             return d.activeElement ?? fallback;

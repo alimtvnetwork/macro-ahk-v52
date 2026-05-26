@@ -209,10 +209,10 @@ export function classifyFromStatus(
  */
 export function classifyWorkspaceDisplayStatus(
   ws: WorkspaceCredit,
-  cfg: WorkspaceLifecycleConfig,
+  config: WorkspaceLifecycleConfig,
   nowMs?: number,
 ): WorkspaceDisplayStatus {
-  const source = getEffectiveStatus(ws, cfg, nowMs);
+  const source = getEffectiveStatus(ws, config, nowMs);
   return classifyFromStatus(source, ws, nowMs);
 }
 
