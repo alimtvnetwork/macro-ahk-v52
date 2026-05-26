@@ -68,6 +68,16 @@ export default tseslint.config(
         "baz",
         "qux",
         "foobar",
+        "fn",
+        "cb",
+        "el",
+        "cfg",
+        "ctx",
+        "obj",
+        "arr",
+        "str",
+        "num",
+        "val",
       ],
 
       // --- Function size (matches 25-line standard) ---

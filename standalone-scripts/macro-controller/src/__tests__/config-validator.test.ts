@@ -16,21 +16,21 @@ beforeEach(() => {
 
 describe('validateConfig', () => {
   it('returns full defaults when raw is not an object', () => {
-    const cfg = validateConfig(null);
-    expect(cfg.macroLoop?.creditBarWidthPx).toBe(160);
+    const config = validateConfig(null);
+    expect(config.macroLoop?.creditBarWidthPx).toBe(160);
     expect(drainValidationWarnings()).toContain(
       'Config: received non-object — using all defaults',
     );
   });
 
   it('deep-merges user config over defaults', () => {
-    const cfg = validateConfig({
+    const config = validateConfig({
       macroLoop: { creditBarWidthPx: 240, timing: { loopIntervalMs: 5000 } },
     });
-    expect(cfg.macroLoop?.creditBarWidthPx).toBe(240);
-    expect(cfg.macroLoop?.timing?.loopIntervalMs).toBe(5000);
+    expect(config.macroLoop?.creditBarWidthPx).toBe(240);
+    expect(config.macroLoop?.timing?.loopIntervalMs).toBe(5000);
     // Defaults preserved for unspecified keys
-    expect(cfg.macroLoop?.timing?.countdownIntervalMs).toBe(1000);
+    expect(config.macroLoop?.timing?.countdownIntervalMs).toBe(1000);
   });
 
   it('warns on newer schemaVersion', () => {
@@ -40,8 +40,8 @@ describe('validateConfig', () => {
   });
 
   it('drops bad-typed top-level fields and warns', () => {
-    const cfg = validateConfig({ macroLoop: 'not-an-object' });
-    expect(typeof cfg.macroLoop).toBe('object');
+    const config = validateConfig({ macroLoop: 'not-an-object' });
+    expect(typeof config.macroLoop).toBe('object');
     const warnings = drainValidationWarnings();
     expect(warnings.some(w => w.includes('macroLoop'))).toBe(true);
   });
