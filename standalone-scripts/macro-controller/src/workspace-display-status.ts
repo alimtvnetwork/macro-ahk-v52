@@ -64,11 +64,12 @@ export interface WorkspaceDisplayStatus {
 /* ------------------------------------------------------------------ */
 
 export const WORKSPACE_BADGE_DISPLAY: Record<WorkspaceDisplayKind, { tone: WorkspaceDisplayTone }> = {
-  'canceled':    { tone: 'muted' },
-  'expired':     { tone: 'danger' },
-  'expire-soon': { tone: 'warning' },
-  'refill-soon': { tone: 'info' },
-  'normal':      { tone: 'none' },
+  'canceled':           { tone: 'muted' },
+  'expired':            { tone: 'danger' },
+  'expire-soon':        { tone: 'warning' },
+  'past-due-expiring':  { tone: 'orange' },
+  'refill-soon':        { tone: 'info' },
+  'normal':             { tone: 'none' },
 };
 
 /* ------------------------------------------------------------------ */

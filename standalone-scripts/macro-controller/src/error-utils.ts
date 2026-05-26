@@ -89,7 +89,7 @@ export function logWarn(fn: string, msg: string): void {
  */
 export function logConsole(fn: string, msg: string, ...args: unknown[]): void {
   const logger = getLogger();
-  if (logger) { logger.console(fn, msg, ...args); return; }
+  if (logger) { logger.console(fn, msg, ...(args as Parameters<typeof logger.console>[2][])); return; }
   const base = prefix(fn) + msg;
   if (args.length > 0) { console.log(base, ...args); } else { console.log(base); }
 }
