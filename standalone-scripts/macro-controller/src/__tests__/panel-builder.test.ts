@@ -209,7 +209,13 @@ describe('panel-builder', () => {
     document.body.innerHTML = '';
     (window as any).__loopUpdateStartStopBtn = undefined;
     (window as any).__loopUpdateAuthDiag = undefined;
+    // Provide a minimal SDK namespace so getNamespace() doesn't log
+    // "SDK script (marco-sdk.js) has not executed yet" stderr noise
+    // during panel-builder unit tests (these tests don't exercise the
+    // namespace itself — they just need it to be present).
+    (window as any).RiseupAsiaMacroExt = { Projects: {} };
   });
+
 
   it('creates the main UI container in document.body', () => {
     createUI(makeMockDeps());
