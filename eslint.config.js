@@ -55,6 +55,21 @@ export default tseslint.config(
       // that should just be one string. Hard error: zero violations today.
       "no-useless-concat": "error",
 
+      // ── Identifier denylist ──────────────────────────────────────────
+      // Ban placeholder / throw-away identifier names that signal an
+      // unfinished refactor or hide intent. Keep this list conservative:
+      // common "bar" (progress/toolbar) and "foo" stay legal because of
+      // legitimate DOM usage; only true placeholders are forbidden.
+      // Companion to the Constant Naming Convention memory.
+      "id-denylist": [
+        "error",
+        "tmp",
+        "temp",
+        "baz",
+        "qux",
+        "foobar",
+      ],
+
       // --- Function size (matches 25-line standard) ---
       "max-lines-per-function": ["warn", {
         max: 25,
