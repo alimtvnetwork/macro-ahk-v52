@@ -184,6 +184,8 @@ beforeEach(() => {
 import {
   exportAllAsSqliteZip,
   importFromSqliteZip,
+  mergeFromSqliteZip,
+  previewSqliteZip,
 } from "@/lib/sqlite-bundle";
 import initSqlJs from "sql.js";
 
@@ -642,5 +644,75 @@ describe("sqlite-bundle — strict reject", () => {
     const blob = await zip.generateAsync({ type: "blob" });
     const file = new File([blob], "marco-backup.zip", { type: "application/zip" });
     await expect(importFromSqliteZip(file)).rejects.toThrow(/missing marco-backup\.db/);
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/*  Strict PascalCase mode                                             */
+/* ------------------------------------------------------------------ */
+describe("sqlite-bundle — strictPascalCase mode", () => {
+  beforeEach(() => {
+    store = { projects: [], scripts: [], configs: [], prompts: [] };
+  });
+
+  afterEach(() => {
+    store = { projects: [], scripts: [], configs: [], prompts: [] };
+  });
+
+  it("round-trips a valid PascalCase bundle under strict mode", async () => {
+    const fixture = buildFixture();
+    store = { ...fixture };
+
+    await exportAllAsSqliteZip();
+    expect(lastExportedBlob).not.toBeNull();
+    const file = new File([lastExportedBlob!], "marco-backup.zip", { type: "application/zip" });
+
+    // Strict import should succeed on a PascalCase bundle produced by this build
+    const result = await importFromSqliteZip(file, { strictPascalCase: true });
+    expect(result.projectCount).toBe(1);
+    expect(result.scriptCount).toBe(2);
+    expect(result.configCount).toBe(1);
+    expect(result.promptCount).toBe(2);
+
+    const p = store.projects[0];
+    expect(p.name).toBe(fixture.projects[0].name);
+    expect(p.targetUrls).toEqual(fixture.projects[0].targetUrls);
+  });
+
+  it("merges a valid PascalCase bundle under strict mode", async () => {
+    const fixture = buildFixture();
+    store = { ...fixture };
+
+    await exportAllAsSqliteZip();
+    const file = new File([lastExportedBlob!], "marco-backup.zip", { type: "application/zip" });
+
+    const result = await mergeFromSqliteZip(file, { strictPascalCase: true });
+    expect(result.projectCount).toBe(1);
+  });
+
+  it("previews a valid PascalCase bundle under strict mode", async () => {
+    const fixture = buildFixture();
+    store = { ...fixture };
+
+    await exportAllAsSqliteZip();
+    const file = new File([lastExportedBlob!], "marco-backup.zip", { type: "application/zip" });
+
+    const preview = await previewSqliteZip(file, { strictPascalCase: true });
+    expect(preview.projectCount).toBe(1);
+    expect(preview.scriptCount).toBe(2);
+    expect(preview.configCount).toBe(1);
+    expect(preview.exportedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it("strict import rejects a legacy snake_case bundle at validation gate", async () => {
+    const file = await buildZipFromDb((db) => {
+      db.run(`CREATE TABLE projects (id TEXT PRIMARY KEY, name TEXT)`);
+      db.run(`CREATE TABLE scripts (id TEXT PRIMARY KEY, name TEXT, code TEXT)`);
+      db.run(`CREATE TABLE configs (id TEXT PRIMARY KEY, name TEXT, json TEXT)`);
+      db.run(`CREATE TABLE meta (key TEXT, value TEXT)`);
+    });
+    // Validation rejects before the reader even runs — strict or not.
+    await expect(importFromSqliteZip(file, { strictPascalCase: true })).rejects.toThrow(/LEGACY_SNAKE_CASE/);
+    expect(store.projects).toHaveLength(0);
   });
 });

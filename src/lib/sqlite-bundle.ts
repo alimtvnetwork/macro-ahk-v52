@@ -690,20 +690,40 @@ export async function exportProjectsAsSqliteZip(
 /*  Import                                                             */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/*  Import Options                                                     */
+/* ------------------------------------------------------------------ */
+
+/** Controls how forgiving the importer is when reading legacy bundles. */
+export interface ImportOptions {
+  /** When true, only PascalCase table/column names are accepted.
+   *  Legacy snake_case / lowercase fallbacks are skipped.
+   *  Default false (backward-compatible). */
+  strictPascalCase?: boolean;
+}
+
 /**
  * Column name resolver — supports PascalCase (v3+), legacy snake_case,
  * and the new Uid column (v4+) with fallback to old Id TEXT column.
+ * When strict mode is enabled, only PascalCase names are resolved.
  */
-function col(obj: Record<string, SqlValue>, pascalName: string, snakeName: string): SqlValue {
+function col(
+  obj: Record<string, SqlValue>,
+  pascalName: string,
+  snakeName: string,
+  strict = false,
+): SqlValue {
+  if (strict) return obj[pascalName];
   return obj[pascalName] ?? obj[snakeName];
 }
 
-/** Resolves the runtime UID: prefers Uid column (v4+), falls back to Id column (v3 TEXT PK bundles). */
-function resolveUid(obj: Record<string, unknown>): string {
-  const uid = obj["Uid"] ?? obj["uid"];
+/** Resolves the runtime UID: prefers Uid column (v4+), falls back to Id column (v3 TEXT PK bundles).
+ *  In strict mode only Uid / Id (PascalCase) are consulted; lowercase uid/id fallbacks are skipped. */
+function resolveUid(obj: Record<string, unknown>, strict = false): string {
+  const uid = strict ? obj["Uid"] : (obj["Uid"] ?? obj["uid"]);
   if (uid != null && String(uid) !== "") return String(uid);
   // Fallback for v3 bundles where Id was TEXT PK containing the runtime UUID
-  const id = obj["Id"] ?? obj["id"];
+  const id = strict ? obj["Id"] : (obj["Id"] ?? obj["id"]);
   return String(id ?? "");
 }
 
@@ -757,9 +777,10 @@ function readVariablesTable(db: Database): Map<string, Record<string, unknown>> 
   return out;
 }
 
-function readProjects(db: Database): StoredProject[] {
+function readProjects(db: Database, strict = false): StoredProject[] {
   let rows;
   try { rows = db.exec("SELECT * FROM Projects"); } catch {
+    if (strict) return [];
     try { rows = db.exec("SELECT * FROM projects"); } catch { return []; }
   }
   const hasRows = rows.length > 0 && rows[0].values.length > 0;
@@ -772,8 +793,8 @@ function readProjects(db: Database): StoredProject[] {
   const cols = rows[0].columns;
   return rows[0].values.map((row: SqlValue[]) => {
     const obj = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
-    const projectUid = resolveUid(obj);
-    const schemaVersion = (col(obj, "SchemaVersion", "schema_version") as number) ?? 1;
+    const projectUid = resolveUid(obj, strict);
+    const schemaVersion = (col(obj, "SchemaVersion", "schema_version", strict) as number) ?? 1;
     // v6 row-table promotion: when SchemaVersion >= 2 AND the rows exist,
     // prefer them over the legacy JSON blob (which is still emitted for
     // backward compatibility with v4/v5 readers).
@@ -781,7 +802,7 @@ function readProjects(db: Database): StoredProject[] {
     const dependencies = depRows && schemaVersion >= 2
       ? depRows
       : safeJsonParse(obj["Dependencies"] as string ?? null, [] as Array<{ projectId: string; version: string }>);
-    const settingsFromBlob = safeJsonParse(col(obj, "Settings", "settings") as string, {} as Record<string, unknown>);
+    const settingsFromBlob = safeJsonParse(col(obj, "Settings", "settings", strict) as string, {} as Record<string, unknown>);
     const varRows = varsByProject.get(projectUid);
     const settings = varRows && schemaVersion >= 2
       ? { ...settingsFromBlob, variables: varRows }
@@ -789,28 +810,29 @@ function readProjects(db: Database): StoredProject[] {
     return {
       id: projectUid,
       schemaVersion,
-      name: (col(obj, "Name", "name") as string),
+      name: (col(obj, "Name", "name", strict) as string),
       slug: (obj["Slug"] as string) ?? undefined,
-      version: (col(obj, "Version", "version") as string),
-      description: (col(obj, "Description", "description") as string) ?? undefined,
-      targetUrls: safeJsonParse(col(obj, "TargetUrls", "target_urls") as string, []),
-      scripts: safeJsonParse(col(obj, "Scripts", "scripts") as string, []),
-      configs: safeJsonParse(col(obj, "Configs", "configs") as string, []),
+      version: (col(obj, "Version", "version", strict) as string),
+      description: (col(obj, "Description", "description", strict) as string) ?? undefined,
+      targetUrls: safeJsonParse(col(obj, "TargetUrls", "target_urls", strict) as string, []),
+      scripts: safeJsonParse(col(obj, "Scripts", "scripts", strict) as string, []),
+      configs: safeJsonParse(col(obj, "Configs", "configs", strict) as string, []),
       cookies: safeJsonParse(obj["Cookies"] as string ?? null, []),
-      cookieRules: safeJsonParse(col(obj, "CookieRules", "cookie_rules") as string, []),
+      cookieRules: safeJsonParse(col(obj, "CookieRules", "cookie_rules", strict) as string, []),
       dependencies,
       settings,
       isGlobal: obj["IsGlobal"] === 1,
       isRemovable: obj["IsRemovable"] == null ? true : obj["IsRemovable"] === 1,
-      createdAt: (col(obj, "CreatedAt", "created_at") as string),
-      updatedAt: (col(obj, "UpdatedAt", "updated_at") as string),
+      createdAt: (col(obj, "CreatedAt", "created_at", strict) as string),
+      updatedAt: (col(obj, "UpdatedAt", "updated_at", strict) as string),
     } as StoredProject;
   });
 }
 
-function readScripts(db: Database): StoredScript[] {
+function readScripts(db: Database, strict = false): StoredScript[] {
   let rows;
   try { rows = db.exec("SELECT * FROM Scripts"); } catch {
+    if (strict) return [];
     try { rows = db.exec("SELECT * FROM scripts"); } catch { return []; }
   }
   const hasRows = rows.length > 0 && rows[0].values.length > 0;
@@ -820,28 +842,29 @@ function readScripts(db: Database): StoredScript[] {
   return rows[0].values.map((row: SqlValue[]) => {
     const obj = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
     return {
-      id: resolveUid(obj),
-      name: (col(obj, "Name", "name") as string),
-      description: (col(obj, "Description", "description") as string) ?? undefined,
-      code: (col(obj, "Code", "code") as string),
-      order: (col(obj, "RunOrder", "run_order") as number) ?? 0,
-      runAt: (col(obj, "RunAt", "run_at") as string) ?? undefined,
-      configBinding: (col(obj, "ConfigBinding", "config_binding") as string) ?? undefined,
-      isIife: col(obj, "IsIife", "is_iife") === 1,
-      hasDomUsage: col(obj, "HasDomUsage", "has_dom_usage") === 1,
+      id: resolveUid(obj, strict),
+      name: (col(obj, "Name", "name", strict) as string),
+      description: (col(obj, "Description", "description", strict) as string) ?? undefined,
+      code: (col(obj, "Code", "code", strict) as string),
+      order: (col(obj, "RunOrder", "run_order", strict) as number) ?? 0,
+      runAt: (col(obj, "RunAt", "run_at", strict) as string) ?? undefined,
+      configBinding: (col(obj, "ConfigBinding", "config_binding", strict) as string) ?? undefined,
+      isIife: col(obj, "IsIife", "is_iife", strict) === 1,
+      hasDomUsage: col(obj, "HasDomUsage", "has_dom_usage", strict) === 1,
       // v5 — auto-update fields. Absent in v4 bundles (returns undefined,
       // which the runtime treats as "auto-update disabled").
       updateUrl: (obj["UpdateUrl"] as string) ?? undefined,
       lastUpdateCheck: (obj["LastUpdateCheck"] as string) ?? undefined,
-      createdAt: (col(obj, "CreatedAt", "created_at") as string),
-      updatedAt: (col(obj, "UpdatedAt", "updated_at") as string),
+      createdAt: (col(obj, "CreatedAt", "created_at", strict) as string),
+      updatedAt: (col(obj, "UpdatedAt", "updated_at", strict) as string),
     } as StoredScript;
   });
 }
 
-function readConfigs(db: Database): StoredConfig[] {
+function readConfigs(db: Database, strict = false): StoredConfig[] {
   let rows;
   try { rows = db.exec("SELECT * FROM Configs"); } catch {
+    if (strict) return [];
     try { rows = db.exec("SELECT * FROM configs"); } catch { return []; }
   }
   const hasRows = rows.length > 0 && rows[0].values.length > 0;
@@ -851,12 +874,12 @@ function readConfigs(db: Database): StoredConfig[] {
   return rows[0].values.map((row: SqlValue[]) => {
     const obj = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
     return {
-      id: resolveUid(obj),
-      name: (col(obj, "Name", "name") as string),
-      description: (col(obj, "Description", "description") as string) ?? undefined,
-      json: (col(obj, "Json", "json") as string),
-      createdAt: (col(obj, "CreatedAt", "created_at") as string),
-      updatedAt: (col(obj, "UpdatedAt", "updated_at") as string),
+      id: resolveUid(obj, strict),
+      name: (col(obj, "Name", "name", strict) as string),
+      description: (col(obj, "Description", "description", strict) as string) ?? undefined,
+      json: (col(obj, "Json", "json", strict) as string),
+      createdAt: (col(obj, "CreatedAt", "created_at", strict) as string),
+      updatedAt: (col(obj, "UpdatedAt", "updated_at", strict) as string),
     } as StoredConfig;
   });
 }
@@ -881,10 +904,11 @@ function readPromptCategoriesTable(db: Database): Map<string, string[]> {
   return out;
 }
 
-function readPrompts(db: Database): PromptEntry[] {
+function readPrompts(db: Database, strict = false): PromptEntry[] {
   try {
     let rows;
     try { rows = db.exec("SELECT * FROM Prompts"); } catch {
+      if (strict) return [];
       try { rows = db.exec("SELECT * FROM prompts"); } catch { return []; }
     }
     const hasRows = rows.length > 0 && rows[0].values.length > 0;
@@ -896,11 +920,11 @@ function readPrompts(db: Database): PromptEntry[] {
     const cols = rows[0].columns;
     return rows[0].values.map((row: SqlValue[]) => {
       const obj = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
-      const uid = resolveUid(obj);
+      const uid = resolveUid(obj, strict);
       const junctionCats = catsByPromptUid.get(uid);
       // v6 preferred: rebuild comma-separated list from junction.
       // Fallback: pre-v6 Prompts.Category single value.
-      const singularCategory = (col(obj, "Category", "category") as string) ?? undefined;
+      const singularCategory = (col(obj, "Category", "category", strict) as string) ?? undefined;
       const category = junctionCats && junctionCats.length > 0
         ? junctionCats.join(", ")
         : singularCategory;
@@ -909,14 +933,14 @@ function readPrompts(db: Database): PromptEntry[] {
         // v5 — Slug column is now actually written. v4 bundles return
         // undefined here, which the Task Next resolver treats as "no slug".
         slug: (obj["Slug"] as string) ?? undefined,
-        name: (col(obj, "Name", "name") as string),
-        text: (col(obj, "Text", "text") as string),
-        order: (col(obj, "RunOrder", "run_order") as number) ?? 0,
-        isDefault: col(obj, "IsDefault", "is_default") === 1,
-        isFavorite: col(obj, "IsFavorite", "is_favorite") === 1,
+        name: (col(obj, "Name", "name", strict) as string),
+        text: (col(obj, "Text", "text", strict) as string),
+        order: (col(obj, "RunOrder", "run_order", strict) as number) ?? 0,
+        isDefault: col(obj, "IsDefault", "is_default", strict) === 1,
+        isFavorite: col(obj, "IsFavorite", "is_favorite", strict) === 1,
         category,
-        createdAt: (col(obj, "CreatedAt", "created_at") as string),
-        updatedAt: (col(obj, "UpdatedAt", "updated_at") as string),
+        createdAt: (col(obj, "CreatedAt", "created_at", strict) as string),
+        updatedAt: (col(obj, "UpdatedAt", "updated_at", strict) as string),
       } as PromptEntry;
     });
   } catch {
@@ -927,7 +951,11 @@ function readPrompts(db: Database): PromptEntry[] {
 
 /** Reads a .zip and returns a preview of its contents (with diff against existing data) without importing. */
 // eslint-disable-next-line max-lines-per-function
-export async function previewSqliteZip(file: File): Promise<BundlePreview> {
+export async function previewSqliteZip(
+  file: File,
+  options?: ImportOptions,
+): Promise<BundlePreview> {
+  const strict = options?.strictPascalCase ?? false;
   const arrayBuffer = await file.arrayBuffer();
   const JSZipCtor = await loadJSZip(); const zip = await JSZipCtor.loadAsync(arrayBuffer);
 
@@ -947,18 +975,24 @@ export async function previewSqliteZip(file: File): Promise<BundlePreview> {
     throw new Error(formatValidationError(validation));
   }
 
-  const projects = readProjects(db);
-  const scripts = readScripts(db);
-  const configs = readConfigs(db);
+  const projects = readProjects(db, strict);
+  const scripts = readScripts(db, strict);
+  const configs = readConfigs(db, strict);
 
   // Read exported_at from Meta
   let exportedAt: string | undefined;
   try {
     let metaRows: { columns: string[]; values: SqlValue[][] }[];
-    try { metaRows = db.exec("SELECT Value FROM Meta WHERE Key = 'exported_at'"); } catch (errPascal) {
-      console.warn("[sqlite-bundle] Meta (PascalCase) exported_at query failed, trying legacy lowercase", errPascal);
-      try { metaRows = db.exec("SELECT value FROM meta WHERE key = 'exported_at'"); } catch (errLower) {
-        console.warn("[sqlite-bundle] legacy meta exported_at query failed; treating as absent", errLower);
+    try {
+      metaRows = db.exec("SELECT Value FROM Meta WHERE Key = 'exported_at'");
+    } catch (errPascal) {
+      if (!strict) {
+        console.warn("[sqlite-bundle] Meta (PascalCase) exported_at query failed, trying legacy lowercase", errPascal);
+        try { metaRows = db.exec("SELECT value FROM meta WHERE key = 'exported_at'"); } catch (errLower) {
+          console.warn("[sqlite-bundle] legacy meta exported_at query failed; treating as absent", errLower);
+          metaRows = [];
+        }
+      } else {
         metaRows = [];
       }
     }
@@ -1035,8 +1069,11 @@ export interface BundlePreview {
 }
 
 /** Reads a .zip file, extracts the SQLite DB, and replaces all data. */
-export async function importFromSqliteZip(file: File): Promise<ImportResult> {
-  const { projects, scripts, configs, prompts } = await extractBundle(file);
+export async function importFromSqliteZip(
+  file: File,
+  options?: ImportOptions,
+): Promise<ImportResult> {
+  const { projects, scripts, configs, prompts } = await extractBundle(file, options);
   await replaceAll(projects, scripts, configs, prompts);
   return {
     projectCount: projects.length,
@@ -1047,8 +1084,11 @@ export async function importFromSqliteZip(file: File): Promise<ImportResult> {
 }
 
 /** Reads a .zip file and merges contents into existing data (no deletions). */
-export async function mergeFromSqliteZip(file: File): Promise<ImportResult> {
-  const { projects, scripts, configs, prompts } = await extractBundle(file);
+export async function mergeFromSqliteZip(
+  file: File,
+  options?: ImportOptions,
+): Promise<ImportResult> {
+  const { projects, scripts, configs, prompts } = await extractBundle(file, options);
   await mergeAll(projects, scripts, configs, prompts);
   return {
     projectCount: projects.length,
@@ -1058,7 +1098,8 @@ export async function mergeFromSqliteZip(file: File): Promise<ImportResult> {
   };
 }
 
-async function extractBundle(file: File) {
+async function extractBundle(file: File, options?: ImportOptions) {
+  const strict = options?.strictPascalCase ?? false;
   const arrayBuffer = await file.arrayBuffer();
   const JSZipCtor = await loadJSZip(); const zip = await JSZipCtor.loadAsync(arrayBuffer);
   const dbFile = zip.file(DB_FILENAME);
@@ -1075,12 +1116,12 @@ async function extractBundle(file: File) {
     throw new Error(formatValidationError(validation));
   }
 
-  const projects = readProjects(db);
-  const scripts = readScripts(db);
-  const configs = readConfigs(db);
+  const projects = readProjects(db, strict);
+  const scripts = readScripts(db, strict);
+  const configs = readConfigs(db, strict);
   // Prompts table is optional in "full" mode — readPrompts() already
   // returns [] when absent, so older v4 bundles without Prompts still work.
-  const prompts = readPrompts(db);
+  const prompts = readPrompts(db, strict);
   db.close();
   return { projects, scripts, configs, prompts };
 }
@@ -1222,7 +1263,11 @@ export async function exportPromptsAsSqliteZip(): Promise<void> {
 }
 
 /** Shared extractor + strict validator for prompts-only bundles. */
-async function extractPromptsBundle(file: File): Promise<PromptEntry[]> {
+async function extractPromptsBundle(
+  file: File,
+  options?: ImportOptions,
+): Promise<PromptEntry[]> {
+  const strict = options?.strictPascalCase ?? false;
   const arrayBuffer = await file.arrayBuffer();
   const JSZipCtor = await loadJSZip(); const zip = await JSZipCtor.loadAsync(arrayBuffer);
   const dbFile = zip.file(DB_FILENAME);
@@ -1234,15 +1279,18 @@ async function extractPromptsBundle(file: File): Promise<PromptEntry[]> {
     db.close();
     throw new Error(formatValidationError(validation));
   }
-  const prompts = readPrompts(db);
+  const prompts = readPrompts(db, strict);
   db.close();
   if (prompts.length === 0) throw new Error("No prompts found in bundle");
   return prompts;
 }
 
 /** Imports prompts from a SQLite ZIP (replace mode). */
-export async function importPromptsFromSqliteZip(file: File): Promise<{ promptCount: number }> {
-  const prompts = await extractPromptsBundle(file);
+export async function importPromptsFromSqliteZip(
+  file: File,
+  options?: ImportOptions,
+): Promise<{ promptCount: number }> {
+  const prompts = await extractPromptsBundle(file, options);
 
   // Delete existing non-default prompts, then save imported ones
   const existing = await sendMessage<{ prompts?: PromptEntry[] }>({ type: "GET_PROMPTS" });
@@ -1262,8 +1310,11 @@ export async function importPromptsFromSqliteZip(file: File): Promise<{ promptCo
 }
 
 /** Merges prompts from a SQLite ZIP (no deletions). */
-export async function mergePromptsFromSqliteZip(file: File): Promise<{ promptCount: number }> {
-  const prompts = await extractPromptsBundle(file);
+export async function mergePromptsFromSqliteZip(
+  file: File,
+  options?: ImportOptions,
+): Promise<{ promptCount: number }> {
+  const prompts = await extractPromptsBundle(file, options);
   for (const p of prompts) {
     await sendMessage({ type: "SAVE_PROMPT", prompt: p });
   }
