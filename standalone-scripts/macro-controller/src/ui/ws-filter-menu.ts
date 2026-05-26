@@ -185,6 +185,12 @@ function buildFilterRowConfigs(deps: WsFilterMenuDeps): FilterRowConfig[] {
       onToggle: function (active: boolean) { deps.setLoopWsExpiredWithCredits(active); },
     },
     {
+      id: ID_EXPIRING_FILTER, icon: '⚠️', label: 'Expiring',
+      hint: 'past-due only, sorted by urgency',
+      initialActive: deps.getLoopWsExpiring(),
+      onToggle: function (active: boolean) { deps.setLoopWsExpiring(active); },
+    },
+    {
       id: ID_REFILL_SOON_FILTER, icon: '🔁', label: 'Refill soon',
       hint: 'about-to-refill only',
       initialActive: deps.getLoopWsRefillSoon(),
