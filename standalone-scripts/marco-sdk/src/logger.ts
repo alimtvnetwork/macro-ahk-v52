@@ -98,7 +98,7 @@ export class NamespaceLogger {
      * @param msg - Human-readable message
      * @param args - Additional values to log (objects, arrays, etc.)
      */
-    static console(fn: string, msg: string, ...args: unknown[]): void {
+    static console(fn: string, msg: string, ...args: RiseupAsiaLogArg[]): void {
         const base = `${PREFIX} [${fn}] ${msg}`;
         if (args.length > 0) {
             console.log(base, ...args);
