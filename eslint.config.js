@@ -142,6 +142,21 @@ export default tseslint.config(
       "max-lines-per-function": ["warn", { max: 60, skipBlankLines: true, skipComments: true }],
     },
   },
+  // ── Instruction-type definitions — enforce `type` aliases ────────────
+  // The entire instruction manifest type tree (and every project's
+  // instruction.ts) is authored with `type X = { ... }` aliases. This
+  // matches the dual-emit compile contract and keeps the schema flat
+  // and serialisable. Pin the style so a future contributor cannot
+  // silently introduce `interface` declarations here.
+  {
+    files: [
+      "standalone-scripts/types/instruction/**/*.ts",
+      "standalone-scripts/*/src/instruction.ts",
+    ],
+    rules: {
+      "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+    },
+  },
   {
     files: ["skipped/**/*.{js,ts}"],
     rules: {
