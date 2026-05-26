@@ -1,0 +1,7 @@
+{
+  "src/vite-env.d.ts": 0,
+  "standalone-scripts/macro-controller/src/globals.d.ts": 21,
+  "standalone-scripts/payment-banner-hider/src/globals.d.ts": 1,
+  "standalone-scripts/types/project-namespace-shape.d.ts": 43,
+  "standalone-scripts/types/riseup-namespace.d.ts": 0
+}
