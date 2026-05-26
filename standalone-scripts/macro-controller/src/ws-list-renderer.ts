@@ -910,6 +910,7 @@ export function populateLoopWorkspaceDropdown(): void {
     billingEl ? billingEl.getAttribute(DataAttr.Active) : '',
     minCreditsEl ? (minCreditsEl as HTMLInputElement).value : '',
     viewState().getExpiredWithCredits() ? 1 : 0,
+    viewState().getExpiring() ? 1 : 0,
     viewState().getRefillPriority() ? 1 : 0,
     checkedCount,
   ].join('|');
