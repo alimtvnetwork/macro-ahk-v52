@@ -59,16 +59,16 @@ function pastDueWs(daysSince: number, extra: Partial<WorkspaceCredit> = {}): Wor
 }
 
 describe('Issue 118 integration — tone-ramp boundary precision', () => {
-  it('day 4 → warning (last warning day)', () => {
-    expect(pickPastDueTone(4)).toBe('warning');
+  it('day 2 → muted (last muted day)', () => {
+    expect(pickPastDueTone(2)).toBe('muted');
   });
 
-  it('day 5 → orange (first orange day)', () => {
-    expect(pickPastDueTone(5)).toBe('orange');
+  it('day 3 → warning (first warning day)', () => {
+    expect(pickPastDueTone(3)).toBe('warning');
   });
 
-  it('day 9 → orange (last orange day)', () => {
-    expect(pickPastDueTone(9)).toBe('orange');
+  it('day 9 → warning (last warning day)', () => {
+    expect(pickPastDueTone(9)).toBe('warning');
   });
 
   it('day 10 → danger (first danger day)', () => {
@@ -76,9 +76,9 @@ describe('Issue 118 integration — tone-ramp boundary precision', () => {
   });
 
   it('classifyWorkspaceDisplayStatus mirrors tone ramp at boundary days', () => {
-    expect(classifyWorkspaceDisplayStatus(pastDueWs(4), CFG, NOW).tone).toBe('warning');
-    expect(classifyWorkspaceDisplayStatus(pastDueWs(5), CFG, NOW).tone).toBe('orange');
-    expect(classifyWorkspaceDisplayStatus(pastDueWs(9), CFG, NOW).tone).toBe('orange');
+    expect(classifyWorkspaceDisplayStatus(pastDueWs(2), CFG, NOW).tone).toBe('muted');
+    expect(classifyWorkspaceDisplayStatus(pastDueWs(3), CFG, NOW).tone).toBe('warning');
+    expect(classifyWorkspaceDisplayStatus(pastDueWs(9), CFG, NOW).tone).toBe('warning');
     expect(classifyWorkspaceDisplayStatus(pastDueWs(10), CFG, NOW).tone).toBe('danger');
   });
 });
