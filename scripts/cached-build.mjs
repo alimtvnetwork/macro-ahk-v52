@@ -101,8 +101,35 @@ const extraInputs = flagAll("--extra-input=");
 const projectDir = path.join(REPO_ROOT, "standalone-scripts", scriptName);
 const distDir = path.join(projectDir, "dist");
 
+const REQUIRED_PRIMARY_BUNDLE = {
+    "lovable-common": "lovable-common.js",
+    "lovable-owner-switch": "lovable-owner-switch.js",
+    "lovable-user-add": "lovable-user-add.js",
+    "lovable-dashboard": "lovable-dashboard.js",
+    "macro-controller": "macro-looping.js",
+    "marco-sdk": "marco-sdk.js",
+    "payment-banner-hider": "payment-banner-hider.js",
+    xpath: "xpath.js",
+};
+
 if (!fs.existsSync(projectDir)) {
     fail(`Project folder does not exist: ${projectDir}`);
+}
+
+function validateRequiredPrimaryBundle(reasonPrefix) {
+    const bundleName = REQUIRED_PRIMARY_BUNDLE[scriptName];
+    if (!bundleName) return true;
+    const bundlePath = path.join(distDir, bundleName);
+    if (!fs.existsSync(bundlePath)) {
+        console.error(`[cache] ${reasonPrefix}: ${scriptName}/dist/${bundleName} is missing at ${bundlePath}; Reason=PrimaryBundleMissing; ReasonDetail=standalone cache/build output is incomplete`);
+        return false;
+    }
+    const stat = fs.statSync(bundlePath);
+    if (stat.size < 100) {
+        console.error(`[cache] ${reasonPrefix}: ${scriptName}/dist/${bundleName} is suspiciously small (${stat.size} bytes) at ${bundlePath}; Reason=PrimaryBundleEmpty; ReasonDetail=standalone cache/build output is incomplete`);
+        return false;
+    }
+    return true;
 }
 
 /* ------------------------------------------------------------------ */
@@ -260,9 +287,15 @@ if (cacheHit()) {
     const restoreStart = Date.now();
     clearDir(distDir);
     copyDirSync(cacheDistPath, distDir);
-    logHeader("HIT");
-    console.log(`           restored dist/ from cache in ${Date.now() - restoreStart}ms - skipped tsc + vite`);
-    process.exit(0);
+    if (validateRequiredPrimaryBundle("cache HIT restored incomplete dist")) {
+        logHeader("HIT");
+        console.log(`           restored dist/ from cache in ${Date.now() - restoreStart}ms - skipped tsc + vite`);
+        process.exit(0);
+    }
+    clearDir(distDir);
+    clearDir(path.join(CACHE_ROOT, scriptName, fullHash));
+    if (fs.existsSync(cacheManifestPath)) fs.rmSync(cacheManifestPath, { force: true });
+    console.error(`[cache] deleted invalid cache entry for ${scriptName}; continuing with a fresh build so CI cannot upload an incomplete dist artifact`);
 }
 
 /* ------------------------------------------------------------------ */
@@ -302,56 +335,20 @@ const buildMs = Date.now() - buildStart;
 /*  Cache write                                                         */
 /* ------------------------------------------------------------------ */
 
-/* ------------------------------------------------------------------ */
-/*  Post-build output verification (fail-fast)                         */
-/*                                                                     */
-/*  Historical bug (CI run #45, E2E global-setup): build:lovable-      */
-/*  dashboard exited 0 yet `lovable-dashboard.js` was missing from     */
-/*  dist/. Downstream `check-standalone-dist.mjs` then surfaced the    */
-/*  failure 2 jobs later with no breadcrumb back to the silent step.  */
-/*  We now assert the expected primary bundle is present and non-     */
-/*  trivial size BEFORE writing the cache or returning success.       */
-/* ------------------------------------------------------------------ */
-
-const REQUIRED_PRIMARY_BUNDLE = {
-    "marco-sdk":               "marco-sdk.js",
-    "xpath":                   "xpath.js",
-    "payment-banner-hider":    "payment-banner-hider.js",
-    "lovable-common":          "lovable-common.js",
-    "lovable-owner-switch":    "lovable-owner-switch.js",
-    "lovable-user-add":        "lovable-user-add.js",
-    "lovable-dashboard":       "lovable-dashboard.js",
-    "macro-controller":        "macro-looping.js",
-};
-
-const expectedBundle = REQUIRED_PRIMARY_BUNDLE[scriptName];
-if (expectedBundle) {
-    const expectedPath = path.join(distDir, expectedBundle);
-    if (!fs.existsSync(expectedPath)) {
-        console.error(`[cache FAIL] ${scriptName}: build command exited 0 but expected bundle is MISSING.`);
-        console.error(`[cache FAIL] ${scriptName}: missing item=${expectedBundle}; expected path=${expectedPath}`);
-        console.error(`[cache FAIL] ${scriptName}: Reason=BuildOutputMissing; ReasonDetail=the build step (tsc + vite) reported success but did not emit the primary IIFE bundle. Re-run with STANDALONE_BUILD_NO_CACHE=1 and check vite output for silent skip.`);
-        process.exit(1);
-    }
-    const sz = fs.statSync(expectedPath).size;
-    if (sz < 100) {
-        console.error(`[cache FAIL] ${scriptName}: bundle present but suspiciously small (${sz} bytes) at ${expectedPath}.`);
-        console.error(`[cache FAIL] ${scriptName}: Reason=BuildOutputEmpty; ReasonDetail=vite produced a near-empty file (<100 bytes). Refusing to write cache.`);
-        process.exit(1);
-    }
-}
-
 if (NO_CACHE) {
     console.log(`[cache SKIP-WRITE] ${scriptName}  build OK in ${buildMs}ms (no-cache mode)`);
     process.exit(0);
 }
 
 if (!fs.existsSync(distDir)) {
-    console.error(`[cache FAIL] ${scriptName}: build succeeded but dist/ is missing at ${distDir}`);
-    console.error(`[cache FAIL] ${scriptName}: Reason=BuildOutputDirMissing; ReasonDetail=tsc/vite step exited 0 yet produced no output directory. Refusing to write empty cache.`);
+    console.error(`[cache] build succeeded but dist/ is missing at ${distDir} - refusing to write empty cache`);
     process.exit(1);
 }
 
+if (!validateRequiredPrimaryBundle("build command exited 0 with incomplete dist")) {
+    console.error(`[cache] refusing to write invalid cache entry for ${scriptName}`);
+    process.exit(1);
+}
 
 const writeStart = Date.now();
 clearDir(path.join(CACHE_ROOT, scriptName, fullHash));

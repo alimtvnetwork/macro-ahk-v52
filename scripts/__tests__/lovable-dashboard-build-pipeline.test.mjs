@@ -88,6 +88,14 @@ test("run-standalone-build-step.mjs knows lovable-dashboard", () => {
     assert.ok(src.includes('"lovable-dashboard"'), "run-standalone-build-step.mjs must list lovable-dashboard in PROJECTS");
 });
 
+test("cached-build validates lovable-dashboard primary bundle before cache hit exit", () => {
+    const src = readText("scripts/cached-build.mjs");
+    assert.ok(src, "cached-build.mjs is readable");
+    assert.ok(src.includes('"lovable-dashboard": "lovable-dashboard.js"'), "cached-build must know lovable-dashboard primary bundle");
+    assert.ok(src.includes("validateRequiredPrimaryBundle"), "cached-build must validate restored and freshly-built primary bundles");
+    assert.ok(src.includes("continuing with a fresh build"), "cached-build must rebuild instead of exiting 0 on an invalid cache hit");
+});
+
 test("build-standalone.mjs exports lovable-dashboard in PROJECTS array", () => {
     const src = readText("scripts/build-standalone.mjs");
     assert.ok(src, "build-standalone.mjs is readable");
