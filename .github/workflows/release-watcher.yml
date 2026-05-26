@@ -135,6 +135,8 @@ jobs:
     uses: ./.github/workflows/release.yml
     permissions:
       contents: write
+      id-token: write
+      attestations: write
     with:
       version: ${{ needs.resolve-release.outputs.tag }}
       source_ref: ${{ needs.resolve-release.outputs.source_ref }}

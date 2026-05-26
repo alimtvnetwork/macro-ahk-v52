@@ -113,3 +113,11 @@ test("lovable-dashboard dist directory structure is prepared", () => {
     const parent = dirname(distDir);
     assert.ok(existsSync(parent), "standalone-scripts/lovable-dashboard/ parent directory must exist");
 });
+
+test("release workflow builds and publishes lovable-dashboard zip", () => {
+    const src = readText(".github/workflows/release.yml");
+    assert.ok(src, "release.yml is readable");
+    assert.ok(src.includes("pnpm run build:lovable-dashboard"), "release workflow must build lovable-dashboard before packaging");
+    assert.ok(src.includes('"lovable-dashboard"'), "release workflow plugin list must include lovable-dashboard");
+    assert.ok(src.includes("lovable-dashboard-${VER}.zip"), "release workflow must publish lovable-dashboard versioned ZIP");
+});

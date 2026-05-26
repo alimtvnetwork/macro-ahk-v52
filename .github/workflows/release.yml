@@ -17,6 +17,7 @@
 #   - lovable-common-{VER}.zip     — standalone-scripts/lovable-common/**
 #   - lovable-owner-switch-{VER}.zip — standalone-scripts/lovable-owner-switch/**
 #   - lovable-user-add-{VER}.zip   — standalone-scripts/lovable-user-add/**
+#   - lovable-dashboard-{VER}.zip  — standalone-scripts/lovable-dashboard/**
 #   - install.sh                   — Unified Bash installer (URL-pinned or latest)
 #   - install.ps1                  — Unified PowerShell installer (URL-pinned or latest)
 #   - VERSION.txt                  — Plain-text version identifier
@@ -467,6 +468,7 @@ jobs:
           pnpm run build:lovable-common
           pnpm run build:lovable-owner-switch
           pnpm run build:lovable-user-add
+          pnpm run build:lovable-dashboard
 
       - name: Build Chrome extension
         run: pnpm run build:extension
@@ -545,6 +547,7 @@ jobs:
             "lovable-common"
             "lovable-owner-switch"
             "lovable-user-add"
+            "lovable-dashboard"
           )
           for plugin in "${PLUGINS[@]}"; do
             if [ ! -d "standalone-scripts/${plugin}" ]; then
@@ -681,6 +684,7 @@ jobs:
             echo "| \`lovable-common-${VER}.zip\` | Lovable common plugin |"
             echo "| \`lovable-owner-switch-${VER}.zip\` | Lovable owner switch plugin |"
             echo "| \`lovable-user-add-${VER}.zip\` | Lovable user add plugin |"
+            echo "| \`lovable-dashboard-${VER}.zip\` | Lovable dashboard plugin |"
             echo "| \`prompts-${VER}.zip\` | Prompt templates |"
             echo "| \`changelog.md\` | Full project changelog |"
             echo "| \`install.ps1\` | Unified PowerShell installer (URL-pinned to this release when fetched here) |"
@@ -746,6 +750,7 @@ jobs:
             "release-assets/lovable-common-${VER}.zip:1024"
             "release-assets/lovable-owner-switch-${VER}.zip:1024"
             "release-assets/lovable-user-add-${VER}.zip:1024"
+            "release-assets/lovable-dashboard-${VER}.zip:1024"
             "release-assets/install.ps1:512"
             "release-assets/install.sh:512"
             "release-assets/VERSION.txt:1"
@@ -843,6 +848,7 @@ jobs:
             "lovable-common-${VER}.zip"
             "lovable-owner-switch-${VER}.zip"
             "lovable-user-add-${VER}.zip"
+            "lovable-dashboard-${VER}.zip"
             "install.ps1"
             "install.sh"
             "VERSION.txt"

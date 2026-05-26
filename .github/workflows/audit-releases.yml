@@ -55,6 +55,13 @@ jobs:
             "checksums.txt"
           )
 
+          version_key() {
+            local raw="${1#v}"
+            local major minor patch
+            IFS=. read -r major minor patch <<< "$raw"
+            printf '%06d%06d%06d' "$((10#${major:-0}))" "$((10#${minor:-0}))" "$((10#${patch:-0}))"
+          }
+
           if [ -n "$SINGLE_TAG" ]; then
             TAGS="$SINGLE_TAG"
           else
@@ -87,7 +94,13 @@ jobs:
               continue
             fi
             MISSING=""
-            for PAT in "${REQUIRED_PATTERNS[@]}"; do
+            REQUIRED_FOR_TAG=("${REQUIRED_PATTERNS[@]}")
+            TAG_KEY="$(version_key "$TAG")"
+            DASHBOARD_KEY="$(version_key "v3.21.0")"
+            if [[ "${TAG_KEY}" > "${DASHBOARD_KEY}" || "${TAG_KEY}" == "${DASHBOARD_KEY}" ]]; then
+              REQUIRED_FOR_TAG+=("lovable-dashboard-VER.zip")
+            fi
+            for PAT in "${REQUIRED_FOR_TAG[@]}"; do
               EXPECTED="${PAT//VER/$VER}"
               if ! echo "$ASSETS" | grep -qx "$EXPECTED"; then
                 MISSING="${MISSING} ${EXPECTED}"
