@@ -181,7 +181,7 @@ function parseWorkspaceItem(rawItem: Record<string, unknown>, wsIdx: number): im
   // or on rawWs.workspace (nested shape). ws already resolves rawWs.workspace || rawWs.
   const readField = (key: string): unknown => (ws as Record<string, unknown>)[key];
   const subStatus = (readField('subscription_status') || '') as string;
-  const plan = (readField('plan') || (rawWs.plan as string) || '') as string;
+  const plan = (readField('plan') || '') as string;
   const meta = extractLifecycleMeta(readField);
   return {
     id: (ws.id as string) || '',
