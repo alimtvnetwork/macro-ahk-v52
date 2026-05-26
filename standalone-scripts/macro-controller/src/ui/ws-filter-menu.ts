@@ -231,6 +231,96 @@ function buildFilterRowConfigs(deps: WsFilterMenuDeps): FilterRowConfig[] {
   ];
 }
 
+/**
+ * Build the credit-sort section header (separator label inside the popover).
+ */
+function buildCreditSortHeader(): HTMLElement {
+  const h = document.createElement('div');
+  h.style.cssText =
+    'padding:6px 8px 2px 8px;font-size:9px;color:#94a3b8;font-weight:700;'
+    + 'text-transform:uppercase;letter-spacing:0.5px;border-top:1px solid rgba(255,255,255,.1);'
+    + 'margin-top:2px;';
+  h.textContent = 'Credit sort';
+  return h;
+}
+
+/**
+ * Set of all credit-sort rows — clicking one activates exclusively (radio).
+ * Returns the list of row elements so the caller can append them.
+ */
+function buildCreditSortRows(populate: () => void): HTMLElement[] {
+  const rows: HTMLElement[] = [];
+
+  function syncVisualState(activeMode: CreditSortMode): void {
+    for (const { id, mode } of CREDIT_SORT_ROW_IDS) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      const isActive = mode === activeMode;
+      el.setAttribute(DataAttr.Active, isActive ? 'true' : 'false');
+      const chip = el.querySelector('.marco-credit-sort-chip') as HTMLElement | null;
+      if (chip) chip.textContent = isActive ? '◉' : '○';
+    }
+  }
+
+  const meta: ReadonlyArray<{ id: string; mode: CreditSortMode; icon: string; label: string; hint: string }> = [
+    { id: ID_CREDIT_SORT_HIGH, mode: 'high', icon: '⬇', label: 'High credit', hint: 'all, desc' },
+    { id: ID_CREDIT_SORT_LOW, mode: 'low', icon: '⬆', label: 'Low credit', hint: 'all, asc' },
+    { id: ID_CREDIT_SORT_PRO_HIGH, mode: 'pro-high', icon: '💎⬇', label: 'Pro high', hint: 'pro expiring, desc' },
+    { id: ID_CREDIT_SORT_PRO_LOW, mode: 'pro-low', icon: '💎⬆', label: 'Pro low', hint: 'pro expiring, asc' },
+  ];
+
+  const currentMode = getLoopWsCreditSortMode();
+
+  for (const m of meta) {
+    const row = document.createElement('div');
+    row.id = m.id;
+    const isActive = currentMode === m.mode;
+    row.setAttribute(DataAttr.Active, isActive ? 'true' : 'false');
+    row.style.cssText =
+      'display:flex;align-items:center;gap:6px;padding:5px 8px;cursor:pointer;' +
+      'border-radius:3px;transition:background 0.12s;font-size:10px;color:#e2e8f0;';
+
+    const chip = document.createElement('span');
+    chip.className = 'marco-credit-sort-chip';
+    chip.textContent = isActive ? '◉' : '○';
+    chip.style.cssText = 'font-size:11px;color:#a78bfa;width:12px;flex-shrink:0;';
+
+    const iconSpan = document.createElement('span');
+    iconSpan.textContent = m.icon;
+    iconSpan.style.cssText = 'font-size:11px;width:18px;text-align:center;flex-shrink:0;';
+
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = m.label;
+    labelSpan.style.cssText = 'flex:1;';
+
+    const hintSpan = document.createElement('span');
+    hintSpan.textContent = m.hint;
+    hintSpan.style.cssText = 'font-size:8px;color:#94a3b8;';
+
+    row.appendChild(chip);
+    row.appendChild(iconSpan);
+    row.appendChild(labelSpan);
+    row.appendChild(hintSpan);
+
+    row.onmouseover = function () { row.style.background = 'rgba(139,92,246,0.18)'; };
+    row.onmouseout = function () { row.style.background = 'transparent'; };
+    row.onclick = function (e: Event) {
+      e.preventDefault();
+      e.stopPropagation();
+      const wasActive = row.getAttribute(DataAttr.Active) === 'true';
+      // Radio behavior: clicking the active row clears it; otherwise activate it.
+      const nextMode: CreditSortMode = wasActive ? 'none' : m.mode;
+      setLoopWsCreditSortMode(nextMode);
+      syncVisualState(nextMode);
+      populate();
+    };
+
+    rows.push(row);
+  }
+
+  return rows;
+}
+
 function buildPopover(deps: WsFilterMenuDeps): HTMLElement {
   const popover = document.createElement('div');
   popover.id = ID_FILTER_MENU_POPOVER;
@@ -243,6 +333,12 @@ function buildPopover(deps: WsFilterMenuDeps): HTMLElement {
     popover.appendChild(buildFilterRow(cfg, deps.populateLoopWorkspaceDropdown));
   }
   popover.appendChild(buildMinCreditsRow(deps.populateLoopWorkspaceDropdown));
+
+  popover.appendChild(buildCreditSortHeader());
+  for (const r of buildCreditSortRows(deps.populateLoopWorkspaceDropdown)) {
+    popover.appendChild(r);
+  }
+
   popover.appendChild(buildLegendBlock());
 
   return popover;
