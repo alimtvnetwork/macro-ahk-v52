@@ -20,9 +20,21 @@ on:
         description: 'Specific tag to audit (e.g. v2.250.0). Leave blank to audit all v* releases.'
         required: false
         type: string
+  # Run on every push to main that touches release plumbing or bumps the
+  # extension version — catches empty-Release regressions immediately
+  # instead of waiting for the weekly cron. See changelog v3.22.0 RCA.
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/release.yml"
+      - ".github/workflows/release-watcher.yml"
+      - ".github/workflows/audit-releases.yml"
+      - "manifest.json"
   schedule:
     # Weekly Monday 02:00 UTC
     - cron: '0 2 * * 1'
+
 
 permissions:
   contents: read
