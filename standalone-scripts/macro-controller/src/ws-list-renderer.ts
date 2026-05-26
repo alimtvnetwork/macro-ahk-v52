@@ -198,7 +198,7 @@ export function fetchLoopCreditsWithDetect(isRetry?: boolean): void {
 
 function buildTooltipProfileLines(ws: WorkspaceCredit): string[] {
   const lines: string[] = ['🪪 PROFILE:'];
-  lines.push('  Plan: ' + (ws.planType || ws.tier || 'FREE'));
+  lines.push('  Plan: ' + (ws.planType || ws.tier || WsTierValue.FREE));
   lines.push('  Role: ' + (ws.membershipRole || ws.role || 'N/A'));
   if (typeof ws.numProjects === 'number' && ws.numProjects > 0) {
     lines.push('  Projects: ' + ws.numProjects);
