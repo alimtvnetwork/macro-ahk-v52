@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.25.0] — 2026-05-26
+
+### Fixed — CI/CD release pipeline hardening
+- **Release Watcher empty-version guard** (Issue #10) — `release-asset-guard` job now declares both `resolve-release` and `run-release` in `needs`, so `needs.resolve-release.outputs.tag` resolves correctly. Previously the empty `VER` produced bogus `marco-extension-.zip` asset checks.
+- **Audit Releases placeholder collision** (Issue #11) — replaced bare `VER` substring tokens with `__VER__` in `.github/workflows/audit-releases.yml`. The old `${PAT//VER/$VER}` greedily substituted the `VER` inside literal `VERSION.txt`, producing `v3.24.0SION.txt` false-misses.
+- **Memory updated** — `mem://constraints/release-assets-publish-contract` now mandates: (a) any guard reading `needs.<job>.outputs.*` must list `<job>` in its own direct `needs`; (b) audit/guard scripts must use unambiguous placeholder tokens (e.g. `__VER__`) when templating filenames in bash.
+
+### Changed
+- Version bump 3.24.0 → 3.25.0 across all 7 unified-version sites; README pin updated.
+
+---
+
 ## [v3.24.0] — 2026-05-26
 
 ### Fixed — `pro_0` `past_due` workspaces with live credits showed "Expired Nd" + hidden balance (Issue 117 RCA)
