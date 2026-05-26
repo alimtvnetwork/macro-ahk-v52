@@ -21,8 +21,8 @@ import { logDebug } from './error-utils';
 // ============================================
 // Config: Validated + deep-merged with defaults (Phase 05)
 // ============================================
-const cfg: MacroControllerConfig = validateConfig(window.__MARCO_CONFIG__);
-const loopCfg = cfg.macroLoop || {};
+const config: MacroControllerConfig = validateConfig(window.__MARCO_CONFIG__);
+const loopCfg = config.macroLoop || {};
 const loopIds = loopCfg.elementIds || {};
 const loopTiming = loopCfg.timing || {};
 const loopXPaths = loopCfg.xpaths || {};
@@ -295,7 +295,7 @@ export const CONFIG: XPathConfig = {
 // ============================================
 // Auto-Attach config
 // ============================================
-export const autoAttachCfg = cfg.autoAttach || {};
+export const autoAttachCfg = config.autoAttach || {};
 export const autoAttachTiming = autoAttachCfg.timing || {};
 export const autoAttachGroups = autoAttachCfg.groups || [];
 
