@@ -101,7 +101,7 @@ describe('getEffectiveStatus', () => {
     expect(s.label).toBe('Fully Expired');
   });
 
-  it('returns about-to-expire for past_due with empty wallet (Issue 117)', () => {
+  it('Issue 118: past_due with empty wallet → past-due-expiring', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       subscriptionStatusChangedAt: '2026-04-16T10:05:11Z',
@@ -109,21 +109,24 @@ describe('getEffectiveStatus', () => {
       available: 0, rollover: 0, billingAvailable: 0,
     });
     const s = getEffectiveStatus(ws, CFG, NOW);
-    expect(s.kind).toBe('about-to-expire');
-    expect(s.label).toBe('About To Expire');
+    expect(s.kind).toBe('past-due-expiring');
+    expect(s.label).toBe('Past Due');
+    expect(s.daysSince).toBe(5);
   });
 
-  it('Issue 117: past_due with live grants becomes about-to-refill', () => {
+  it('Issue 118: past_due with live grants → past-due-expiring (not about-to-refill)', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       subscriptionStatusChangedAt: '2026-04-16T10:05:11Z',
       tier: 'EXPIRED',
       available: 225, rollover: 200, billingAvailable: 20,
-      billingPeriodEndAt: '2026-05-23T00:00:00Z', // 31 days out
+      billingPeriodEndAt: '2026-05-23T00:00:00Z',
     });
     const s = getEffectiveStatus(ws, CFG, NOW);
-    expect(s.kind).toBe('about-to-refill');
-    expect(s.daysToRefill).toBe(31);
+    expect(s.kind).toBe('past-due-expiring');
+    expect(s.daysSince).toBe(5);
+    // Refill info is NOT carried on the status object for past-due rows
+    expect(s.daysToRefill).toBe(-1);
   });
 
   it('returns about-to-refill when refill within window and not past_due/canceled', () => {
@@ -137,14 +140,14 @@ describe('getEffectiveStatus', () => {
     expect(s.daysToRefill).toBe(7); // ceil((Apr28 08:00 - Apr22 00:00) / day) = 7
   });
 
-  it('Issue 117: past_due with empty wallet ignores refill date', () => {
+  it('Issue 118: past_due ignores refill date entirely', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       tier: 'EXPIRED',
       available: 0, rollover: 0, billingAvailable: 0,
       nextRefillAt: '2026-04-28T08:00:00Z',
     });
-    expect(getEffectiveStatus(ws, CFG, NOW).kind).toBe('about-to-expire');
+    expect(getEffectiveStatus(ws, CFG, NOW).kind).toBe('past-due-expiring');
   });
 
 
