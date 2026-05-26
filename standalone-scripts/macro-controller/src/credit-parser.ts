@@ -177,10 +177,9 @@ function parseWorkspaceItem(rawItem: Record<string, unknown>, wsIdx: number): im
   const freeUsed = (ws.credits_used as number) || 0;
   const topupLimit = Math.round((ws.topup_credits_limit as number) || 0);
   const totalCredits = calcTotalCredits(freeGranted, dLimit, bLimit, topupLimit, rLimit);
-  // Helper: read a field that may live either on rawWs (when nested under .workspace) or on the inner ws record (flat shape).
-  const readField = (key: string): unknown => rawWs.workspace
-    ? (rawWs as Record<string, unknown>)[key]
-    : (ws as Record<string, unknown>)[key];
+  // Helper: read a field that may live either on the inner ws record (flat shape)
+  // or on rawWs.workspace (nested shape). ws already resolves rawWs.workspace || rawWs.
+  const readField = (key: string): unknown => (ws as Record<string, unknown>)[key];
   const subStatus = (readField('subscription_status') || '') as string;
   const plan = (readField('plan') || (rawWs.plan as string) || '') as string;
   const meta = extractLifecycleMeta(readField);
