@@ -59,7 +59,7 @@ jobs:
             local raw="${1#v}"
             local major minor patch
             IFS=. read -r major minor patch <<< "$raw"
-            printf '%06d%06d%06d' "${major:-0}" "${minor:-0}" "${patch:-0}"
+            printf '%06d%06d%06d' "$((10#${major:-0}))" "$((10#${minor:-0}))" "$((10#${patch:-0}))"
           }
 
           if [ -n "$SINGLE_TAG" ]; then
@@ -95,7 +95,9 @@ jobs:
             fi
             MISSING=""
             REQUIRED_FOR_TAG=("${REQUIRED_PATTERNS[@]}")
-            if [[ "$(version_key "$TAG")" -ge "$(version_key "v3.21.0")" ]]; then
+            TAG_KEY="$(version_key "$TAG")"
+            DASHBOARD_KEY="$(version_key "v3.21.0")"
+            if [[ "${TAG_KEY}" > "${DASHBOARD_KEY}" || "${TAG_KEY}" == "${DASHBOARD_KEY}" ]]; then
               REQUIRED_FOR_TAG+=("lovable-dashboard-VER.zip")
             fi
             for PAT in "${REQUIRED_FOR_TAG[@]}"; do
