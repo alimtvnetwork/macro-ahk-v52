@@ -19,7 +19,7 @@ name: CI Build
 on:
   push:
     branches:
-      - main
+      - "**"
   pull_request:
     branches:
       - main
@@ -269,6 +269,9 @@ jobs:
 
       - name: Assert changelog.md has an entry for EXTENSION_VERSION
         run: node scripts/check-changelog-entry.mjs
+
+      - name: Self-test CI trigger policy (all branch pushes)
+        run: node --test scripts/__tests__/ci-workflow-trigger-policy.test.mjs
 
       - name: Self-test the changelog-entry checker (synthetic fixtures)
         # Runs the script-level test suite for check-changelog-entry.mjs
@@ -1558,7 +1561,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >-
       github.event_name == 'pull_request' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      github.event_name == 'push'
     outputs:
       matrix: ${{ steps.derive.outputs.matrix }}
     steps:
@@ -1622,7 +1625,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >-
       github.event_name == 'pull_request' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      github.event_name == 'push'
     outputs:
       changed: ${{ steps.filter.outputs.changed }}
     steps:
@@ -1701,16 +1704,13 @@ jobs:
   casing-instruction-json:
     name: "Casing · ${{ matrix.project }}"
     runs-on: ubuntu-latest
-    # Restrict to the two events that gate merges to main:
-    #   • pull_request → catches drift before review.
-    #   • push to main → catches drift on direct pushes / merges.
-    # Any future trigger added to the workflow (workflow_dispatch,
-    # schedule, release, etc.) will SKIP this job — the casing gate
-    # only matters at merge time, so running it on an ad-hoc
-    # workflow_dispatch or nightly cron just wastes runner minutes.
+    # Run on PRs and every branch push so Lovable/GitHub branch commits
+    # surface casing regressions before a PR exists. Any future trigger
+    # added to this workflow (workflow_dispatch, schedule, release, etc.)
+    # still skips this job unless explicitly allowed here.
     if: >-
       github.event_name == 'pull_request' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      github.event_name == 'push'
     needs:
       # NOTE: `needs:` MUST be literal YAML (GitHub Actions does not
       # expand expressions here). When you add a new project to
@@ -1856,7 +1856,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >-
       github.event_name == 'pull_request' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      github.event_name == 'push'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
