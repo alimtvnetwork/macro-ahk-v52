@@ -93,7 +93,48 @@ async function globalSetup() {
         `Ensure the corresponding npm script exists in package.json and that prior steps produced their dist/ output.\n${err}`
       );
     }
+
+    // Per-step dist verification — catches the case where the build
+    // command exits 0 but the expected primary bundle is missing
+    // (CI run #45 regression: lovable-dashboard.js absent after a
+    // green build:lovable-dashboard, surfaced 2 steps later inside
+    // `build:extension > check-standalone-dist.mjs` with no breadcrumb
+    // to the silent step).
+    const expectedBundle: Record<string, { dir: string; file: string }> = {
+      'marco-sdk':            { dir: 'standalone-scripts/marco-sdk/dist',            file: 'marco-sdk.js' },
+      'xpath':                { dir: 'standalone-scripts/xpath/dist',                file: 'xpath.js' },
+      'payment-banner-hider': { dir: 'standalone-scripts/payment-banner-hider/dist', file: 'payment-banner-hider.js' },
+      'lovable-common':       { dir: 'standalone-scripts/lovable-common/dist',       file: 'lovable-common.js' },
+      'lovable-owner-switch': { dir: 'standalone-scripts/lovable-owner-switch/dist', file: 'lovable-owner-switch.js' },
+      'lovable-user-add':     { dir: 'standalone-scripts/lovable-user-add/dist',     file: 'lovable-user-add.js' },
+      'lovable-dashboard':    { dir: 'standalone-scripts/lovable-dashboard/dist',    file: 'lovable-dashboard.js' },
+      'macro-controller':     { dir: 'standalone-scripts/macro-controller/dist',     file: 'macro-looping.js' },
+    };
+    const want = expectedBundle[step.label];
+    if (want) {
+      const abs = path.join(repoRoot, want.dir, want.file);
+      if (!existsSync(abs)) {
+        throw new Error(
+          `Build step "${step.label}" exited 0 but expected bundle is MISSING.\n` +
+          `  missing item: ${want.file}\n` +
+          `  expected path: ${abs}\n` +
+          `  Reason=BuildOutputMissing; ReasonDetail=tsc/vite reported success without emitting the IIFE bundle. ` +
+          `Re-run with STANDALONE_BUILD_NO_CACHE=1 to bypass cached-build.mjs cache and inspect vite output.`
+        );
+      }
+      const { statSync } = await import('fs');
+      const sz = statSync(abs).size;
+      if (sz < 100) {
+        throw new Error(
+          `Build step "${step.label}" produced a suspiciously small bundle (${sz} bytes).\n` +
+          `  path: ${abs}\n` +
+          `  Reason=BuildOutputEmpty; ReasonDetail=vite output is below the 100-byte sanity threshold.`
+        );
+      }
+      console.log(`   ✓ ${step.label} produced ${want.file} (${sz} bytes)`);
+    }
   }
+
 
   // Step 2: Re-resolve extension dir AFTER the build (build:extension may have created it).
   const builtDir = pickExtensionDir();
