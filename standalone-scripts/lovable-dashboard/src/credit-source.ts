@@ -13,9 +13,25 @@
  * is on the home screen without macro-controller injected), this returns
  * an empty map and `workspace-dictionary` falls back to 0/0.
  */
-import type { WorkspaceCredit, LoopCreditState } from "../../../standalone-scripts/macro-controller/src/types/credit-types";
 import { logError } from "./logger";
 import type { CreditMap, CreditPair } from "./types";
+
+/**
+ * Local structural subset of macro-controller's WorkspaceCredit / LoopCreditState.
+ * Only the fields this project actually consumes are declared, so we depend on
+ * the bridge contract rather than on macro-controller's internal types.
+ * Keep in sync with `api.credits.getState()` in
+ * `standalone-scripts/macro-controller/src/types/credit-types.ts`.
+ */
+interface WorkspaceCredit {
+    name: string;
+    available: number;
+    totalCredits: number;
+}
+
+interface LoopCreditState {
+    perWorkspace: WorkspaceCredit[];
+}
 
 interface CreditsApiShape {
     fetch?: (isRetry?: boolean) => void;
