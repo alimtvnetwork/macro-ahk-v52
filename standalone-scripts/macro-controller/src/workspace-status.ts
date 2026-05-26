@@ -233,7 +233,7 @@ export function getEffectiveStatus(
  * Scope (Issue 117): only fires for genuinely dead workspaces.
  *   - expired-canceled, fully-expired, expired — subscription has lapsed.
  *
- * `about-to-expire` (past_due / unpaid) is intentionally EXCLUDED — Stripe
+ * `past-due-expiring` (past_due / unpaid) is intentionally EXCLUDED — Stripe
  * past_due keeps grants alive until their individual `expires_at`, so wiping
  * billing+rollover would discard credits the user can still spend. The
  * billing API's `total_remaining` is the source of truth for spendability.
