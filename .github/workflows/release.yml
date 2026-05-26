@@ -192,7 +192,10 @@ jobs:
 
       - name: Checkout resolved ref
         if: steps.version.outputs.skip != 'true'
-        run: git checkout "${{ steps.version.outputs.ref }}"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.version.outputs.ref }}
+          fetch-depth: 0
 
       - name: Enforce lowercase .md filenames
         if: steps.version.outputs.skip != 'true'
