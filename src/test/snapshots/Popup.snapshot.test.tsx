@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 /* ── Mock hooks before importing the component ──────────────────── */
 
@@ -63,6 +63,16 @@ vi.mock("@/hooks/use-popup-actions", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-version-check", () => ({
+  useVersionCheck: () => ({
+    loading: false,
+    hasMismatch: true,
+    manifestVersion: "3.15.1",
+    bundledScriptVersion: "3.28.0",
+    error: null,
+  }),
+}));
+
 vi.mock("@/lib/message-client", () => ({
   sendMessage: vi.fn().mockResolvedValue({}),
 }));
@@ -82,10 +92,24 @@ describe("Popup Page — Structural Smoke Test", () => {
     // Primary action + footer log control
     expect(screen.getByText("Run Scripts")).toBeInTheDocument();
     expect(screen.getByText("Logs")).toBeInTheDocument();
+    expect(screen.getByLabelText("Reload extension")).toBeInTheDocument();
 
     // Container has the expected popup width class
     const root = container.firstElementChild as HTMLElement | null;
     expect(root).not.toBeNull();
     expect(root?.className).toContain("w-[520px]");
+  });
+
+  it("wires the mismatch banner reload action to chrome.runtime.reload", () => {
+    const reload = vi.fn();
+    Object.defineProperty(globalThis, "chrome", {
+      value: { runtime: { reload } },
+      configurable: true,
+    });
+
+    render(<PopupPage />);
+    fireEvent.click(screen.getByLabelText("Reload extension"));
+
+    expect(reload).toHaveBeenCalledOnce();
   });
 });

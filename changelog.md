@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.28.0] — 2026-05-26
+
+### Added
+- **Popup version-mismatch recovery button** — the mismatch banner now includes a `Reload extension` action wired to `chrome.runtime.reload()`, so after rebuilding/redeploying the loaded unpacked extension can refresh itself instead of leaving the stale manifest version visible.
+
+### Fixed
+- **Dev deploy hot-reload was disabled by missing `version_name` marker** — `vite.config.extension.ts` now marks local extension builds as `<version> dev` while keeping GitHub release builds clean, allowing the existing build-meta polling reload path to run during local deploys.
+
+### Changed
+- **Download-only extension ZIP is now the first install path** — the root README and generated GitHub Release body place `download-extension.ps1` before installer-script one-liners, matching the current recommended quick-test workflow.
+- Version bump: 3.27.0 → 3.28.0 (all version files synced)
+
+---
+
 ## [v3.27.0] — 2026-05-26
 
 ### Changed

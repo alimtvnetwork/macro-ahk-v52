@@ -152,6 +152,12 @@ function copyManifest(): Plugin {
                 "48": "assets/icons/icon-48.png",
                 "128": "assets/icons/icon-128.png",
             };
+            const isReleaseBuild = process.env.GITHUB_ACTIONS === "true" || process.env.MARCO_RELEASE_BUILD === "1";
+            if (!isReleaseBuild) {
+                manifest.version_name = `${manifest.version} dev`;
+            } else {
+                delete manifest.version_name;
+            }
             // NOTE: web_accessible_resources is taken verbatim from the source
             // manifest.json — do NOT overwrite here. The source manifest already
             // lists wasm/sql-wasm.wasm, build-meta.json, prompts, projects/*,
