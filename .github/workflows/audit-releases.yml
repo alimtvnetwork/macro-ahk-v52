@@ -48,6 +48,7 @@ jobs:
             "lovable-common-VER.zip"
             "lovable-owner-switch-VER.zip"
             "lovable-user-add-VER.zip"
+            "lovable-dashboard-VER.zip"
             "install.ps1"
             "install.sh"
             "VERSION.txt"
