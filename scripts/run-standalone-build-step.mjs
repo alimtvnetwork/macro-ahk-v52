@@ -21,6 +21,10 @@ const PROJECTS = {
         ["tsc", ["--noEmit", "-p", "tsconfig.lovable-user-add.json"]],
         ["vite", ["build", "--config", "vite.config.lovable-user-add.ts"]],
     ],
+    "lovable-dashboard": [
+        ["tsc", ["--noEmit", "-p", "tsconfig.lovable-dashboard.json"]],
+        ["vite", ["build", "--config", "vite.config.lovable-dashboard.ts"]],
+    ],
     "macro-controller": [
         ["tsc", ["--noEmit", "-p", "tsconfig.macro.build.json"]],
         ["vite", ["build", "--config", "vite.config.macro.ts"]],

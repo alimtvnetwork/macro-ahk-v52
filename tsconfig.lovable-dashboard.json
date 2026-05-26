@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "@lovable-dashboard/*": [
+        "standalone-scripts/lovable-dashboard/src/*"
+      ]
+    },
+    "incremental": true,
+    "tsBuildInfoFile": ".cache/tsbuildinfo/lovable-dashboard.tsbuildinfo"
+  },
+  "include": [
+    "standalone-scripts/lovable-dashboard/src/**/*.ts",
+    "standalone-scripts/lovable-dashboard/src/**/*.d.ts",
+    "standalone-scripts/types/**/*.ts",
+    "standalone-scripts/types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "standalone-scripts/lovable-dashboard/dist",
+    "standalone-scripts/lovable-dashboard/src/__tests__"
+  ]
+}
