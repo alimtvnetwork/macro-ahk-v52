@@ -433,19 +433,28 @@ function matchesExpiredWithCreditsFilter(ws: WorkspaceCredit): boolean {
   return true;
 }
 
+/** True when active credit-sort mode is a Pro-only mode. */
+function isProOnlySortMode(mode: WsFilterState['creditSortMode']): boolean {
+  return mode === 'pro-high' || mode === 'pro-low';
+}
+
+/** Check sub-filters that gate on workspace credit/lifecycle state. */
+function passesCreditFilters(ws: WorkspaceCredit, fs: WsFilterState): boolean {
+  if (fs.minCredits > 0 && (ws.available || 0) < fs.minCredits) return false;
+  if (fs.expiredWithCredits && !matchesExpiredWithCreditsFilter(ws)) return false;
+  if (fs.expiring && !isExpiringWs(ws)) return false;
+  if (fs.refillSoon && !isRefillSoonWs(ws)) return false;
+  if (isProOnlySortMode(fs.creditSortMode) && !isProExpiringWs(ws)) return false;
+  return true;
+}
+
 /** Check if a workspace passes all active filters. */
 function passesFilters(ws: WorkspaceCredit, fs: WsFilterState): boolean {
   if (!matchesTextFilter(ws, fs.filter || '')) return false;
   if (fs.freeOnly && (ws.dailyFree || 0) <= 0) return false;
   if (fs.rolloverOnly && (ws.rollover || 0) <= 0) return false;
   if (fs.billingOnly && (ws.billingAvailable || 0) <= 0) return false;
-  if (fs.minCredits > 0 && (ws.available || 0) < fs.minCredits) return false;
-  if (fs.expiredWithCredits && !matchesExpiredWithCreditsFilter(ws)) return false;
-  if (fs.expiring && !isExpiringWs(ws)) return false;
-  if (fs.refillSoon && !isRefillSoonWs(ws)) return false;
-  if ((fs.creditSortMode === 'pro-high' || fs.creditSortMode === 'pro-low')
-    && !isProExpiringWs(ws)) return false;
-  return true;
+  return passesCreditFilters(ws, fs);
 }
 
 
