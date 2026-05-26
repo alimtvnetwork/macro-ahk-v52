@@ -270,6 +270,9 @@ jobs:
       - name: Assert changelog.md has an entry for EXTENSION_VERSION
         run: node scripts/check-changelog-entry.mjs
 
+      - name: Self-test CI trigger policy (all branch pushes)
+        run: node --test scripts/__tests__/ci-workflow-trigger-policy.test.mjs
+
       - name: Self-test the changelog-entry checker (synthetic fixtures)
         # Runs the script-level test suite for check-changelog-entry.mjs
         # using `node --test`. Validates exit codes + diagnostic
