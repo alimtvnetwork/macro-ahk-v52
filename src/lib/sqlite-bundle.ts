@@ -829,9 +829,10 @@ function readProjects(db: Database, strict = false): StoredProject[] {
   });
 }
 
-function readScripts(db: Database): StoredScript[] {
+function readScripts(db: Database, strict = false): StoredScript[] {
   let rows;
   try { rows = db.exec("SELECT * FROM Scripts"); } catch {
+    if (strict) return [];
     try { rows = db.exec("SELECT * FROM scripts"); } catch { return []; }
   }
   const hasRows = rows.length > 0 && rows[0].values.length > 0;
@@ -841,21 +842,21 @@ function readScripts(db: Database): StoredScript[] {
   return rows[0].values.map((row: SqlValue[]) => {
     const obj = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
     return {
-      id: resolveUid(obj),
-      name: (col(obj, "Name", "name") as string),
-      description: (col(obj, "Description", "description") as string) ?? undefined,
-      code: (col(obj, "Code", "code") as string),
-      order: (col(obj, "RunOrder", "run_order") as number) ?? 0,
-      runAt: (col(obj, "RunAt", "run_at") as string) ?? undefined,
-      configBinding: (col(obj, "ConfigBinding", "config_binding") as string) ?? undefined,
-      isIife: col(obj, "IsIife", "is_iife") === 1,
-      hasDomUsage: col(obj, "HasDomUsage", "has_dom_usage") === 1,
+      id: resolveUid(obj, strict),
+      name: (col(obj, "Name", "name", strict) as string),
+      description: (col(obj, "Description", "description", strict) as string) ?? undefined,
+      code: (col(obj, "Code", "code", strict) as string),
+      order: (col(obj, "RunOrder", "run_order", strict) as number) ?? 0,
+      runAt: (col(obj, "RunAt", "run_at", strict) as string) ?? undefined,
+      configBinding: (col(obj, "ConfigBinding", "config_binding", strict) as string) ?? undefined,
+      isIife: col(obj, "IsIife", "is_iife", strict) === 1,
+      hasDomUsage: col(obj, "HasDomUsage", "has_dom_usage", strict) === 1,
       // v5 — auto-update fields. Absent in v4 bundles (returns undefined,
       // which the runtime treats as "auto-update disabled").
       updateUrl: (obj["UpdateUrl"] as string) ?? undefined,
       lastUpdateCheck: (obj["LastUpdateCheck"] as string) ?? undefined,
-      createdAt: (col(obj, "CreatedAt", "created_at") as string),
-      updatedAt: (col(obj, "UpdatedAt", "updated_at") as string),
+      createdAt: (col(obj, "CreatedAt", "created_at", strict) as string),
+      updatedAt: (col(obj, "UpdatedAt", "updated_at", strict) as string),
     } as StoredScript;
   });
 }
