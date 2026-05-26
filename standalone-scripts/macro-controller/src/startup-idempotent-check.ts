@@ -75,18 +75,18 @@ function handleVersionMismatch(marker: HTMLElement, existingVersion: string): Id
 function handleGlobalsIntact(marker: HTMLElement): IdempotentResult {
   const existingContainer = document.getElementById(IDS.CONTAINER);
   if (existingContainer) {
-    console.log('%c[MacroLoop v' + VERSION + '] Already embedded (marker=' + IDS.SCRIPT_MARKER + ') — skipping injection, UI and state intact', 'color: #10b981; font-weight: bold;');
+    console.log(CONSOLE_PREFIX + VERSION + '] Already embedded (marker=' + IDS.SCRIPT_MARKER + ') — skipping injection, UI and state intact', STYLE_GREEN);
     return 'abort';
   }
 
   if (window.__MARCO_LAUNCH_SOURCE__ === 'manual' && marker.getAttribute('data-launch-source') === 'passive') {
-    console.log('%c[MacroLoop v' + VERSION + '] Manual Run script after passive attach — upgrading to full panel bootstrap', 'color: #10b981; font-weight: bold;');
+    console.log(CONSOLE_PREFIX + VERSION + '] Manual Run script after passive attach — upgrading to full panel bootstrap', STYLE_GREEN);
     marker.remove();
     return 'proceed';
   }
 
   if (window.__MARCO_LAUNCH_SOURCE__ === 'passive' && marker.getAttribute('data-launch-source') === 'passive') {
-    console.log('%c[MacroLoop v' + VERSION + '] Passive attach detected — keeping panel hidden until manual Run script', 'color: #38bdf8; font-weight: bold;');
+    console.log(CONSOLE_PREFIX + VERSION + '] Passive attach detected — keeping panel hidden until manual Run script', STYLE_BLUE);
     return 'abort';
   }
 
@@ -114,7 +114,7 @@ function attemptUiRecovery(marker: HTMLElement): IdempotentResult {
   }
 
   if (document.getElementById(IDS.CONTAINER)) {
-    console.log('%c[MacroLoop v' + VERSION + '] UI recovered without full re-bootstrap', 'color: #10b981; font-weight: bold;');
+    console.log(CONSOLE_PREFIX + VERSION + '] UI recovered without full re-bootstrap', STYLE_GREEN);
     return 'abort';
   }
 
