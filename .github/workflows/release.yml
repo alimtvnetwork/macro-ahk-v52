@@ -749,6 +749,7 @@ jobs:
             "release-assets/lovable-common-${VER}.zip:1024"
             "release-assets/lovable-owner-switch-${VER}.zip:1024"
             "release-assets/lovable-user-add-${VER}.zip:1024"
+            "release-assets/lovable-dashboard-${VER}.zip:1024"
             "release-assets/install.ps1:512"
             "release-assets/install.sh:512"
             "release-assets/VERSION.txt:1"
