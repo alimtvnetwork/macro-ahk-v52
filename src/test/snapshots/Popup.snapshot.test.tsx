@@ -68,7 +68,7 @@ vi.mock("@/hooks/use-version-check", () => ({
     loading: false,
     hasMismatch: true,
     manifestVersion: "3.15.1",
-    bundledScriptVersion: "3.28.0",
+    bundledScriptVersion: "3.29.0",
     error: null,
   }),
 }));
