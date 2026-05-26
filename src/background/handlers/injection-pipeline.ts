@@ -207,7 +207,7 @@ export async function injectAllScripts(
         } catch (batchError) {
             logCaughtError(BgLogTag.INJECTION, "Batch injection failed, falling back to sequential", batchError);
             for (const script of goodScripts) {
-                const result = await injectSingleScript(tabId, script.injectable, script.configJson, script.themeJson, script.codeSource, launchSource);
+                const result = await injectSingleScript(tabId, script.injectable, script.configJson, script.themeJson, script.codeSource, launchSource, forceReload);
                 results.push(result);
             }
         }
