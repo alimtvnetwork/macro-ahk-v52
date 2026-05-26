@@ -13,19 +13,10 @@
 name: Recover Latest Release Assets
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/recover-latest-release-assets.yml"
-      - ".github/workflows/release.yml"
-      - ".github/workflows/release-watcher.yml"
-      - ".gitmap/release/latest.json"
-      - ".gitmap/release/v*.json"
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing tag to repair. Leave blank to use .gitmap/release/latest.json.'
+        description: 'Existing tag to repair. Leave blank to use the latest published GitHub release.'
         required: false
         type: string
 
@@ -53,15 +44,20 @@ jobs:
         id: version
         env:
           INPUT_TAG: ${{ github.event.inputs.tag }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           if [[ -n "${INPUT_TAG}" ]]; then
             VER="${INPUT_TAG}"
           else
-            VER=$(node -e "const fs=require('node:fs'); const j=JSON.parse(fs.readFileSync('.gitmap/release/latest.json','utf8')); const v=String(j.tag || j.version || '').replace(/^v?/,'v'); process.stdout.write(v)")
+            VER=$(gh release view --repo "${GITHUB_REPOSITORY}" --json tagName --jq '.tagName' 2>/dev/null || true)
+            if [[ -z "${VER}" ]]; then
+              echo "::error::No tag input provided and no published release found on ${GITHUB_REPOSITORY}"
+              exit 1
+            fi
           fi
           if [[ ! "${VER}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
-            echo "::error::.gitmap/release/latest.json produced invalid release tag '${VER}'"
+            echo "::error::Resolved tag '${VER}' is not a valid vMAJOR.MINOR.PATCH release"
             exit 1
           fi
           git fetch origin "refs/tags/${VER}:refs/tags/${VER}" 2>/dev/null || true
