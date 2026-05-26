@@ -112,13 +112,15 @@ export function explainEffectiveStatus(
   );
 
   // 3 & 4. tier === EXPIRED (non-past_due)
-  const tierExpired = tier === 'EXPIRED' && !isPastDue;
+  const isTierExpired = isExpiredTier(tier);
+  const tierExpired = isTierExpired && !isPastDue;
+  const notExpiredTierReason = 'tier is "' + (tier || 'empty') + '" (not ' + WsTierValue.EXPIRED + ')';
   add(
     'tier=EXPIRED + grace exceeded',
     'tier is EXPIRED (non past_due) AND days since change ≥ grace (' + grace + 'd) → fully-expired',
     tierExpired && !!changedIso && daysSinceChange >= grace,
-    tier !== 'EXPIRED'
-      ? 'tier is "' + (tier || 'empty') + '" (not EXPIRED)'
+    !isTierExpired
+      ? notExpiredTierReason
       : isPastDue
         ? 'subscription_status is past_due — handled by rule 5 instead'
         : !changedIso
@@ -129,8 +131,8 @@ export function explainEffectiveStatus(
     'tier=EXPIRED (within grace)',
     'tier is EXPIRED (non past_due) → expired',
     tierExpired && !(changedIso && daysSinceChange >= grace),
-    tier !== 'EXPIRED'
-      ? 'tier is "' + (tier || 'empty') + '" (not EXPIRED)'
+    !isTierExpired
+      ? notExpiredTierReason
       : isPastDue
         ? 'subscription_status is past_due — handled by rule 5 instead'
         : 'rule 3 already fired',
