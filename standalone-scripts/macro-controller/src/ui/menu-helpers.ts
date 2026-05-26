@@ -8,6 +8,7 @@ import { resolveFlyoutPlacement } from './flyout-placement';
  * Pure DOM builder functions for dropdown menu items and submenus.
  */
 
+const ATTR_ARIA_EXPANDED = 'aria-expanded';
 
 /** Context holding closure-scoped menu references */
 export interface MenuCtx {
