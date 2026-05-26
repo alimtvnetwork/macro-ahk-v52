@@ -23,9 +23,11 @@
 const PREFIX = "[RiseupAsia]";
 
 /**
- * Extract a useful message string from an unknown error value.
+ * Extract a useful message string from a caught error value.
+ * Uses `CaughtError` per Unknown Usage Policy — try/catch is the single
+ * approved leaf where `unknown` is permitted, aliased as `CaughtError`.
  */
-function formatError(error: unknown): string {
+function formatError(error: CaughtError): string {
     if (error instanceof Error) {
         return error.stack || error.message;
     }
@@ -43,7 +45,7 @@ function formatError(error: unknown): string {
  * Capture the current call stack, stripping internal logger frames.
  * If an Error object is provided, its stack is used instead.
  */
-function captureStack(error?: unknown): string {
+function captureStack(error?: CaughtError): string {
     if (error instanceof Error && error.stack) {
         return error.stack;
     }
@@ -58,7 +60,7 @@ export class NamespaceLogger {
      * Log an unexpected/hard error.
      * Always includes stack trace when an Error object is provided.
      */
-    static error(fn: string, msg: string, error?: unknown): void {
+    static error(fn: string, msg: string, error?: CaughtError): void {
         const base = `${PREFIX} [${fn}] ${msg}`;
         if (error !== undefined) {
             console.error(base + " — " + formatError(error));
@@ -96,7 +98,7 @@ export class NamespaceLogger {
      * @param msg - Human-readable message
      * @param args - Additional values to log (objects, arrays, etc.)
      */
-    static console(fn: string, msg: string, ...args: unknown[]): void {
+    static console(fn: string, msg: string, ...args: RiseupAsiaLogArg[]): void {
         const base = `${PREFIX} [${fn}] ${msg}`;
         if (args.length > 0) {
             console.log(base, ...args);
@@ -113,7 +115,7 @@ export class NamespaceLogger {
      * @param msg - Human-readable message
      * @param error - Optional error; its stack is used if provided, otherwise a fresh stack is captured
      */
-    static stackTrace(fn: string, msg: string, error?: unknown): void {
+    static stackTrace(fn: string, msg: string, error?: CaughtError): void {
         const base = `${PREFIX} [${fn}] ${msg}`;
         const stack = captureStack(error);
         console.error(base + "\n" + stack);
