@@ -7,6 +7,15 @@
 
 import { log, logSub } from './logging';
 import { CreditSource } from './types';
+import {
+  SubscriptionStatus,
+  WsTierValue,
+  PlanName,
+  isCanceledStatus,
+  isPastDueStatus,
+  isExpiredSubscriptionStatus,
+  normalizeSubscriptionStatus,
+} from './types/subscription-status';
 import { calcTotalCredits, calcAvailableCredits } from './credit-api';
 import { loopCreditState, state } from './shared-state';
 import { getEffectiveStatus, shouldApplyCanceledOverride, applyCanceledCreditOverride } from './workspace-status';
