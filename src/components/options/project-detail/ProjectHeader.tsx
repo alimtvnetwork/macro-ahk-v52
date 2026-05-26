@@ -74,6 +74,7 @@ export interface ProjectHeaderProps {
   onSave: (project: Partial<StoredProject>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onBack: () => void;
+  onSwitchTab?: (tab: string) => void;
 }
 
 /* ------------------------------------------------------------------ */
@@ -81,7 +82,7 @@ export interface ProjectHeaderProps {
 /* ------------------------------------------------------------------ */
 
 // eslint-disable-next-line max-lines-per-function
-export function ProjectHeader({ project, onSave, onDelete, onBack }: ProjectHeaderProps) {
+export function ProjectHeader({ project, onSave, onDelete, onBack, onSwitchTab }: ProjectHeaderProps) {
   const [editName, setEditName] = useState(project.name);
   const [editVersion, setEditVersion] = useState(project.version);
   const [editDesc, setEditDesc] = useState(project.description ?? "");
@@ -134,8 +135,7 @@ export function ProjectHeader({ project, onSave, onDelete, onBack }: ProjectHead
   };
 
   const handleUpdate = () => {
-    toast.info("Checking for updates…");
-    // TODO: wire to updater handler CHECK_FOR_UPDATE
+    onSwitchTab?.("updater");
   };
 
   const handleDelete = async () => {
@@ -262,7 +262,7 @@ export function ProjectHeader({ project, onSave, onDelete, onBack }: ProjectHead
             </IconButtonWithTooltip>
           )}
           <IconButtonWithTooltip
-            tooltip="Check for updates"
+            tooltip="Script updates"
             className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:bg-accent/20 hover:text-accent transition-all duration-200"
             onClick={handleUpdate}
           >
