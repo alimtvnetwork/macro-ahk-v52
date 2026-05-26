@@ -99,6 +99,12 @@ jobs:
       - name: Scan for nested template literals
         run: node scripts/check-no-nested-template-literals.mjs
 
+      - name: Scan .d.ts files for `unknown` regressions
+        run: node scripts/check-no-unknown-in-dts.mjs
+
+      - name: Self-test the .d.ts unknown scanner
+        run: node --test scripts/__tests__/check-no-unknown-in-dts.test.mjs
+
   # ════════════════════════════════════════════════════════════
   # Job 0a0c: ESLint pin on run-summary-types.ts
   #
