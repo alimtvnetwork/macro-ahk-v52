@@ -359,6 +359,7 @@ function passesFilters(ws: WorkspaceCredit, fs: WsFilterState): boolean {
   if (fs.billingOnly && (ws.billingAvailable || 0) <= 0) return false;
   if (fs.minCredits > 0 && (ws.available || 0) < fs.minCredits) return false;
   if (fs.expiredWithCredits && !matchesExpiredWithCreditsFilter(ws)) return false;
+  if (fs.expiring && !isExpiringWs(ws)) return false;
   if (fs.refillSoon && !isRefillSoonWs(ws)) return false;
   return true;
 }
