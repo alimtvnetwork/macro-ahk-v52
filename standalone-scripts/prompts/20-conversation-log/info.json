@@ -1,0 +1,12 @@
+{
+  "Id": "default-conversation-log",
+  "Title": "Conversation Log",
+  "Slug": "conversation-log",
+  "Version": "1.0.0",
+  "Author": "marco",
+  "Categories": ["memory"],
+  "IsDefault": false,
+  "Order": 20,
+  "CreatedAt": "2026-05-26T00:00:00Z",
+  "UpdatedAt": "2026-05-26T00:00:00Z"
+}
