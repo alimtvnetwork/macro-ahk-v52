@@ -21,6 +21,7 @@
  */
 
 import type { WorkspaceCredit } from './types/credit-types';
+import { isHealthyStatus, isPastDueStatus, isCanceledStatus, SubscriptionStatus } from './types/subscription-status';
 import type { WorkspaceStatus } from './workspace-status';
 import {
   getEffectiveStatus,
