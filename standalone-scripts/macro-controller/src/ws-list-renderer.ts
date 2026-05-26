@@ -527,17 +527,17 @@ export function buildStatusPillHtml(status: WorkspaceStatus, ws: WorkspaceCredit
   const tip = tipParts.join(' — ').replace(/"/g, '&quot;');
 
   let html = '<span class="marco-ws-status-pill marco-ws-status-' + display.kind
-    + '" style="font-size:9px;color:' + style.fg
+    + '" style="font-size:11px;color:' + style.fg
     + CSS_BG + style.bg
     + ';border:1px solid ' + style.border
-    + ';padding:1px 5px;border-radius:3px;font-weight:700;margin-left:5px;vertical-align:middle;letter-spacing:0.3px;text-transform:none;"'
+    + ';padding:2px 7px;border-radius:4px;font-weight:700;margin-left:5px;vertical-align:middle;letter-spacing:0.3px;text-transform:none;"'
     + ' data-marco-tip="' + tip + '">' + display.label + '</span>';
 
   if (display.sublabel) {
-    html += '<span class="marco-ws-status-sublabel marco-ws-status-' + display.kind + '-sublabel" style="font-size:9px;color:' + style.fg
+    html += '<span class="marco-ws-status-sublabel marco-ws-status-' + display.kind + '-sublabel" style="font-size:11px;color:' + style.fg
       + ';background:' + style.bg.replace('0.55', '0.30').replace('0.45', '0.22')
       + ';border:1px solid ' + style.border
-      + ';padding:1px 4px;border-radius:3px;font-weight:600;margin-left:3px;vertical-align:middle;letter-spacing:0.3px;text-transform:none;"'
+      + ';padding:2px 6px;border-radius:4px;font-weight:600;margin-left:3px;vertical-align:middle;letter-spacing:0.3px;text-transform:none;"'
       + ' data-marco-tip="' + tip + '">' + display.sublabel + '</span>';
   }
 
