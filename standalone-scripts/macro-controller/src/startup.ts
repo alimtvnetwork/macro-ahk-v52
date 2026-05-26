@@ -463,11 +463,17 @@ function handleCreditSuccess(tier1Data: MarkViewedResponse | null): void {
   log('Startup: Tier 1 prefetch did not resolve workspace — falling back to autoDetect', 'info');
   const freshToken = resolveToken();
   autoDetectLoopCurrentWorkspace(freshToken, { skipDialog: true }).then(function () {
-    const shouldRetryWorkspace = state.running;
+    // Issue: previously we only retried when the loop was running ("passive
+    // mode — unresolved until manual Check or loop start"). The user-visible
+    // bug was that on a fresh page load with the loop idle, the workspace
+    // name often stayed blank because the very first mark-viewed call lost a
+    // race with credits/wsById hydration. The REST round-trip is cheap, so
+    // ALWAYS retry on load when the name is missing — running or not.
+    const needsRetry = !state.workspaceName;
     timingEnd(
       'workspace',
-      state.workspaceName ? 'ok' : (shouldRetryWorkspace ? 'warn' : 'ok'),
-      state.workspaceName || (shouldRetryWorkspace ? 'No name detected' : 'Passive mode — unresolved until manual Check or loop start'),
+      state.workspaceName ? 'ok' : 'warn',
+      state.workspaceName || 'No name detected — scheduling REST retry',
     );
     syncCreditStateFromApi();
     cancelTimeoutAndCreateUi();
@@ -475,13 +481,9 @@ function handleCreditSuccess(tier1Data: MarkViewedResponse | null): void {
     timingEnd('bootstrap', 'ok');
     logTimingSummary();
 
-    if (!state.workspaceName) {
-      if (shouldRetryWorkspace) {
-        log('Startup: ⚠️ Workspace name still empty after initial detection while running — scheduling retry', 'warn');
-        scheduleWorkspaceRetry(1);
-      } else {
-        log('Startup: Passive startup left workspace unresolved by design — waiting for manual Check or loop start', 'info');
-      }
+    if (needsRetry) {
+      log('Startup: ⚠️ Workspace name empty after initial Tier 1 — scheduling REST retry (running=' + state.running + ')', 'warn');
+      scheduleWorkspaceRetry(1);
     }
   });
 }
