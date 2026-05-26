@@ -63,6 +63,7 @@ class WsListViewState {
   private static instance: WsListViewState | null = null;
   private isFreeOnly = false;
   private isExpiredWithCredits = false;
+  private isExpiring = false;
   private isRefillSoon = false;
   private isCompactMode: boolean;
   private isRefillPriority: boolean;
