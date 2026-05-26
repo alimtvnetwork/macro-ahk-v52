@@ -411,7 +411,7 @@ Draft types: `standalone-scripts/types/instruction/` (one type per file, awaitin
 
 | Task | Description | Status |
 |------|-------------|--------|
-| **Task 2.2** — React Component Tests (S-021) | Unit tests for PopupApp, OptionsApp, ProjectsSection, ProjectEditor, DiagnosticsPanel. Target: 900+ tests | Ready |
+| **Task 2.2** — React Component Tests (S-021) | Unit tests for PopupApp, OptionsApp, ProjectsSection, ProjectEditor, DiagnosticsPanel. Target: 900+ tests | ProjectsSection/ProjectEditor/DiagnosticsPanel done; PopupPage smoke done (4 tests); OptionsPage pending |
 
 ### Priority 3: P Store — Project & Script Store
 
