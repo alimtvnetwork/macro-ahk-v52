@@ -1,10 +1,12 @@
 # Plan
 
-**Active workstream:** None — all queued workstreams complete as of v3.21.0.
+**Active workstream:** None — all queued workstreams complete as of v3.24.0.
 
+**Recently shipped:** **v3.24.0 — Issue 117 (App): `pro_0` `past_due` workspaces showed Expired/0-credits** (2026-05-26). RCA + fix in `workspace-status.ts` (override no longer fires for `about-to-expire`; `past_due` with live grants reroutes to `about-to-refill`) + `ws-list-renderer.ts` (EXPIRED tier badge suppressed whenever any non-normal status pill renders). Tests: 35 new across `workspace-status.test.ts`, `ws-tier-badge-cancel-suppression.test.ts`, and new `past-due-credit-pipeline.test.ts` (real-pipeline integration on the exact RCA JSON, two permanent invariants encoded). Spec: `spec/22-app-issues/117-past-due-badge-credit-display-rca.md`.
 **Recently shipped:** **v3.21.0 — Lovable Dashboard standalone script** (2026-05-25).
 **Recently shipped:** **Issue 113 — Workspace tooltip + Members popup** (2026-05-25).
 **Recently shipped:** **v3.12.0 — Workspace Label Refinement** (2026-05-25).
+
 
 ---
 
