@@ -260,6 +260,20 @@ function _appendHeaderAndSubmenu(
   ].join(';') + ';';
   renderTaskNextSubmenu(tasksGroup, ctx, taskNextDeps);
   renderPlanTaskSubmenu(tasksGroup, ctx);
+  // Auto-close the floating Tasks panel when the pointer leaves it, so the
+  // hover-open UX behaves like a real menu (no need to click outside).
+  tasksGroup.onmouseleave = function() {
+    setTimeout(function() {
+      const toggle = container.querySelector('[data-tasks-toggle]') as HTMLElement | null;
+      if (toggle && toggle.matches(':hover')) return;
+      if (tasksGroup.matches(':hover')) return;
+      tasksGroup.style.display = 'none';
+      if (toggle) {
+        toggle.textContent = '🎯 Tasks ▸';
+        toggle.style.background = 'rgba(124,58,237,0.22)';
+      }
+    }, 180);
+  };
   container.appendChild(tasksGroup);
 
   const categories = collectUniqueCategories(entries);
