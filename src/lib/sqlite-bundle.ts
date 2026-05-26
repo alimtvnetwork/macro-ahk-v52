@@ -777,9 +777,10 @@ function readVariablesTable(db: Database): Map<string, Record<string, unknown>> 
   return out;
 }
 
-function readProjects(db: Database): StoredProject[] {
+function readProjects(db: Database, strict = false): StoredProject[] {
   let rows;
   try { rows = db.exec("SELECT * FROM Projects"); } catch {
+    if (strict) return [];
     try { rows = db.exec("SELECT * FROM projects"); } catch { return []; }
   }
   const hasRows = rows.length > 0 && rows[0].values.length > 0;
@@ -792,8 +793,8 @@ function readProjects(db: Database): StoredProject[] {
   const cols = rows[0].columns;
   return rows[0].values.map((row: SqlValue[]) => {
     const obj = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
-    const projectUid = resolveUid(obj);
-    const schemaVersion = (col(obj, "SchemaVersion", "schema_version") as number) ?? 1;
+    const projectUid = resolveUid(obj, strict);
+    const schemaVersion = (col(obj, "SchemaVersion", "schema_version", strict) as number) ?? 1;
     // v6 row-table promotion: when SchemaVersion >= 2 AND the rows exist,
     // prefer them over the legacy JSON blob (which is still emitted for
     // backward compatibility with v4/v5 readers).
@@ -801,7 +802,7 @@ function readProjects(db: Database): StoredProject[] {
     const dependencies = depRows && schemaVersion >= 2
       ? depRows
       : safeJsonParse(obj["Dependencies"] as string ?? null, [] as Array<{ projectId: string; version: string }>);
-    const settingsFromBlob = safeJsonParse(col(obj, "Settings", "settings") as string, {} as Record<string, unknown>);
+    const settingsFromBlob = safeJsonParse(col(obj, "Settings", "settings", strict) as string, {} as Record<string, unknown>);
     const varRows = varsByProject.get(projectUid);
     const settings = varRows && schemaVersion >= 2
       ? { ...settingsFromBlob, variables: varRows }
@@ -809,21 +810,21 @@ function readProjects(db: Database): StoredProject[] {
     return {
       id: projectUid,
       schemaVersion,
-      name: (col(obj, "Name", "name") as string),
+      name: (col(obj, "Name", "name", strict) as string),
       slug: (obj["Slug"] as string) ?? undefined,
-      version: (col(obj, "Version", "version") as string),
-      description: (col(obj, "Description", "description") as string) ?? undefined,
-      targetUrls: safeJsonParse(col(obj, "TargetUrls", "target_urls") as string, []),
-      scripts: safeJsonParse(col(obj, "Scripts", "scripts") as string, []),
-      configs: safeJsonParse(col(obj, "Configs", "configs") as string, []),
+      version: (col(obj, "Version", "version", strict) as string),
+      description: (col(obj, "Description", "description", strict) as string) ?? undefined,
+      targetUrls: safeJsonParse(col(obj, "TargetUrls", "target_urls", strict) as string, []),
+      scripts: safeJsonParse(col(obj, "Scripts", "scripts", strict) as string, []),
+      configs: safeJsonParse(col(obj, "Configs", "configs", strict) as string, []),
       cookies: safeJsonParse(obj["Cookies"] as string ?? null, []),
-      cookieRules: safeJsonParse(col(obj, "CookieRules", "cookie_rules") as string, []),
+      cookieRules: safeJsonParse(col(obj, "CookieRules", "cookie_rules", strict) as string, []),
       dependencies,
       settings,
       isGlobal: obj["IsGlobal"] === 1,
       isRemovable: obj["IsRemovable"] == null ? true : obj["IsRemovable"] === 1,
-      createdAt: (col(obj, "CreatedAt", "created_at") as string),
-      updatedAt: (col(obj, "UpdatedAt", "updated_at") as string),
+      createdAt: (col(obj, "CreatedAt", "created_at", strict) as string),
+      updatedAt: (col(obj, "UpdatedAt", "updated_at", strict) as string),
     } as StoredProject;
   });
 }
