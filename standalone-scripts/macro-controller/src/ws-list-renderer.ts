@@ -687,7 +687,7 @@ function computeMaxTotalCredits(workspaces: WorkspaceCredit[]): number {
   return maxTotalCredits;
 }
 
-function filterAndSortWorkspaces(
+export function filterAndSortWorkspaces(
   workspaces: WorkspaceCredit[],
   filter: string,
 ): Array<{ ws: WorkspaceCredit; wsIndex: number }> {
