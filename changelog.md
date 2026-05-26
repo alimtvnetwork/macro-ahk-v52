@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.30.1] — 2026-05-26
+
+### Added
+- **Cross-tab library-sync broadcast** — when a library asset is synced in one Options tab, other open Options tabs now receive a `LIBRARY_SYNC_BROADCAST` runtime message and display a toast notification showing how many linked projects were updated.
+
+### Changed
+- Version bump: 3.30.0 → 3.30.1 (all version files synced)
+
+---
+
 ## [v3.30.0] — 2026-05-26
 
 ### Added
