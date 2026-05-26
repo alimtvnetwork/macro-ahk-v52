@@ -287,16 +287,15 @@ if (cacheHit()) {
     const restoreStart = Date.now();
     clearDir(distDir);
     copyDirSync(cacheDistPath, distDir);
-    if (!validateRequiredPrimaryBundle("cache HIT restored incomplete dist")) {
-        clearDir(distDir);
-        clearDir(path.join(CACHE_ROOT, scriptName, fullHash));
-        if (fs.existsSync(cacheManifestPath)) fs.rmSync(cacheManifestPath, { force: true });
-        console.error(`[cache] deleted invalid cache entry for ${scriptName}; rerun the build so CI cannot upload an incomplete dist artifact`);
-        process.exit(1);
+    if (validateRequiredPrimaryBundle("cache HIT restored incomplete dist")) {
+        logHeader("HIT");
+        console.log(`           restored dist/ from cache in ${Date.now() - restoreStart}ms - skipped tsc + vite`);
+        process.exit(0);
     }
-    logHeader("HIT");
-    console.log(`           restored dist/ from cache in ${Date.now() - restoreStart}ms - skipped tsc + vite`);
-    process.exit(0);
+    clearDir(distDir);
+    clearDir(path.join(CACHE_ROOT, scriptName, fullHash));
+    if (fs.existsSync(cacheManifestPath)) fs.rmSync(cacheManifestPath, { force: true });
+    console.error(`[cache] deleted invalid cache entry for ${scriptName}; continuing with a fresh build so CI cannot upload an incomplete dist artifact`);
 }
 
 /* ------------------------------------------------------------------ */
