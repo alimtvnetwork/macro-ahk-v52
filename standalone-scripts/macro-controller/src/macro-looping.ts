@@ -105,6 +105,7 @@ import { Label } from './types';
     getLoopWsFreeOnly, setLoopWsFreeOnly,
     getLoopWsCompactMode, setLoopWsCompactMode,
     getLoopWsExpiredWithCredits, setLoopWsExpiredWithCredits,
+    getLoopWsExpiring, setLoopWsExpiring,
     getLoopWsRefillSoon, setLoopWsRefillSoon,
     getLoopWsRefillPriority, setLoopWsRefillPriority,
     getLoopWsNavIndex, setLoopWsNavIndex,
