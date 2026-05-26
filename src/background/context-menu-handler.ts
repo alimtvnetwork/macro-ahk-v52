@@ -124,20 +124,82 @@ function createStaticMenuItems(): void {
 
 const PROJECT_ID_PREFIX = "marco-project-";
 
-async function rebuildProjectSubmenu(): Promise<void> {
-    // Remove old project items
-    const existingMenuIds = await getProjectMenuIds();
-    for (const menuId of existingMenuIds) {
+// Serialize rebuilds: concurrent SET_ACTIVE_PROJECT / SAVE_PROJECT bursts were
+// racing on `trackedProjectIds`, so two rebuilds both saw the same "existing"
+// list, both removed it, then both tried to re-create the same ids → Chrome
+// fired "Cannot create item with duplicate id marco-project-<id>". A single
+// in-flight promise + a `pending` flag coalesces overlapping calls.
+let rebuildInFlight: Promise<void> | null = null;
+let rebuildPending = false;
+
+function removeMenuItem(menuId: string): Promise<void> {
+    return new Promise((resolve) => {
         try {
-            chrome.contextMenus.remove(menuId);
+            chrome.contextMenus.remove(menuId, () => {
+                // Swallow lastError: stale id during rebuild is expected.
+                void chrome.runtime.lastError;
+                resolve();
+            });
         } catch (removeErr) {
-            // Removing a stale menu id mid-rebuild is best-effort. If Chrome already
-            // GC'd it (e.g. SW restart), we'd rather continue the rebuild than abort.
-            logCaughtError(BgLogTag.CONTEXT_MENU, `chrome.contextMenus.remove("${menuId}") failed during submenu rebuild — continuing with other ids; user-visible regression possible if menu count diverges`, removeErr);
+            logCaughtError(
+                BgLogTag.CONTEXT_MENU,
+                `chrome.contextMenus.remove("${menuId}") threw during submenu rebuild — continuing; user-visible regression possible if menu count diverges`,
+                removeErr,
+            );
+            resolve();
         }
+    });
+}
+
+function createMenuItemSafe(props: chrome.contextMenus.CreateProperties): void {
+    try {
+        chrome.contextMenus.create(props, () => {
+            const err = chrome.runtime.lastError;
+            if (err) {
+                // Duplicate-id collisions are recoverable: log once and move on.
+                logCaughtError(
+                    BgLogTag.CONTEXT_MENU,
+                    `chrome.contextMenus.create("${String(props.id)}") failed — ${err.message}; menu item dropped this rebuild`,
+                    new Error(err.message),
+                );
+            }
+        });
+    } catch (createErr) {
+        logCaughtError(
+            BgLogTag.CONTEXT_MENU,
+            `chrome.contextMenus.create("${String(props.id)}") threw — dropping item this rebuild`,
+            createErr,
+        );
+    }
+}
+
+async function rebuildProjectSubmenu(): Promise<void> {
+    // If a rebuild is already running, mark that another is needed and reuse
+    // the in-flight promise. After it settles, we'll run exactly one more pass.
+    if (rebuildInFlight) {
+        rebuildPending = true;
+        return rebuildInFlight;
     }
 
-    const dummySender = {} as chrome.runtime.MessageSender;
+    rebuildInFlight = (async () => {
+        do {
+            rebuildPending = false;
+            await doRebuildProjectSubmenu();
+        } while (rebuildPending);
+    })().finally(() => {
+        rebuildInFlight = null;
+    });
+
+    return rebuildInFlight;
+}
+
+async function doRebuildProjectSubmenu(): Promise<void> {
+    // Snapshot + clear tracker BEFORE awaiting removes so a re-entrant call
+    // won't try to remove the same ids again.
+    const existingMenuIds = trackedProjectIds;
+    trackedProjectIds = [];
+
+    await Promise.all(existingMenuIds.map(removeMenuItem));
 
     const projectData = await sendInternalMessage<{
         activeProject: { id: string; name: string } | null;
@@ -149,7 +211,7 @@ async function rebuildProjectSubmenu(): Promise<void> {
     const hasProjects = projects.length > 0;
 
     if (!hasProjects) {
-        chrome.contextMenus.create({
+        createMenuItemSafe({
             id: PROJECT_ID_PREFIX + "none",
             parentId: MENU_ID.PROJECT_PARENT,
             title: "(no projects)",
@@ -159,26 +221,35 @@ async function rebuildProjectSubmenu(): Promise<void> {
         return;
     }
 
-    for (const project of projects) {
+    // De-duplicate by id in case upstream returned duplicates (root cause of
+    // "duplicate id" warnings when two projects shared an id).
+    const seen = new Set<string>();
+    const uniqueProjects = projects.filter((p) => {
+        if (seen.has(p.id)) return false;
+        seen.add(p.id);
+        return true;
+    });
+
+    const nextIds: string[] = [];
+    for (const project of uniqueProjects) {
         const isActive = project.id === activeId;
-        chrome.contextMenus.create({
-            id: PROJECT_ID_PREFIX + project.id,
+        const menuId = PROJECT_ID_PREFIX + project.id;
+        createMenuItemSafe({
+            id: menuId,
             parentId: MENU_ID.PROJECT_PARENT,
             type: "radio",
             title: project.name,
             checked: isActive,
             contexts: ["all"],
         });
+        nextIds.push(menuId);
     }
 
-    trackedProjectIds = projects.map((p) => PROJECT_ID_PREFIX + p.id);
+    trackedProjectIds = nextIds;
 }
 
 let trackedProjectIds: string[] = [];
 
-function getProjectMenuIds(): Promise<string[]> {
-    return Promise.resolve(trackedProjectIds);
-}
 
 /* ------------------------------------------------------------------ */
 /*  Internal Message Dispatch                                          */
