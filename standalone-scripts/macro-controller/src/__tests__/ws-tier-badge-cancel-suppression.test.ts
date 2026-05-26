@@ -51,7 +51,7 @@ describe('Issue 116 — Cancel suppresses redundant EXPIRED tier badge', () => {
     expect(html).not.toContain('#7f1d1d');
   });
 
-  it('Issue 117: tier=EXPIRED + past_due empty wallet → suppresses EXPIRED, shows only Expire/Expired pill', () => {
+  it('Issue 118: tier=EXPIRED + past_due empty wallet → suppresses EXPIRED, shows past-due-expiring pill', () => {
     const ws = makeWs({
       tier: 'EXPIRED',
       subscriptionStatus: 'past_due',
@@ -60,10 +60,10 @@ describe('Issue 116 — Cancel suppresses redundant EXPIRED tier badge', () => {
     const html = buildTierBadgeHtml(ws);
     expect(html).not.toContain('>EXPIRED<');
     expect(html).not.toContain('#7f1d1d');
-    expect(html).toMatch(/marco-ws-status-(expired|expire-soon)/);
+    expect(html).toContain('marco-ws-status-past-due-expiring');
   });
 
-  it('Issue 117: tier=EXPIRED + past_due with live grants → suppresses EXPIRED, shows Refill pill', () => {
+  it('Issue 118: tier=EXPIRED + past_due with live grants → suppresses EXPIRED, still past-due-expiring (overrides refill)', () => {
     const ws = makeWs({
       tier: 'EXPIRED',
       subscriptionStatus: 'past_due',
@@ -73,8 +73,7 @@ describe('Issue 116 — Cancel suppresses redundant EXPIRED tier badge', () => {
     });
     const html = buildTierBadgeHtml(ws);
     expect(html).not.toContain('>EXPIRED<');
-    expect(html).toContain('marco-ws-status-refill-soon');
-    expect(html).toMatch(/>Refill \d+d</);
+    expect(html).toContain('marco-ws-status-past-due-expiring');
   });
 
   it('Issue 117: tier=EXPIRED with no past_due/cancel still suppresses (collapses to Cancel pill)', () => {

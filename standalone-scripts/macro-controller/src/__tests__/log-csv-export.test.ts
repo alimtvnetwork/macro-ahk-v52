@@ -136,7 +136,7 @@ describe('CSV export — lifecycle column values', () => {
     expect(cols[idx]).toBe('normal');
   });
 
-  it('past_due workspace reports Status Kind = "about-to-expire"', () => {
+  it('past_due workspace reports Status Kind = "past-due-expiring"', () => {
     const lines = exportAndRead([makeWs({
       id: 'p', fullName: 'PastDue',
       subscriptionStatus: 'past_due',
@@ -145,7 +145,7 @@ describe('CSV export — lifecycle column values', () => {
     })]);
     const headers = lines[0].split(',');
     const cols = lines[1].split(',');
-    expect(cols[headers.indexOf('Status Kind')]).toBe('about-to-expire');
+    expect(cols[headers.indexOf('Status Kind')]).toBe('past-due-expiring');
     expect(cols[headers.indexOf('Days Since Status Change')]).toBe('3');
   });
 

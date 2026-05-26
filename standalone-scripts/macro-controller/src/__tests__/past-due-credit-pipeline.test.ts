@@ -124,16 +124,16 @@ describe('Issue 117 — pipeline: RCA payload → credit summary → badge', () 
     expect(ws.billingAvailable).toBe(20);
   });
 
-  it('classifier returns refill-soon with label "Refill 31d"', () => {
+  it('classifier returns past-due-expiring (Issue 118 supersedes Issue 117 refill mapping)', () => {
     const ws = buildWsCreditFromSummary();
     const status = getEffectiveStatus(ws, CFG, NOW_MS);
-    expect(status.kind).toBe('about-to-refill');
+    // Under Issue 118, past_due/unpaid always wins over refill-soon.
+    expect(status.kind).toBe('past-due-expiring');
     const display = classifyFromStatus(status, ws, NOW_MS);
-    expect(display.kind).toBe('refill-soon');
-    expect(display.label).toBe('Refill 31d');
+    expect(display.kind).toBe('past-due-expiring');
   });
 
-  it('rendered badge HTML: single Refill pill, no EXPIRED tier badge', () => {
+  it('rendered badge HTML: single past-due pill, no EXPIRED tier badge', () => {
     const ws = buildWsCreditFromSummary();
     const html = buildTierBadgeHtml(ws);
 
@@ -142,9 +142,8 @@ describe('Issue 117 — pipeline: RCA payload → credit summary → badge', () 
     // Exactly one status pill.
     const pillMatches = html.match(/class="marco-ws-status-pill/g) || [];
     expect(pillMatches.length).toBe(1);
-    // Pill is the refill variant with the right label.
-    expect(html).toContain('marco-ws-status-refill-soon');
-    expect(html).toMatch(/>Refill 31d</);
+    // Pill is the past-due-expiring variant.
+    expect(html).toContain('marco-ws-status-past-due-expiring');
   });
 
   /* -------- Regression invariants (live forever) --------------------- */

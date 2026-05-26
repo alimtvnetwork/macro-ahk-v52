@@ -131,19 +131,19 @@ describe('tier=EXPIRED (active subscription text) — grace boundary', () => {
 });
 
 /* ------------------------------------------------------------------ */
-/* 3. past_due / unpaid — always about-to-expire                       */
+/* 3. past_due / unpaid — always past-due-expiring                       */
 /* ------------------------------------------------------------------ */
 
-describe('past_due / unpaid — about-to-expire wins over refill', () => {
-  it.each(['past_due', 'unpaid'])('%s reports about-to-expire even with grace=0', (status) => {
+describe('past_due / unpaid — past-due-expiring wins over refill', () => {
+  it.each(['past_due', 'unpaid'])('%s reports past-due-expiring even with grace=0', (status) => {
     const ws = makeWs({
       subscriptionStatus: status,
       subscriptionStatusChangedAt: isoDaysAgo(60),
       tier: 'EXPIRED',
       nextRefillAt: isoDaysAhead(2),
     });
-    expect(getEffectiveStatus(ws, cfg(0, 7), NOW).kind).toBe('about-to-expire');
-    expect(getEffectiveStatus(ws, cfg(365, 30), NOW).kind).toBe('about-to-expire');
+    expect(getEffectiveStatus(ws, cfg(0, 7), NOW).kind).toBe('past-due-expiring');
+    expect(getEffectiveStatus(ws, cfg(365, 30), NOW).kind).toBe('past-due-expiring');
   });
 });
 
@@ -239,24 +239,24 @@ describe('priority interactions — higher rules suppress lower ones', () => {
     expect(getEffectiveStatus(ws, cfg(30, 7), NOW).kind).toBe('expired-canceled');
   });
 
-  it('past_due within refill window still reports about-to-expire', () => {
+  it('past_due within refill window still reports past-due-expiring', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       subscriptionStatusChangedAt: isoDaysAgo(1),
       tier: 'EXPIRED',
       nextRefillAt: isoDaysAhead(3),
     });
-    expect(getEffectiveStatus(ws, cfg(30, 7), NOW).kind).toBe('about-to-expire');
+    expect(getEffectiveStatus(ws, cfg(30, 7), NOW).kind).toBe('past-due-expiring');
   });
 
-  it('tier=EXPIRED with past_due is handled by past_due rule (about-to-expire), not expired', () => {
+  it('tier=EXPIRED with past_due is handled by past_due rule (past-due-expiring), not expired', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       subscriptionStatusChangedAt: isoDaysAgo(60),  // way past grace
       tier: 'EXPIRED',
     });
     // past_due wins over tier=EXPIRED + grace per workspace-status.ts:185 condition `!isPastDue`.
-    expect(getEffectiveStatus(ws, cfg(30, 7), NOW).kind).toBe('about-to-expire');
+    expect(getEffectiveStatus(ws, cfg(30, 7), NOW).kind).toBe('past-due-expiring');
   });
 
   it('fully-expired (canceled past grace) preempts everything below', () => {

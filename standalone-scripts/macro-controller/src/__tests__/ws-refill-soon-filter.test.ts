@@ -20,6 +20,8 @@ function makeDeps(initialRefillSoon: boolean): WsFilterMenuDeps {
     setLoopWsCompactMode: vi.fn(),
     getLoopWsExpiredWithCredits: vi.fn(() => false),
     setLoopWsExpiredWithCredits: vi.fn(),
+    getLoopWsExpiring: vi.fn(() => false),
+    setLoopWsExpiring: vi.fn(),
     getLoopWsRefillSoon: vi.fn(() => initialRefillSoon),
     setLoopWsRefillSoon: vi.fn(),
     getLoopWsRefillPriority: vi.fn(() => false),
