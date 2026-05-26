@@ -324,6 +324,19 @@ function isRefillSoonWs(ws: WorkspaceCredit): boolean {
   }
 }
 
+/** Check if a workspace currently classifies as "past-due-expiring" (expiring). */
+function isExpiringWs(ws: WorkspaceCredit): boolean {
+  try {
+    const cfg = getWorkspaceLifecycleConfig();
+    const source = getEffectiveStatus(ws, cfg);
+    const display = classifyFromStatus(source, ws);
+    return display.kind === 'past-due-expiring';
+  } catch (e: unknown) {
+    logError('passesFilters.expiring', 'Failed to classify workspace for expiring filter', e);
+    return false;
+  }
+}
+
 /** Check text match against workspace name / fullName. */
 function matchesTextFilter(ws: WorkspaceCredit, filter: string): boolean {
   if (!filter) return true;
