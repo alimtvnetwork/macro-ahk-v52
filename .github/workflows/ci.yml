@@ -1961,7 +1961,7 @@ jobs:
   # ════════════════════════════════════════════════════════════
   build-extension:
     name: Build · Chrome Extension
-    needs: [spec-links, no-nested-template-literals, eslint-run-summary-types, contract-checkers-wired, cicd-index-sync, changelog-entry, pascalcase-instruction-migration, report-standalone-registry, readme-conventions, typecheck-app, typecheck-standalone, lint-standalone, build-sdk, build-xpath, build-payment-banner-hider, build-macro-controller, build-prompts, casing-instruction-json, import-export-e2e]
+    needs: [spec-links, no-nested-template-literals, eslint-run-summary-types, contract-checkers-wired, cicd-index-sync, changelog-entry, pascalcase-instruction-migration, report-standalone-registry, readme-conventions, typecheck-app, typecheck-standalone, lint-standalone, build-sdk, build-xpath, build-payment-banner-hider, build-macro-controller, build-prompts, build-lovable-common, build-lovable-owner-switch, build-lovable-user-add, build-lovable-dashboard, casing-instruction-json, import-export-e2e]
     runs-on: ubuntu-latest
     # `actions: read` is required for `gh api .../actions/runs/.../artifacts`
     # used by the "Resolve payment-banner-hider artifact URL + id" step.
