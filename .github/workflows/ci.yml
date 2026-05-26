@@ -2063,6 +2063,14 @@ jobs:
           name: lovable-user-add-dist
           path: standalone-scripts/lovable-user-add/dist/
 
+      - name: Download Lovable Dashboard dist
+        uses: actions/download-artifact@v4
+        with:
+          name: lovable-dashboard-dist
+          path: standalone-scripts/lovable-dashboard/dist/
+
+
+
       # ── Artifact traceability ───────────────────────────────────
       # When a downstream step says "bundle missing", the first
       # question is always: WHICH artifact did we actually pull?
