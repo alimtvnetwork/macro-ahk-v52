@@ -204,16 +204,16 @@ export function getEffectiveStatus(
   nowMs?: number,
 ): WorkspaceStatus {
   const status = normalizeStatus(ws.subscriptionStatus);
-  const tier = (ws.tier || '').toUpperCase();
   const changedIso = ws.subscriptionStatusChangedAt;
   const daysSinceChange = changedIso ? daysBetween(changedIso, nowMs) : 0;
   const grace = cfg.expiryGracePeriodDays;
 
-  const isCanceled = status === 'canceled' || status === 'cancelled';
-  const isPastDue = status === 'past_due' || status === 'unpaid';
+  const isCanceled = isCanceledStatus(status);
+  const isPastDue = isPastDueStatus(status);
+  const tierExpired = isExpiredTier(ws.tier);
 
   if (isCanceled) return resolveCanceledStatus(changedIso, daysSinceChange, grace);
-  if (tier === 'EXPIRED' && !isPastDue) return resolveTierExpiredStatus(changedIso, daysSinceChange, grace);
+  if (tierExpired && !isPastDue) return resolveTierExpiredStatus(changedIso, daysSinceChange, grace);
   if (isPastDue) return resolvePastDueStatus(changedIso, daysSinceChange);
 
   const refillStatus = resolveRefillStatus(ws, cfg, nowMs);
