@@ -12,7 +12,6 @@ import {
   WsTierValue,
   PlanName,
   isCanceledStatus,
-  isPastDueStatus,
   isExpiredSubscriptionStatus,
   normalizeSubscriptionStatus,
 } from './types/subscription-status';
