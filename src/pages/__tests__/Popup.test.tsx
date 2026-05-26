@@ -10,7 +10,7 @@ import { render, screen } from "@testing-library/react";
 
 vi.mock("@/hooks/use-popup-data", () => ({
     usePopupData: () => ({
-        projectData: { projects: [], activeProjectId: null },
+        projectData: { allProjects: [], activeId: null },
         status: {
             version: "3.30.1",
             loggingMode: "verbose",
