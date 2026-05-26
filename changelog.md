@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.27.0] — 2026-05-26
+
+### Changed
+- **`scripts/download-extension.ps1` keeps the ZIP as a local backup** — the release archive is now downloaded **into the current working directory** (next to the extracted folder) instead of `$TEMP`, and is **never deleted** on success. Re-runs overwrite only the extracted folder; the `marco-extension-<version>.zip` backup remains in place for re-extraction or archival.
+- **README + release-notes one-liners stripped of inline comments** — every `download-extension.ps1` snippet in `readme.md` and `.github/workflows/release.yml` no longer carries `# Windows · PowerShell …` comments inside the code fence. The platform / purpose label is now a bold heading **above** each code block (per user request), so paste-into-PowerShell is comment-free and the env-var line is single-line (no backtick continuation).
+- **Context menu duplicate-id race fixed** — `src/background/context-menu-handler.ts` now serializes `rebuildProjectSubmenu()` via a single-flight lock, awaits Chrome's `contextMenus.remove` callback, de-duplicates the incoming project list by `id`, and swallows `chrome.runtime.lastError` on `create`/`remove`. Eliminates the `Unchecked runtime.lastError: Cannot create item with duplicate id marco-project-*` warnings observed in the Errors panel.
+
+### Removed
+- **`.gitmap/release/` snapshot folder deleted** (per user request) — historical release manifests are no longer tracked under that path.
+
+---
+
 ## [v3.26.0] — 2026-05-26
 
 ### Added
