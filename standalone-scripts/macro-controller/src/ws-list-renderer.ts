@@ -59,7 +59,19 @@ const CSS_BG = ';background:';
 // CQ11/CQ17: Encapsulated view-filter state
 // ============================================
 
-/** Manages workspace list view state (compact mode, free-only filter, expired-with-credits filter, refill-soon filter, refill-priority sort). */
+/**
+ * Credit-sort filter modes (v3.30.0 — credit-sort hamburger row).
+ *
+ * - `none`     — no credit sort applied (default ordering wins).
+ * - `high`     — sort all surviving rows by available credits DESC.
+ * - `low`      — sort all surviving rows by available credits ASC.
+ * - `pro-high` — only paid (non-FREE) workspaces in an expiring / expired
+ *                lifecycle state; sort DESC by available credits.
+ * - `pro-low`  — same filter as `pro-high`; sort ASC.
+ */
+export type CreditSortMode = 'none' | 'high' | 'low' | 'pro-high' | 'pro-low';
+
+/** Manages workspace list view state (compact, free-only, expired-with-credits, refill-soon, refill-priority, credit-sort mode). */
 class WsListViewState {
   private static instance: WsListViewState | null = null;
   private isFreeOnly = false;
@@ -68,10 +80,12 @@ class WsListViewState {
   private isRefillSoon = false;
   private isCompactMode: boolean;
   private isRefillPriority: boolean;
+  private creditSortMode: CreditSortMode;
 
   private constructor() {
     this.isCompactMode = this.loadBool('ml_compact_mode', true);
     this.isRefillPriority = this.loadBool('ml_refill_priority', false);
+    this.creditSortMode = this.loadCreditSortMode();
   }
 
   static getInstance(): WsListViewState {
@@ -93,6 +107,20 @@ class WsListViewState {
 
       return fallback;
     }
+  }
+
+  private loadCreditSortMode(): CreditSortMode {
+    try {
+      const stored = localStorage.getItem('ml_credit_sort_mode');
+      if (stored === 'high' || stored === 'low'
+        || stored === 'pro-high' || stored === 'pro-low') {
+        return stored;
+      }
+    } catch (e: unknown) {
+      logError('viewState.loadCreditSortMode',
+        'Failed to read credit sort mode from localStorage', e);
+    }
+    return 'none';
   }
 
   getCompactMode(): boolean { return this.isCompactMode; }
@@ -118,6 +146,18 @@ class WsListViewState {
       localStorage.setItem('ml_refill_priority', val ? 'true' : 'false');
     } catch (e: unknown) {
       logError('viewState.setRefillPriority', 'Failed to persist refill priority flag', e);
+    }
+  }
+
+  getCreditSortMode(): CreditSortMode { return this.creditSortMode; }
+
+  setCreditSortMode(val: CreditSortMode): void {
+    this.creditSortMode = val;
+    try {
+      localStorage.setItem('ml_credit_sort_mode', val);
+    } catch (e: unknown) {
+      logError('viewState.setCreditSortMode',
+        'Failed to persist credit sort mode', e);
     }
   }
 }
