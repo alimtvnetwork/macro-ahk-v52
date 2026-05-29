@@ -291,6 +291,7 @@ function buildStoredScript(def: SeedScriptEntry, project: SeedProjectEntry, mani
         themeBinding: resolveConfigSeedId(def.ThemeBinding, project),
         cookieBinding: def.CookieBinding,
         urlMatches: extractUrlMatches(project),
+        urlMatchRules: extractUrlMatchRules(project),
         createdAt: now,
         updatedAt: now,
     };
