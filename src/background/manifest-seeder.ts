@@ -502,13 +502,32 @@ function resolveDependencyIds(manifest: SeedManifest, project: SeedProjectEntry)
  */
 export async function seedProjectsFromManifest(
     manifest: SeedManifest,
-): Promise<{ seeded: number; errors: string[] }> {
+): Promise<{ seeded: number; errors: string[]; migrated: number }> {
     const result = await chrome.storage.local.get(STORAGE_KEY_ALL_PROJECTS);
-    const stored: StoredProject[] = Array.isArray(result[STORAGE_KEY_ALL_PROJECTS])
+    const initial: StoredProject[] = Array.isArray(result[STORAGE_KEY_ALL_PROJECTS])
         ? result[STORAGE_KEY_ALL_PROJECTS]
         : [];
 
-    let changed = false;
+    // Migration guard (Issue 119 Step 7): collapse duplicate ids, drop
+    // legacy slug-collisions in favour of the canonical SeedId, and bump
+    // schemaVersion on stale records. Runs before upsert so the diff
+    // loop sees a clean baseline.
+    const canonicalIds = new Set(
+        manifest.Projects
+            .filter((p) => p.SeedOnInstall && !PROJECT_OWNED_BY_DEFAULT_SEEDER.has(p.Name))
+            .map((p) => p.SeedId),
+    );
+    const canonicalSlugs = new Map(
+        manifest.Projects
+            .filter((p) => p.SeedOnInstall && !PROJECT_OWNED_BY_DEFAULT_SEEDER.has(p.Name))
+            .map((p) => [p.Name, p.SeedId]),
+    );
+    const { migrated, projects: stored } = migrateLegacyProjectRecords(
+        initial,
+        canonicalIds,
+        canonicalSlugs,
+    );
+    let changed = migrated > 0;
     let seeded = 0;
     const errors: string[] = [];
 
@@ -546,8 +565,72 @@ export async function seedProjectsFromManifest(
         await chrome.storage.local.set({ [STORAGE_KEY_ALL_PROJECTS]: stored });
     }
 
-    return { seeded, errors };
+    return { seeded, errors, migrated };
 }
+
+/**
+ * Current StoredProject schema version for projects emitted by the manifest seeder.
+ * Bump when the shape changes; legacy rows with lower values are upgraded
+ * via `migrateLegacyProjectRecords` instead of being left behind.
+ */
+export const PROJECT_SCHEMA_VERSION = 1;
+
+/**
+ * Migration guard (Issue 119 Step 7).
+ *
+ * Reconciles existing storage with manifest expectations:
+ *  - drops duplicate ids (keeps the first occurrence),
+ *  - drops legacy records whose `slug` collides with a canonical SeedId
+ *    so the upsert loop can insert the canonical row,
+ *  - bumps `schemaVersion` on rows below the current version.
+ */
+export function migrateLegacyProjectRecords(
+    projects: StoredProject[],
+    canonicalIds: Set<string>,
+    canonicalSlugs: Map<string, string>,
+): { projects: StoredProject[]; migrated: number } {
+    const seenIds = new Set<string>();
+    const out: StoredProject[] = [];
+    let migrated = 0;
+
+    for (const project of projects) {
+        // Drop exact-id duplicates (last-wins would lose user state — keep first).
+        if (seenIds.has(project.id)) {
+            console.log("[manifest-seeder:migrate] drop duplicate id=%s", project.id);
+            migrated++;
+            continue;
+        }
+
+        // Drop legacy slug-collision rows so the canonical SeedId can claim the slot.
+        const canonicalForSlug = project.slug ? canonicalSlugs.get(project.slug) : undefined;
+        const isLegacySlugCollision =
+            canonicalForSlug !== undefined &&
+            canonicalForSlug !== project.id &&
+            !canonicalIds.has(project.id);
+
+        if (isLegacySlugCollision) {
+            console.log(
+                "[manifest-seeder:migrate] drop legacy slug-collision slug=%s id=%s (canonical=%s)",
+                project.slug, project.id, canonicalForSlug,
+            );
+            migrated++;
+            continue;
+        }
+
+        seenIds.add(project.id);
+
+        // Bump schemaVersion in place if stale.
+        if ((project.schemaVersion ?? 0) < PROJECT_SCHEMA_VERSION) {
+            out.push({ ...project, schemaVersion: PROJECT_SCHEMA_VERSION });
+            migrated++;
+        } else {
+            out.push(project);
+        }
+    }
+
+    return { projects: out, migrated };
+}
+
 
 /** Builds a canonical `StoredProject` from a manifest project entry. */
 export function buildStoredProjectFromSeed(project: SeedProjectEntry): StoredProject {
