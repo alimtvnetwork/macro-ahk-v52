@@ -1,5 +1,12 @@
 # Macro Controller — Changelog
 
+## v3.34.1 (2026-05-29)
+
+### Fixed
+- **Issue 121 follow-up — Pro credit-sort filter restores naturally-expired workspaces** — `isProExpiringWs()` no longer drops rows whose display.kind collapses to `'canceled'` when the underlying `subscriptionStatus` is `'expired'` (recovery candidates). Only literal `canceled`/`cancelled` subscriptions are excluded. E2E `run-credit-sort-e2e.test.ts` 7/7 pass.
+
+---
+
 ## v3.34.0 (2026-05-29)
 
 ### Added
