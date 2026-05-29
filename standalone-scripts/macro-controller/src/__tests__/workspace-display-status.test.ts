@@ -130,14 +130,37 @@ describe('classifyWorkspaceDisplayStatus — past-due-expiring (Issue 118 rev)',
     expect(d.tone).toBe('warning');
   });
 
-  it('past_due, daysSince=12 → past-due-expiring / danger tone', () => {
+  it('past_due, daysSince=9 → past-due-expiring / warning tone (just under grace)', () => {
+    const ws = makeWs({
+      subscriptionStatus: 'past_due',
+      subscriptionStatusChangedAt: new Date(NOW - 9 * 86_400_000).toISOString(),
+    });
+    const d = classifyWorkspaceDisplayStatus(ws, CFG, NOW);
+    expect(d.kind).toBe('past-due-expiring');
+    expect(d.tone).toBe('warning');
+  });
+
+  it('past_due, daysSince=12 → expired-hard / single red pill / danger tone', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       subscriptionStatusChangedAt: new Date(NOW - 12 * 86_400_000).toISOString(),
     });
     const d = classifyWorkspaceDisplayStatus(ws, CFG, NOW);
-    expect(d.kind).toBe('past-due-expiring');
+    expect(d.kind).toBe('expired-hard');
     expect(d.tone).toBe('danger');
+    expect(d.label).toBe('Expired 12d');
+    // single-pill: sublabel must be absent so renderer emits ONE pill
+    expect(d.sublabel).toBeUndefined();
+  });
+
+  it('past_due, daysSince=10 → expired-hard (grace boundary inclusive)', () => {
+    const ws = makeWs({
+      subscriptionStatus: 'past_due',
+      subscriptionStatusChangedAt: new Date(NOW - 10 * 86_400_000).toISOString(),
+    });
+    const d = classifyWorkspaceDisplayStatus(ws, CFG, NOW);
+    expect(d.kind).toBe('expired-hard');
+    expect(d.label).toBe('Expired 10d');
   });
 });
 
