@@ -97,13 +97,18 @@ interface CreditBarOpts {
   available?: number;
   totalUsed?: number;
   freeRemaining?: number;
+  freeGranted?: number;
   billingAvail?: number;
+  billingLimit?: number;
   rollover?: number;
+  rolloverLimit?: number;
   dailyFree?: number;
+  dailyLimit?: number;
   compact?: boolean;
   maxTotalCredits?: number;
   marginTop?: string;
 }
+
 
  
 export function renderCreditBar(opts: CreditBarOpts): string {
