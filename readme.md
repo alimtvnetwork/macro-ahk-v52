@@ -841,6 +841,69 @@ A monorepo with three primary trees: **runtime code** (extension + standalone sc
 
 > **Spec-tree layout authority:** `spec/01-spec-authoring-guide/` is the source of truth. Slots **01–20 are reserved for foundations only** (no app-specific content). App content lives at slot **21+**. The `.spec-folder-registry.json` + `pnpm run check:spec-folders` guards against auto-cleanup pruning sparse folders. Validation reports under `spec/validation-reports/` document migrations and audits.
 
+---
+
+## For AI Agents — What To Read First
+
+> Onboarding map for any AI session (including the next instance of yourself).
+> The authoritative, always-updated copy lives at
+> [`.lovable/memory/what-to-read.md`](./.lovable/memory/what-to-read.md) — read
+> it on every fresh session before touching code.
+
+**Minimum reading order on a fresh session:**
+
+1. `.lovable/memory/what-to-read.md` — this onboarding map (start here)
+2. `.lovable/memory/index.md` — always-loaded core rules + memory index
+3. `.lovable/strictly-avoid.md` — hard prohibitions
+4. `.lovable/coding-guidelines.md` — engineering rules
+5. `.lovable/plan.md` — active prioritized backlog
+6. `spec/00-overview.md` — spec-tree master index
+7. `spec/26-macro-controller/` — Macro Controller architecture + JSON contracts
+8. `readme.md` § Project Structure (above) — folder layout
+
+### Canonical JSON contracts (Macro Controller)
+
+All runtime JSON is **generated from source** — edit the source, not the JSON.
+
+| JSON (output) | Source of truth | Generator |
+|---------------|-----------------|-----------|
+| `standalone-scripts/macro-controller/02-macro-controller-config.json` | `standalone-scripts/macro-controller/src/config-validator.ts` + `src/instruction.ts` | `scripts/compile-instruction.mjs` |
+| `standalone-scripts/macro-controller/03-macro-prompts.json` | `standalone-scripts/prompts/<NN-slug>/prompt.md` + `info.json` | `scripts/aggregate-prompts.mjs` |
+| `standalone-scripts/macro-controller/04-macro-theme.json` | `standalone-scripts/macro-controller/less/` + `config-validator.ts` defaults | build pipeline |
+| `standalone-scripts/<script>/dist/instruction.json` | `standalone-scripts/<script>/src/instruction.ts` | `scripts/compile-instruction.mjs` |
+| `standalone-scripts/macro-controller/dist/templates.json` | `standalone-scripts/macro-controller/templates/*.html` | `scripts/compile-templates.mjs` |
+
+CI guards: `check-prompt-info-casing.mjs`, `check-instruction-json-casing.mjs`,
+`check-pascalcase-instruction-migration.mjs`, `validate-instruction-schema.mjs`.
+
+### Adding a new prompt (a.k.a. "slug")
+
+1. Create `standalone-scripts/prompts/<NN-slug>/` (next free numeric prefix).
+2. Add **two** files:
+   - `prompt.md` — full prompt body
+   - `info.json` — `{ name, slug, id: "default-<slug>", version, order, isDefault, category }`
+3. Run `node scripts/aggregate-prompts.mjs` (also wired into the build).
+4. Bump the patch version across **all five** pinning points (`manifest.json`,
+   `src/shared/constants.ts`, `standalone-scripts/macro-controller/src/instruction.ts`,
+   `standalone-scripts/macro-controller/src/shared-state.ts`, `readme.md`).
+5. Add a `changelog.md` + `standalone-scripts/macro-controller/changelog.md` entry.
+
+### Adding a new config key
+
+1. Add typed default in `standalone-scripts/macro-controller/src/config-validator.ts`.
+2. Update seeded `02-macro-controller-config.json`.
+3. Document under `spec/26-macro-controller/` and
+   `spec/06-seedable-config-architecture/`.
+4. Add a unit test under
+   `standalone-scripts/macro-controller/src/__tests__/`.
+5. Version bump + changelog entry.
+
+> Full details, hard-rules, and the standalone-script scaffolding flow live in
+> [`.lovable/memory/what-to-read.md`](./.lovable/memory/what-to-read.md).
+
+---
+
+
 ### Tech Stack
 
 | Layer | Technology |
