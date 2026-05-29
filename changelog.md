@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.34.1] — 2026-05-29
+
+### Fixed
+- **Issue 121 follow-up — Pro credit-sort filter now includes naturally-expired workspaces** — `isProExpiringWs()` previously excluded all display.kind='canceled' rows, which inadvertently dropped `subscriptionStatus='expired'` PRO workspaces (the recovery candidates the filter is meant to surface). Filter now only excludes rows whose underlying `subscriptionStatus` is literally `canceled`/`cancelled`. Naturally-expired Pro workspaces (e.g. `ws-004`, `ws-005` in the E2E fixture) are restored to `pro-high` / `pro-low` survivor lists.
+- E2E `run-credit-sort-e2e.test.ts` now passes 7/7 (was 5/7).
+
+---
+
 ## [v3.34.0] — 2026-05-29
 
 ### Added
