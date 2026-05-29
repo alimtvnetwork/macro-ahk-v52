@@ -10,7 +10,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { buildStatusPillHtml } from '../ws-list-renderer';
-import { buildHoverCardHtml } from '../ws-hover-card';
+import { buildWorkspaceHoverHtml as buildHoverCardHtml } from '../ws-hover-card';
 import { getEffectiveStatus } from '../workspace-status';
 import { classifyWorkspaceDisplayStatus } from '../workspace-display-status';
 import { resolveBadgeStyle, styleContainsRedPalette } from '../workspace-badge-styles';
