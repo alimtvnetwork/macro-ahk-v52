@@ -9,7 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.34.0] — 2026-05-29
+
+### Added
+- **Issue 123 — Credit-totals test matrix (51 tests across 5 files)** — comprehensive coverage for every account type and credit-calculation branch:
+  - `issue-123-credit-totals-pro1.test.ts` (10) — pro_1 fresh / partial / fully consumed / over-consumption / trialing / past_due / missing fields / legacy "sum-of-pools" negative / multi-workspace / Infinity sentinels.
+  - `issue-123-credit-totals-pro3-lite-ktlo.test.ts` (10) — pro_3 / lite / ktlo plans share the billing-only branch; negative assertions that enriched fields never leak in.
+  - `issue-123-credit-totals-pro0.test.ts` (10) — pro_0 enriched `/credit-balance` branch; negative that `ws.limit/used` are ignored; mixed pro_0+pro_1 lists; case-insensitive + whitespace-padded plan strings.
+  - `issue-123-credit-totals-free-mixed.test.ts` (10) — FREE-tier exclusion (by `plan='free'` AND/OR `tier='FREE'`); daily MAX across rows; FREE_DAILY_CAP clamp; bogus billing on FREE rows stays excluded.
+  - `issue-123-credit-totals-e2e-json.test.ts` (11) — end-to-end pipeline: hand-crafted Lovable `/api/user/workspaces` JSON → `parseLoopApiResponse` → exported `aggregateCreditTotals`. Includes the exact P0065 user-bug payload, canceled lifecycle override path, bare-array response, and negative `granted ≠ 105` regression.
+
+### Changed
+- Version bump: 3.33.0 → 3.34.0 (all version files + README pin synced).
+
+---
+
 ## [v3.33.0] — 2026-05-29
+
 
 ### Fixed
 - **Issue 122 — workspace credit-bar pool indicators showed bare remaining** — the per-row 💰 Monthly / 🔄 Rollover / 📅 Free / 🎁 Bonus chips rendered only the remaining number (e.g. `💰 0`), making a fully-consumed pool indistinguishable from "no pool exists". A `pro_1` workspace with 100/100 billing used now correctly renders `💰 0/100` so the plan grant stays visible alongside what's left. Daily / rollover / bonus chips get the same `remaining/limit` treatment. The `⚡ available/total` summary is unchanged.

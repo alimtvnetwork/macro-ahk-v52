@@ -1,6 +1,14 @@
 # Macro Controller — Changelog
 
+## v3.34.0 (2026-05-29)
+
+### Added
+- **Issue 123 — Credit-totals test matrix (51 tests / 5 files)** — every account type (`pro_1`, `pro_3`, `lite`, `ktlo`, `pro_0`, `FREE`) gets 10+ positive/negative function-based assertions plus an 11-test end-to-end suite that drives realistic Lovable `/api/user/workspaces` JSON payloads through `parseLoopApiResponse → aggregateCreditTotals`. Locks down the Issue 120 (billing-only for non-`pro_0`) and Issue 122 (P0065 100/100 = 0 remaining) regressions with explicit `.not.toBe(105)` / `.not.toBe(999)` checks so future refactors can't silently re-introduce sum-of-pools behavior.
+
+---
+
 ## v3.33.0 (2026-05-29)
+
 
 ### Fixed
 - **Issue 122 — credit-bar pool chips show "remaining/limit"** — `renderCreditBar()` (`credit-api.ts`) now formats 💰 Monthly / 🔄 Rollover / 📅 Free / 🎁 Bonus as `remaining/limit` (e.g. `💰 0/100`) instead of bare remaining (`💰 0`). Fully-consumed pools are no longer confused with absent pools. Caller `buildWsRow` in `ws-list-renderer.ts` now passes through `billingLimit`, `rolloverLimit`, `dailyLimit`, and `freeGranted` from the workspace record. Regression test: `__tests__/issue-122-credit-bar-pool-denominator.test.ts`.
