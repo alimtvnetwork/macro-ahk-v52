@@ -414,6 +414,7 @@ function isProExpiringWs(ws: WorkspaceCredit): boolean {
     // recoverable past-due / about-to-expire rows qualify for the Pro
     // credit-sort filter.
     return display.kind === 'past-due-expiring'
+      || display.kind === 'expired'
       || display.kind === 'expire-soon';
   } catch (e: unknown) {
     logError('passesFilters.proExpiring',
