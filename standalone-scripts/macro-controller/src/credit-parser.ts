@@ -164,6 +164,31 @@ function extractLifecycleMeta(readField: (key: string) => unknown): LifecycleMet
 // ============================================
 // parseWorkspaceItem — extract a single workspace from API response
 // ============================================
+/**
+ * Issue 122 (pro_1 calc): for plan='pro_1', user-specified formula is
+ *   Total     = total_credits_used_in_billing_period + daily_credits_limit + billing_period_credits_limit
+ *   Used      = total_credits_used_in_billing_period
+ *   Available = max(0, Total - Used - daily_credits_used)
+ *               = daily_credits_limit + billing_period_credits_limit - daily_credits_used
+ *
+ * Ambiguity log: .lovable/question-and-ambiguity/122-pro1-total-calculation.md
+ * Other plans (pro_0 — enriched separately; lite/ktlo/free) keep legacy calc.
+ */
+const PRO_ONE_PLAN_LITERAL = 'pro_1';
+
+interface ProOneCalc { totalCredits: number; available: number; totalCreditsUsed: number; }
+
+function calcProOne(
+  totalCreditsUsedInBillingPeriod: number,
+  dLimit: number,
+  bLimit: number,
+  dUsed: number,
+): ProOneCalc {
+  const totalCredits = Math.round(totalCreditsUsedInBillingPeriod + dLimit + bLimit);
+  const available = Math.max(0, Math.round(totalCredits - totalCreditsUsedInBillingPeriod - dUsed));
+  return { totalCredits, available, totalCreditsUsed: Math.round(totalCreditsUsedInBillingPeriod) };
+}
+
 function parseWorkspaceItem(rawItem: Record<string, unknown>, wsIdx: number): import('./types').WorkspaceCredit {
   const rawWs = rawItem as Record<string, unknown>;
   const ws = (rawWs.workspace || rawWs) as Record<string, number | string>;
@@ -176,25 +201,42 @@ function parseWorkspaceItem(rawItem: Record<string, unknown>, wsIdx: number): im
   const freeGranted = (ws.credits_granted as number) || 0;
   const freeUsed = (ws.credits_used as number) || 0;
   const topupLimit = Math.round((ws.topup_credits_limit as number) || 0);
-  const totalCredits = calcTotalCredits(freeGranted, dLimit, bLimit, topupLimit, rLimit);
+  const totalCreditsUsedRaw = (ws.total_credits_used as number) || 0;
+  const totalCreditsUsedBpRaw = (ws.total_credits_used_in_billing_period as number) || totalCreditsUsedRaw;
   // Helper: read a field that may live either on the inner ws record (flat shape)
   // or on rawWs.workspace (nested shape). ws already resolves rawWs.workspace || rawWs.
   const readField = (key: string): unknown => (ws as Record<string, unknown>)[key];
   const subStatus = (readField('subscription_status') || '') as string;
   const plan = (readField('plan') || '') as string;
   const meta = extractLifecycleMeta(readField);
+
+  const isProOne = (plan || '').toLowerCase().trim() === PRO_ONE_PLAN_LITERAL;
+  let totalCredits: number;
+  let available: number;
+  let totalCreditsUsed: number;
+  if (isProOne) {
+    const calc = calcProOne(totalCreditsUsedBpRaw, dLimit, bLimit, dUsed);
+    totalCredits = calc.totalCredits;
+    available = calc.available;
+    totalCreditsUsed = calc.totalCreditsUsed;
+  } else {
+    totalCredits = calcTotalCredits(freeGranted, dLimit, bLimit, topupLimit, rLimit);
+    available = calcAvailableCredits(totalCredits, rUsed, dUsed, bUsed, freeUsed);
+    totalCreditsUsed = Math.round(totalCreditsUsedRaw);
+  }
+
   return {
     id: (ws.id as string) || '',
     name: ((ws.name as string) || 'WS' + wsIdx).substring(0, 12),
     fullName: (ws.name as string) || 'WS' + wsIdx,
     dailyFree: Math.max(0, Math.round(dLimit - dUsed)), dailyLimit: Math.round(dLimit), dailyUsed: Math.round(dUsed),
     rollover: Math.max(0, Math.round(rLimit - rUsed)), rolloverLimit: Math.round(rLimit), rolloverUsed: Math.round(rUsed),
-    available: calcAvailableCredits(totalCredits, rUsed, dUsed, bUsed, freeUsed),
+    available,
     billingAvailable: Math.max(0, Math.round(bLimit - bUsed)),
     used: Math.round(bUsed), limit: Math.round(bLimit),
     freeGranted: Math.round(freeGranted), freeRemaining: Math.max(0, Math.round(freeGranted - freeUsed)),
     hasFree: freeGranted > 0 && freeUsed < freeGranted,
-    topupLimit, totalCreditsUsed: Math.round((ws.total_credits_used as number) || 0), totalCredits,
+    topupLimit, totalCreditsUsed, totalCredits,
     subscriptionStatus: subStatus,
     subscriptionStatusChangedAt: (readField('subscription_status_changed_at') || '') as string,
     plan, role: (readField('role') || 'N/A') as string,
