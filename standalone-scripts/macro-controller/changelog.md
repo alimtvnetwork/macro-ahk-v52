@@ -1,6 +1,14 @@
 # Macro Controller — Changelog
 
+## v3.33.0 (2026-05-29)
+
+### Fixed
+- **Issue 122 — credit-bar pool chips show "remaining/limit"** — `renderCreditBar()` (`credit-api.ts`) now formats 💰 Monthly / 🔄 Rollover / 📅 Free / 🎁 Bonus as `remaining/limit` (e.g. `💰 0/100`) instead of bare remaining (`💰 0`). Fully-consumed pools are no longer confused with absent pools. Caller `buildWsRow` in `ws-list-renderer.ts` now passes through `billingLimit`, `rolloverLimit`, `dailyLimit`, and `freeGranted` from the workspace record. Regression test: `__tests__/issue-122-credit-bar-pool-denominator.test.ts`.
+
+---
+
 ## v3.32.0 (2026-05-29)
+
 
 ### Fixed
 - **Issue 120 — pro_1 Credit Totals over-reporting** — `aggregateCreditTotals()` now reads billing-period fields (`ws.limit` / `ws.billingAvailable` / `ws.used`, mapped from `billing_period_credits_limit` / available / used) for non-`pro_0` plans (`pro_1`, `pro_3`, `lite`, `ktlo`). The previous behaviour summed all five credit pools (granted+daily+billing+topup+rollover) and inflated `Total` / `Remaining` for every paid `pro_1` workspace. `pro_0` still uses the enriched `/credit-balance` fields; `FREE` tier remains excluded. New `pro_1`-specific regression test in `__tests__/credit-totals.test.ts` plus updated fixtures (11/11 + 83/83 credit-totals suite green).
