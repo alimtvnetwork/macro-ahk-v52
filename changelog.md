@@ -9,7 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.33.0] — 2026-05-29
+
+### Fixed
+- **Issue 122 — workspace credit-bar pool indicators showed bare remaining** — the per-row 💰 Monthly / 🔄 Rollover / 📅 Free / 🎁 Bonus chips rendered only the remaining number (e.g. `💰 0`), making a fully-consumed pool indistinguishable from "no pool exists". A `pro_1` workspace with 100/100 billing used now correctly renders `💰 0/100` so the plan grant stays visible alongside what's left. Daily / rollover / bonus chips get the same `remaining/limit` treatment. The `⚡ available/total` summary is unchanged.
+
+### Changed
+- Version bump: 3.32.0 → 3.33.0 (all version files + README pin synced).
+
+---
+
 ## [v3.32.0] — 2026-05-29
+
 
 ### Fixed
 - **Issue 120 — pro_1 Credit Totals over-reporting** — the Credit Totals modal was showing inflated `Total` / `Remaining` for paid `pro_1` (and `pro_3`, `lite`, `ktlo`) workspaces because the aggregator summed all five credit pools (`granted + daily + billing + topup + rollover`). It now uses the **billing-period fields only** (`billing_period_credits_limit` / `_used`) for non-`pro_0` plans, matching the historical spec (`spec/21-app/03-data-and-api/api-response/04-plan.md` line 40 and `spec/21-app/02-features/macro-controller/credit-system.md`). `pro_0` continues to use the authoritative `/credit-balance` enriched fields; `FREE` tier remains excluded from billing sums (Core rule).

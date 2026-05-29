@@ -409,8 +409,12 @@ function isProExpiringWs(ws: WorkspaceCredit): boolean {
     const config = getWorkspaceLifecycleConfig();
     const source = getEffectiveStatus(ws, config);
     const display = classifyFromStatus(source, ws);
+    // v3.32.1: 'canceled' rows are intentionally EXCLUDED — user request:
+    // "the free version or the canceled ones should not be there". Only
+    // recoverable past-due / about-to-expire rows qualify for the Pro
+    // credit-sort filter.
     return display.kind === 'past-due-expiring'
-      || display.kind === 'canceled'
+      || display.kind === 'expired-hard'
       || display.kind === 'expire-soon';
   } catch (e: unknown) {
     logError('passesFilters.proExpiring',
@@ -428,6 +432,14 @@ function matchesTextFilter(ws: WorkspaceCredit, filter: string): boolean {
 
 /** Check expired-with-credits filter sub-conditions. */
 function matchesExpiredWithCreditsFilter(ws: WorkspaceCredit): boolean {
+  // v3.32.1: FREE-tier workspaces and fully-canceled subscriptions are
+  // explicitly excluded — user request: "the free version or the canceled
+  // ones should not be there". Only PAID rows that are past-due / unpaid
+  // (recoverable) AND still hold residual credits qualify.
+  const tier = (ws.tier || WsTierValue.FREE).toUpperCase().trim();
+  if (tier === WsTierValue.FREE) return false;
+  const sub = (ws.subscriptionStatus || '').toLowerCase().trim();
+  if (sub === 'canceled' || sub === 'cancelled') return false;
   if (!isExpiredWs(ws)) return false;
   if ((ws.available || 0) <= EXPIRED_WITH_CREDITS_MIN) return false;
   return true;
@@ -678,9 +690,13 @@ function buildWsRow(
   const totalCap = Math.round(ws.totalCredits ?? calcTotalCredits(ws.freeGranted, ws.dailyLimit, ws.limit, ws.topupLimit, ws.rolloverLimit, ws.plan));
   const creditBarHtml = renderCreditBar({
     totalCredits: totalCap, available: Math.round(ws.available || 0), totalUsed: ws.totalCreditsUsed || 0,
-    freeRemaining: Math.round(ws.freeRemaining || 0), billingAvail, rollover, dailyFree,
+    freeRemaining: Math.round(ws.freeRemaining || 0), freeGranted: Math.round(ws.freeGranted || 0),
+    billingAvail, billingLimit: limitInt,
+    rollover, rolloverLimit: Math.round(ws.rolloverLimit || 0),
+    dailyFree, dailyLimit: Math.round(ws.dailyLimit || 0),
     compact: viewState().getCompactMode(), maxTotalCredits,
   });
+
 
   row.innerHTML = buildWsRowInnerHtml(ws, isCurrent, isChecked, emoji, creditBarHtml);
   return row;
@@ -1019,6 +1035,12 @@ export function populateLoopWorkspaceDropdown(): void {
     viewState().getExpiredWithCredits() ? 1 : 0,
     viewState().getExpiring() ? 1 : 0,
     viewState().getRefillPriority() ? 1 : 0,
+    // v3.32.1 — these were missing from the hash, so clicking a credit-sort
+    // row or the Refill-soon chip would NOT re-render the list (the dirty
+    // check early-returned). User complaint: "high credit and low credit, the
+    // filter appears later. When I click on it … no filter action immediately."
+    viewState().getRefillSoon() ? 1 : 0,
+    viewState().getCreditSortMode(),
     checkedCount,
   ].join('|');
 

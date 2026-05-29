@@ -97,13 +97,18 @@ interface CreditBarOpts {
   available?: number;
   totalUsed?: number;
   freeRemaining?: number;
+  freeGranted?: number;
   billingAvail?: number;
+  billingLimit?: number;
   rollover?: number;
+  rolloverLimit?: number;
   dailyFree?: number;
+  dailyLimit?: number;
   compact?: boolean;
   maxTotalCredits?: number;
   marginTop?: string;
 }
+
 
  
 export function renderCreditBar(opts: CreditBarOpts): string {
@@ -111,9 +116,13 @@ export function renderCreditBar(opts: CreditBarOpts): string {
   const av = opts.available || 0;
   const tu = opts.totalUsed || 0;
   const fr = opts.freeRemaining || 0;
+  const fg = opts.freeGranted || 0;
   const ba = opts.billingAvail || 0;
+  const bl = opts.billingLimit || 0;
   const ro = opts.rollover || 0;
+  const rl = opts.rolloverLimit || 0;
   const df = opts.dailyFree || 0;
+  const dl = opts.dailyLimit || 0;
   const compact = opts.compact || false;
   const maxTc = opts.maxTotalCredits || tc;
   const mt = opts.marginTop ? 'margin-top:' + opts.marginTop + ';' : '';
@@ -126,34 +135,40 @@ export function renderCreditBar(opts: CreditBarOpts): string {
   const wW = compact ? 'width:100%;' : '';
   const bTitle = 'Available: ' + av + ' / Total: ' + tc + ' (Used: ' + tu + ')';
   const fillPct = maxTc > 0 ? Math.min(100, (tc / maxTc) * 100) : 100;
+  // Issue 122 fix: show "remaining/limit" (e.g. "💰 0/100") instead of bare
+  // remaining ("💰 0"). Users mistook a bare 0 for "this workspace has no
+  // monthly credit pool" when in fact they had a 100-credit pool they had
+  // fully consumed. Showing the denominator restores the plan-grant context.
+  const fmtPair = (rem: number, lim: number): string => lim > 0 ? rem + '/' + lim : String(rem);
   let h = '<div style="display:flex;align-items:center;gap:8px;' + mt + wW + '">';
   h += '<div title="' + bTitle + '" style="flex:none;height:' + bH + ';width:' + bW + ';min-width:' + bW + ';max-width:' + bW + ';background:' + cCbEmpty + ';border-radius:' + bR + ';overflow:hidden;display:flex;border:' + bBorder + ';' + bShadow + '">';
   h += '<div style="width:' + fillPct.toFixed(2) + '%;height:100%;display:flex;transition:width ' + trSlow + ' ease;">';
   h += '<div title="🎁 Bonus: ' + fr + CssFragment.StyleWidth + segments.free + CssFragment.BarSegmentTail + cCbBonus[0] + ',' + cCbBonus[1] + CssFragment.TransitionTail + trSlow + CssFragment.EaseClose;
-  h += '<div title="💰 Monthly: ' + ba + CssFragment.StyleWidth + segments.billing + CssFragment.BarSegmentTail + cCbBilling[0] + ',' + cCbBilling[1] + CssFragment.TransitionTail + trSlow + CssFragment.EaseClose;
-  h += '<div title="🔄 Rollover: ' + ro + CssFragment.StyleWidth + segments.rollover + CssFragment.BarSegmentTail + cCbRollover[0] + ',' + cCbRollover[1] + CssFragment.TransitionTail + trSlow + CssFragment.EaseClose;
-  h += '<div title="📅 Free: ' + df + CssFragment.StyleWidth + segments.daily + CssFragment.BarSegmentTail + cCbDaily[0] + ',' + cCbDaily[1] + CssFragment.TransitionTail + trSlow + CssFragment.EaseClose;
+  h += '<div title="💰 Monthly: ' + ba + '/' + bl + CssFragment.StyleWidth + segments.billing + CssFragment.BarSegmentTail + cCbBilling[0] + ',' + cCbBilling[1] + CssFragment.TransitionTail + trSlow + CssFragment.EaseClose;
+  h += '<div title="🔄 Rollover: ' + ro + '/' + rl + CssFragment.StyleWidth + segments.rollover + CssFragment.BarSegmentTail + cCbRollover[0] + ',' + cCbRollover[1] + CssFragment.TransitionTail + trSlow + CssFragment.EaseClose;
+  h += '<div title="📅 Free: ' + df + '/' + dl + CssFragment.StyleWidth + segments.daily + CssFragment.BarSegmentTail + cCbDaily[0] + ',' + cCbDaily[1] + CssFragment.TransitionTail + trSlow + CssFragment.EaseClose;
   h += '</div>';
   h += '</div>';
-  const icoStyle = 'display:inline-block;min-width:32px;text-align:right;';
-  const icoStyleWide = 'display:inline-block;min-width:52px;text-align:right;font-weight:700;';
+  const icoStyle = 'display:inline-block;min-width:42px;text-align:right;';
+  const icoStyleWide = 'display:inline-block;min-width:60px;text-align:right;font-weight:700;';
   if (compact) {
     h += '<span style="font-size:' + tFontSm + ';font-family:' + tFont + ';white-space:nowrap;">';
-    h += CssFragment.SpanStyleColor + cPrimaryLight + ';' + icoStyle + '" title="🎁 Bonus — Promotional one-time credits">🎁' + fr + '</span> ';
-    h += CssFragment.SpanStyleColor + cCbBilling[1] + ';' + icoStyle + '" title="💰 Monthly — Credits from subscription plan">💰' + ba + '</span> ';
-    h += CssFragment.SpanStyleColor + cLogInfo + ';' + icoStyle + '" title="🔄 Rollover — Unused credits from previous period">🔄' + ro + '</span> ';
-    h += CssFragment.SpanStyleColor + cCbDaily[1] + ';' + icoStyle + '" title="📅 Free — Daily free credits">📅' + df + '</span> ';
+    h += CssFragment.SpanStyleColor + cPrimaryLight + ';' + icoStyle + '" title="🎁 Bonus — Promotional one-time credits (remaining/granted)">🎁' + fmtPair(fr, fg) + '</span> ';
+    h += CssFragment.SpanStyleColor + cCbBilling[1] + ';' + icoStyle + '" title="💰 Monthly — Subscription billing credits (remaining/limit)">💰' + fmtPair(ba, bl) + '</span> ';
+    h += CssFragment.SpanStyleColor + cLogInfo + ';' + icoStyle + '" title="🔄 Rollover — Unused credits carried over (remaining/limit)">🔄' + fmtPair(ro, rl) + '</span> ';
+    h += CssFragment.SpanStyleColor + cCbDaily[1] + ';' + icoStyle + '" title="📅 Free — Daily free credits (remaining/limit)">📅' + fmtPair(df, dl) + '</span> ';
     h += CssFragment.SpanStyleColor + cCbAvail + ';' + icoStyleWide + '" title="Available / Total credits">⚡' + av + '/' + tc + '</span>';
     h += '</span>';
   } else {
     h += '<span style="font-size:' + tFontSm + ';white-space:nowrap;font-family:' + tFont + ';line-height:1;">';
-    h += CssFragment.SpanStyleColor + cPrimaryLight + ';' + icoStyle + '" title="🎁 Bonus — Promotional one-time credits">🎁' + fr + '</span> ';
-    h += CssFragment.SpanStyleColor + cCbBilling[1] + ';' + icoStyle + '" title="💰 Monthly — Credits from subscription plan">💰' + ba + '</span> ';
-    h += CssFragment.SpanStyleColor + cLogInfo + ';' + icoStyle + '" title="🔄 Rollover — Unused credits carried from previous period">🔄' + ro + '</span> ';
-    h += CssFragment.SpanStyleColor + cCbDaily[1] + ';' + icoStyle + '" title="📅 Free — Daily free credits (refreshed daily)">📅' + df + '</span> ';
+    h += CssFragment.SpanStyleColor + cPrimaryLight + ';' + icoStyle + '" title="🎁 Bonus — Promotional one-time credits (remaining/granted)">🎁' + fmtPair(fr, fg) + '</span> ';
+    h += CssFragment.SpanStyleColor + cCbBilling[1] + ';' + icoStyle + '" title="💰 Monthly — Subscription billing credits (remaining/limit)">💰' + fmtPair(ba, bl) + '</span> ';
+    h += CssFragment.SpanStyleColor + cLogInfo + ';' + icoStyle + '" title="🔄 Rollover — Unused credits carried over (remaining/limit)">🔄' + fmtPair(ro, rl) + '</span> ';
+    h += CssFragment.SpanStyleColor + cCbDaily[1] + ';' + icoStyle + '" title="📅 Free — Daily free credits (remaining/limit)">📅' + fmtPair(df, dl) + '</span> ';
     h += CssFragment.SpanStyleColor + cCbAvail + ';' + icoStyleWide + '" title="⚡ Available / Total credits">⚡' + av + '/' + tc + '</span>';
     h += '</span>';
   }
   h += '</div>';
   return h;
 }
+
