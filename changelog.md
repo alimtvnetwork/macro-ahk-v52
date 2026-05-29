@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.34.2] — 2026-05-29
+
+### Changed
+- **Credit Totals modal — Remaining tile now uses `remaining / granted` framing** (Issue 122 follow-up). The "This Billing Cycle" card's `Remaining` tile renders as `0 / 100` instead of bare `0`, matching the workspace-row 💰 chip convention. Fully-consumed pools are no longer indistinguishable from absent pools at the modal level. Falls back to a bare number when `granted = 0` (no denominator to show). Used / Total grant tiles stay bare. Regression test: `issue-122-totals-modal-remaining-over-granted.test.ts` (4 tests). Existing `credit-totals-modal.test.ts` (16 tests) still green.
+
+### Verified
+- Full `bunx vitest run` against the project: **246 files / 2407 tests / 0 failures** (the earlier "61 unrelated files fail to collect" backlog claim was stale — `src/test/setup.ts` is present and intact).
+
+---
+
 ## [v3.34.1] — 2026-05-29
 
 ### Fixed
