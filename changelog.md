@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.32.0] — 2026-05-29
+
+### Fixed
+- **Issue 120 — pro_1 Credit Totals over-reporting** — the Credit Totals modal was showing inflated `Total` / `Remaining` for paid `pro_1` (and `pro_3`, `lite`, `ktlo`) workspaces because the aggregator summed all five credit pools (`granted + daily + billing + topup + rollover`). It now uses the **billing-period fields only** (`billing_period_credits_limit` / `_used`) for non-`pro_0` plans, matching the historical spec (`spec/21-app/03-data-and-api/api-response/04-plan.md` line 40 and `spec/21-app/02-features/macro-controller/credit-system.md`). `pro_0` continues to use the authoritative `/credit-balance` enriched fields; `FREE` tier remains excluded from billing sums (Core rule).
+
+### Changed
+- Version bump: 3.31.0 → 3.32.0 (all version files + README pin synced).
+
+---
+
 ## [v3.31.0] — 2026-05-27
 
 ### Fixed

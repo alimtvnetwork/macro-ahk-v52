@@ -1,21 +1,34 @@
 /**
- * Macro Controller — Credit Totals Aggregator (Issue 116, Task 1)
+ * Macro Controller — Credit Totals Aggregator (Issue 116 + Issue 120 fix)
  *
  * Pure function: given the current `WorkspaceCredit[]` snapshot, produce
  * aggregate totals for the "💰 Credit Totals" modal.
  *
- * Aggregation rules (see spec/22-app-issues/116-credit-totals-modal.md §2.3):
- *  - used / remaining / granted: SUM of the post-enrichment normalized
- *    fields `totalCreditsUsed`, `available`, `totalCredits`. These already
- *    respect the pro_0 vs other-plan split (the pro_0 enrichment overwrites
- *    them with `total_billing_period_used` / `total_remaining` / `total_granted`).
+ * Aggregation rules:
+ *  - FREE plans (`tier === 'FREE'` or `plan === 'free'`) are excluded from
+ *    Used/Remaining/Total sums (they only consume daily free credits and
+ *    have no billing-period grant). See Core memory: "Credit Totals —
+ *    exclude FREE tier".
+ *  - `pro_0` plans: the enrichment pass already overwrote
+ *    `totalCredits` / `available` / `totalCreditsUsed` with authoritative
+ *    /credit-balance numbers (`total_granted` / `total_remaining` /
+ *    `total_billing_period_used`). Read those directly.
  *    See `mem://features/macro-controller/pro-zero-credit-balance`.
+ *  - All other paid plans (`pro_1`, `pro_3`, `lite`, `ktlo`, …): use the
+ *    workspace **billing-period** fields only (`ws.limit` /
+ *    `ws.billingAvailable` / `ws.used` ← billing_period_credits_limit /
+ *    available / used). The legacy "sum of all five pools" Total
+ *    (`granted + daily + billing + topup + rollover`) double-counts daily
+ *    free + bonus + topup and over-reports the user's monthly grant.
+ *    Spec: `spec/21-app/03-data-and-api/api-response/04-plan.md` line 40 —
+ *    summary is derived from `billing_period_credits_*` (+ daily for the
+ *    free-daily card, which is reported separately).
  *  - freeDailyRemaining: MAX of `dailyFree` across workspaces. Lovable's
  *    daily free credits are per-account, not per-workspace; taking the max
  *    treats whichever snapshot is freshest as authoritative.
  *  - freeDailyCap: constant 5 (Lovable Free plan daily credit cap).
  *  - resetAtMyt: next 00:00 in Asia/Kuala_Lumpur (project Core timezone).
- *  - missingCount: rows that had no usable credit fields and were excluded.
+ *  - missingCount: non-FREE rows that had no usable credit fields.
  *
  * No retry, no network, no side effects. Pure.
  */
@@ -28,8 +41,15 @@ export const FREE_DAILY_CAP = 5;
 /** IANA timezone for the project (Core rule: Asia/Kuala_Lumpur). */
 export const PROJECT_TIMEZONE = 'Asia/Kuala_Lumpur';
 
+/** Wire-string plan literal for the pro_0 branch (enriched fields). */
+const PLAN_PRO_ZERO = 'pro_0';
+/** Wire-string plan literal for the unsubscribed/free tier. */
+const PLAN_FREE = 'free';
+/** Tier value for the unsubscribed/free tier. */
+const TIER_FREE = 'FREE';
+
 export interface CreditTotals {
-  /** Sum of credits used this billing cycle across all workspaces. */
+  /** Sum of credits used this billing cycle across all (non-FREE) workspaces. */
   used: number;
   /** Sum of credits remaining this billing cycle. */
   remaining: number;
@@ -41,18 +61,10 @@ export interface CreditTotals {
   freeDailyCap: number;
   /** ISO 8601 timestamp of next free-daily reset (00:00 MYT). */
   resetAtMyt: string;
-  /** Workspaces excluded due to entirely-missing credit fields. */
+  /** Non-FREE workspaces excluded due to entirely-missing credit fields. */
   missingCount: number;
-  /** Total workspaces considered. */
+  /** Non-FREE workspaces considered (after FREE-tier filter). */
   totalCount: number;
-}
-
-/** True when none of the three primary credit fields are usable numbers. */
-function isMissingCreditData(ws: WorkspaceCredit): boolean {
-  const hasUsed = typeof ws.totalCreditsUsed === 'number' && Number.isFinite(ws.totalCreditsUsed);
-  const hasAvail = typeof ws.available === 'number' && Number.isFinite(ws.available);
-  const hasGranted = typeof ws.totalCredits === 'number' && Number.isFinite(ws.totalCredits);
-  return !hasUsed && !hasAvail && !hasGranted;
 }
 
 /** Safe number-or-zero coercion. */
@@ -60,6 +72,55 @@ function num(value: number | undefined | null): number {
   if (typeof value !== 'number') return 0;
   if (!Number.isFinite(value)) return 0;
   return value;
+}
+
+/** True for FREE/unsubscribed workspaces — excluded from billing totals. */
+function isFreeTierWorkspace(ws: WorkspaceCredit): boolean {
+  const plan = (ws.plan || '').toLowerCase().trim();
+  const tier = (ws.tier || '').toUpperCase().trim();
+  return plan === PLAN_FREE || tier === TIER_FREE;
+}
+
+/** True when the workspace plan is the pro_0 (enriched) branch. */
+function isProZeroPlan(ws: WorkspaceCredit): boolean {
+  return (ws.plan || '').toLowerCase().trim() === PLAN_PRO_ZERO;
+}
+
+/** Per-workspace contribution to the (used, remaining, granted) sums. */
+interface CreditTriple { used: number; remaining: number; granted: number }
+
+/** Read the billing-cycle triple from a workspace per plan rules. */
+function readCreditTriple(ws: WorkspaceCredit): CreditTriple {
+  if (isProZeroPlan(ws)) {
+    // Enriched by pro-zero-enrichment.applySummaryToRow().
+    return {
+      used: num(ws.totalCreditsUsed),
+      remaining: num(ws.available),
+      granted: num(ws.totalCredits),
+    };
+  }
+  // Issue 120 fix: paid non-pro_0 plans (pro_1, pro_3, lite, ktlo) use the
+  // billing-period fields ONLY. Do NOT add daily / granted / topup / rollover
+  // into the Total — that double-counts and inflates the user's plan grant.
+  return {
+    used: num(ws.used),
+    remaining: num(ws.billingAvailable),
+    granted: num(ws.limit),
+  };
+}
+
+/** True when none of the three primary credit fields are usable numbers. */
+function isMissingCreditData(ws: WorkspaceCredit): boolean {
+  if (isProZeroPlan(ws)) {
+    const hasUsed = typeof ws.totalCreditsUsed === 'number' && Number.isFinite(ws.totalCreditsUsed);
+    const hasAvail = typeof ws.available === 'number' && Number.isFinite(ws.available);
+    const hasGranted = typeof ws.totalCredits === 'number' && Number.isFinite(ws.totalCredits);
+    return !hasUsed && !hasAvail && !hasGranted;
+  }
+  const hasUsed = typeof ws.used === 'number' && Number.isFinite(ws.used);
+  const hasAvail = typeof ws.billingAvailable === 'number' && Number.isFinite(ws.billingAvailable);
+  const hasLimit = typeof ws.limit === 'number' && Number.isFinite(ws.limit);
+  return !hasUsed && !hasAvail && !hasLimit;
 }
 
 /**
@@ -73,7 +134,6 @@ export function computeNextMytMidnight(now: Date): string {
   const MYT_OFFSET_MS = 8 * 60 * 60 * 1000;
   const mytNowMs = now.getTime() + MYT_OFFSET_MS;
   const mytNow = new Date(mytNowMs);
-  // Compute next MYT midnight by zeroing the time-of-day in MYT space.
   const nextMytMidnightMs = Date.UTC(
     mytNow.getUTCFullYear(),
     mytNow.getUTCMonth(),
@@ -98,27 +158,28 @@ export function aggregateCreditTotals(
   let granted = 0;
   let freeDailyRemaining = 0;
   let missingCount = 0;
+  let consideredCount = 0;
 
   for (const ws of workspaces) {
+    // dailyFree is per-account; sample it on every row (incl. FREE) so the
+    // free-daily card populates even when the user only has FREE workspaces.
+    const dailyFree = num(ws.dailyFree);
+    if (dailyFree > freeDailyRemaining) freeDailyRemaining = dailyFree;
+
+    if (isFreeTierWorkspace(ws)) continue;
+    consideredCount += 1;
+
     if (isMissingCreditData(ws)) {
       missingCount += 1;
       continue;
     }
-    used += num(ws.totalCreditsUsed);
-    remaining += num(ws.available);
-    granted += num(ws.totalCredits);
-
-    const dailyFree = num(ws.dailyFree);
-    if (dailyFree > freeDailyRemaining) {
-      freeDailyRemaining = dailyFree;
-    }
+    const triple = readCreditTriple(ws);
+    used += triple.used;
+    remaining += triple.remaining;
+    granted += triple.granted;
   }
 
-  // Clamp free-daily remaining to the documented cap (defensive — server
-  // occasionally over-reports during grant rollover).
-  if (freeDailyRemaining > FREE_DAILY_CAP) {
-    freeDailyRemaining = FREE_DAILY_CAP;
-  }
+  if (freeDailyRemaining > FREE_DAILY_CAP) freeDailyRemaining = FREE_DAILY_CAP;
 
   return {
     used: Math.round(used),
@@ -128,6 +189,6 @@ export function aggregateCreditTotals(
     freeDailyCap: FREE_DAILY_CAP,
     resetAtMyt: computeNextMytMidnight(now),
     missingCount,
-    totalCount: workspaces.length,
+    totalCount: consideredCount,
   };
 }
