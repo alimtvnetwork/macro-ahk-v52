@@ -23,16 +23,24 @@
  */
 
 import type { StoredScript, StoredConfig, UrlRule } from "../shared/script-config-types";
+import type { StoredProject, ScriptEntry, ConfigEntry } from "../shared/project-types";
 import type {
     SeedManifest,
     SeedProjectEntry,
     SeedScriptEntry,
     SeedConfigEntry,
 } from "../shared/seed-manifest-types";
-import { STORAGE_KEY_ALL_SCRIPTS, STORAGE_KEY_ALL_CONFIGS } from "../shared/constants";
+import { STORAGE_KEY_ALL_SCRIPTS, STORAGE_KEY_ALL_CONFIGS, STORAGE_KEY_ALL_PROJECTS } from "../shared/constants";
 import { logBgWarnError, logCaughtError, BgLogTag} from "./bg-logger";
 
 const MANIFEST_PATH = "projects/seed-manifest.json";
+
+/**
+ * Manifest projects whose StoredProject record is owned by `default-project-seeder.ts`.
+ * They are still seeded for scripts/configs by this file, but their StoredProject
+ * is skipped here to avoid double-write and keep a single source of truth.
+ */
+const PROJECT_OWNED_BY_DEFAULT_SEEDER = new Set<string>(["macro-controller", "marco-sdk"]);
 
 const STUB_PREFIX = "// STUB: loaded from seed-manifest. Real code fetched at injection time via filePath.\n";
 
@@ -122,24 +130,26 @@ export async function seedFromManifest(): Promise<SeedResult> {
 
     const scriptResult = await seedScriptsFromManifest(manifest);
     const configResult = await seedConfigsFromManifest(manifest);
+    const projectResult = await seedProjectsFromManifest(manifest);
 
     console.log(
-        "[manifest-seeder] ✅ Seeded %d script(s), %d config(s) across %d project(s). Errors: %d",
+        "[manifest-seeder] ✅ Seeded %d script(s), %d config(s), %d project(s) across %d manifest project(s). Errors: %d",
         scriptResult.seeded,
         configResult.seeded,
+        projectResult.seeded,
         manifest.Projects.length,
-        scriptResult.errors.length + configResult.errors.length,
+        scriptResult.errors.length + configResult.errors.length + projectResult.errors.length,
     );
 
-    if (scriptResult.errors.length > 0 || configResult.errors.length > 0) {
-        logBgWarnError(BgLogTag.MANIFEST_SEEDER, `Seed errors: ${JSON.stringify([...scriptResult.errors, ...configResult.errors])}`);
+    if (scriptResult.errors.length > 0 || configResult.errors.length > 0 || projectResult.errors.length > 0) {
+        logBgWarnError(BgLogTag.MANIFEST_SEEDER, `Seed errors: ${JSON.stringify([...scriptResult.errors, ...configResult.errors, ...projectResult.errors])}`);
     }
 
     return {
         scripts: scriptResult.seeded,
         configs: configResult.seeded,
         projects: manifest.Projects.length,
-        errors: [...scriptResult.errors, ...configResult.errors],
+        errors: [...scriptResult.errors, ...configResult.errors, ...projectResult.errors],
     };
 }
 
@@ -475,4 +485,136 @@ function resolveDependencyIds(manifest: SeedManifest, project: SeedProjectEntry)
     }
 
     return [...resolved];
+}
+
+/* ------------------------------------------------------------------ */
+/*  Project Seeding (Issue 119 Step 6)                                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Creates `StoredProject` records for standalone manifest seeds so they
+ * appear in the active-project list and feed into project-matcher.
+ *
+ * Skips `macro-controller` and `marco-sdk` — those are owned by
+ * `default-project-seeder.ts` to avoid double-write conflicts.
+ *
+ * Idempotent: insert when missing, refresh when stale, skip when current.
+ */
+export async function seedProjectsFromManifest(
+    manifest: SeedManifest,
+): Promise<{ seeded: number; errors: string[] }> {
+    const result = await chrome.storage.local.get(STORAGE_KEY_ALL_PROJECTS);
+    const stored: StoredProject[] = Array.isArray(result[STORAGE_KEY_ALL_PROJECTS])
+        ? result[STORAGE_KEY_ALL_PROJECTS]
+        : [];
+
+    let changed = false;
+    let seeded = 0;
+    const errors: string[] = [];
+
+    for (const project of manifest.Projects) {
+        if (!project.SeedOnInstall) continue;
+        if (PROJECT_OWNED_BY_DEFAULT_SEEDER.has(project.Name)) continue;
+
+        try {
+            const canonical = buildStoredProjectFromSeed(project);
+            const idx = stored.findIndex((p) => p.id === canonical.id);
+
+            if (idx === -1) {
+                console.log("[manifest-seeder:projects] + INSERT %s (id=%s)", project.Name, canonical.id);
+                stored.push(canonical);
+                changed = true;
+                seeded++;
+            } else if (!isStoredProjectEquivalent(stored[idx], canonical)) {
+                console.log("[manifest-seeder:projects] ↻ REFRESH %s (id=%s)", project.Name, canonical.id);
+                stored[idx] = {
+                    ...canonical,
+                    createdAt: stored[idx].createdAt,
+                    settings: { ...canonical.settings, ...stored[idx].settings },
+                };
+                changed = true;
+                seeded++;
+            }
+        } catch (err) {
+            const msg = `[seedProjectsFromManifest] Failed to seed project ${project.Name}: ${err}`;
+            errors.push(msg);
+            logBgWarnError(BgLogTag.MANIFEST_SEEDER, msg);
+        }
+    }
+
+    if (changed) {
+        await chrome.storage.local.set({ [STORAGE_KEY_ALL_PROJECTS]: stored });
+    }
+
+    return { seeded, errors };
+}
+
+/** Builds a canonical `StoredProject` from a manifest project entry. */
+export function buildStoredProjectFromSeed(project: SeedProjectEntry): StoredProject {
+    const now = new Date().toISOString();
+    const targetUrls: UrlRule[] = (project.TargetUrls ?? []).map((t) => ({
+        pattern: t.Pattern,
+        matchType: t.MatchType,
+    }));
+
+    const scripts: ScriptEntry[] = project.Scripts.map((s) => ({
+        path: s.SeedId,
+        order: s.Order,
+        runAt: s.RunAt,
+        configBinding: s.ConfigBinding ? resolveConfigSeedId(s.ConfigBinding, project) : undefined,
+        description: s.Description || project.Description,
+    }));
+
+    const configs: ConfigEntry[] = project.Configs.map((c) => ({
+        path: c.SeedId,
+        description: c.Description,
+    }));
+
+    return {
+        id: project.SeedId,
+        schemaVersion: 1,
+        slug: project.Name,
+        name: project.DisplayName || project.Name,
+        version: project.Version,
+        description: project.Description,
+        targetUrls,
+        scripts,
+        configs,
+        cookies: (project.Cookies ?? []).map((c) => ({
+            cookieName: c.CookieName,
+            url: c.Url,
+            role: c.Role === "other" ? "custom" : c.Role,
+            description: c.Description,
+        })),
+        settings: {
+            onlyRunAsDependency: project.Settings?.OnlyRunAsDependency,
+            isolateScripts: project.Settings?.IsolateScripts,
+            logLevel: project.Settings?.LogLevel,
+            retryOnNavigate: project.Settings?.RetryOnNavigate,
+            chatBoxXPath: project.Settings?.ChatBoxXPath,
+            allowDynamicRequests: project.Settings?.AllowDynamicRequests,
+        },
+        dependencies: project.Dependencies.map((d) => ({ projectId: d, version: "*" })),
+        isGlobal: project.IsGlobal,
+        isRemovable: project.IsRemovable,
+        createdAt: now,
+        updatedAt: now,
+    };
+}
+
+/** Returns true when two stored projects are structurally equivalent (ignores timestamps). */
+export function isStoredProjectEquivalent(a: StoredProject, b: StoredProject): boolean {
+    return (
+        a.id === b.id &&
+        a.name === b.name &&
+        a.version === b.version &&
+        (a.description ?? "") === (b.description ?? "") &&
+        JSON.stringify(a.targetUrls ?? []) === JSON.stringify(b.targetUrls ?? []) &&
+        JSON.stringify(a.scripts ?? []) === JSON.stringify(b.scripts ?? []) &&
+        JSON.stringify(a.configs ?? []) === JSON.stringify(b.configs ?? []) &&
+        JSON.stringify(a.cookies ?? []) === JSON.stringify(b.cookies ?? []) &&
+        JSON.stringify(a.dependencies ?? []) === JSON.stringify(b.dependencies ?? []) &&
+        (a.isGlobal ?? false) === (b.isGlobal ?? false) &&
+        (a.isRemovable ?? true) === (b.isRemovable ?? true)
+    );
 }
