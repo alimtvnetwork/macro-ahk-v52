@@ -320,6 +320,7 @@ function refreshStoredScript(
         themeBinding: resolveConfigSeedId(def.ThemeBinding, project),
         cookieBinding: def.CookieBinding,
         urlMatches: extractUrlMatches(project),
+        urlMatchRules: extractUrlMatchRules(project),
         updatedAt: new Date().toISOString(),
     };
 }
