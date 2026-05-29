@@ -45,6 +45,7 @@
 6. **Never ask the user to choose a `readme.txt` format.** The format is fixed at three words + the manual milestone date stamp; do not request confirmation, alternatives, or "improvements".
 7. **If a user message explicitly orders a one-time `readme.txt` write** (e.g., "write readme.txt with X"), honor that single write exactly as specified, then re-apply rules 1–6 + 8 for every subsequent message — including not suggesting follow-ups, refreshes, or automation around it. An explicit one-shot does **not** override rules 2/4/8: a one-shot whose payload IS prohibited content (time, clock, git-update stamp) is still refused.
 8. **Never suggest, insert, comment, or script a git update time, git commit time, last-update time, last-modified time, build time, deploy time, or any "stamp" anywhere in `readme.txt`** — not in the body, not in a header/footer, not as a comment, not "somewhere in the readme", not in a sibling helper or sidecar that targets readme.txt. Closes the "somewhere in the readme" loophole.
+9. **Never ask, prompt, suggest, recommend, or surface a `readme.txt` update as an action item** — not in clarifying questions, not in "next steps", not in remaining-task lists, not in changelog/version-bump checklists, not as a post-commit reminder, not in any form. `readme.txt` is invisible to the AI's task surface. The user writes it manually on their own schedule; the AI never raises it.
 
 See: `.lovable/memory/constraints/readme-txt-format.md` and `mem://constraints/readme-txt-prohibitions`.
 
