@@ -690,9 +690,13 @@ function buildWsRow(
   const totalCap = Math.round(ws.totalCredits ?? calcTotalCredits(ws.freeGranted, ws.dailyLimit, ws.limit, ws.topupLimit, ws.rolloverLimit, ws.plan));
   const creditBarHtml = renderCreditBar({
     totalCredits: totalCap, available: Math.round(ws.available || 0), totalUsed: ws.totalCreditsUsed || 0,
-    freeRemaining: Math.round(ws.freeRemaining || 0), billingAvail, rollover, dailyFree,
+    freeRemaining: Math.round(ws.freeRemaining || 0), freeGranted: Math.round(ws.freeGranted || 0),
+    billingAvail, billingLimit: limitInt,
+    rollover, rolloverLimit: Math.round(ws.rolloverLimit || 0),
+    dailyFree, dailyLimit: Math.round(ws.dailyLimit || 0),
     compact: viewState().getCompactMode(), maxTotalCredits,
   });
+
 
   row.innerHTML = buildWsRowInnerHtml(ws, isCurrent, isChecked, emoji, creditBarHtml);
   return row;
