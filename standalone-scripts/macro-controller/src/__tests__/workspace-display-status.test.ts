@@ -189,8 +189,11 @@ describe('display token map', () => {
   it('expire-soon tone is danger (red)', () => {
     expect(WORKSPACE_BADGE_DISPLAY['expire-soon'].tone).toBe('danger');
   });
+  it('expired-hard tone is danger (red)', () => {
+    expect(WORKSPACE_BADGE_DISPLAY['expired-hard'].tone).toBe('danger');
+  });
   it('all kinds have a tone entry', () => {
-    const kinds = ['canceled', 'expired', 'expire-soon', 'past-due-expiring', 'refill-soon', 'normal'] as const;
+    const kinds = ['canceled', 'expired', 'expired-hard', 'expire-soon', 'past-due-expiring', 'refill-soon', 'normal'] as const;
     for (const k of kinds) {
       expect(WORKSPACE_BADGE_DISPLAY[k]).toBeDefined();
     }
