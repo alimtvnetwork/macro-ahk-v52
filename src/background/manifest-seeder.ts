@@ -343,7 +343,8 @@ function isScriptStale(
         current.configBinding !== resolveConfigSeedId(def.ConfigBinding, project) ||
         current.themeBinding !== resolveConfigSeedId(def.ThemeBinding, project) ||
         JSON.stringify(current.dependencies ?? []) !== JSON.stringify(resolveDependencyIds(manifest, project)) ||
-        JSON.stringify(current.urlMatches ?? []) !== JSON.stringify(extractUrlMatches(project))
+        JSON.stringify(current.urlMatches ?? []) !== JSON.stringify(extractUrlMatches(project)) ||
+        JSON.stringify(current.urlMatchRules ?? []) !== JSON.stringify(extractUrlMatchRules(project))
     );
 }
 
