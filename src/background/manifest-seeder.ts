@@ -23,16 +23,24 @@
  */
 
 import type { StoredScript, StoredConfig, UrlRule } from "../shared/script-config-types";
+import type { StoredProject, ScriptEntry, ConfigEntry } from "../shared/project-types";
 import type {
     SeedManifest,
     SeedProjectEntry,
     SeedScriptEntry,
     SeedConfigEntry,
 } from "../shared/seed-manifest-types";
-import { STORAGE_KEY_ALL_SCRIPTS, STORAGE_KEY_ALL_CONFIGS } from "../shared/constants";
+import { STORAGE_KEY_ALL_SCRIPTS, STORAGE_KEY_ALL_CONFIGS, STORAGE_KEY_ALL_PROJECTS } from "../shared/constants";
 import { logBgWarnError, logCaughtError, BgLogTag} from "./bg-logger";
 
 const MANIFEST_PATH = "projects/seed-manifest.json";
+
+/**
+ * Manifest projects whose StoredProject record is owned by `default-project-seeder.ts`.
+ * They are still seeded for scripts/configs by this file, but their StoredProject
+ * is skipped here to avoid double-write and keep a single source of truth.
+ */
+const PROJECT_OWNED_BY_DEFAULT_SEEDER = new Set<string>(["macro-controller", "marco-sdk"]);
 
 const STUB_PREFIX = "// STUB: loaded from seed-manifest. Real code fetched at injection time via filePath.\n";
 
