@@ -1,5 +1,20 @@
 # Macro Controller — Changelog
 
+## v3.37.0 (2026-05-30)
+
+### Added
+- **Issue 124 — Loop Run-State Gate + Queue Pause/Resume + Project-Lock detection.**
+  - `loop-run-state/` (`isRunActive` / `isRunIdle` / `waitForRunIdle`) observes the composer Submit button + STOP icon via XPath. **Read-only — STOP is never clicked.** Timeout 120s, poll 1s, single-shot.
+  - `queue-control/` (`pauseQueue` / `resumeQueue` / visibility helpers) clicks only the `Pause queue` / `Resume queue` buttons.
+  - `project-lock/` detector (HTTP 423, body `project_locked`, body `project is locked`, optional DOM banner) + `LoopProjectLockEvent` SQLite store via `marco.kv` with 1s dedupe per `(workspace, project, reason)`.
+  - `loop-move-gate.ts` wraps `moveToWorkspace` from both `ws-adjacent` paths (fresh + cached fallback). Behaviour when flag ON: wait-idle → pause source → move → poll 15s for Resume → click once. Resume-missing logs and returns; no retry.
+  - `feature-flags.ts` with `Loop.RunStateGate.Enabled` (now defaulting ON in v3.37.0; overridable via `window.marco.featureFlags`).
+- **Issue 124 — 31 tests, all passing**: `loop-run-state` (7), `queue-control` (6), `project-lock/detector` (7), `project-lock/store` (6), `loop-move-gate` integration (5). The integration suite asserts via click-spy that the composer Submit/STOP button is never clicked.
+
+### Changed
+- **`Loop.RunStateGate.Enabled` default flipped to `true`** (Issue 124 §6). Set `window.marco.featureFlags['Loop.RunStateGate.Enabled'] = false` to revert.
+- Version bump: 3.36.0 → 3.37.0.
+
 ## v3.36.0 (2026-05-30)
 
 ### Added
