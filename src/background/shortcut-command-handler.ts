@@ -15,6 +15,8 @@ import { handleMessage } from "./message-router";
 import { logCaughtError, logBgWarnError, BgLogTag} from "./bg-logger";
 import { loadSession, persistSession } from "./recorder/recorder-session-storage";
 import { recorderReducer, IDLE_SESSION } from "./recorder/recorder-store";
+import { isNewTabOrBlankUrl } from "../shared/url-utils";
+import { evaluateUrlMatches } from "./project-matcher";
 
 const RUN_SCRIPTS_COMMAND = "run-scripts";
 const FORCE_RUN_SCRIPTS_COMMAND = "force-run-scripts";
@@ -68,23 +70,35 @@ async function runScriptsFromShortcut(forceReload: boolean): Promise<void> {
     const t0 = performance.now();
 
     try {
-        const activeTabId = await getActiveTabId();
+        const tab = await getActiveTab();
 
-        if (activeTabId === null) {
-            logBgWarnError(BgLogTag.SHORTCUT, "No active tab found — aborting");
+        if (tab === null || typeof tab.id !== "number") {
+            logBgWarnError(BgLogTag.SHORTCUT, "Aborting: no active tab found (reason=no-active-tab)");
             return;
         }
 
-        console.log("[Marco] Shortcut: active tab=%d, fetching project scripts...%s", activeTabId, forceReload ? " (FORCE RUN)" : "");
+        const activeTabId = tab.id;
+        const tabUrl = tab.url ?? "";
 
-        const scripts = await getActiveProjectScripts();
+        if (isNewTabOrBlankUrl(tabUrl)) {
+            logBgWarnError(BgLogTag.SHORTCUT, `Aborting: active tab is a new-tab/blank page (tabId=${activeTabId}, url='${tabUrl}', reason=new-tab-blank-url)`);
+            return;
+        }
+
+        console.log("[Marco] Shortcut: active tab=%d url='%s', fetching project scripts...%s", activeTabId, tabUrl, forceReload ? " (FORCE RUN)" : "");
+
+        const { scripts, source, projectLabel } = await resolveScriptsForShortcut(tabUrl);
 
         if (scripts.length === 0) {
-            logBgWarnError(BgLogTag.SHORTCUT, "No scripts in active project — aborting");
+            logBgWarnError(
+                BgLogTag.SHORTCUT,
+                `Aborting: no scripts to inject (tabId=${activeTabId}, url='${tabUrl}', project=${projectLabel}, source=${source}, reason=empty-script-set). ` +
+                `Hint: open the popup to confirm an active project is set and has enabled scripts, or add a URL rule so auto-attach can resolve scripts for this page.`,
+            );
             return;
         }
 
-        console.log("[Marco] Shortcut: injecting %d scripts into tab %d", scripts.length, activeTabId);
+        console.log("[Marco] Shortcut: injecting %d scripts into tab %d (project=%s, source=%s)", scripts.length, activeTabId, projectLabel, source);
 
         const rawResponse = await sendInternalMessage<InjectScriptsResponse>({
             type: MessageType.INJECT_SCRIPTS,
@@ -111,38 +125,64 @@ async function runScriptsFromShortcut(forceReload: boolean): Promise<void> {
     }
 }
 
-/** Returns the active tab id, or null if unavailable. */
-async function getActiveTabId(): Promise<number | null> {
+/** Returns the active tab (with url), or null if unavailable. */
+async function getActiveTab(): Promise<chrome.tabs.Tab | null> {
     try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        const tabId = tab?.id;
-
-        return typeof tabId === "number" ? tabId : null;
+        return tab ?? null;
     } catch (err) {
         logCaughtError(BgLogTag.SHORTCUT, "chrome.tabs.query failed", err);
-
         return null;
     }
 }
 
-/** Loads active project scripts used by popup run injection. */
-async function getActiveProjectScripts(): Promise<ScriptEntry[]> {
+interface ResolvedShortcutScripts {
+    scripts: ScriptEntry[];
+    /** Where the scripts came from for diagnostics. */
+    source: "active-project" | "none";
+    /** Human-readable project label, e.g. `"My Project" (id=abc)` or `none`. */
+    projectLabel: string;
+}
+
+/**
+ * Resolves scripts to inject for a manual shortcut press.
+ *
+ * Uses the active project's scripts (mirrors popup Run). When unavailable,
+ * also probes URL-based project matches purely for diagnostics so the empty-set
+ * abort can name the missing binding / matched project candidates.
+ */
+export async function resolveScriptsForShortcut(tabUrl: string): Promise<ResolvedShortcutScripts> {
     const response = await sendInternalMessage<ActiveProjectResponse>({
         type: MessageType.GET_ACTIVE_PROJECT,
     });
 
-    const project = response?.activeProject;
-    if (!project) {
-        logBgWarnError(BgLogTag.SHORTCUT, "GET_ACTIVE_PROJECT returned no active project");
-        return [];
+    const project = response?.activeProject ?? null;
+    const projectLabel = project
+        ? `"${project.name ?? "?"}" (id=${project.id ?? "?"})`
+        : "none";
+
+    const projectScripts = Array.isArray(project?.scripts) ? project.scripts : [];
+
+    if (project && projectScripts.length > 0) {
+        console.log("[Marco] Shortcut: using active project=%s with %d scripts", projectLabel, projectScripts.length);
+        return { scripts: projectScripts, source: "active-project", projectLabel };
     }
 
-    console.log("[Marco] Shortcut: active project='%s' (id=%s), scripts=%d",
-        project.name ?? "?", project.id ?? "?", project.scripts?.length ?? 0);
+    // Diagnostic-only probe: surface what auto-attach would have matched so
+    // the empty-set warn explains *why* nothing ran.
+    const reason = project ? "active-project-has-no-scripts" : "no-active-project-set";
+    try {
+        const matches = await evaluateUrlMatches(tabUrl);
+        const matchedProjectIds = matches.map((m) => m.projectId).filter(Boolean);
+        console.log(
+            "[Marco] Shortcut: active-project resolution empty (reason=%s, project=%s); URL '%s' would auto-attach to %d project(s): [%s]",
+            reason, projectLabel, tabUrl, matchedProjectIds.length, matchedProjectIds.join(", "),
+        );
+    } catch (probeErr) {
+        logCaughtError(BgLogTag.SHORTCUT, "URL auto-attach probe failed", probeErr);
+    }
 
-    const scripts = project.scripts ?? [];
-
-    return Array.isArray(scripts) ? scripts : [];
+    return { scripts: [], source: "none", projectLabel };
 }
 
 /**

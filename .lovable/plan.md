@@ -62,9 +62,9 @@ Fixed in v3.20.0: keyboard shortcut and context-menu "Run scripts now" now alway
 
 ### Queued — Issue 126: Ctrl+Shift+Down script attach regression
 Spec: `spec/22-app-issues/126-ctrl-shift-down-script-attach-shortcut.md`
-- [ ] Regression fix — `Ctrl+Shift+Down` must attach/inject the active project's scripts on first press, matching popup/manual Run behavior.
-- [ ] Diagnostics — no silent empty-script abort; log exact project, tab URL, missing binding/auto-attach reason.
-- [ ] Tests — add shortcut attach regression coverage.
+- [x] Regression fix — `runScriptsFromShortcut` now reads tab URL, applies the `isNewTabOrBlankUrl` guard, resolves scripts via `resolveScriptsForShortcut`, and always force-reloads (popup Run parity).
+- [x] Diagnostics — empty-set abort now logs `tabId`, `url`, `project="name" (id=…)`, `source`, `reason`, and a URL auto-attach candidate list so the silent-abort regression cannot recur.
+- [x] Tests — `src/background/__tests__/shortcut-command-handler.test.ts` (5 tests, all green) covers active-project, no-active-project, empty-scripts, non-array defensive, and probe-failure paths.
 - [ ] Final bump — include this in the final queued v3.38.0 bump after Issues 125, 126, and 127 are complete.
 
 ### Queued — Issue 127: Prompts dropdown missing Plan row + Task Next sub-menu opens left and clips
