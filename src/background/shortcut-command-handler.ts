@@ -151,7 +151,7 @@ interface ResolvedShortcutScripts {
  * also probes URL-based project matches purely for diagnostics so the empty-set
  * abort can name the missing binding / matched project candidates.
  */
-async function resolveScriptsForShortcut(tabUrl: string): Promise<ResolvedShortcutScripts> {
+export async function resolveScriptsForShortcut(tabUrl: string): Promise<ResolvedShortcutScripts> {
     const response = await sendInternalMessage<ActiveProjectResponse>({
         type: MessageType.GET_ACTIVE_PROJECT,
     });
