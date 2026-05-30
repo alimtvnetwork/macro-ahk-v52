@@ -216,6 +216,14 @@ function _buildToolsCollapsible(
   toolsCol.header.insertBefore(versionBadge, settingsGearBtn);
 
   toolsMasterBody.appendChild(wsHistoryResult.section);
+
+  // Auth Diagnostics — collapsible child (Issue 125 §2.1, default collapsed
+  // via `ml_collapse_authdiag` ↔ `Ui.ToolsLogs.AuthDiagExpanded` pref).
+  const authDiagCol = createCollapsibleSection('🛡 Auth Diagnostics', 'ml_collapse_authdiag');
+  authDiagCol.section.setAttribute('data-marco-authdiag-mount', '');
+  authDiagCol.body.appendChild(authDiagRow);
+  toolsMasterBody.appendChild(authDiagCol.section);
+
   const openTabsResult = createOpenTabsSection();
   toolsMasterBody.appendChild(openTabsResult.section);
   toolsMasterBody.appendChild(toolsSections.xpathSection);
