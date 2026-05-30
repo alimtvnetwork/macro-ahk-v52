@@ -444,9 +444,49 @@ function _rebindDropdownListeners(
   _cleanupTaskNextSubs();
   _rebindHeader(promptsDropdown, ctx, taskNextDeps);
   _rebindTaskNextSubmenu(promptsDropdown, ctx, taskNextDeps);
+  _rebindPlanTaskSubmenus(promptsDropdown, ctx);
   _rebindFilterChips(promptsDropdown, entries, ctx, taskNextDeps);
   _rebindPromptItems(promptsDropdown, entries, promptsCfg, ctx, taskNextDeps);
   _rebindAddButton(promptsDropdown, ctx, taskNextDeps);
+}
+
+/**
+ * Rebuild every Plan Task submenu in the dropdown after a snapshot restore.
+ *
+ * Issue 129 Step 3 root cause: snapshot restore writes `innerHTML`, which
+ * destroys the per-element `onclick` handlers attached by
+ * `renderPlanTaskSubmenu()` in plan-task-ui.ts. The previous rebind list
+ * only touched the Task Next submenu, so the Plan Task row (inline + inside
+ * the 🎯 Tasks floating panel) silently became dead HTML — clicking the
+ * "🧠 Plan Task" header toggled nothing, and the preset "Plan in N steps"
+ * rows did not inject the prompt.
+ *
+ * Fix: locate the inline row (`[data-inline-plan-row]`) and the in-Tasks-group
+ * copy (the `[data-plan-task-sub]` element's grandparent), clear them, and
+ * re-render via `renderPlanTaskSubmenu` so all listeners are fresh.
+ */
+function _rebindPlanTaskSubmenus(container: HTMLElement, ctx: PromptContext): void {
+  // Inline Plan Task row directly under the dropdown.
+  const inlineRow = container.querySelector('[data-inline-plan-row]') as HTMLElement | null;
+  if (inlineRow) {
+    inlineRow.textContent = '';
+    renderPlanTaskSubmenu(inlineRow, ctx);
+  }
+
+  // Copy inside the 🎯 Tasks floating panel — the `[data-plan-task-sub]`
+  // element is the inner sub; its grandparent is the row container appended
+  // by `renderPlanTaskSubmenu` (item → row, sub). Walk to the wrapper that
+  // sits directly inside `[data-tasks-group]` and replace it.
+  const tasksGroup = container.querySelector('[data-tasks-group]') as HTMLElement | null;
+  if (tasksGroup) {
+    const planSubs = tasksGroup.querySelectorAll('[data-plan-task-sub]');
+    planSubs.forEach(function(subEl) {
+      const item = subEl.parentElement;
+      if (!item || item.parentElement !== tasksGroup) return;
+      item.remove();
+      renderPlanTaskSubmenu(tasksGroup, ctx);
+    });
+  }
 }
 
 /** Re-attach the Load button handler in the dropdown header. */
