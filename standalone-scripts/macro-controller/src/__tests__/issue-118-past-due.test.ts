@@ -132,6 +132,19 @@ describe('Issue 118 — buildStatusPillHtml', () => {
     expect(html).toContain('Expire');
     expect(html).toContain('Today');
   });
+
+  it('sublabel background is more transparent than the main pill (Issue 129)', () => {
+    const ws = makeWs({ subscriptionStatus: 'past_due', subscriptionStatusChangedAt: new Date(NOW - 3 * 86_400_000).toISOString() });
+    const status = getEffectiveStatus(ws, CFG, NOW);
+    const html = buildStatusPillHtml(status, ws);
+    const mainMatch = html.match(/marco-ws-status-pill[^>]*background:([^;]+)/);
+    const subMatch = html.match(/marco-ws-status-sublabel[^>]*background:([^;]+)/);
+    expect(mainMatch).toBeTruthy();
+    expect(subMatch).toBeTruthy();
+    const mainAlpha = parseFloat(mainMatch![1].match(/[\d.]+$/)![0]);
+    const subAlpha = parseFloat(subMatch![1].match(/[\d.]+$/)![0]);
+    expect(subAlpha).toBeLessThan(mainAlpha);
+  });
 });
 
 describe('Issue 118 — isPastDueStatus enum helper', () => {
