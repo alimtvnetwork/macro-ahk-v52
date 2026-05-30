@@ -288,6 +288,40 @@ function buildFilterBar(
   return bar;
 }
 
+/**
+ * Build the persistent search input (Issue 130) shown above the chip bar.
+ * Lives outside the chip-bar rebuild cycle so the input keeps focus and
+ * cursor position while the user types.
+ */
+function buildSearchBar(initialQuery: string, onChange: (q: string) => void): HTMLElement {
+  const wrap = document.createElement('div');
+  wrap.setAttribute('data-credit-totals-search', '1');
+  wrap.style.cssText = 'padding:6px 8px 0 8px;';
+  const input = document.createElement('input');
+  input.type = 'search';
+  input.placeholder = 'Search workspaces by name, plan, or id…';
+  input.value = initialQuery;
+  input.setAttribute('aria-label', 'Search workspaces');
+  input.style.cssText =
+    'width:100%;box-sizing:border-box;background:rgba(0,0,0,0.35);'
+    + 'border:1px solid rgba(124,58,237,0.35);color:' + cPanelFgDim + ';'
+    + 'padding:4px 8px;border-radius:4px;font-size:11px;'
+    + 'font-family:monospace;outline:none;';
+  input.addEventListener('focus', function (): void {
+    input.style.borderColor = cPrimaryLighter;
+    input.style.color = '#ffffff';
+  });
+  input.addEventListener('blur', function (): void {
+    input.style.borderColor = 'rgba(124,58,237,0.35)';
+    input.style.color = cPanelFgDim;
+  });
+  input.addEventListener('input', function (): void {
+    onChange(input.value);
+  });
+  wrap.appendChild(input);
+  return wrap;
+}
+
 interface TableCtx {
   wrap: HTMLElement;
   header: HTMLElement;
