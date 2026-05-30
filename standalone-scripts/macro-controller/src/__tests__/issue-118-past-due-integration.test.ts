@@ -75,10 +75,10 @@ describe('Issue 118 integration — tone-ramp boundary precision', () => {
     expect(pickPastDueTone(10)).toBe('danger');
   });
 
-  it('classifyWorkspaceDisplayStatus mirrors tone ramp at boundary days', () => {
-    expect(classifyWorkspaceDisplayStatus(pastDueWs(2), CFG, NOW).tone).toBe('muted');
-    expect(classifyWorkspaceDisplayStatus(pastDueWs(3), CFG, NOW).tone).toBe('warning');
-    expect(classifyWorkspaceDisplayStatus(pastDueWs(9), CFG, NOW).tone).toBe('warning');
+  it('classifyWorkspaceDisplayStatus mirrors danger tone for all past-due rows', () => {
+    expect(classifyWorkspaceDisplayStatus(pastDueWs(2), CFG, NOW).tone).toBe('danger');
+    expect(classifyWorkspaceDisplayStatus(pastDueWs(3), CFG, NOW).tone).toBe('danger');
+    expect(classifyWorkspaceDisplayStatus(pastDueWs(9), CFG, NOW).tone).toBe('danger');
     expect(classifyWorkspaceDisplayStatus(pastDueWs(10), CFG, NOW).tone).toBe('danger');
   });
 });

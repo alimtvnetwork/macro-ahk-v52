@@ -3,7 +3,7 @@
  *
  * Covers:
  *   - getEffectiveStatus resolves past_due → past-due-expiring
- *   - pickPastDueTone ramp (0–4d warning, 5–9d orange, ≥10d danger)
+ *   - pickPastDueTone ramp (kept for API compat; badge now always danger)
  *   - formatPassedLabel
  *   - buildStatusPillHtml renders Expire + Passed Nd / Today
  *   - classifyWorkspaceDisplayStatus for past-due
@@ -99,20 +99,20 @@ describe('Issue 118 — formatPassedLabel', () => {
 });
 
 describe('Issue 118 — classifyWorkspaceDisplayStatus past-due', () => {
-  it('produces Expire + Today + muted for daysSince=0', () => {
+  it('produces Expire + Today + danger for daysSince=0', () => {
     const ws = makeWs({ subscriptionStatus: 'past_due', subscriptionStatusChangedAt: new Date(NOW).toISOString() });
     const d = classifyWorkspaceDisplayStatus(ws, CFG, NOW);
     expect(d.label).toBe('Expire');
     expect(d.sublabel).toBe('Today');
-    expect(d.tone).toBe('muted');
+    expect(d.tone).toBe('danger');
   });
 
-  it('produces Expire + Passed Nd + warning for daysSince=6', () => {
+  it('produces Expire + Passed Nd + danger for daysSince=6', () => {
     const ws = makeWs({ subscriptionStatus: 'past_due', subscriptionStatusChangedAt: new Date(NOW - 6 * 86_400_000).toISOString() });
     const d = classifyWorkspaceDisplayStatus(ws, CFG, NOW);
     expect(d.label).toBe('Expire');
     expect(d.sublabel).toBe('Passed 6d');
-    expect(d.tone).toBe('warning');
+    expect(d.tone).toBe('danger');
   });
 });
 

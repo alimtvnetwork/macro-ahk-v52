@@ -47,8 +47,8 @@ describe('workspace badge tone resolver — Issue 125 §2.4', () => {
         expect(styleContainsRedPalette(style)).toBe(true);
     });
 
-    it('past-due-expiring → amber (warning)', () => {
-        expect(toneFor('past-due-expiring')).toBe('warning');
+    it('past-due-expiring → danger (red), same as expired-hard', () => {
+        expect(toneFor('past-due-expiring')).toBe('danger');
     });
 
     it('refill-soon → info (sky), unchanged', () => {
@@ -61,11 +61,13 @@ describe('workspace badge tone resolver — Issue 125 §2.4', () => {
         expect(style.bg).toBe('transparent');
     });
 
-    it('every badge kind that visually expires uses a DISTINCT tone from expired-hard except past-due-expiring', () => {
+    it('every badge kind that visually expires uses a DISTINCT tone from expired-hard', () => {
         // expire-soon and expired must NOT collide with expired-hard's
         // critical red — that was the original bug.
         expect(toneFor('expire-soon')).not.toBe(toneFor('expired-hard'));
         expect(toneFor('expired')).not.toBe(toneFor('expired-hard'));
         expect(toneFor('canceled')).not.toBe(toneFor('expired-hard'));
+        // past-due-expiring now intentionally shares danger with expired-hard
+        // (both are red; the user asked for red bg + white text on Expire).
     });
 });

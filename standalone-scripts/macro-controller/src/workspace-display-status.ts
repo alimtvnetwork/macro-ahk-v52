@@ -82,13 +82,13 @@ function isPastDueExpiringStatus(source: WorkspaceStatus): source is PastDueExpi
 //   expire-soon   → amber                            → `warning`
 //   canceled      → muted gray, NEVER red            → `muted`
 //   expired-hard  → critical red (≥ grace window)    → `danger`
-//   past-due-exp. → amber                            → `warning`
+//   past-due-exp. → danger (red bg + white text)     → `danger`
 export const WORKSPACE_BADGE_DISPLAY: Record<WorkspaceDisplayKind, { tone: WorkspaceDisplayTone }> = {
   'canceled':           { tone: 'muted' },
   'expired':            { tone: 'orange' },
   'expired-hard':       { tone: 'danger' },
   'expire-soon':        { tone: 'warning' },
-  'past-due-expiring':  { tone: 'warning' },
+  'past-due-expiring':  { tone: 'danger' },
   'refill-soon':        { tone: 'info' },
   'normal':             { tone: 'none' },
 };
@@ -173,7 +173,7 @@ function classifyPastDueExpiring(source: PastDueExpiringStatus): WorkspaceDispla
     kind: 'past-due-expiring',
     label: 'Expire',
     sublabel: formatPassedLabel(daysPassed),
-    tone: pickPastDueTone(daysPassed),
+    tone: 'danger',
     tooltip: 'Past due since ' + (source.sinceIso || 'unknown'),
     source,
   };
