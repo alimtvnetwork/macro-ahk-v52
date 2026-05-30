@@ -193,7 +193,7 @@ function registerPassiveAttachShortcut(deps: Parameters<typeof bootstrap>[0]): v
       window.__MARCO_LAUNCH_SOURCE__ = 'manual';
       bootstrap(deps);
     } catch (err: unknown) {
-      logError('passive-attach-shortcut', err);
+      logError('passive-attach-shortcut', 'Promotion failed', err);
     }
   };
   document.addEventListener('keydown', handler, true);
