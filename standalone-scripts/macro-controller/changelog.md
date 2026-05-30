@@ -1,5 +1,16 @@
 # Macro Controller — Changelog
 
+## v3.36.0 (2026-05-30)
+
+### Added
+- **Issue 122a closeout — `pro_1` enrichment unit tests** (`src/credit-balance/__tests__/pro-one-enrichment.test.ts`, 9 tests) — overlay onto `pro_1` rows, case-insensitive/whitespace-trimmed plan literal, non-`pro_1` left untouched, cache-miss no-op, missing-id skip, negative-value clamping (`available`/`totalCreditsUsed`/`dailyUsed` ≥ 0), fractional rounding, multi-row batch counts.
+- **Issue 122a closeout — `ws-move` post-move credit-balance refresh test** (`src/__tests__/ws-move-post-refresh.test.ts`, 2 tests) — verifies the destination workspace's `/credit-balance` is force-refreshed via `fetchAndPersist(id, { force: true, source: 'manual' })` after a successful move, bypassing the 10s per-ws throttle, and that the refresh is fire-and-forget (move still resolves on refresh failure).
+
+### Changed
+- Version bump: 3.34.2 → 3.36.0 (synced with root).
+
+---
+
 ## v3.34.2 (2026-05-29)
 
 ### Changed

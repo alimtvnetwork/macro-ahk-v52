@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 ## [v3.36.0] — 2026-05-30
 
 ### Added
-
-### Fixed
+- **Issue 122a — `pro_1` enrichment unit tests** (`standalone-scripts/macro-controller/src/credit-balance/__tests__/pro-one-enrichment.test.ts`, 9 tests) covering: cache overlay onto `pro_1` rows, case-insensitive/whitespace-trimmed plan literal, non-`pro_1` rows untouched, cache-miss no-op, missing workspace id, negative-value clamping, fractional rounding, and multi-row batch counting.
+- **Issue 122a — `ws-move` post-move credit-balance refresh test** (`standalone-scripts/macro-controller/src/__tests__/ws-move-post-refresh.test.ts`, 2 tests) confirming a successful `moveToWorkspace()` calls `fetchAndPersist(destId, { force: true, source: 'manual' })` (bypassing the 10s throttle) and that the refresh is fire-and-forget — `moveToWorkspace` resolves even when the refresh throws.
 
 ### Changed
 - Version bump: 3.35.0 → 3.36.0 (all version files synced)
