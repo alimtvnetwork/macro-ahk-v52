@@ -70,3 +70,20 @@ export function styleContainsRedPalette(style: BadgeStyle): boolean {
   }
   return false;
 }
+
+/**
+ * Dilute the alpha of an rgba background so the sublabel pill looks
+ * visually subordinate to the main pill. Works for any rgba string;
+ * returns 'transparent' for non-rgba / 'transparent' inputs.
+ *
+ * Issue 129: replaces the fragile `.replace('0.55','0.30')` hack that
+ * silently failed for tones whose alpha did not match those literals
+ * (e.g. danger `rgba(127,29,29,0.85)` stayed opaque).
+ */
+export function diluteBadgeBg(bg: string, factor: number): string {
+  if (bg === 'transparent') return 'transparent';
+  const m = bg.match(/rgba\((\d+),(\d+),(\d+),([\d.]+)\)/);
+  if (!m) return bg;
+  const a = Math.max(0.05, parseFloat(m[4]) * factor);
+  return 'rgba(' + m[1] + ',' + m[2] + ',' + m[3] + ',' + a.toFixed(2) + ')';
+}

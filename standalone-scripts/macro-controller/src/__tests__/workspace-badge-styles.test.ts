@@ -11,6 +11,7 @@ import {
   resolveBadgeStyle,
   styleContainsRedPalette,
   RED_PALETTE_FRAGMENTS,
+  diluteBadgeBg,
 } from '../workspace-badge-styles';
 
 describe('resolveBadgeStyle — Issue 115 Step 2', () => {
@@ -47,5 +48,28 @@ describe('resolveBadgeStyle — Issue 115 Step 2', () => {
 
   it('RED_PALETTE_FRAGMENTS is non-empty (guard against accidental clear)', () => {
     expect(RED_PALETTE_FRAGMENTS.length).toBeGreaterThan(0);
+  });
+});
+
+describe('diluteBadgeBg — Issue 129 sublabel polish', () => {
+  it('halves the alpha of a standard rgba string', () => {
+    expect(diluteBadgeBg('rgba(180,83,9,0.55)', 0.5)).toBe('rgba(180,83,9,0.28)');
+  });
+
+  it('respects the minimum alpha floor (0.05)', () => {
+    expect(diluteBadgeBg('rgba(2,132,199,0.01)', 0.5)).toBe('rgba(2,132,199,0.05)');
+  });
+
+  it('passes through non-rgba strings unchanged', () => {
+    expect(diluteBadgeBg('#dc2626', 0.35)).toBe('#dc2626');
+  });
+
+  it('returns transparent for transparent input', () => {
+    expect(diluteBadgeBg('transparent', 0.35)).toBe('transparent');
+  });
+
+  it('correctly dilutes the danger tone used by Expire pills', () => {
+    const diluted = diluteBadgeBg('rgba(127,29,29,0.85)', 0.35);
+    expect(diluted).toBe('rgba(127,29,29,0.30)');
   });
 });

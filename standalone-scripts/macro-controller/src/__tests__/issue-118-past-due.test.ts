@@ -132,6 +132,16 @@ describe('Issue 118 — buildStatusPillHtml', () => {
     expect(html).toContain('Expire');
     expect(html).toContain('Today');
   });
+
+  it('sublabel background is more transparent than the main pill (Issue 129)', () => {
+    const ws = makeWs({ subscriptionStatus: 'past_due', subscriptionStatusChangedAt: new Date(NOW - 3 * 86_400_000).toISOString() });
+    const status = getEffectiveStatus(ws, CFG, NOW);
+    const html = buildStatusPillHtml(status, ws);
+    // Main pill uses danger tone: rgba(127,29,29,0.85)
+    // Sublabel is diluted via diluteBadgeBg(..., 0.35) → rgba(127,29,29,0.30)
+    expect(html).toContain('rgba(127,29,29,0.85)'); // main pill bg
+    expect(html).toContain('rgba(127,29,29,0.30)'); // sublabel bg
+  });
 });
 
 describe('Issue 118 — isPastDueStatus enum helper', () => {

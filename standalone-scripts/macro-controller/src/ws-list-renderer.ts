@@ -51,7 +51,7 @@ import { DataAttr, DomId } from './types';
 import { sortByRefillPriority, daysToRefillForWs } from './workspace-refill-priority';
 // Issue 115 — collapsed display classifier + centralised tone resolver.
 import { classifyFromStatus, type WorkspaceDisplayStatus } from './workspace-display-status';
-import { resolveBadgeStyle } from './workspace-badge-styles';
+import { resolveBadgeStyle, diluteBadgeBg } from './workspace-badge-styles';
 import { publishVisibleWorkspaces } from './visible-workspaces-store';
 
 const CSS_BG = ';background:';
@@ -554,7 +554,7 @@ export function buildStatusPillHtml(status: WorkspaceStatus, ws: WorkspaceCredit
 
   if (display.sublabel) {
     html += '<span class="marco-ws-status-sublabel marco-ws-status-' + display.kind + '-sublabel" style="font-size:11px;color:' + style.fg
-      + ';background:' + style.bg.replace('0.55', '0.30').replace('0.45', '0.22')
+      + ';background:' + diluteBadgeBg(style.bg, 0.35)
       + ';border:1px solid ' + style.border
       + ';padding:2px 6px;border-radius:4px;font-weight:600;margin-left:3px;vertical-align:middle;letter-spacing:0.3px;text-transform:none;"'
       + ' data-marco-tip="' + tip + '">' + display.sublabel + '</span>';
