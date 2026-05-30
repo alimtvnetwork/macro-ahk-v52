@@ -1,0 +1,17 @@
+{
+  "version": "3.39.0",
+  "branch": "release/v3.39.0",
+  "sourceBranch": "main",
+  "commit": "c72a2f232f2938114c45c5fa78b3fe81897ef56d",
+  "tag": "v3.39.0",
+  "assets": [],
+  "changelog": [
+    "Version bump: 3.38.0 → 3.39.0 (all unified-version sites synced: `manifest.json`, `src/shared/constants.ts`, `standalone-scripts/macro-controller/src/shared-state.ts`, and every `standalone-scripts/*/src/instruction.ts`).",
+    "Added root `version.json` artifact pinning the current unified version for downstream tooling.",
+    "Pinned v3.39.0 in root `readme.md` version badge."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-05-30T17:19:30Z",
+  "isLatest": false
+}
