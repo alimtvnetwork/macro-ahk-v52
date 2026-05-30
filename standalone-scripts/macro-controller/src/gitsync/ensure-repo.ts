@@ -29,7 +29,6 @@ import {
     probeProgress,
     wellKnownJobId,
     PROBE_POLL_INTERVAL_MS,
-    DEFAULT_PROBE_DEADLINE_MS,
     type GitsyncProgressBody,
 } from './progress-probe';
 
