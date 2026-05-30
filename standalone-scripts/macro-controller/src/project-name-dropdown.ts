@@ -136,6 +136,9 @@ export function showProjectNameDropdown(
 
   document.body.appendChild(dd);
   setTimeout(function () {
+    if (typeof document === 'undefined') {
+      return;
+    }
     document.addEventListener('click', removeProjectNameDropdown, { once: true });
   }, 10);
   return dd;
