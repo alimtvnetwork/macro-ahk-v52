@@ -34,7 +34,7 @@ import {
   clearUISnapshot,
 } from './prompt-cache';
 import type { CachedPromptEntry } from './prompt-cache';
-import { showToast } from '../toast';
+
 import { renderPlanTaskSubmenu } from './plan-task-ui';
 import { renderFilterMenu } from './prompt-filter-menu';
 
