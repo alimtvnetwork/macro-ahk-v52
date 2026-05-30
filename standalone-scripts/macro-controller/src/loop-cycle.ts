@@ -21,7 +21,10 @@ import { isUserTypingInPrompt } from './dom-helpers';
 import { CREDIT_API_BASE, TIMING, loopCreditState, state } from './shared-state';
 import { autoDetectLoopCurrentWorkspace } from './workspace-detection';
 import { performDirectMove } from './loop-dom-fallback';
-import { stopLoop } from './loop-controls';
+// NOTE: `stopLoop` import intentionally removed (v3.40.2). The cycle never
+// terminates the loop on its own anymore — see soft-cooldown comment in
+// `handleCycleFetchError`. Only the user (via UI Stop) or the Ctrl+Alt+.
+// shortcut may stop the loop.
 import { runCycleDomFallback } from './loop-dom-fallback';
 import { checkAndActOnCreditBalance, BALANCE_CONFIG } from './credit-balance';
 import { delay } from './async-utils';
