@@ -67,12 +67,13 @@ Spec: `spec/22-app-issues/126-ctrl-shift-down-script-attach-shortcut.md`
 - [ ] Tests — add shortcut attach regression coverage.
 - [ ] Final bump — include this in the final queued v3.38.0 bump after Issues 125, 126, and 127 are complete.
 
-### Queued — Issue 127: Plan button no-op + Task Next dropdown overflow + missing Plan mode
+### Queued — Issue 127: Prompts dropdown missing Plan row + Task Next sub-menu opens left and clips
 Spec: `spec/22-app-issues/127-plan-button-and-task-next-dropdown-overflow.md`
-- [ ] Task 1 — Inspect live DOM, capture exact selectors/XPaths/HTML for Plan button and Task Next menu; finalize spec §3.
-- [ ] Task 2 — Fix Task Next menu position via shared `flipIfClipped()` helper; add 4 position unit tests.
-- [ ] Task 3 — Add `'plan'` to `ModeId`; implement `plan-mode-handler.ts` with two-way sync; unit tests.
-- [ ] Task 4 — jsdom integration test for chat↔plan↔build mode switching (no stale `aria-pressed`).
+Scope: extension's **Prompts** button dropdown only — NOT Lovable's native composer Plan button.
+- [ ] Task 1 — Repro: locate where Plan row was removed from `prompt-dropdown.ts` and where Task Next anchor calc opens leftward; fill spec §6 Findings.
+- [ ] Task 2 — Fix `task-next-ui.ts` so sub-menu opens RIGHT of Prompts dropdown (fallback: stacked below); add right-anchor test.
+- [ ] Task 3 — Re-add `Plan` row inside `prompt-dropdown.ts` (below Task Next), wired to existing `plan-task-ui.ts` opener with same right-anchor rule; add row-presence test.
+- [ ] Task 4 — Full test sweep + 1043×757 visual check; ensure existing `tasks-right-anchor` / `plan-task-ui` / `prompts-panel-layout` tests still pass.
 - [ ] Task 5 — Roll into final v3.38.0 bump + changelog entries.
 
 ### Completed — Gitsync "Open GitHub repo" fix (v3.19.0) ✅

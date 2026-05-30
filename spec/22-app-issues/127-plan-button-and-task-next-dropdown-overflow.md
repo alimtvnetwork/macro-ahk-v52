@@ -1,114 +1,97 @@
-# Issue 127 — Plan button no-op + Task Next dropdown overflow + missing Plan mode
+# Issue 127 — Prompts dropdown: missing Plan entry + Task Next dropdown opens left and overflows
 
 **Status:** Queued
-**Reporter:** User (screenshot attached in chat 2026-05-30)
+**Reporter:** User (screenshot 2026-05-30, clarification 2026-05-30)
 **Target version:** v3.38.0 (bundled with Issues 124/125/126)
-**Owner module:** `standalone-scripts/macro-controller/src/lovable-toolbar/` (Prompts dock + Task Next menu)
+**Owner module:** `standalone-scripts/macro-controller/src/ui/` — `prompt-dropdown.ts`, `task-next-ui.ts`, `plan-task-ui.ts`
+
+> **Scope clarification (from user 2026-05-30):**
+> This issue is ENTIRELY about the **extension's Prompts button dropdown** — the popover that opens when the user clicks the blue **Prompts** pill we inject into Lovable's composer. It is NOT about Lovable's native composer Plan-mode button. Do not touch any native Lovable buttons.
 
 ---
 
-## 1. Symptoms
+## 1. What the Prompts dropdown should look like
 
-### Bug A — "Plan" button does not work
-- The Plan toggle (next to Prompts / Chat in the Lovable composer toolbar that the extension injects/augments) does **not** activate Plan mode.
-- Clicking it produces no visible state change: no toggled style, no Plan-mode badge, no change in composer placeholder/submit behavior.
-- There is also **no Plan-mode entry** in the extension's own mode selector — only Chat/Build are exposed. Plan should be a first-class mode (parity with Lovable's native Plan mode).
-
-### Bug B — "Task Next" dropdown overflows to the left, clipped by viewport
-- See screenshot: opening the **Task Next** picker (anchored under the Prompts pill) renders the menu **leftward**, which gets clipped by the page edge at narrow widths.
-- Expected: menu should flip to **open rightward** (or be constrained inside viewport) when there is insufficient space on the left, matching the behavior we already implemented for other dock menus.
-- Custom row (`Custom: # ▶`) and Settings row are partially cut off as a result.
-
----
-
-## 2. Root cause hypotheses (to confirm in Task 1)
-
-### Bug A — Plan button
-- Likely one of:
-  1. The Plan button DOM element changed in Lovable's UI (new `data-mode="plan"` attribute or new XPath). Our click handler is bound to a stale selector and silently no-ops.
-  2. Click handler exists but never dispatches the `mode-change` event the composer listens to. Need to mirror Chat→Build handler shape.
-  3. The mode-selector enum in `mode-selector/types.ts` only has `'chat' | 'build'` — Plan was never added.
-
-### Bug B — Task Next dropdown
-- `task-next-menu/position.ts` (or equivalent) computes `left = anchorRect.left - menuWidth` unconditionally instead of using the shared `flipIfClipped(anchorRect, menuSize, viewport)` helper that Prompts/Queue menus use.
-- Probably missing `position: fixed` + viewport clamp; or `transform-origin` set so menu grows leftward without overflow detection.
-
----
-
-## 3. Identifiers (selectors / XPaths)
-
-> **TODO in Task 1:** capture exact selectors from live DOM. Provisional based on screenshot DOM patterns:
-
-```ts
-// Plan button (Lovable native composer)
-// XPath candidate: //button[@data-mode="plan"] | //button[normalize-space()="Plan"]
-export const SEL_PLAN_BUTTON = '[data-mode="plan"], button[aria-label="Plan mode"]';
-
-// Sample HTML (placeholder — verify):
-// <button data-mode="plan" aria-pressed="false" class="...">Plan</button>
-
-// Task Next trigger pill
-export const SEL_TASK_NEXT_TRIGGER = '[data-marco-task-next-trigger]';
-
-// Task Next menu root
-export const SEL_TASK_NEXT_MENU = '[data-marco-task-next-menu]';
-```
-
-Add concrete XPaths + HTML snippets here once Task 1 inspection lands.
-
----
-
-## 4. Acceptance criteria
-
-### Bug A
-1. Clicking Plan toggles `aria-pressed="true"` on the native button AND emits the same internal event our Chat/Build handlers emit.
-2. Extension `mode-selector` exposes Plan as a third option with its own icon + tooltip ("Plan mode — outline before executing").
-3. Selecting Plan in the extension menu also reflects on the native button (two-way sync), same contract as Chat↔Build today.
-4. Regression: Chat and Build continue to work; switching between modes never leaves a stale `aria-pressed`.
-
-### Bug B
-1. Task Next menu opens **rightward by default** when anchor is in the left half of the viewport; flips leftward only when right side would clip.
-2. Menu is fully visible at viewport widths ≥ 360 px; never overflows past `window.innerWidth` or `0` on either side.
-3. Vertical placement falls back upward when bottom would clip (same helper as Prompts menu).
-4. Custom row and Settings row are always visible without horizontal scroll.
-
----
-
-## 5. Files to touch
+When the user clicks the **Prompts** pill, a popover opens with two primary entries (and the existing prompt list / save controls):
 
 ```
-standalone-scripts/macro-controller/src/lovable-toolbar/
-├── mode-selector/
-│   ├── types.ts                  # add 'plan' to ModeId union
-│   ├── plan-mode-handler.ts      # NEW: click + sync logic mirroring chat/build
-│   ├── selectors.ts              # add SEL_PLAN_BUTTON + XPath fallback
-│   └── __tests__/plan-mode-handler.test.ts   # NEW
-├── task-next-menu/
-│   ├── position.ts               # use flipIfClipped() shared helper
-│   ├── render.ts                 # ensure position:fixed + transform-origin
-│   └── __tests__/position.test.ts            # NEW or extend
-└── shared/
-    └── flip-if-clipped.ts        # confirm helper exists; extract if duplicated
+┌─ Prompts dropdown ──────────────────┐
+│  ⏭  Task Next        ▸              │  ← opens submenu to the RIGHT
+│  📋  Plan            ▸              │  ← opens submenu to the RIGHT
+│  ─────────────────────              │
+│  (existing prompt list / save row)  │
+└─────────────────────────────────────┘
 ```
 
-Plus:
-- `manifest.json` — version bump (bundled into v3.38.0)
-- `changelog.md` (root + macro-controller) — entries under v3.38.0
+Both **Task Next** and **Plan** are rows inside the Prompts dropdown. Hovering or clicking either one opens its sub-menu **to the right** of the Prompts dropdown (never to the left, never clipped).
 
 ---
 
-## 6. 5-step task plan
+## 2. Two concrete bugs to fix
 
-1. **Inspection + spec finalization** — Open Lovable composer in dev, capture exact Plan button DOM (`outerHTML`, full XPath, attributes, event listeners via DevTools). Capture Task Next menu's computed style + bounding box at narrow viewport. Update §3 with concrete identifiers. Confirm hypotheses in §2.
-2. **Bug B fix — Task Next position** — Refactor `task-next-menu/position.ts` to call shared `flipIfClipped()`. Add unit tests for: (a) anchor in left half → opens right, (b) anchor in right half → opens left, (c) anchor near bottom → opens upward, (d) viewport < menu width → clamps inside.
-3. **Bug A fix — Plan button binding** — Add `'plan'` to `ModeId` union. Implement `plan-mode-handler.ts` mirroring Chat/Build: click native button → dispatch synthetic event → update extension mode-selector state. Add unit tests asserting (a) click toggles `aria-pressed`, (b) state sync both directions, (c) stale selector falls back to XPath.
-4. **Integration test** — Add jsdom integration test wiring `mode-selector` + `plan-mode-handler` together; assert switching chat→plan→build→plan never leaves >1 button pressed and never loses sync.
-5. **Version bump + changelog** — Roll into the queued v3.38.0 bump (with Issues 124/125/126). Add changelog entries: "Fixed Plan button no-op", "Added Plan mode to extension mode selector", "Fixed Task Next dropdown viewport overflow".
+### Bug A — `Plan` row is missing from the Prompts dropdown
+
+The Plan sub-menu logic already exists in `src/ui/plan-task-ui.ts` (156 lines) and a test fixture exists at `src/__tests__/plan-task-ui.test.ts`, but the **entry point row inside `prompt-dropdown.ts` is no longer rendered** (regression — it used to be there).
+
+**Fix:** Re-add the `Plan` row to the Prompts dropdown body, immediately below `Task Next`, with the same row styling. Wire its click/hover to the existing `openPlanTaskMenu()` (or equivalent exported function) in `plan-task-ui.ts`. If that function does not exist, expose it.
+
+The Plan sub-menu's contents/behavior are defined by the existing `plan-task-ui.ts` module and its test — **do not redesign them**; only re-attach the entry row.
+
+### Bug B — `Task Next` sub-menu opens leftward and gets clipped
+
+Screenshot shows the **Task Next** sub-menu (Next 1/2/3/5/7/10/12/15/20/30/40 + Custom + Settings) anchored to the **left** of the Prompts dropdown, with its left edge cut off by the viewport at ≤ ~1043 px width.
+
+**Fix:** Sub-menu must open **to the right** of the Prompts dropdown by default. If right-side space < menu width, fall back to opening downward (stacked under the row) — never leftward off-screen. Use the same anchoring approach the codebase already uses for other right-flank popovers (see `__tests__/tasks-right-anchor.test.ts` and `__tests__/tasks-toggle-hover-open.test.ts` — these tests already encode the right-anchor contract; Task Next is violating it).
+
+Apply the same right-anchor rule to the **Plan** sub-menu so both are consistent.
+
+---
+
+## 3. Acceptance criteria
+
+1. Clicking the **Prompts** pill shows both `Task Next` and `Plan` rows inside the dropdown.
+2. Hover/click on `Task Next` opens its sub-menu to the right; all entries (Next 1 task … Next 40 tasks, Custom, Settings) are fully visible on a 1043 × 757 viewport.
+3. Hover/click on `Plan` opens the existing Plan sub-menu (behavior unchanged from `plan-task-ui.ts`) — also to the right, fully visible.
+4. Existing tests still pass: `tasks-right-anchor.test.ts`, `tasks-toggle-hover-open.test.ts`, `plan-task-ui.test.ts`, `prompts-panel-layout.test.ts`.
+5. New test asserts the Plan row is rendered inside `prompt-dropdown.ts` output and that clicking it invokes the Plan sub-menu opener.
+6. New test asserts Task Next sub-menu's computed `left` is `>= anchorRect.right` (i.e. opens rightward) on a 1043-px viewport when the Prompts pill is in the left half of the screen.
+
+---
+
+## 4. Files to touch
+
+```
+standalone-scripts/macro-controller/src/ui/
+├── prompt-dropdown.ts          # Re-add Plan row; ensure both rows are wired
+├── task-next-ui.ts             # Fix anchor calc to open RIGHT (not left)
+├── plan-task-ui.ts             # Same right-anchor rule; export opener if needed
+└── __tests__/
+    ├── plan-row-in-prompts-dropdown.test.ts   # NEW
+    └── task-next-right-anchor.test.ts         # NEW (or extend tasks-right-anchor)
+```
+
+Plus version bump in the queued v3.38.0 (with Issues 124/125/126).
+
+---
+
+## 5. Five-step task plan
+
+1. **Repro + locate regression** — Read `prompt-dropdown.ts`, `task-next-ui.ts`, `plan-task-ui.ts`, and the existing `tasks-right-anchor` / `plan-task-ui` tests. Identify exactly where the Plan row was removed and where Task Next's anchor calc went wrong. Document the diff in a short comment block at the top of the spec (§6 below, leave a Findings stub).
+2. **Bug B fix — Task Next right-anchor** — Update `task-next-ui.ts` so the sub-menu's `left = anchorRect.right + GAP` by default, falls back to stacked-below when right space is insufficient. Add `task-next-right-anchor.test.ts` covering both cases. Confirm `tasks-right-anchor.test.ts` still passes.
+3. **Bug A fix — Re-add Plan row** — In `prompt-dropdown.ts`, render a Plan row directly below the Task Next row using the same row component/styling. Wire its `click`/`pointerenter` to the Plan sub-menu opener from `plan-task-ui.ts` (export it if missing). Apply the same right-anchor logic so the Plan sub-menu also opens rightward.
+4. **Tests + regression sweep** — Add `plan-row-in-prompts-dropdown.test.ts` (asserts row exists, has correct label/icon, opener fires). Run the full test suite; fix any fallout. Visual sanity check via screenshot at 1043 × 757.
+5. **Version bump + changelog** — Roll into v3.38.0 with entries: "Restored missing Plan row in Prompts dropdown", "Fixed Task Next sub-menu opening leftward and clipping at narrow viewports".
+
+---
+
+## 6. Findings (filled in during Task 1)
+
+_TBD — populate during repro step._
 
 ---
 
 ## 7. Non-goals
 
-- Do not redesign the mode selector UI; only add Plan as a third entry using existing styling.
-- Do not modify Lovable's native Plan-mode behavior; we only ensure our toggle wires up to it.
-- Do not change Task Next menu *contents* (Next 1/2/3/.../Custom/Settings rows stay identical) — positioning only.
+- Do **NOT** touch Lovable's native composer Plan-mode button or any native composer DOM.
+- Do **NOT** redesign the Task Next or Plan sub-menu contents — only their anchoring and the missing entry row.
+- Do **NOT** add a new global "mode selector" — the previous spec draft misread the request; that idea is withdrawn.
