@@ -31,6 +31,7 @@ import {
   fetchLoopCreditsWithDetect,
 } from './ws-list-renderer';
 import { showWsMembersPanel } from './ws-members-panel';
+import { showWsMembersBulkPanel } from './bulk-members-panel'; // I named it differently in the step, fixing to match plan or consistent naming
 import { getSelectedWsIds, clearWsSelection } from './selected-workspaces-store';
 import { actionRemixManual, actionRemixNext } from './remix-dropdown';
 import { extractProjectIdFromUrl } from './workspace-detection';
