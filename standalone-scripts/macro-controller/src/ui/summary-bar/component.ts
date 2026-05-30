@@ -20,11 +20,16 @@ import {
     tFont,
     tFontMicro,
 } from '../../shared-state';
-import type { DashboardSummary } from './types';
+import type { DashboardSummary, SummaryDetails } from './types';
+import {
+    removeSummaryHoverCard,
+    showSummaryHoverCard,
+    type SummaryPillKind,
+} from './hover-card';
 
 export interface SummaryBarHandle {
     readonly root: HTMLElement;
-    update(summary: DashboardSummary): void;
+    update(summary: DashboardSummary, details?: SummaryDetails): void;
 }
 
 const ZERO_SUMMARY: DashboardSummary = {
@@ -33,6 +38,20 @@ const ZERO_SUMMARY: DashboardSummary = {
     proCreditsAvailable: 0,
     proCreditsTotal: 0,
     freeCreditsAvailable: 0,
+};
+
+const ZERO_DETAILS: SummaryDetails = {
+    pro: {
+        count: 0,
+        expiringCount: 0,
+        expiringByKind: {},
+        byPlan: {},
+        creditsAvailable: 0,
+        creditsTotal: 0,
+        creditsExpiringAvailable: 0,
+    },
+    free: { dailyAvailable: 0, workspacesWithFree: 0 },
+    grand: { availableSpendable: 0 },
 };
 
 function pill(icon: string, ariaLabel: string): { el: HTMLElement; text: HTMLElement } {
@@ -91,11 +110,27 @@ export function createSummaryBar(): SummaryBarHandle {
     root.appendChild(proCredits.el);
     root.appendChild(freeCredits.el);
 
-    function update(summary: DashboardSummary): void {
+    let lastDetails: SummaryDetails = ZERO_DETAILS;
+
+    function wireHover(pillEl: HTMLElement, kind: SummaryPillKind): void {
+        pillEl.style.cursor = 'help';
+        pillEl.addEventListener('mouseenter', function (): void {
+            showSummaryHoverCard(pillEl, kind, lastDetails);
+        });
+        pillEl.addEventListener('mouseleave', function (): void {
+            removeSummaryHoverCard();
+        });
+    }
+    wireHover(pro.el, 'pro');
+    wireHover(proCredits.el, 'proCredits');
+    wireHover(freeCredits.el, 'freeCredits');
+
+    function update(summary: DashboardSummary, details?: SummaryDetails): void {
         const s = summary ?? ZERO_SUMMARY;
         pro.text.textContent = fmtPro(s);
         proCredits.text.textContent = fmtProCredits(s);
         freeCredits.text.textContent = fmtFreeCredits(s);
+        lastDetails = details ?? ZERO_DETAILS;
     }
 
     update(ZERO_SUMMARY);

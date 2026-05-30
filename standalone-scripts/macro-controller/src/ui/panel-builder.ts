@@ -49,7 +49,7 @@ import {
 } from './panel-sections';
 import { startRedockObserver } from './redock-observer';
 import { createSummaryBar, type SummaryBarHandle } from './summary-bar/component';
-import { computeDashboardSummary, type DisplayKindResolver } from './summary-bar';
+import { computeDashboardSummary, computeSummaryDetails, type DisplayKindResolver } from './summary-bar';
 import { subscribeVisibleWorkspaces } from '../visible-workspaces-store';
 import { classifyWorkspaceDisplayStatus } from '../workspace-display-status';
 import { getWorkspaceLifecycleConfig } from '../workspace-lifecycle-config';
@@ -129,7 +129,7 @@ function wireSummaryBarSubscription(summaryBar: SummaryBarHandle): void {
       try { return classifyWorkspaceDisplayStatus(ws, config).kind; }
       catch (_e: unknown) { return 'normal'; }
     };
-    summaryBar.update(computeDashboardSummary(rows, resolver));
+    summaryBar.update(computeDashboardSummary(rows, resolver), computeSummaryDetails(rows, resolver));
   });
 }
 

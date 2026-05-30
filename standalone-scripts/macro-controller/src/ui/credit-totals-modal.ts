@@ -200,16 +200,34 @@ export interface FilterState {
   low: boolean;
   empty: boolean;
   free: boolean;
+  /** Case-insensitive substring match against workspace name / plan / id (Issue 130). */
+  query: string;
 }
 
-/** Pure: apply active chip filters to the workspace list. */
+function wsMatchesQuery(ws: WorkspaceCredit, q: string): boolean {
+  if (!q) return true;
+  const needle = q.trim().toLowerCase();
+  if (!needle) return true;
+  const hay = (
+    (ws.fullName || '') + ' ' +
+    (ws.name || '') + ' ' +
+    (ws.id || '') + ' ' +
+    (ws.plan || '')
+  ).toLowerCase();
+  return hay.indexOf(needle) !== -1;
+}
+
+/** Pure: apply active chip filters + search query to the workspace list. */
 export function applyFilters(
   workspaces: ReadonlyArray<WorkspaceCredit>,
   filters: FilterState,
 ): ReadonlyArray<WorkspaceCredit> {
-  const anyActive = filters.low || filters.empty || filters.free;
-  if (!anyActive) return workspaces;
+  const anyChipActive = filters.low || filters.empty || filters.free;
+  const hasQuery = (filters.query || '').trim().length > 0;
+  if (!anyChipActive && !hasQuery) return workspaces;
   return workspaces.filter((ws) => {
+    if (hasQuery && !wsMatchesQuery(ws, filters.query)) return false;
+    if (!anyChipActive) return true;
     const rem = Number(ws.available);
     if (filters.low && rem < 100 && rem > 0) return true;
     if (filters.empty && rem <= 0) return true;
@@ -268,6 +286,40 @@ function buildFilterBar(
   bar.appendChild(chipEmpty);
   bar.appendChild(chipFree);
   return bar;
+}
+
+/**
+ * Build the persistent search input (Issue 130) shown above the chip bar.
+ * Lives outside the chip-bar rebuild cycle so the input keeps focus and
+ * cursor position while the user types.
+ */
+function buildSearchBar(initialQuery: string, onChange: (q: string) => void): HTMLElement {
+  const wrap = document.createElement('div');
+  wrap.setAttribute('data-credit-totals-search', '1');
+  wrap.style.cssText = 'padding:6px 8px 0 8px;';
+  const input = document.createElement('input');
+  input.type = 'search';
+  input.placeholder = 'Search workspaces by name, plan, or id…';
+  input.value = initialQuery;
+  input.setAttribute('aria-label', 'Search workspaces');
+  input.style.cssText =
+    'width:100%;box-sizing:border-box;background:rgba(0,0,0,0.35);'
+    + 'border:1px solid rgba(124,58,237,0.35);color:' + cPanelFgDim + ';'
+    + 'padding:4px 8px;border-radius:4px;font-size:11px;'
+    + 'font-family:monospace;outline:none;';
+  input.addEventListener('focus', function (): void {
+    input.style.borderColor = cPrimaryLighter;
+    input.style.color = '#ffffff';
+  });
+  input.addEventListener('blur', function (): void {
+    input.style.borderColor = 'rgba(124,58,237,0.35)';
+    input.style.color = cPanelFgDim;
+  });
+  input.addEventListener('input', function (): void {
+    onChange(input.value);
+  });
+  wrap.appendChild(input);
+  return wrap;
 }
 
 interface TableCtx {
@@ -390,11 +442,13 @@ export function buildBreakdownTable(workspaces: ReadonlyArray<WorkspaceCredit>):
     wrap, header, body,
     filterBar: document.createElement('div'),
     sortState: { key: 'rem', dir: 'none' },
-    filters: { low: false, empty: false, free: false },
+    filters: { low: false, empty: false, free: false, query: '' },
     order: workspaces.slice(),
   };
   function handleFilterChange(next: FilterState): void {
-    ctx.filters = next;
+    // Preserve the live query value so chip toggles never wipe what the
+    // user typed (the search input lives outside the rebuilt chip bar).
+    ctx.filters = { ...next, query: ctx.filters.query };
     const newBar = buildFilterBar(ctx.filters, handleFilterChange);
     wrap.replaceChild(newBar, ctx.filterBar);
     ctx.filterBar = newBar;
@@ -402,8 +456,14 @@ export function buildBreakdownTable(workspaces: ReadonlyArray<WorkspaceCredit>):
   }
   ctx.filterBar = buildFilterBar(ctx.filters, handleFilterChange);
 
+  const searchBar = buildSearchBar(ctx.filters.query, function (q: string): void {
+    ctx.filters = { ...ctx.filters, query: q };
+    renderBodyRows(ctx);
+  });
+
   renderHeaderCells(ctx);
   renderBodyRows(ctx);
+  wrap.appendChild(searchBar);
   wrap.appendChild(ctx.filterBar);
   wrap.appendChild(header);
   wrap.appendChild(body);
