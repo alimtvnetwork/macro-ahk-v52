@@ -52,6 +52,7 @@ import { sortByRefillPriority, daysToRefillForWs } from './workspace-refill-prio
 // Issue 115 — collapsed display classifier + centralised tone resolver.
 import { classifyFromStatus, type WorkspaceDisplayStatus } from './workspace-display-status';
 import { resolveBadgeStyle } from './workspace-badge-styles';
+import { publishVisibleWorkspaces } from './visible-workspaces-store';
 
 const CSS_BG = ';background:';
 
@@ -796,6 +797,11 @@ export function renderLoopWorkspaceList(
   let currentIdx = -1;
   const maxTotalCredits = computeMaxTotalCredits(workspaces);
   const survivors = filterAndSortWorkspaces(workspaces, filter);
+
+  // Issue 125 Task 9 — publish the currently-visible workspace set so the
+  // dashboard SummaryBar can recompute within the same render pass. O(n)
+  // copy, no throttling needed (catalog ≤ 439 rows).
+  publishVisibleWorkspaces(survivors.map(function (s) { return s.ws; }));
 
   const frag = document.createDocumentFragment();
   for (const { ws, wsIndex } of survivors) {
