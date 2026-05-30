@@ -157,6 +157,7 @@ export interface NsPathMap {
   '_internal.createAuthManager': () => object;
   '_internal.createCreditManager': () => object;
   '_internal.createLoopEngine': () => object;
+  '_internal.summaryBar': import('./ui/summary-bar/component').SummaryBarHandle;
   // api (top-level)
   'api.mc': MacroController;
   // api.loop

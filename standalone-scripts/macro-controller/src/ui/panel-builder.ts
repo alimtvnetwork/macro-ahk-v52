@@ -48,7 +48,7 @@ import {
   registerKeyboardHandlers,
 } from './panel-sections';
 import { startRedockObserver } from './redock-observer';
-import { createSummaryBar } from './summary-bar/component';
+import { createSummaryBar, type SummaryBarHandle } from './summary-bar/component';
 import { computeDashboardSummary, type DisplayKindResolver } from './summary-bar';
 import { subscribeVisibleWorkspaces } from '../visible-workspaces-store';
 import { classifyWorkspaceDisplayStatus } from '../workspace-display-status';
@@ -117,6 +117,22 @@ class CreateUIState {
 
 const createUIState = new CreateUIState();
 
+// Extracted from createUI to keep it under the per-function line limit.
+// Subscribes the dashboard summary bar to `visibleWorkspaces` so any
+// filter/sort change in the workspace list triggers a single O(n) recompute.
+function wireSummaryBarSubscription(summaryBar: SummaryBarHandle): void {
+  subscribeVisibleWorkspaces(function (rows) {
+    let config: ReturnType<typeof getWorkspaceLifecycleConfig> | null = null;
+    try { config = getWorkspaceLifecycleConfig(); } catch (_e: unknown) { config = null; }
+    const resolver: DisplayKindResolver = function (ws) {
+      if (!config) { return 'normal'; }
+      try { return classifyWorkspaceDisplayStatus(ws, config).kind; }
+      catch (_e: unknown) { return 'normal'; }
+    };
+    summaryBar.update(computeDashboardSummary(rows, resolver));
+  });
+}
+
  
 export function createUI(deps: PanelBuilderDeps): void {
   let container = getByXPath(CONFIG.CONTROLS_XPATH);
@@ -158,23 +174,9 @@ export function createUI(deps: PanelBuilderDeps): void {
   const { toolsSection, wsDropSection, jsBody, settingsDeps } = buildToolsMasterSection(deps, btnStyle, taskNextDeps);
 
   // Dashboard Summary Bar — sits below the title row (Issue 125 §2.2).
-  // Subscribed to `visibleWorkspaces` store so any filter / sort change in
-  // the workspace list triggers a single O(n) recompute (Task 9).
   const summaryBar = createSummaryBar();
   nsWrite('_internal.summaryBar', summaryBar);
-  subscribeVisibleWorkspaces(function (rows) {
-    let config: ReturnType<typeof getWorkspaceLifecycleConfig> | null = null;
-    try { config = getWorkspaceLifecycleConfig(); } catch (_e: unknown) { config = null; }
-    const resolver: DisplayKindResolver = function (ws) {
-      if (!config) { return 'normal'; }
-      try {
-        return classifyWorkspaceDisplayStatus(ws, config).kind;
-      } catch (_e: unknown) {
-        return 'normal';
-      }
-    };
-    summaryBar.update(computeDashboardSummary(rows, resolver));
-  });
+  wireSummaryBarSubscription(summaryBar);
 
   // Track body elements for minimize/restore. Auth Diagnostics has moved
   // INSIDE Tools & Logs (Issue 125 §2.1) and is no longer a panel-root

@@ -52,6 +52,39 @@ export interface FetchAndPersistResult {
  * display (fresh on success, cached on throttle/failure, null if nothing
  * is known yet).
  */
+async function buildThrottledResult(
+    workspaceId: string,
+    reason: string,
+    waitMs: number,
+): Promise<FetchAndPersistResult> {
+    const cached = await readCreditBalanceCache(workspaceId);
+    log(
+        'CreditBalance.fetchAndPersist: throttled ws=' + workspaceId +
+            ' reason=' + reason + ' waitMs=' + String(waitMs),
+        'skip',
+    );
+    return { workspaceId, outcome: 'throttled', response: null, row: cached, waitMs };
+}
+
+async function buildSuccessResult(
+    workspaceId: string,
+    response: CreditBalanceResponse,
+    source: CreditBalanceFetchSource,
+): Promise<FetchAndPersistResult> {
+    const nowMs = Date.now();
+    const row = buildRow(workspaceId, response, source, nowMs);
+    writeCreditBalanceCache(row);
+    recordFetch(workspaceId, nowMs);
+    log(
+        'CreditBalance.fetchAndPersist: ok ws=' + workspaceId +
+            ' source=' + source +
+            ' remaining=' + row.TotalRemaining +
+            ' granted=' + row.TotalGranted,
+        'success',
+    );
+    return { workspaceId, outcome: 'fetched', response, row, waitMs: 0 };
+}
+
 export async function fetchAndPersist(
     workspaceId: string,
     options: FetchAndPersistOptions,
@@ -61,22 +94,8 @@ export async function fetchAndPersist(
     }
 
     const decision = shouldFetch(workspaceId, Date.now(), options.force === true);
-
     if (!decision.allowed) {
-        const cached = await readCreditBalanceCache(workspaceId);
-        log(
-            'CreditBalance.fetchAndPersist: throttled ws=' + workspaceId +
-                ' reason=' + decision.reason +
-                ' waitMs=' + decision.waitMs,
-            'skip',
-        );
-        return {
-            workspaceId,
-            outcome: 'throttled',
-            response: null,
-            row: cached,
-            waitMs: decision.waitMs,
-        };
+        return buildThrottledResult(workspaceId, decision.reason, decision.waitMs);
     }
 
     try {
@@ -87,36 +106,9 @@ export async function fetchAndPersist(
                 'CreditBalance.fetchAndPersist',
                 'fetchCreditBalance returned null for ws=' + workspaceId,
             );
-            return {
-                workspaceId,
-                outcome: 'failed',
-                response: null,
-                row: cached,
-                waitMs: 0,
-            };
+            return { workspaceId, outcome: 'failed', response: null, row: cached, waitMs: 0 };
         }
-
-        const nowMs = Date.now();
-        const row = buildRow(workspaceId, response, options.source, nowMs);
-
-        writeCreditBalanceCache(row);
-        recordFetch(workspaceId, nowMs);
-
-        log(
-            'CreditBalance.fetchAndPersist: ok ws=' + workspaceId +
-                ' source=' + options.source +
-                ' remaining=' + row.TotalRemaining +
-                ' granted=' + row.TotalGranted,
-            'success',
-        );
-
-        return {
-            workspaceId,
-            outcome: 'fetched',
-            response,
-            row,
-            waitMs: 0,
-        };
+        return buildSuccessResult(workspaceId, response, options.source);
     } catch (caught: unknown) {
         logError(
             'CreditBalance.fetchAndPersist',
@@ -124,12 +116,6 @@ export async function fetchAndPersist(
             caught,
         );
         const cached = await readCreditBalanceCache(workspaceId);
-        return {
-            workspaceId,
-            outcome: 'failed',
-            response: null,
-            row: cached,
-            waitMs: 0,
-        };
+        return { workspaceId, outcome: 'failed', response: null, row: cached, waitMs: 0 };
     }
 }

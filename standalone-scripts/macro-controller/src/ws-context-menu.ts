@@ -123,6 +123,51 @@ function copyWorkspaceJson(wsId: string, wsName: string): void {
  * v2.216.0 — adds "👥 Show Members" entry.
  * v2.217.0 — adds "🔀 Remix Project" + "⏭️ Remix Next" entries (current project only).
  */
+function buildCreditRefreshItem(wsId: string, wsName: string): HTMLElement {
+  return buildCtxMenuItem('💰 Credit Refresh', function () {
+    removeWsContextMenu();
+    fetchAndPersist(wsId, { force: true, source: 'manual' })
+      .then(function (result) {
+        if (result.outcome === 'fetched') {
+          showToast('💰 Credit refreshed for "' + wsName + '"', 'success');
+          fetchLoopCreditsWithDetect(false);
+          return;
+        }
+        if (result.outcome === 'failed') {
+          showToast('💰 Credit refresh failed for "' + wsName + '" — kept last cached value', 'warn');
+          return;
+        }
+        showToast('💰 Credit refresh throttled for "' + wsName + '"', 'info');
+      })
+      .catch(function (err: unknown) {
+        logError('Credit Refresh', 'fetchAndPersist rejected for workspaceId=' + wsId, err);
+        showToast('💰 Credit refresh error for "' + wsName + '"', 'error');
+      });
+  });
+}
+
+function appendRemixAndGithubItems(menu: HTMLElement, wsId: string): void {
+  const projectId = extractProjectIdFromUrl();
+  const projectName = getDisplayProjectName();
+  if (!projectId) { return; }
+  menu.appendChild(buildCtxMenuItem('🔀 Remix Project…', function () {
+    removeWsContextMenu();
+    actionRemixManual({ projectId, workspaceId: wsId, currentProjectName: projectName });
+  }));
+  menu.appendChild(buildCtxMenuItem('⏭️ Remix Next', function () {
+    removeWsContextMenu();
+    void actionRemixNext({ projectId, workspaceId: wsId, currentProjectName: projectName });
+  }));
+  menu.appendChild(buildCtxMenuItem('🐙 Open GitHub repo', function () {
+    removeWsContextMenu();
+    void openGithubRepoFlow(wsId, projectId, false);
+  }));
+  menu.appendChild(buildCtxMenuItem('🔄 Refresh gitsync', function () {
+    removeWsContextMenu();
+    void openGithubRepoFlow(wsId, projectId, true);
+  }));
+}
+
 export function showWsContextMenu(
   wsId: string,
   wsName: string,
@@ -151,60 +196,8 @@ export function showWsContextMenu(
     removeWsContextMenu();
     showWsMembersPanel(wsId, wsName, x, y);
   }));
-
-  // Issue 122a: per-workspace manual Credit Refresh. Bypasses the 10s
-  // per-ws + 5s inter-ws throttle (force=true) and persists to SQLite.
-  menu.appendChild(buildCtxMenuItem('💰 Credit Refresh', function () {
-    removeWsContextMenu();
-    fetchAndPersist(wsId, { force: true, source: 'manual' })
-      .then(function (result) {
-        if (result.outcome === 'fetched') {
-          showToast('💰 Credit refreshed for "' + wsName + '"', 'success');
-          fetchLoopCreditsWithDetect(false);
-          return;
-        }
-        if (result.outcome === 'failed') {
-          showToast('💰 Credit refresh failed for "' + wsName + '" — kept last cached value', 'warn');
-          return;
-        }
-        showToast('💰 Credit refresh throttled for "' + wsName + '"', 'info');
-      })
-      .catch(function (err: unknown) {
-        logError('Credit Refresh: fetchAndPersist rejected for workspaceId=' + wsId, err);
-        showToast('💰 Credit refresh error for "' + wsName + '"', 'error');
-      });
-  }));
-
-
-  // Remix entries — only meaningful for the active workspace because the
-  // upstream POST requires the *current page's* project_id (URL-derived).
-  // The right-clicked workspace ID is forwarded as the destination workspace.
-  const projectId = extractProjectIdFromUrl();
-  const projectName = getDisplayProjectName();
-  if (projectId) {
-    menu.appendChild(buildCtxMenuItem('🔀 Remix Project…', function () {
-      removeWsContextMenu();
-      actionRemixManual({ projectId, workspaceId: wsId, currentProjectName: projectName });
-    }));
-    menu.appendChild(buildCtxMenuItem('⏭️ Remix Next', function () {
-      removeWsContextMenu();
-      void actionRemixNext({ projectId, workspaceId: wsId, currentProjectName: projectName });
-    }));
-  }
-
-  // v3.10.0: Open GitHub repo for the current page's project. Uses the
-  // gitsync cache so repeated right-clicks never re-hit the API — including
-  // negative ("not_linked") results, which are memoized for 24h.
-  if (projectId) {
-    menu.appendChild(buildCtxMenuItem('🐙 Open GitHub repo', function () {
-      removeWsContextMenu();
-      void openGithubRepoFlow(wsId, projectId, false);
-    }));
-    menu.appendChild(buildCtxMenuItem('🔄 Refresh gitsync', function () {
-      removeWsContextMenu();
-      void openGithubRepoFlow(wsId, projectId, true);
-    }));
-  }
+  menu.appendChild(buildCreditRefreshItem(wsId, wsName));
+  appendRemixAndGithubItems(menu, wsId);
 
   document.body.appendChild(menu);
 

@@ -8,68 +8,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { readQueueCount, readQueueCountDetailed } from '../queue-count';
 
-function mountPrimaryXPathHeader(countText: string): void {
-    // Build the exact ancestor chain the primary XPath expects:
-    // /html/body/div[2]/main/div/div[2]/div/div/div/div[1]/div/div[2]/div[1]/div[2]/div/div[1]/span/span
-    // We need TWO body > div children (the XPath targets div[2]).
-    const filler = document.createElement('div');
-    document.body.appendChild(filler);
-
-    const root = document.createElement('div');
-    document.body.appendChild(root);
-
-    const main = document.createElement('main');
-    root.appendChild(main);
-
-    // Build the long descendant chain.
-    let cursor: HTMLElement = main;
-    const chain: Array<'div'> = ['div', 'div', 'div', 'div', 'div', 'div'];
-    for (const _tag of chain) {
-        const next = document.createElement('div');
-        cursor.appendChild(next);
-        cursor = next;
-    }
-    // Need two div siblings at the 'div[1]' / 'div[2]' branches. Easiest: build
-    // the entire path verbatim using innerHTML so the structure is exact.
-    document.body.textContent = '';
-    document.body.appendChild(document.createElement('div')); // div[1] filler
-    document.body.insertAdjacentHTML('beforeend', `
-        <div>
-          <main>
-            <div>
-              <div>
-                <div>
-                  <div>
-                    <div>
-                      <div>
-                        <div>
-                          <div>
-                            <div>
-                              <div></div>
-                              <div>
-                                <div>
-                                  <div>
-                                    <div>
-                                      <div>
-                                        <span data-panel-open><span>${countText}</span></span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </main>
-        </div>
-    `);
-}
+// (mountPrimaryXPathHeader removed — tests below construct DOM inline.)
 
 function mountHeaderOnly(countText: string): void {
     document.body.textContent = '';

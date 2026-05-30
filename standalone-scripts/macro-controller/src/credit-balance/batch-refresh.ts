@@ -59,80 +59,75 @@ function delay(ms: number): Promise<void> {
  * with a 5s gap between each call. Other plans are skipped (not counted
  * as failures). Resolves once every iteration completes.
  */
+interface BatchCounters {
+    fetched: number;
+    throttled: number;
+    failed: number;
+    skipped: number;
+    attempted: number;
+}
+
+async function runOneWorkspace(
+    ws: BatchWorkspaceCandidate,
+    counters: BatchCounters,
+    results: BatchRefreshIterationResult[],
+): Promise<void> {
+    counters.attempted += 1;
+    try {
+        const result = await fetchAndPersist(ws.workspaceId, { force: false, source: 'batch' });
+        results.push({ workspaceId: ws.workspaceId, outcome: result.outcome });
+        if (result.outcome === 'fetched') { counters.fetched += 1; }
+        else if (result.outcome === 'throttled') { counters.throttled += 1; }
+        else { counters.failed += 1; }
+    } catch (err: unknown) {
+        counters.failed += 1;
+        results.push({ workspaceId: ws.workspaceId, outcome: 'failed' });
+        logError(
+            'CreditBalance.batchRefresh',
+            'fetchAndPersist threw for workspaceId=' + ws.workspaceId,
+            err,
+        );
+    }
+}
+
 export async function batchRefreshProOneCreditBalances(
     candidates: ReadonlyArray<BatchWorkspaceCandidate>,
 ): Promise<BatchRefreshSummary> {
     const results: BatchRefreshIterationResult[] = [];
-    let fetched = 0;
-    let throttled = 0;
-    let failed = 0;
-    let skipped = 0;
-    let attempted = 0;
+    const counters: BatchCounters = { fetched: 0, throttled: 0, failed: 0, skipped: 0, attempted: 0 };
 
-    const proOne = candidates.filter(function (c) {
-        return c.plan === PRO_ONE_PLAN_LITERAL;
-    });
+    const proOne = candidates.filter(function (c) { return c.plan === PRO_ONE_PLAN_LITERAL; });
 
-    log(
-        'CreditBalance.batchRefresh: starting (candidates=' + String(candidates.length)
-            + ', pro_1=' + String(proOne.length) + ', gapMs=' + String(INTER_WS_GAP_MS) + ')',
-        'info',
-    );
+    log('CreditBalance.batchRefresh: starting (candidates=' + String(candidates.length)
+        + ', pro_1=' + String(proOne.length) + ', gapMs=' + String(INTER_WS_GAP_MS) + ')', 'info');
 
-    // Count non-pro_1 candidates as skipped for the summary.
     for (const c of candidates) {
         if (c.plan !== PRO_ONE_PLAN_LITERAL) {
-            skipped += 1;
+            counters.skipped += 1;
             results.push({ workspaceId: c.workspaceId, outcome: 'skipped-not-pro-one' });
         }
     }
 
     for (let i = 0; i < proOne.length; i += 1) {
-        const ws = proOne[i];
-        if (i > 0) {
-            await delay(INTER_WS_GAP_MS);
-        }
-        attempted += 1;
-        try {
-            const result = await fetchAndPersist(ws.workspaceId, {
-                force: false,
-                source: 'batch',
-            });
-            results.push({ workspaceId: ws.workspaceId, outcome: result.outcome });
-            if (result.outcome === 'fetched') {
-                fetched += 1;
-            } else if (result.outcome === 'throttled') {
-                throttled += 1;
-            } else {
-                failed += 1;
-            }
-        } catch (err: unknown) {
-            failed += 1;
-            results.push({ workspaceId: ws.workspaceId, outcome: 'failed' });
-            logError('CreditBalance.batchRefresh: fetchAndPersist threw for workspaceId='
-                + ws.workspaceId, err);
-        }
+        if (i > 0) { await delay(INTER_WS_GAP_MS); }
+        await runOneWorkspace(proOne[i], counters, results);
     }
 
     const summary: BatchRefreshSummary = {
         total: candidates.length,
-        attempted,
-        fetched,
-        throttled,
-        failed,
-        skipped,
+        attempted: counters.attempted,
+        fetched: counters.fetched,
+        throttled: counters.throttled,
+        failed: counters.failed,
+        skipped: counters.skipped,
         results,
     };
 
-    log(
-        'CreditBalance.batchRefresh: done '
-            + '(attempted=' + String(attempted)
-            + ', fetched=' + String(fetched)
-            + ', throttled=' + String(throttled)
-            + ', failed=' + String(failed)
-            + ', skipped=' + String(skipped) + ')',
-        'success',
-    );
+    log('CreditBalance.batchRefresh: done (attempted=' + String(counters.attempted)
+        + ', fetched=' + String(counters.fetched)
+        + ', throttled=' + String(counters.throttled)
+        + ', failed=' + String(counters.failed)
+        + ', skipped=' + String(counters.skipped) + ')', 'success');
 
     return summary;
 }

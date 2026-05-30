@@ -270,7 +270,7 @@ function executeCreditFetch(ctx: CreditFetchCtx): void {
       return { workspaceId: w.id, plan: w.plan };
     });
     batchRefreshProOneCreditBalances(candidates).catch(function (err: unknown) {
-      logError('Credits: batchRefreshProOneCreditBalances rejected', err);
+      logError('Credits', 'batchRefreshProOneCreditBalances rejected', err);
     }).finally(function () {
       ctx.onComplete();
       setCreditBtnLoading(ctx.creditBtn, false);

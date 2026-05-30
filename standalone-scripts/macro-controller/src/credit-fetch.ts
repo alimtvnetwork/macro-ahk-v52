@@ -25,6 +25,7 @@ import { parseLoopApiResponse, syncCreditStateFromApi, applyProZeroEnrichment, a
 import { logError } from './error-utils';
 import { ApiPath } from './types';
 
+const LOG_SCOPE_CREDIT_FETCH = 'credit-fetch';
 
 function mc() { return MacroController.getInstance(); }
 
@@ -113,7 +114,7 @@ async function handleAuthRecovery(
   status: number,
   statusText: string,
 ): Promise<string | null> {
-  markBearerTokenExpired('credit-fetch');
+  markBearerTokenExpired(LOG_SCOPE_CREDIT_FETCH);
   if (token) { invalidateSessionBridgeKey(token); }
 
   log('Credit API: Auth ' + status + ' — forcing token refresh before retry...', 'warn');
@@ -153,7 +154,7 @@ function logCreditPreflight(token: string, isRetry?: boolean): void {
 
 function handleNonAuthError(resp: SdkApiResponse): void {
   if (isAuthFailure(resp.status)) {
-    markBearerTokenExpired('credit-fetch');
+    markBearerTokenExpired(LOG_SCOPE_CREDIT_FETCH);
   }
 
   const bodyPreview = JSON.stringify(resp.data).substring(0, 500);
@@ -176,7 +177,7 @@ function schedulePostParseEnrichment(): void {
       mc().updateUI();
     })
     .catch(function (err: unknown): void {
-      logError('credit-fetch', 'pro_0 enrichment failed', err);
+      logError(LOG_SCOPE_CREDIT_FETCH, 'pro_0 enrichment failed', err);
     });
 
   // pro_1 overlay from SQLite /credit-balance cache (122a).
@@ -187,7 +188,7 @@ function schedulePostParseEnrichment(): void {
       mc().updateUI();
     })
     .catch(function (err: unknown): void {
-      logError('credit-fetch', 'pro_1 enrichment failed', err);
+      logError(LOG_SCOPE_CREDIT_FETCH, 'pro_1 enrichment failed', err);
     });
 }
 
