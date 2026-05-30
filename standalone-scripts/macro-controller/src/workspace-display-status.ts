@@ -77,11 +77,17 @@ function isPastDueExpiringStatus(source: WorkspaceStatus): source is PastDueExpi
 /*  Display token map — tone names only. Renderer owns the CSS.        */
 /* ------------------------------------------------------------------ */
 
+// Issue 125 §2.4 — distinct tones per state (spec table):
+//   expire        → muted red-orange, NOT pure red  → `orange`
+//   expire-soon   → amber                            → `warning`
+//   canceled      → muted gray, NEVER red            → `muted`
+//   expired-hard  → critical red (≥ grace window)    → `danger`
+//   past-due-exp. → amber                            → `warning`
 export const WORKSPACE_BADGE_DISPLAY: Record<WorkspaceDisplayKind, { tone: WorkspaceDisplayTone }> = {
   'canceled':           { tone: 'muted' },
-  'expired':            { tone: 'danger' },
+  'expired':            { tone: 'orange' },
   'expired-hard':       { tone: 'danger' },
-  'expire-soon':        { tone: 'danger' },
+  'expire-soon':        { tone: 'warning' },
   'past-due-expiring':  { tone: 'warning' },
   'refill-soon':        { tone: 'info' },
   'normal':             { tone: 'none' },
