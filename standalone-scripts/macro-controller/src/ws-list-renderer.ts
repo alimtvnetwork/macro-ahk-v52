@@ -52,6 +52,7 @@ import { sortByRefillPriority, daysToRefillForWs } from './workspace-refill-prio
 // Issue 115 — collapsed display classifier + centralised tone resolver.
 import { classifyFromStatus, type WorkspaceDisplayStatus } from './workspace-display-status';
 import { resolveBadgeStyle } from './workspace-badge-styles';
+import { publishVisibleWorkspaces } from './visible-workspaces-store';
 
 const CSS_BG = ';background:';
 
