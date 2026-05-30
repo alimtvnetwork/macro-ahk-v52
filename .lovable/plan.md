@@ -1,23 +1,28 @@
 # Plan
 
-**Active workstream:** **Issue 129** — Prompts cache + Plan Task + GitSync (connect/disconnect) + Remix nav + Project-name dropdown + Typography & badge polish. Spec: `spec/22-app-issues/129-prompts-cache-plan-task-gitsync-remix.md`. **15 sequential steps**; one per `next`.
+**Active workstream:** **Issue 130** — Members popup: multi-workspace bulk operations + inline promote. Spec: `spec/22-app-issues/130-members-popup-multi-workspace-bulk-ops.md`. **15 sequential steps**; one per `next`.
 
-### Issue 129 — remaining steps
+### Issue 130 — remaining steps
 1. Spec authoring & plan.md sync — DONE.
-2. Prompts cache: Plan/Task-Next buttons render synchronously from HtmlCopy (zero load state).
-3. Diagnose & fix Plan Task button no-op (parity with working Task Next handler).
-4. New `gitsync/progress-probe.ts` — `probeProgress` + `resolveConnection` (single-deadline, no retry).
-5. Wire progress-probe into right-click "Open GitHub Repo" menu (connected / connect / syncing states).
-6. `ensureGithubRepo` — probe FIRST, POST `/sync` only when not connected, persist `repo_url`.
-7. Remix: capture new project URL + persist new project_id into per-tab workspace cache.
-8. Remix: navigate active tab to new project URL (respect `isNewTabOrBlankUrl` guard).
-9. Remix: invalidate per-tab injection sentinel on project_id transition → auto-injector re-fires.
-10. `disconnectGithubRepo` — `DELETE …/sync`, invalidate SQLite cache, confirm dialog, fail-fast logging.
-11. Project-name dropdown beside project name: Rename, Connect/Open/Disconnect GitHub, Git status, Remix.
-12. Typography: bump project name (~16px / 600) + workspace name (~14px / 500); keep Pro pill untouched.
-13. Fix Expire pill: red background + white text via `--mc-status-danger`; Cancel stays muted gray.
-14. Fix "Passed Nd" past-due pill UI (padding, alignment, truncation, dot, tone ramp 5d/10d).
-15. MINOR bump + changelog + readme pin + `.gitmap/release/v<new>.json` + tests/tsc/version-sync green.
+2. `selected-workspaces-store.ts` (pub/sub) + 6 unit tests.
+3. `ws-list-renderer.ts` checkbox column + Shift/Ctrl click selection + 4 tests.
+4. `ws-context-menu.ts` bulk-aware `Show Members (N)` routing + 3 tests.
+5. `fetchMembersForMany(wsIds, {cap:25})` sequential-cached + 5 tests.
+6. `ws-members-aggregate.ts` (pure) — union + presenceCount + 8 tests.
+7. `ws-members-bulk-panel.ts` shell with tri-state badges + sort + 6 tests.
+8. `ws-members-chip-input.ts` (multi-email chip input) + 10 tests.
+9. Wire chip-input into bulk panel + single-ws panel Add row + 4 tests.
+10. `inviteMemberMany()` sequential fail-fast with partial-success + 6 tests.
+11. `updateMemberRoleMany` / `removeMemberMany` mirrors + 6 tests.
+12. Row right-click `👑 Promote member… / 👤 Demote member…` picker + 4 tests.
+13. Bulk failure-log schema (per-ws Reason+ReasonDetail) + 3 tests.
+14. Full vitest sweep from repo root — 0 fail.
+15. MINOR bump v3.42.0 + changelog + readme pin + `.gitmap/release/v3.42.0.json` + memory.
+
+### Issue 129 — Prompts cache + GitSync + Remix + Project-name dropdown (v3.41.0) ✅
+All 15 steps shipped 2026-05-30. See `spec/22-app-issues/129-prompts-cache-plan-task-gitsync-remix.md`.
+
+
 
 
 
