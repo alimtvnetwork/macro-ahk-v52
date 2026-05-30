@@ -24,6 +24,8 @@ import { runCycle } from './loop-cycle';
 import { logError } from './error-utils';
 import { emitCreditPollTick } from './credit-poll-events';
 import { requireUserGesture } from './user-gesture-guard';
+import { autoResumeQueueIfNeeded } from './queue-control';
+
 
 
 
@@ -298,9 +300,17 @@ export function refreshStatus(): void {
     emitCreditPollTick();
     return;
   }
+  // Issue 128 — auto-resume the Lovable Queue if it's paused with pending tasks.
+  // Single click attempt per tick; no retries (mem://constraints/no-retry-policy).
+  try {
+    autoResumeQueueIfNeeded({ isLoopRunning: () => state.running });
+  } catch (caught: unknown) {
+    logError('refreshStatus.autoResumeQueue', 'auto-resume tick threw', caught);
+  }
   refreshStatusRunning();
   emitCreditPollTick();
 }
+
 
 /**
  * Install (or reinstall) the workspace status-refresh interval at the period

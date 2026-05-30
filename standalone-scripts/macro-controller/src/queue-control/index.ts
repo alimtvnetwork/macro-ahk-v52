@@ -65,3 +65,9 @@ export function resumeQueue(): QueueClickResult {
     btn.click();
     return { clicked: true, reason: 'ok' };
 }
+
+export { readQueueCount, readQueueCountDetailed, QUEUE_COUNT_XPATH } from './queue-count';
+export type { QueueCountReadResult } from './queue-count';
+export { autoResumeQueueIfNeeded } from './auto-resume';
+export type { AutoResumeResult, AutoResumeReason, AutoResumeDeps } from './auto-resume';
+
