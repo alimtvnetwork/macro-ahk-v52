@@ -60,21 +60,26 @@ Trigger: User reports a long-term bug where the Macro Controller toolbar buttons
 ### Completed — Ctrl+Shift+Down shortcut fix (v3.20.0) ✅
 Fixed in v3.20.0: keyboard shortcut and context-menu "Run scripts now" now always send `forceReload: true`, matching the popup Run button. Double-injection guard on forced manual launch splices script id out of body marker before dedup check.
 
-### Queued — Issue 126: Ctrl+Shift+Down script attach regression
+### Completed — Issue 126: Ctrl+Shift+Down script attach regression (v3.38.0) ✅
 Spec: `spec/22-app-issues/126-ctrl-shift-down-script-attach-shortcut.md`
 - [x] Regression fix — `runScriptsFromShortcut` now reads tab URL, applies the `isNewTabOrBlankUrl` guard, resolves scripts via `resolveScriptsForShortcut`, and always force-reloads (popup Run parity).
 - [x] Diagnostics — empty-set abort now logs `tabId`, `url`, `project="name" (id=…)`, `source`, `reason`, and a URL auto-attach candidate list so the silent-abort regression cannot recur.
 - [x] Tests — `src/background/__tests__/shortcut-command-handler.test.ts` (5 tests, all green) covers active-project, no-active-project, empty-scripts, non-array defensive, and probe-failure paths.
-- [ ] Final bump — include this in the final queued v3.38.0 bump after Issues 125, 126, and 127 are complete.
+- [x] Rolled into v3.38.0 bump.
 
-### Queued — Issue 127: Prompts dropdown missing Plan row + Task Next sub-menu opens left and clips
+### Completed — Issue 127: Prompts dropdown missing Plan row + Task Next sub-menu opens left and clips (v3.38.0) ✅
 Spec: `spec/22-app-issues/127-plan-button-and-task-next-dropdown-overflow.md`
-Scope: extension's **Prompts** button dropdown only — NOT Lovable's native composer Plan button.
-- [x] Task 1 — Repro + findings filed in spec §6 (F-1: Plan moved into floating tasksGroup, F-2: root cause of "opens left/clips" = tasksGroup `left:100%` overflow with no horizontal fallback, F-3: fix direction = inline rows + per-row anchored sub-menu, F-4: tests inventory).
-- [x] Task 2 — `anchorTaskNextSub()` in `prompt-dropdown.ts` opens the sub-menu RIGHT of the row by default (`position:fixed; left=rowRect.right+GAP; top=rowRect.top`) with a stacked-below fallback when right-side viewport space < menu width. `data-task-next-anchor="right"|"below"` exposes the decision. New tests in `task-next-right-anchor.test.ts` (10 tests, all green); 4 existing tests (`tasks-right-anchor`, `tasks-toggle-hover-open`, `plan-task-ui`, `prompts-panel-layout`) still pass (28 tests).
-- [ ] Task 3 — Re-add `Plan` row inside `prompt-dropdown.ts` (below Task Next), wired to existing `plan-task-ui.ts` opener with same right-anchor rule; add row-presence test.
-- [ ] Task 4 — Full test sweep + 1043×757 visual check; ensure existing `tasks-right-anchor` / `plan-task-ui` / `prompts-panel-layout` tests still pass.
-- [ ] Task 5 — Roll into final v3.38.0 bump + changelog entries.
+- [x] Task 1 — Repro + findings filed in spec §6.
+- [x] Task 2 — `anchorTaskNextSub()` in `prompt-dropdown.ts` opens the sub-menu RIGHT of the row by default with a stacked-below fallback. `data-task-next-anchor="right"|"below"` exposes the decision. New tests in `task-next-right-anchor.test.ts` (10 tests, all green).
+- [x] Task 3 — Re-added `Plan` row inside `prompt-dropdown.ts` (below Task Next), wired to existing `plan-task-ui.ts` opener with same right-anchor rule; `plan-row-in-prompts-dropdown.test.ts` added.
+- [x] Task 4 — Full test sweep; existing `tasks-right-anchor` / `tasks-toggle-hover-open` / `plan-task-ui` / `prompts-panel-layout` tests still pass.
+- [x] Task 5 — Rolled into v3.38.0 bump + changelog.
+
+### Completed — Issue 128: Queue auto-resume when loop running (v3.38.0) ✅
+Spec: `spec/22-app-issues/128-queue-auto-resume-when-loop-running.md`
+- [x] Task 1 — `readQueueCount()` + `readQueueCountDetailed()` with 3-tier selector waterfall + 10 tests.
+- [x] Task 2 — `autoResumeQueueIfNeeded()` with 6 policy branches + safety guards, wired into loop heartbeat tick + 9 tests.
+- [x] Rolled into v3.38.0 bump + changelog.
 
 ### Completed — Gitsync "Open GitHub repo" fix (v3.19.0) ✅
 Fixed in v3.19.0: rewrote `gitsync-api.ts` to route through `window.marco.api.call("projects.gitsync", …)` SDK path so `Authorization: Bearer` header is always attached.
