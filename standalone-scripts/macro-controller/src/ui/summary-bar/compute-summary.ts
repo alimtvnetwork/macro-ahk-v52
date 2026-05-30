@@ -83,3 +83,79 @@ export function computeDashboardSummary(
         freeCreditsAvailable: Math.round(freeCreditsAvailable),
     };
 }
+
+const EMPTY_DETAILS: SummaryDetails = {
+    pro: {
+        count: 0,
+        expiringCount: 0,
+        expiringByKind: {},
+        byPlan: {},
+        creditsAvailable: 0,
+        creditsTotal: 0,
+        creditsExpiringAvailable: 0,
+    },
+    free: { dailyAvailable: 0, workspacesWithFree: 0 },
+    grand: { availableSpendable: 0 },
+};
+
+/**
+ * Rich per-pill breakdown for the hover tooltips. Computed in the same
+ * shape/style as `computeDashboardSummary` so callers can compute both
+ * in a single pass over the visible workspaces.
+ */
+export function computeSummaryDetails(
+    rows: ReadonlyArray<WorkspaceCredit>,
+    getDisplayKind: DisplayKindResolver = () => 'normal',
+): SummaryDetails {
+    if (!Array.isArray(rows) || rows.length === 0) {
+        return EMPTY_DETAILS;
+    }
+    let proCount = 0;
+    let proExpiringCount = 0;
+    let proCreditsAvailable = 0;
+    let proCreditsTotal = 0;
+    let proExpiringAvailable = 0;
+    let freeDaily = 0;
+    let freeWorkspaces = 0;
+    const expiringByKind: Record<string, number> = {};
+    const byPlan: Record<string, number> = {};
+
+    for (const ws of rows) {
+        const daily = num(ws.dailyFree);
+        freeDaily += daily;
+        if (daily > 0) {
+            freeWorkspaces += 1;
+        }
+        if (!isProPlan(ws.plan)) {
+            continue;
+        }
+        proCount += 1;
+        const avail = num(ws.available);
+        proCreditsAvailable += avail;
+        proCreditsTotal += num(ws.totalCredits);
+        const planKey = String(ws.plan).trim().toLowerCase();
+        byPlan[planKey] = (byPlan[planKey] ?? 0) + 1;
+        const kind = getDisplayKind(ws);
+        if (PRO_EXPIRING_KINDS.has(kind)) {
+            proExpiringCount += 1;
+            proExpiringAvailable += avail;
+            expiringByKind[kind] = (expiringByKind[kind] ?? 0) + 1;
+        }
+    }
+
+    const proAvail = Math.round(proCreditsAvailable);
+    const freeAvail = Math.round(freeDaily);
+    return {
+        pro: {
+            count: proCount,
+            expiringCount: proExpiringCount,
+            expiringByKind,
+            byPlan,
+            creditsAvailable: proAvail,
+            creditsTotal: Math.round(proCreditsTotal),
+            creditsExpiringAvailable: Math.round(proExpiringAvailable),
+        },
+        free: { dailyAvailable: freeAvail, workspacesWithFree: freeWorkspaces },
+        grand: { availableSpendable: proAvail + freeAvail },
+    };
+}
