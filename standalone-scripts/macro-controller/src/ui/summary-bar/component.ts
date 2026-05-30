@@ -110,11 +110,27 @@ export function createSummaryBar(): SummaryBarHandle {
     root.appendChild(proCredits.el);
     root.appendChild(freeCredits.el);
 
-    function update(summary: DashboardSummary): void {
+    let lastDetails: SummaryDetails = ZERO_DETAILS;
+
+    function wireHover(pillEl: HTMLElement, kind: SummaryPillKind): void {
+        pillEl.style.cursor = 'help';
+        pillEl.addEventListener('mouseenter', function (): void {
+            showSummaryHoverCard(pillEl, kind, lastDetails);
+        });
+        pillEl.addEventListener('mouseleave', function (): void {
+            removeSummaryHoverCard();
+        });
+    }
+    wireHover(pro.el, 'pro');
+    wireHover(proCredits.el, 'proCredits');
+    wireHover(freeCredits.el, 'freeCredits');
+
+    function update(summary: DashboardSummary, details?: SummaryDetails): void {
         const s = summary ?? ZERO_SUMMARY;
         pro.text.textContent = fmtPro(s);
         proCredits.text.textContent = fmtProCredits(s);
         freeCredits.text.textContent = fmtFreeCredits(s);
+        lastDetails = details ?? ZERO_DETAILS;
     }
 
     update(ZERO_SUMMARY);
