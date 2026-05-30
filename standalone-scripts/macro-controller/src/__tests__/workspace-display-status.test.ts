@@ -96,7 +96,7 @@ describe('classifyWorkspaceDisplayStatus — refill-soon', () => {
 });
 
 describe('classifyWorkspaceDisplayStatus — past-due-expiring (Issue 118 rev)', () => {
-  it('past_due, daysSince=0 → past-due-expiring / Expire / Today / muted', () => {
+  it('past_due, daysSince=0 → past-due-expiring / Expire / Today / danger', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       subscriptionStatusChangedAt: new Date(NOW).toISOString(),
@@ -105,10 +105,10 @@ describe('classifyWorkspaceDisplayStatus — past-due-expiring (Issue 118 rev)',
     expect(d.kind).toBe('past-due-expiring');
     expect(d.label).toBe('Expire');
     expect(d.sublabel).toBe('Today');
-    expect(d.tone).toBe('muted');
+    expect(d.tone).toBe('danger');
   });
 
-  it('past_due, daysSince=2 → past-due-expiring / Expire / Passed 2d / muted', () => {
+  it('past_due, daysSince=2 → past-due-expiring / Expire / Passed 2d / danger', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       subscriptionStatusChangedAt: new Date(NOW - 2 * 86_400_000).toISOString(),
@@ -117,27 +117,27 @@ describe('classifyWorkspaceDisplayStatus — past-due-expiring (Issue 118 rev)',
     expect(d.kind).toBe('past-due-expiring');
     expect(d.label).toBe('Expire');
     expect(d.sublabel).toBe('Passed 2d');
-    expect(d.tone).toBe('muted');
+    expect(d.tone).toBe('danger');
   });
 
-  it('past_due, daysSince=7 → past-due-expiring / warning tone', () => {
+  it('past_due, daysSince=7 → past-due-expiring / danger tone', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       subscriptionStatusChangedAt: new Date(NOW - 7 * 86_400_000).toISOString(),
     });
     const d = classifyWorkspaceDisplayStatus(ws, CFG, NOW);
     expect(d.kind).toBe('past-due-expiring');
-    expect(d.tone).toBe('warning');
+    expect(d.tone).toBe('danger');
   });
 
-  it('past_due, daysSince=9 → past-due-expiring / warning tone (just under grace)', () => {
+  it('past_due, daysSince=9 → past-due-expiring / danger tone (just under grace)', () => {
     const ws = makeWs({
       subscriptionStatus: 'past_due',
       subscriptionStatusChangedAt: new Date(NOW - 9 * 86_400_000).toISOString(),
     });
     const d = classifyWorkspaceDisplayStatus(ws, CFG, NOW);
     expect(d.kind).toBe('past-due-expiring');
-    expect(d.tone).toBe('warning');
+    expect(d.tone).toBe('danger');
   });
 
   it('past_due, daysSince=12 → expired-hard / single red pill / danger tone', () => {
