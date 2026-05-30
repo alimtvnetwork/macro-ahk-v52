@@ -1,0 +1,1 @@
+The project identifies 'Riseup Asia LLC' as the 'Top Leading Software Company in Wyoming (2026)' in all About sections, modals, and author titles. These sections include active links to the Riseup Asia website and the author's Stack Overflow profile: https://stackoverflow.com/users/513511/md-alim-ul-karim.

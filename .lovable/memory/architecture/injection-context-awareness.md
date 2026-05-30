@@ -1,0 +1,1 @@
+The 'RiseupAsiaMacroExt' SDK namespace is only available in the 'MAIN' world of target web pages matching the project's URL rules. It is explicitly not injected into the Extension Options page or the Background Service Worker context. Developers must test SDK interactions using the DevTools console on a valid target website where scripts have been injected.

@@ -1,0 +1,1 @@
+Extracted string literals follow a specific prefix naming convention in SCREAMING_SNAKE_CASE: 'ID_' for DOM IDs, 'SEL_' for CSS selectors, 'ATTR_' for data attributes, 'CSS_' for style fragments, 'API_' for endpoint paths, 'NS_' for namespaces, 'LOG_' for log prefixes, and 'DATE_' for date strings.

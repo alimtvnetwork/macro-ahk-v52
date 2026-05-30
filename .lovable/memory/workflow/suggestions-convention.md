@@ -1,0 +1,1 @@
+Suggestions are tracked in .lovable/memory/suggestions/ using deterministic filenames (YYYYMMDD-HHMMSS-suggestion-<slug>.md) and must include specific metadata: suggestionId, createdAt, source, affectedProject, description, rationale, proposed change, acceptance criteria, status, and completion notes.

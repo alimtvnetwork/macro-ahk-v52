@@ -1,0 +1,1 @@
+Vite configuration hooks (e.g., 'writeBundle') must use static top-level imports for Node.js built-ins (e.g., 'import { execSync } from "node:child_process"') rather than dynamic 'require()' calls. This prevents 'Dynamic require is not supported' errors that can occur during the Rollup/Vite build process in certain environments.

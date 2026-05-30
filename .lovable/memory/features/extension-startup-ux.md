@@ -1,0 +1,1 @@
+The Chrome extension startup sequence must prioritize displaying a toast or notification bar as the first visible interaction for immediate feedback. This toast must be implemented as a standalone DOM element with zero external dependencies (no SDK requirements) to ensure it renders immediately regardless of script loading delays.

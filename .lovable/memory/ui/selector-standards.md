@@ -1,0 +1,1 @@
+UI element identification and event binding, particularly in the Macro Controller's prompt and workspace dropdowns, must use 'data-' attributes (e.g., 'data-prompt-idx') rather than fragile CSS selectors or structural indices. This ensures reliable mapping during DOM updates and prevents index-shifting bugs when restoring snapshots or filtering items.

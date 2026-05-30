@@ -1,0 +1,1 @@
+A React migration for the macro controller UI was formally evaluated and rejected. The current modular architecture and UIManager orchestration were found to be more efficient and stable than a React-based implementation, avoiding unnecessary bundle overhead and potential Shadow DOM conflict risks.

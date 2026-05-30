@@ -1,0 +1,1 @@
+Specifications follow a numeric hierarchy: 00-standards (overviews), 01-app-issues (root cause analyses), 02-data-and-api, 03-tasks (roadmap), 04-macro-controller, 05-chrome-extension, and 08-features. All documentation and cross-references must maintain this ordering.

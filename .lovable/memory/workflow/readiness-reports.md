@@ -1,0 +1,1 @@
+Major project phases or handoffs require a Reliability and Failure-Chance Report (stored in .lovable/memory/workflow/) before implementation. This report estimates success probability by module complexity and identifies necessary specification fixes to ensure high reliability for future AI transitions.

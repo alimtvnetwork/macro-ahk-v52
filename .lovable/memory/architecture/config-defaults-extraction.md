@@ -1,0 +1,1 @@
+The 'macro-controller' build and runtime configurations must not use inline object definitions for defaults (e.g., 'general: { logLevel: "info" }'). Instead, all default configuration objects must be extracted into named constants (e.g., 'DEFAULT_GENERAL_CONFIG') within the 'types/' directory and imported at the usage site to ensure centralized management and type consistency.
