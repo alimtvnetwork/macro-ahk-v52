@@ -408,11 +408,13 @@ export function buildBreakdownTable(workspaces: ReadonlyArray<WorkspaceCredit>):
     wrap, header, body,
     filterBar: document.createElement('div'),
     sortState: { key: 'rem', dir: 'none' },
-    filters: { low: false, empty: false, free: false },
+    filters: { low: false, empty: false, free: false, query: '' },
     order: workspaces.slice(),
   };
   function handleFilterChange(next: FilterState): void {
-    ctx.filters = next;
+    // Preserve the live query value so chip toggles never wipe what the
+    // user typed (the search input lives outside the rebuilt chip bar).
+    ctx.filters = { ...next, query: ctx.filters.query };
     const newBar = buildFilterBar(ctx.filters, handleFilterChange);
     wrap.replaceChild(newBar, ctx.filterBar);
     ctx.filterBar = newBar;
@@ -420,8 +422,14 @@ export function buildBreakdownTable(workspaces: ReadonlyArray<WorkspaceCredit>):
   }
   ctx.filterBar = buildFilterBar(ctx.filters, handleFilterChange);
 
+  const searchBar = buildSearchBar(ctx.filters.query, function (q: string): void {
+    ctx.filters = { ...ctx.filters, query: q };
+    renderBodyRows(ctx);
+  });
+
   renderHeaderCells(ctx);
   renderBodyRows(ctx);
+  wrap.appendChild(searchBar);
   wrap.appendChild(ctx.filterBar);
   wrap.appendChild(header);
   wrap.appendChild(body);
