@@ -61,6 +61,9 @@ afterEach(() => {
 });
 
 describe('gatedMoveToWorkspace — flag OFF (passthrough)', () => {
+    beforeEach(() => {
+        setFeatureFlagOverrideForTests('Loop.RunStateGate.Enabled', false);
+    });
     it('calls moveToWorkspace exactly once and skips queue clicks', async () => {
         // No composer mounted, no queue buttons — would fail the gate if active.
         await gatedMoveToWorkspace('ws-dest', 'Dest');
