@@ -559,7 +559,12 @@ function _buildTaskNextMenuShell(promptsDropdown: HTMLElement): { taskNextItem: 
 
   const taskNextSub = document.createElement('div');
   taskNextSub.setAttribute('data-task-next-sub', '1');
-  taskNextSub.style.cssText = 'display:none;position:static;margin:0 6px 6px 6px;min-width:0;background:rgba(0,0,0,0.18);border:1px solid ' + cPrimary + ';border-radius:' + lDropdownRadius + ';box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);';
+  taskNextSub.setAttribute('data-task-next-anchor', 'right');
+  // Issue 127 Bug B: sub-menu opens RIGHTWARD of the Task Next row by default
+  // (position:fixed + computed left/top against row's getBoundingClientRect).
+  // When right-side viewport space is insufficient, anchorTaskNextSub() flips
+  // back to a static stacked-below layout so the menu never clips off-screen.
+  taskNextSub.style.cssText = 'display:none;position:fixed;min-width:180px;max-width:240px;background:rgba(20,16,32,0.96);border:1px solid ' + cPrimary + ';border-radius:' + lDropdownRadius + ';box-shadow:0 8px 24px rgba(0,0,0,0.45);z-index:10002;';
   taskNextItem.appendChild(taskNextRow);
   taskNextItem.appendChild(taskNextSub);
 
@@ -567,7 +572,7 @@ function _buildTaskNextMenuShell(promptsDropdown: HTMLElement): { taskNextItem: 
     taskNextRow.style.background = cBtnMenuHover;
     taskNextArrow.textContent = '▾';
     taskNextSub.style.display = 'block';
-    keepTaskNextSubInView(promptsDropdown, taskNextSub);
+    anchorTaskNextSub(taskNextRow, taskNextSub, promptsDropdown);
   };
   const hideSub = function(): void {
     taskNextRow.style.background = 'transparent';
