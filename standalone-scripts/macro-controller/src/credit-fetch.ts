@@ -25,7 +25,7 @@ import { parseLoopApiResponse, syncCreditStateFromApi, applyProZeroEnrichment, a
 import { logError } from './error-utils';
 import { ApiPath } from './types';
 
-const LOG_SCOPE_CREDIT_FETCH = LOG_SCOPE_CREDIT_FETCH;
+const LOG_SCOPE_CREDIT_FETCH = 'credit-fetch';
 
 function mc() { return MacroController.getInstance(); }
 
