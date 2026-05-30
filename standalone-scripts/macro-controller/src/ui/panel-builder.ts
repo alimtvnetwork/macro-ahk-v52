@@ -49,6 +49,10 @@ import {
 } from './panel-sections';
 import { startRedockObserver } from './redock-observer';
 import { createSummaryBar } from './summary-bar/component';
+import { computeDashboardSummary, type DisplayKindResolver } from './summary-bar';
+import { subscribeVisibleWorkspaces } from '../visible-workspaces-store';
+import { classifyWorkspaceDisplayStatus } from '../workspace-display-status';
+import { getWorkspaceLifecycleConfig } from '../workspace-lifecycle-config';
 import { nsWrite } from '../api-namespace';
 
 import type { RenameHistoryEntry, UndoRenameResults } from '../types';
