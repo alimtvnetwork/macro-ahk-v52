@@ -34,7 +34,7 @@ import {
   clearUISnapshot,
 } from './prompt-cache';
 import type { CachedPromptEntry } from './prompt-cache';
-import { showToast } from '../toast';
+
 import { renderPlanTaskSubmenu } from './plan-task-ui';
 import { renderFilterMenu } from './prompt-filter-menu';
 
@@ -118,38 +118,75 @@ function anchorTaskNextSub(row: HTMLElement, sub: HTMLElement, host: HTMLElement
 // (Multi-select state lives in prompt-loader.ts via getPromptCategoryFilterSet.)
 
 /**
+ * In-memory mirror of the last persisted UI snapshot. Lets the prompts
+ * dropdown paint synchronously on click (zero IDB round-trip, zero flicker)
+ * — fixes Issue 129 S-1 where Plan Task / Task Next briefly disappeared
+ * because the previous render path gated on `readUISnapshot()`.
+ *
+ * The IDB copy is still written by `_persistSnapshot` and still read once on
+ * first paint via `_hydrateMemSnapshotOnce` to survive page reloads.
+ */
+interface MemSnapshot {
+  html: string;
+  dataHash: string;
+  categoryFilter: string | null;
+  promptCount: number;
+  scrollTop: number;
+}
+let _memSnapshot: MemSnapshot | null = null;
+let _memHydrated = false;
+
+function _hydrateMemSnapshotOnce(): void {
+  if (_memHydrated) return;
+  _memHydrated = true;
+  readUISnapshot().then(function(snapshot) {
+    if (snapshot && !_memSnapshot) {
+      _memSnapshot = {
+        html: snapshot.html,
+        dataHash: snapshot.dataHash,
+        categoryFilter: snapshot.categoryFilter,
+        promptCount: snapshot.promptCount,
+        scrollTop: snapshot.scrollTop,
+      };
+    }
+  }).catch(function() { /* swallow — IDB hydration is best-effort */ });
+}
+
+/**
  * Render the prompts dropdown with categories, Task Next submenu, and prompt items.
+ *
+ * SYNCHRONOUS PAINT GUARANTEE (Issue 129 Step 2): If the in-memory snapshot
+ * matches the current data hash + filter, the dropdown is painted in the
+ * same tick from cached HTML. No `await`, no IndexedDB on the critical
+ * path. Loading state is only possible on the very first cold-cache load
+ * before `_hydrateMemSnapshotOnce` resolves.
  */
 export function renderPromptsDropdown(ctx: PromptContext, taskNextDeps: TaskNextDeps): void {
-  // Store revalidation context for background cache updates
   setRevalidateContext(ctx, taskNextDeps);
+  _hydrateMemSnapshotOnce();
 
   const promptsDropdown = ctx.promptsDropdown;
   const promptsCfg = getPromptsConfig();
   const entries = promptsCfg.entries;
-
-  // Compute current data hash for snapshot validation
   const currentHash = computePromptHash(entries as CachedPromptEntry[]);
   const currentFilter = _computeFilterKey();
 
-  // Try UI snapshot restore (skip full render if HTML is cached and data hasn't changed)
-  const snapshotPromise = readUISnapshot();
-  snapshotPromise.then(function(snapshot) {
-    if (snapshot && snapshot.dataHash === currentHash && snapshot.categoryFilter === currentFilter && snapshot.promptCount === entries.length) {
-      log('[PromptDropdown] Restoring UI from snapshot cache (' + snapshot.promptCount + ' prompts)', 'info');
-      promptsDropdown.innerHTML = snapshot.html;
-      promptsDropdown.scrollTop = snapshot.scrollTop;
-      // Re-bind event listeners on restored HTML
-      _rebindDropdownListeners(promptsDropdown, entries, promptsCfg, ctx, taskNextDeps);
-      return;
-    }
-    // No valid snapshot — full render
-    _renderFresh(promptsDropdown, entries, promptsCfg, ctx, taskNextDeps, currentHash, currentFilter);
-  }).catch(function(e: unknown) {
-    logError('renderPrompts', 'Prompt dropdown render failed', e);
-    showToast('❌ Prompt dropdown render failed', 'error');
-    _renderFresh(promptsDropdown, entries, promptsCfg, ctx, taskNextDeps, currentHash, currentFilter);
-  });
+  // Fast path — paint synchronously from the in-memory snapshot.
+  if (
+    _memSnapshot
+    && _memSnapshot.dataHash === currentHash
+    && _memSnapshot.categoryFilter === currentFilter
+    && _memSnapshot.promptCount === entries.length
+  ) {
+    log('[PromptDropdown] Sync paint from in-memory snapshot (' + _memSnapshot.promptCount + ' prompts)', 'info');
+    promptsDropdown.innerHTML = _memSnapshot.html;
+    promptsDropdown.scrollTop = _memSnapshot.scrollTop;
+    _rebindDropdownListeners(promptsDropdown, entries, promptsCfg, ctx, taskNextDeps);
+    return;
+  }
+
+  // No usable snapshot — render fresh synchronously (no IDB gate).
+  _renderFresh(promptsDropdown, entries, promptsCfg, ctx, taskNextDeps, currentHash, currentFilter);
 }
 // ============================================
 // Dropdown header with Load button
@@ -362,6 +399,17 @@ function _appendFilteredItems(
 /** Save UI snapshot + HtmlCopy for fast restore. */
 function _persistSnapshot(container: HTMLElement, entries: LoaderPromptEntry[], dataHash: string, categoryFilter: string | null): void {
   const snapshotHtml = container.innerHTML;
+
+  // Update the in-memory mirror immediately so subsequent renders paint sync
+  // (Issue 129 Step 2). IDB writes below remain best-effort and async.
+  _memSnapshot = {
+    html: snapshotHtml,
+    dataHash: dataHash,
+    categoryFilter: categoryFilter,
+    promptCount: entries.length,
+    scrollTop: container.scrollTop,
+  };
+  _memHydrated = true;
 
   writeUISnapshot({
     html: snapshotHtml,
