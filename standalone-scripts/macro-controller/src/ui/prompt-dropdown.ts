@@ -326,6 +326,14 @@ function _appendHeaderAndSubmenu(
   };
   container.appendChild(tasksGroup);
 
+  // Issue 127 Task 3 — Re-add the Plan Task row inline in the prompts dropdown
+  // body so users can reach it without first opening the 🎯 Tasks floating
+  // panel. The Tasks panel still hosts a copy for backward-compatibility.
+  const inlinePlanRow = document.createElement('div');
+  inlinePlanRow.setAttribute('data-inline-plan-row', '1');
+  renderPlanTaskSubmenu(inlinePlanRow, ctx);
+  container.appendChild(inlinePlanRow);
+
   const categories = collectUniqueCategories(entries);
   renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
 }
