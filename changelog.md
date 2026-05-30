@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.41.0] — 2026-05-30
+
+### Added
+- **Summary bar tooltips** (Issue 130) — Hovering the Pro / Pro Credits / Free Credits pills now reveals a detailed breakdown: Pro account count by plan, expiring-credit totals, free-credit totals, and at-risk credits with dates. Powered by `computeSummaryDetails()` and a singleton hover-card anchored beneath each pill.
+- **Credit totals search/filter** (Issue 130) — The Credit Totals modal now has a persistent search bar that filters workspaces by name, plan, or ID without losing input focus during re-renders.
+- **Project-name dropdown** (Issue 129 Step 10) — `▾` caret beneath the project name opens a dropdown with Rename, Connect GitHub, Open GitHub Repo, Disconnect, Status, and Remix actions. All six handlers dispatch via the existing flow (cache → sentinel → navigate → disconnect).
+
+### Changed
+- **Typography bump** — Title bar project name `font-size: 16px / font-weight: 600`, workspace name `14px / 500`, detecting state `10px / 500`.
+- **Expire pill styling** (Issue 129) — All `past-due-expiring` workspace rows now render the Expire pill with `danger` tone (red background `rgba(127,29,29,0.85)` + white text `#ffffff`). The two-pill layout (Expire + Passed Nd) uses the same red palette.
+- **Passed Nd sublabel polish** (Issue 129) — Replaced the fragile `replace('0.55','0.30')` opacity hack with `diluteBadgeBg()`, a proper rgba-alpha dilution helper. Sublabel backgrounds are now consistently ~35 % of the main pill opacity regardless of tone.
+
+### Fixed
+- **Prompts cache** (Issue 129 Step 2) — HtmlCopy snapshot now bakes the Plan Task / Task Next action row into the cached prompt detail, eliminating the flicker/no-op on prompt click.
+- **Plan Task button** (Issue 129 Step 3) — Restored handler binding after snapshot restore; the button is now wired correctly.
+- **GitSync connection detection** (Issue 129 Step 4) — Right-click "Open GitHub Repo" now probes the progress endpoint first (GET), then POSTs `/sync` only when the project is confirmed not connected.
+- **Remix navigation** (Issue 129 Steps 5–9) — Full flow: capture new project URL → persist per-tab cache → navigate active tab → invalidate injection sentinel for auto-reinjection.
+
+---
+
 ## [v3.40.1] — 2026-05-30
 
 ### Fixed
