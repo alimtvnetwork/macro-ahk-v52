@@ -1,4 +1,4 @@
-# Issue 129 — Prompts cache UX, Plan Task button, GitSync detection, Remix navigation
+# Issue 129 — Prompts cache, Plan Task, GitSync (connect/disconnect), Remix nav, Project-name dropdown, Typography & badge polish
 
 **Status:** Planning (no implementation yet)
 **Reported:** 2026-05-30
