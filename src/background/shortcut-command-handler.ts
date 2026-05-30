@@ -125,38 +125,74 @@ async function runScriptsFromShortcut(forceReload: boolean): Promise<void> {
     }
 }
 
-/** Returns the active tab id, or null if unavailable. */
-async function getActiveTabId(): Promise<number | null> {
+/** Returns the active tab (with url), or null if unavailable. */
+async function getActiveTab(): Promise<chrome.tabs.Tab | null> {
     try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        const tabId = tab?.id;
-
-        return typeof tabId === "number" ? tabId : null;
+        return tab ?? null;
     } catch (err) {
         logCaughtError(BgLogTag.SHORTCUT, "chrome.tabs.query failed", err);
-
         return null;
     }
 }
 
-/** Loads active project scripts used by popup run injection. */
-async function getActiveProjectScripts(): Promise<ScriptEntry[]> {
+interface ResolvedShortcutScripts {
+    scripts: ScriptEntry[];
+    /** Where the scripts came from for diagnostics. */
+    source: "active-project" | "url-auto-attach" | "none";
+    /** Human-readable project label, e.g. `"My Project" (id=abc)` or `none`. */
+    projectLabel: string;
+}
+
+/**
+ * Resolves scripts to inject for a manual shortcut press.
+ *
+ * Precedence (matches popup Run behavior, with auto-attach safety net):
+ *   1. Active project's scripts (if non-empty).
+ *   2. URL-based auto-attach via `evaluateUrlMatches(tabUrl)` — covers the
+ *      "first-press" case where the popup has never been opened so no active
+ *      project is set, but the URL clearly matches one or more project rules.
+ *
+ * Always logs the chosen source + the reason any fallback was used.
+ */
+async function resolveScriptsForShortcut(tabUrl: string): Promise<ResolvedShortcutScripts> {
     const response = await sendInternalMessage<ActiveProjectResponse>({
         type: MessageType.GET_ACTIVE_PROJECT,
     });
 
-    const project = response?.activeProject;
-    if (!project) {
-        logBgWarnError(BgLogTag.SHORTCUT, "GET_ACTIVE_PROJECT returned no active project");
-        return [];
+    const project = response?.activeProject ?? null;
+    const projectLabel = project
+        ? `"${project.name ?? "?"}" (id=${project.id ?? "?"})`
+        : "none";
+
+    const projectScripts = Array.isArray(project?.scripts) ? project.scripts : [];
+
+    if (project && projectScripts.length > 0) {
+        console.log("[Marco] Shortcut: using active project=%s with %d scripts", projectLabel, projectScripts.length);
+        return { scripts: projectScripts, source: "active-project", projectLabel };
     }
 
-    console.log("[Marco] Shortcut: active project='%s' (id=%s), scripts=%d",
-        project.name ?? "?", project.id ?? "?", project.scripts?.length ?? 0);
+    // Fallback: URL-based auto-attach so a fresh install / never-opened popup
+    // still reacts to a manual shortcut press when the page matches a rule.
+    const reason = project
+        ? "active-project-has-no-scripts"
+        : "no-active-project-set";
+    console.log("[Marco] Shortcut: active-project resolution empty (reason=%s, project=%s); trying URL auto-attach for '%s'", reason, projectLabel, tabUrl);
 
-    const scripts = project.scripts ?? [];
+    const matches = await evaluateUrlMatches(tabUrl);
+    const fallbackScripts: ScriptEntry[] = [];
+    for (const m of matches) {
+        for (const b of m.scriptBindings ?? []) {
+            fallbackScripts.push({ path: b.path, id: b.id });
+        }
+    }
 
-    return Array.isArray(scripts) ? scripts : [];
+    if (fallbackScripts.length > 0) {
+        console.log("[Marco] Shortcut: URL auto-attach resolved %d script binding(s) across %d matched project(s)", fallbackScripts.length, matches.length);
+        return { scripts: fallbackScripts, source: "url-auto-attach", projectLabel };
+    }
+
+    return { scripts: [], source: "none", projectLabel };
 }
 
 /**
