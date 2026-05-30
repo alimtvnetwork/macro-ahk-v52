@@ -50,6 +50,7 @@ import { installSpaRouteGuard } from './spa-route-guard';
 import { MAX_SDK_ATTEMPTS, SDK_RETRY_DELAY_MS, MAX_UI_CREATE_RETRIES, STARTUP_WS_MAX_RETRIES } from './constants';
 import { Label } from './types';
 import { loadSettingsOverrides, onSettingsChange } from './settings-store';
+import { hydrateCreditBalanceFromCache } from './credit-balance/hydrate';
 
 // Re-export sub-modules for backward compatibility
 export { setupPersistenceObserver as _setupPersistenceObserver } from './startup-persistence';
@@ -93,6 +94,11 @@ export function bootstrap(deps: {
       try { updateUI(); } catch (_e: unknown) { /* UI may not be mounted yet */ } // allow-swallow: UI may not be mounted at settings-change time; non-critical cosmetic update.
     });
   });
+
+  // Spec 122a — hydrate the credit-balance throttle map + cached numbers
+  // from SQLite before any /credit-balance call so the 10s per-ws cooldown
+  // survives reloads and the panel can paint last-known values immediately.
+  void hydrateCreditBalanceFromCache();
 
   setupPersistenceObserver(function () {
     const mc = MacroController.getInstance();
