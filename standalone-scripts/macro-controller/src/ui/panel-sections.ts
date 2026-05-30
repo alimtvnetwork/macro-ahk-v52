@@ -75,6 +75,7 @@ export interface StatusBarResult {
 export interface ToolsMasterResult {
   toolsSection: HTMLElement;
   wsDropSection: HTMLElement;
+  /** @deprecated Auth Diagnostics is now mounted inside Tools & Logs (Issue 125). Kept for backwards compatibility of bodyElements wiring; consumers must NOT re-append. */
   authDiagRow: HTMLElement;
   jsBody: HTMLElement;
   settingsDeps: SettingsDeps;
