@@ -51,7 +51,7 @@ import { DataAttr, DomId } from './types';
 import { sortByRefillPriority, daysToRefillForWs } from './workspace-refill-priority';
 // Issue 115 — collapsed display classifier + centralised tone resolver.
 import { classifyFromStatus, type WorkspaceDisplayStatus } from './workspace-display-status';
-import { resolveBadgeStyle } from './workspace-badge-styles';
+import { resolveBadgeStyle, diluteBadgeBg } from './workspace-badge-styles';
 import { publishVisibleWorkspaces } from './visible-workspaces-store';
 
 const CSS_BG = ';background:';
