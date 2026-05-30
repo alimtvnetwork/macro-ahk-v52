@@ -1,18 +1,25 @@
 # Plan
 
-**Active workstream:** **Issue 129** — Prompts cache UX + Plan Task button + GitSync detection + Remix navigation. Spec: `spec/22-app-issues/129-prompts-cache-plan-task-gitsync-remix.md`. 10 sequential steps; one per `next`.
+**Active workstream:** **Issue 129** — Prompts cache + Plan Task + GitSync (connect/disconnect) + Remix nav + Project-name dropdown + Typography & badge polish. Spec: `spec/22-app-issues/129-prompts-cache-plan-task-gitsync-remix.md`. **15 sequential steps**; one per `next`.
 
 ### Issue 129 — remaining steps
-1. Spec authoring & plan.md sync (this entry) — DONE on planning land.
-2. Prompts cache snapshot guarantees Plan/Task-Next buttons render synchronously from HtmlCopy (zero load state).
-3. Diagnose & fix Plan Task button no-op (compare to working Task Next handler).
-4. New `gitsync/progress-probe.ts` module — `probeProgress` + `resolveConnection` (single-deadline poll, no retry).
+1. Spec authoring & plan.md sync — DONE.
+2. Prompts cache: Plan/Task-Next buttons render synchronously from HtmlCopy (zero load state).
+3. Diagnose & fix Plan Task button no-op (parity with working Task Next handler).
+4. New `gitsync/progress-probe.ts` — `probeProgress` + `resolveConnection` (single-deadline, no retry).
 5. Wire progress-probe into right-click "Open GitHub Repo" menu (connected / connect / syncing states).
-6. `ensureGithubRepo` helper — probe FIRST, POST `/sync` only when not connected, persist `repo_url`.
-7. Remix flow — capture new project URL + persist new project_id into per-tab workspace cache.
-8. Remix flow — navigate active tab to new project URL (respect `isNewTabOrBlankUrl` guard).
-9. Remix flow — invalidate per-tab injection sentinel on project_id transition so auto-injector re-fires.
-10. MINOR version bump + changelog + readme + vitest/tsc/check-version-sync all green.
+6. `ensureGithubRepo` — probe FIRST, POST `/sync` only when not connected, persist `repo_url`.
+7. Remix: capture new project URL + persist new project_id into per-tab workspace cache.
+8. Remix: navigate active tab to new project URL (respect `isNewTabOrBlankUrl` guard).
+9. Remix: invalidate per-tab injection sentinel on project_id transition → auto-injector re-fires.
+10. `disconnectGithubRepo` — `DELETE …/sync`, invalidate SQLite cache, confirm dialog, fail-fast logging.
+11. Project-name dropdown beside project name: Rename, Connect/Open/Disconnect GitHub, Git status, Remix.
+12. Typography: bump project name (~16px / 600) + workspace name (~14px / 500); keep Pro pill untouched.
+13. Fix Expire pill: red background + white text via `--mc-status-danger`; Cancel stays muted gray.
+14. Fix "Passed Nd" past-due pill UI (padding, alignment, truncation, dot, tone ramp 5d/10d).
+15. MINOR bump + changelog + readme pin + `.gitmap/release/v<new>.json` + tests/tsc/version-sync green.
+
+
 
 
 
