@@ -186,10 +186,13 @@ describe('display token map', () => {
   it('canceled tone is muted (not danger) — no red', () => {
     expect(WORKSPACE_BADGE_DISPLAY['canceled'].tone).toBe('muted');
   });
-  it('expire-soon tone is danger (red)', () => {
-    expect(WORKSPACE_BADGE_DISPLAY['expire-soon'].tone).toBe('danger');
+  it('expire-soon tone is warning (amber) — Issue 125 §2.4 fix', () => {
+    expect(WORKSPACE_BADGE_DISPLAY['expire-soon'].tone).toBe('warning');
   });
-  it('expired-hard tone is danger (red)', () => {
+  it('expired tone is orange (muted red-orange) — Issue 125 §2.4 fix', () => {
+    expect(WORKSPACE_BADGE_DISPLAY['expired'].tone).toBe('orange');
+  });
+  it('expired-hard tone is danger (red) — reserved for ≥ grace window', () => {
     expect(WORKSPACE_BADGE_DISPLAY['expired-hard'].tone).toBe('danger');
   });
   it('all kinds have a tone entry', () => {

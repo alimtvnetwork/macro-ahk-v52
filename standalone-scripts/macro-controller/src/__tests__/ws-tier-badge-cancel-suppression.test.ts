@@ -55,7 +55,9 @@ describe('Issue 116 — Cancel suppresses redundant EXPIRED tier badge', () => {
     const ws = makeWs({
       tier: 'EXPIRED',
       subscriptionStatus: 'past_due',
-      subscriptionStatusChangedAt: '2026-05-20T00:00:00Z',
+      // Within the 10-day grace window so the row stays past-due-expiring
+      // rather than collapsing to the single-pill expired-hard form.
+      subscriptionStatusChangedAt: new Date(Date.now() - 5 * 86_400_000).toISOString(),
     });
     const html = buildTierBadgeHtml(ws);
     expect(html).not.toContain('>EXPIRED<');
@@ -67,7 +69,7 @@ describe('Issue 116 — Cancel suppresses redundant EXPIRED tier badge', () => {
     const ws = makeWs({
       tier: 'EXPIRED',
       subscriptionStatus: 'past_due',
-      subscriptionStatusChangedAt: '2026-05-20T00:00:00Z',
+      subscriptionStatusChangedAt: new Date(Date.now() - 5 * 86_400_000).toISOString(),
       available: 225, rollover: 200, billingAvailable: 20,
       billingPeriodEndAt: new Date(Date.now() + 31 * 86_400_000).toISOString(),
     });

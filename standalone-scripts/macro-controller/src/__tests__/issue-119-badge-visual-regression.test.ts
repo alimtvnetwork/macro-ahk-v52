@@ -76,15 +76,27 @@ describe('Badge visual regression matrix (Issue 119 Step 9)', () => {
     }
   });
 
-  it('expired / expired-hard / expire-soon all render the red+white pill (user-reported regression)', () => {
-    for (const kind of ['expired', 'expired-hard', 'expire-soon'] as const) {
-      const tone = WORKSPACE_BADGE_DISPLAY[kind].tone;
-      expect(tone).toBe('danger');
-      const style = resolveBadgeStyle(tone);
-      expect(styleContainsRedPalette(style)).toBe(true);
-      // fg must be a light/white-ish hex so text is legible on the red bg.
-      expect(style.fg.toLowerCase()).toBe('#fee2e2');
-    }
+  it('expired-hard renders the red+white pill (≥ grace window, single critical pill)', () => {
+    const tone = WORKSPACE_BADGE_DISPLAY['expired-hard'].tone;
+    expect(tone).toBe('danger');
+    const style = resolveBadgeStyle(tone);
+    expect(styleContainsRedPalette(style)).toBe(true);
+    expect(style.fg.toLowerCase()).toBe('#fee2e2');
+  });
+
+  // Issue 125 §2.4 — `expired` (muted red-orange) and `expire-soon` (amber)
+  // are intentionally NOT critical red; only `expired-hard` keeps the red
+  // palette. Each must resolve to a distinct, non-red tone.
+  it('expired tone is orange (muted red-orange, NOT critical red) — Issue 125 §2.4', () => {
+    const tone = WORKSPACE_BADGE_DISPLAY['expired'].tone;
+    expect(tone).toBe('orange');
+    expect(styleContainsRedPalette(resolveBadgeStyle(tone))).toBe(false);
+  });
+
+  it('expire-soon tone is warning/amber (NOT critical red) — Issue 125 §2.4', () => {
+    const tone = WORKSPACE_BADGE_DISPLAY['expire-soon'].tone;
+    expect(tone).toBe('warning');
+    expect(styleContainsRedPalette(resolveBadgeStyle(tone))).toBe(false);
   });
 
   it('canceled kind never renders a red pill', () => {
