@@ -71,7 +71,7 @@ Spec: `spec/22-app-issues/126-ctrl-shift-down-script-attach-shortcut.md`
 Spec: `spec/22-app-issues/127-plan-button-and-task-next-dropdown-overflow.md`
 Scope: extension's **Prompts** button dropdown only — NOT Lovable's native composer Plan button.
 - [x] Task 1 — Repro + findings filed in spec §6 (F-1: Plan moved into floating tasksGroup, F-2: root cause of "opens left/clips" = tasksGroup `left:100%` overflow with no horizontal fallback, F-3: fix direction = inline rows + per-row anchored sub-menu, F-4: tests inventory).
-- [ ] Task 2 — Fix `task-next-ui.ts` so sub-menu opens RIGHT of Prompts dropdown (fallback: stacked below); add right-anchor test.
+- [x] Task 2 — `anchorTaskNextSub()` in `prompt-dropdown.ts` opens the sub-menu RIGHT of the row by default (`position:fixed; left=rowRect.right+GAP; top=rowRect.top`) with a stacked-below fallback when right-side viewport space < menu width. `data-task-next-anchor="right"|"below"` exposes the decision. New tests in `task-next-right-anchor.test.ts` (10 tests, all green); 4 existing tests (`tasks-right-anchor`, `tasks-toggle-hover-open`, `plan-task-ui`, `prompts-panel-layout`) still pass (28 tests).
 - [ ] Task 3 — Re-add `Plan` row inside `prompt-dropdown.ts` (below Task Next), wired to existing `plan-task-ui.ts` opener with same right-anchor rule; add row-presence test.
 - [ ] Task 4 — Full test sweep + 1043×757 visual check; ensure existing `tasks-right-anchor` / `plan-task-ui` / `prompts-panel-layout` tests still pass.
 - [ ] Task 5 — Roll into final v3.38.0 bump + changelog entries.
