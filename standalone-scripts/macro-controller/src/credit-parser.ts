@@ -21,6 +21,7 @@ import { getEffectiveStatus, shouldApplyCanceledOverride, applyCanceledCreditOve
 import { getWorkspaceLifecycleConfigFor } from './workspace-lifecycle-config';
 import { getSettingsOverrides } from './settings-store';
 import { enrichProZeroWorkspaces } from './pro-zero/pro-zero-enrichment';
+import { enrichProOneWorkspaces } from './credit-balance/pro-one-enrichment';
 
 // ============================================
 // Workspace Tier Enum
