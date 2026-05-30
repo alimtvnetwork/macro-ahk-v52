@@ -124,8 +124,11 @@ export function buildToolsMasterSection(
 
   const authDiagResult = _buildAuthDiagnostics();
   const wsDropSection = _buildWsDropdown(deps).wsDropSection;
-  const { toolsCol, settingsDeps } = _buildToolsCollapsible(deps, btnStyle, taskNextDeps, toolsSections, wsHistoryResult);
+  const { toolsCol, settingsDeps } = _buildToolsCollapsible(deps, btnStyle, taskNextDeps, toolsSections, wsHistoryResult, authDiagResult.row);
 
+  // Auth Diagnostics is mounted INSIDE Tools & Logs (Issue 125 §2.1).
+  // Return its row for backwards-compatible bodyElements wiring; callers
+  // must NOT re-append it as a direct child of the panel.
   return { toolsSection: toolsCol.section, wsDropSection, authDiagRow: authDiagResult.row, jsBody: toolsSections.jsBody, settingsDeps };
 }
 
