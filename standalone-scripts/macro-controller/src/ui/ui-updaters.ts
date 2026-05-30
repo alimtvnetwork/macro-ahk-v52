@@ -86,6 +86,8 @@ export function updateTitleBarWorkspaceName(): void {
   el.textContent = titleBarState.text;
   el.style.color = titleBarState.color;
   el.style.opacity = titleBarState.opacity;
+  el.style.fontSize = titleBarState.fontSize;
+  el.style.fontWeight = titleBarState.fontWeight;
   el.title = titleBarState.title;
 }
 
