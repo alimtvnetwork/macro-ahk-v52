@@ -75,6 +75,7 @@ export interface StatusBarResult {
 export interface ToolsMasterResult {
   toolsSection: HTMLElement;
   wsDropSection: HTMLElement;
+  /** @deprecated Auth Diagnostics is now mounted inside Tools & Logs (Issue 125). Kept for backwards compatibility of bodyElements wiring; consumers must NOT re-append. */
   authDiagRow: HTMLElement;
   jsBody: HTMLElement;
   settingsDeps: SettingsDeps;
@@ -123,8 +124,11 @@ export function buildToolsMasterSection(
 
   const authDiagResult = _buildAuthDiagnostics();
   const wsDropSection = _buildWsDropdown(deps).wsDropSection;
-  const { toolsCol, settingsDeps } = _buildToolsCollapsible(deps, btnStyle, taskNextDeps, toolsSections, wsHistoryResult);
+  const { toolsCol, settingsDeps } = _buildToolsCollapsible(deps, btnStyle, taskNextDeps, toolsSections, wsHistoryResult, authDiagResult.row);
 
+  // Auth Diagnostics is mounted INSIDE Tools & Logs (Issue 125 §2.1).
+  // Return its row for backwards-compatible bodyElements wiring; callers
+  // must NOT re-append it as a direct child of the panel.
   return { toolsSection: toolsCol.section, wsDropSection, authDiagRow: authDiagResult.row, jsBody: toolsSections.jsBody, settingsDeps };
 }
 
@@ -176,6 +180,7 @@ function _buildToolsCollapsible(
   _deps: PanelBuilderDeps, btnStyle: string, taskNextDeps: TaskNextDeps,
   toolsSections: ReturnType<typeof buildToolsSections>,
   wsHistoryResult: { section: HTMLElement },
+  authDiagRow: HTMLElement,
 ): { toolsCol: ReturnType<typeof createCollapsibleSection>; settingsDeps: SettingsDeps } {
   const toolsCol = createCollapsibleSection('🔧 Tools & Logs', 'ml_collapse_tools_master');
   const toolsMasterBody = toolsCol.body;
@@ -211,6 +216,14 @@ function _buildToolsCollapsible(
   toolsCol.header.insertBefore(versionBadge, settingsGearBtn);
 
   toolsMasterBody.appendChild(wsHistoryResult.section);
+
+  // Auth Diagnostics — collapsible child (Issue 125 §2.1, default collapsed
+  // via `ml_collapse_authdiag` ↔ `Ui.ToolsLogs.AuthDiagExpanded` pref).
+  const authDiagCol = createCollapsibleSection('🛡 Auth Diagnostics', 'ml_collapse_authdiag');
+  authDiagCol.section.setAttribute('data-marco-authdiag-mount', '');
+  authDiagCol.body.appendChild(authDiagRow);
+  toolsMasterBody.appendChild(authDiagCol.section);
+
   const openTabsResult = createOpenTabsSection();
   toolsMasterBody.appendChild(openTabsResult.section);
   toolsMasterBody.appendChild(toolsSections.xpathSection);

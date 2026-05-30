@@ -48,6 +48,8 @@ import {
   registerKeyboardHandlers,
 } from './panel-sections';
 import { startRedockObserver } from './redock-observer';
+import { createSummaryBar } from './summary-bar/component';
+import { nsWrite } from '../api-namespace';
 
 import type { RenameHistoryEntry, UndoRenameResults } from '../types';
 import type { TaskNextDeps } from './task-next-ui';
@@ -149,17 +151,24 @@ export function createUI(deps: PanelBuilderDeps): void {
   const { titleRow } = buildTitleRow(deps, plCtx);
   const { status, infoRow } = buildStatusBar();
   const { btnRow, btnStyle, taskNextDeps } = buildButtonRow(deps);
-  const { toolsSection, wsDropSection, authDiagRow, jsBody, settingsDeps } = buildToolsMasterSection(deps, btnStyle, taskNextDeps);
+  const { toolsSection, wsDropSection, jsBody, settingsDeps } = buildToolsMasterSection(deps, btnStyle, taskNextDeps);
 
-  // Track body elements for minimize/restore
-  plCtx.bodyElements = [status, infoRow, btnRow, authDiagRow, wsDropSection, toolsSection];
+  // Dashboard Summary Bar — sits below the title row (Issue 125 §2.2).
+  // Live wiring to visibleWorkspaces$ is performed in Task 9.
+  const summaryBar = createSummaryBar();
+  nsWrite('_internal.summaryBar', summaryBar);
+
+  // Track body elements for minimize/restore. Auth Diagnostics has moved
+  // INSIDE Tools & Logs (Issue 125 §2.1) and is no longer a panel-root
+  // child, so it is excluded from this list.
+  plCtx.bodyElements = [status, infoRow, summaryBar.root, btnRow, wsDropSection, toolsSection];
 
   // Assembly
   ui.appendChild(titleRow);
+  ui.appendChild(summaryBar.root);
   ui.appendChild(status);
   ui.appendChild(infoRow);
   ui.appendChild(btnRow);
-  ui.appendChild(authDiagRow);
   ui.appendChild(wsDropSection);
   ui.appendChild(toolsSection);
 
