@@ -21,6 +21,7 @@ import { fetchWorkspaceMembers, clearMembersCache, DEFAULT_MEMBERS_PAGE_LIMIT, M
 import { logError } from './error-utils';
 import { formatDateDDMMMYY } from './workspace-status';
 import { inviteMember, removeMember, updateMemberRole } from './ws-members-mutations';
+import { createChipInput } from './ws-members-chip-input';
 import { showToast } from './toast';
 import { onCreditPollTick } from './credit-poll-events';
 import { makeDraggable } from './ui/drag-window';
@@ -328,36 +329,32 @@ function footerCollapsedHtml(): string {
     + '</button>';
 }
 
-function footerFormHtml(): string {
+function footerFormHtml(wsId: string): string {
+  // We'll replace the static HTML with a container for the chip input
   return '<form data-marco-action="add-member-submit" '
     + 'style="display:flex;flex-direction:column;gap:6px;">'
-    +   '<div style="display:flex;gap:4px;">'
-    +     '<input type="email" required name="email" placeholder="user@example.com" '
-    +       'data-marco-field="invite-email" '
-    +       'style="flex:1;min-width:0;padding:3px 6px;border:1px solid ' + cPrimaryLight + ';'
-    +       'border-radius:3px;background:' + cPanelBg + ';color:' + cPanelFg + ';font-size:11px;outline:none;">'
+    +   '<div id="marco-chip-input-container"></div>'
+    +   '<div style="display:flex;gap:4px;justify-content:flex-end;align-items:center;">'
     +     '<select name="role" data-marco-field="invite-role" '
     +       'style="padding:3px 4px;border:1px solid ' + cPrimaryLight + ';border-radius:3px;'
     +       CSS_BG + cPanelBg + ';color:' + cPanelFg + ';font-size:11px;">'
     +       '<option value="member">Member</option>'
     +       '<option value="owner">Owner</option>'
     +     '</select>'
-    +   '</div>'
-    +   '<div style="display:flex;gap:4px;justify-content:flex-end;">'
     +     '<button type="button" data-marco-action="add-member-cancel" '
     +       'style="background:rgba(100,116,139,0.35);color:#e2e8f0;border:1px solid ' + cPanelBorder + ';'
     +       'border-radius:3px;padding:3px 8px;font-size:11px;cursor:pointer;">Cancel</button>'
-    +     '<button type="submit" data-marco-field="invite-submit" '
+    +     '<button type="submit" data-marco-field="invite-submit" id="marco-invite-submit" '
     +       'style="background:rgba(0,122,204,0.4);color:#e0f2fe;border:1px solid ' + cPrimary + ';'
     +       'border-radius:3px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;">Send invite</button>'
     +   '</div>'
     + '</form>';
 }
 
-function footerHtml(expanded = false): string {
+function footerHtml(wsId: string, expanded = false): string {
   return '<div data-marco-section="members-footer" '
     + 'style="padding:6px 10px;border-top:1px solid ' + cPanelBorder + ';background:rgba(0,0,0,0.2);">'
-    + (expanded ? footerFormHtml() : footerCollapsedHtml())
+    + (expanded ? footerFormHtml(wsId) : footerCollapsedHtml())
     + '</div>';
 }
 
@@ -430,7 +427,25 @@ function positionPanel(el: HTMLElement, x: number, y: number): void {
 
 function render(el: HTMLElement, wsName: string, state: PanelState): void {
   // v3.4.3 (task 11) — 3-section chrome: header + body + footer (Rename-style)
-  el.innerHTML = headerHtml(wsName, state) + buildBodyHtml(state) + footerHtml();
+  el.innerHTML = headerHtml(wsName, state) + buildBodyHtml(state) + footerHtml((el as unknown as { _wsId?: string })._wsId || '');
+  
+  // Issue 130: Wire chip input if footer is expanded
+  const footer = findFooter(el);
+  const chipContainer = footer?.querySelector('#marco-chip-input-container');
+  if (chipContainer) {
+    const inviteBtn = footer?.querySelector('#marco-invite-submit') as HTMLButtonElement | null;
+    if (inviteBtn) inviteBtn.disabled = true;
+
+    const chipInput = createChipInput({
+      placeholder: 'Enter emails...',
+      onValidEmailsChange: (emails) => {
+        if (inviteBtn) inviteBtn.disabled = emails.length === 0;
+        (el as any)._marcoValidEmails = emails;
+      }
+    });
+    chipContainer.appendChild(chipInput);
+  }
+
   // v3.30.0 — make the panel draggable by its header.
   const handle = el.querySelector('[data-marco-drag-handle="1"]') as HTMLElement | null;
   if (handle) makeDraggable(el, handle);
@@ -443,11 +458,23 @@ function findFooter(el: HTMLElement): HTMLElement | null {
 function swapFooter(el: HTMLElement, expanded: boolean): void {
   const footer = findFooter(el);
   if (!footer) return;
-  footer.innerHTML = expanded ? footerFormHtml() : footerCollapsedHtml();
+  const wsId = (el as unknown as { _wsId?: string })._wsId || '';
+  footer.innerHTML = expanded ? footerFormHtml(wsId) : footerCollapsedHtml();
   if (expanded) {
-    const emailInput = footer.querySelector('[data-marco-field="invite-email"]') as HTMLInputElement | null;
-    if (emailInput) emailInput.focus();
+    const chipContainer = footer.querySelector('#marco-chip-input-container');
+    const inviteBtn = footer.querySelector('#marco-invite-submit') as HTMLButtonElement | null;
+    if (inviteBtn) inviteBtn.disabled = true;
+
+    const chipInput = createChipInput({
+      placeholder: 'Enter emails...',
+      onValidEmailsChange: (emails) => {
+        if (inviteBtn) inviteBtn.disabled = emails.length === 0;
+        (el as any)._marcoValidEmails = emails;
+      }
+    });
+    if (chipContainer) chipContainer.appendChild(chipInput);
   }
+
 }
 
 // v3.4.3 (task 14) — Member action menu (Promote / Demote / Remove) anchored to ⋯
@@ -585,49 +612,42 @@ function openMemberActionMenu(
 
 // v3.4.3 (task 13) — Submit invite + optimistic insert. Reverts on failure.
 function submitInvite(el: HTMLElement, wsId: string, wsName: string, form: HTMLFormElement): void {
-  const emailInput = form.querySelector('[data-marco-field="invite-email"]') as HTMLInputElement | null;
+  const validEmails = (el as any)._marcoValidEmails || [];
   const roleSelect = form.querySelector('[data-marco-field="invite-role"]') as HTMLSelectElement | null;
   const submitBtn = form.querySelector('[data-marco-field="invite-submit"]') as HTMLButtonElement | null;
-  const email = (emailInput?.value || '').trim();
   const roleRaw = (roleSelect?.value || 'member').toLowerCase();
   const role: 'member' | 'owner' = roleRaw === 'owner' ? 'owner' : 'member';
-  if (!email) {
-    if (emailInput) emailInput.focus();
+  
+  if (validEmails.length === 0) {
+    showToast('⚠️ No valid emails to invite', 'info');
     return;
   }
+
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending…';
+    submitBtn.textContent = 'Sending (' + validEmails.length + ')…';
   }
 
-  // Optimistic placeholder row inserted at the top of the list.
-  const body = el.querySelector('div[style*="max-height:380px"]') as HTMLElement | null;
-  const optimisticId = 'optimistic-' + Date.now();
-  let optimisticEl: HTMLElement | null = null;
-  if (body) {
-    optimisticEl = document.createElement('div');
-    optimisticEl.setAttribute('data-marco-optimistic', optimisticId);
-    optimisticEl.style.cssText = 'padding:6px 8px;border-bottom:1px solid rgba(148,163,184,0.12);font-size:11px;color:#bae6fd;opacity:0.75;';
-    optimisticEl.textContent = '⏳ Inviting ' + email + ' (' + role + ')…';
-    body.insertBefore(optimisticEl, body.firstChild);
-  }
-
-  inviteMember(wsId, email, role)
-    .then(function () {
-      showToast('✉️ Invited ' + email, 'success');
-      swapFooter(el, false);
-      // Refetch authoritative list — drops optimistic row.
-      loadAndRender(el, wsId, wsName);
-    })
-    .catch(function (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      showToast('❌ Invite failed: ' + msg, 'error');
-      if (optimisticEl && optimisticEl.parentNode) optimisticEl.parentNode.removeChild(optimisticEl);
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send invite';
+  const results = { success: 0, fail: 0 };
+  (async function() {
+    for (const email of validEmails) {
+      try {
+        await inviteMember(wsId, email, role);
+        results.success++;
+      } catch (e: any) {
+        results.fail++;
       }
-    });
+    }
+
+    if (results.fail === 0) {
+      showToast('✉️ Sent ' + results.success + ' invites', 'success');
+    } else {
+      showToast('✉️ Sent ' + results.success + ' (failed ' + results.fail + ')', 'warn');
+    }
+    swapFooter(el, false);
+    loadAndRender(el, wsId, wsName);
+  })();
+}
 }
 
 // eslint-disable-next-line max-lines-per-function

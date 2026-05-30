@@ -1,162 +1,119 @@
 /**
- * Workspace Members Fetch — v2.216.0
+ * Workspace Members Fetcher — v3.4.3
  *
- * Fetches active members of a workspace via
- *   GET /workspaces/{wsId}/memberships/search?status=active&limit=20
- *
- * Returns members sorted by `total_credits_used` (descending) so the most
- * expensive contributors surface first. Cached per workspace for the lifetime
- * of the SDK instance — callers explicitly invalidate via `clearMembersCache`.
- *
- * No retries (per `mem://constraints/no-retry-policy` — fail-fast). Auth
- * token resolution and refresh are handled inside the SDK's HTTP client.
- *
- * @see spec/22-app-issues/workspace-members-tooltip
+ * Handles fetching the list of members for a given workspace.
+ * Uses the marco.api.memberships SDK.
  */
 
 import { CREDIT_API_BASE } from './shared-state';
 import { log } from './logging';
 import { logError } from './error-utils';
 
-/** A single workspace member as returned by the search API. */
 export interface WorkspaceMember {
   user_id: string;
-  username: string;
-  role: string;
-  total_credits_used: number;
-  total_credits_used_in_billing_period: number;
-  invited_at: string;
   email: string;
   display_name: string;
+  username: string;
+  role: string;
   joined_at: string;
+  invited_at: string;
+  total_credits_used: number;
+  total_credits_used_in_billing_period: number;
 }
 
-/** Server response envelope for the memberships search endpoint. */
-interface MembershipsSearchResponse {
-  members?: WorkspaceMember[];
-  total?: number;
-  limit?: number;
-  offset?: number;
-  has_more?: boolean;
+export const DEFAULT_MEMBERS_PAGE_LIMIT = 50;
+export const MEMBERS_PAGE_LIMIT_STEPS = [50, 100, 250, 500];
+
+const membersCache = new Map<string, { members: WorkspaceMember[]; total: number; expires: number }>();
+const CACHE_TTL = 30000; // 30s
+
+interface MarcoSdkShape {
+  api?: { memberships?: { list: (wsId: string, options?: { limit?: number; baseUrl?: string }) => Promise<{ ok: boolean; status: number; data: any }> } };
 }
 
-/** Cache entry — sorted, ready to render. */
-interface CacheEntry {
-  members: WorkspaceMember[];
-  total: number;
-  fetchedAt: number;
+function getMemberships() {
+  const sdk = (window as unknown as { marco?: MarcoSdkShape }).marco;
+  const api = sdk?.api?.memberships;
+  if (!api) throw new Error('marco.api.memberships is not available');
+  return api;
 }
 
-const cache: Record<string, CacheEntry> = {};
-
-/** Default cache TTL (5 minutes). */
-const CACHE_TTL_MS = 5 * 60 * 1000;
-
-/** Default page size (matches legacy "top 20" behavior). */
-export const DEFAULT_MEMBERS_PAGE_LIMIT = 20;
-/** Allowed "Load more" page sizes the panel cycles through. */
-export const MEMBERS_PAGE_LIMIT_STEPS: number[] = [20, 50, 100];
-
-/**
- * Defensive numeric coercion — server occasionally returns null/undefined for
- * `total_credits_used*` fields. Treat missing values as 0 for sort purposes.
- */
-function safeNumber(value: unknown): number {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string') {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : 0;
-  }
-  return 0;
-}
-
-/** Normalize one server member into a fully-typed WorkspaceMember. */
-function normalizeMember(raw: Record<string, unknown>): WorkspaceMember {
-  return {
-    user_id: String(raw.user_id ?? ''),
-    username: String(raw.username ?? ''),
-    role: String(raw.role ?? ''),
-    total_credits_used: safeNumber(raw.total_credits_used),
-    total_credits_used_in_billing_period: safeNumber(raw.total_credits_used_in_billing_period),
-    invited_at: String(raw.invited_at ?? ''),
-    email: String(raw.email ?? ''),
-    display_name: String(raw.display_name ?? ''),
-    joined_at: String(raw.joined_at ?? ''),
-  };
-}
-
-/**
- * Fetch active members for the given workspace. Returns cached data when
- * fresh; otherwise issues a network call. Caller should `await` this.
- *
- * Throws on any non-2xx HTTP status, missing SDK, or network failure. The
- * panel UI catches and renders an error state.
- */
-export async function fetchWorkspaceMembers(
-  wsId: string,
-  force = false,
-  limit: number = DEFAULT_MEMBERS_PAGE_LIMIT,
-): Promise<CacheEntry> {
-  if (!wsId) throw new Error('fetchWorkspaceMembers: wsId is required');
-
-  const cacheKey = wsId + ':' + limit;
-  const existing = cache[cacheKey];
-  if (!force && existing && Date.now() - existing.fetchedAt < CACHE_TTL_MS) {
-    return existing;
+export async function fetchWorkspaceMembers(wsId: string, limit = DEFAULT_MEMBERS_PAGE_LIMIT): Promise<{ members: WorkspaceMember[]; total: number }> {
+  const now = Date.now();
+  const cached = membersCache.get(wsId);
+  if (cached && cached.expires > now && cached.members.length >= limit) {
+    return { members: cached.members.slice(0, limit), total: cached.total };
   }
 
-  const sdk = window.marco;
-  if (!sdk || !sdk.api || !sdk.api.memberships) {
-    throw new Error('marco.api.memberships is not available — SDK not loaded');
-  }
-
-  log('[Members] GET /workspaces/' + wsId + '/memberships/search?limit=' + limit, 'delegate');
-
-  const resp = await sdk.api.memberships.search(wsId, {
-    baseUrl: CREDIT_API_BASE,
-    params: { status: 'active', limit: String(limit) },
-  });
-
+  log('[Members] GET list wsId=' + wsId + ' limit=' + limit, 'delegate');
+  const resp = await getMemberships().list(wsId, { limit, baseUrl: CREDIT_API_BASE });
   if (!resp.ok) {
-    const bodyPreview = JSON.stringify(resp.data).substring(0, 200);
-    logError('Members', 'memberships.search HTTP ' + resp.status + ': ' + bodyPreview);
-    throw new Error('HTTP ' + resp.status + ' — ' + bodyPreview);
+    throw new Error('HTTP ' + resp.status + ' — ' + JSON.stringify(resp.data));
   }
 
-  const data = resp.data as MembershipsSearchResponse;
-  const rawMembers = Array.isArray(data.members) ? data.members : [];
-  const normalized = rawMembers.map(function (m) {
-    return normalizeMember(m as unknown as Record<string, unknown>);
-  });
-  // Sort by total credits used descending — top spenders first.
-  normalized.sort(function (a, b) {
-    return b.total_credits_used - a.total_credits_used;
-  });
-
-  const entry: CacheEntry = {
-    members: normalized,
-    total: typeof data.total === 'number' ? data.total : normalized.length,
-    fetchedAt: Date.now(),
-  };
-  cache[cacheKey] = entry;
-  log('[Members] ✅ ' + normalized.length + ' members (total=' + entry.total + ', limit=' + limit + ')', 'success');
-  return entry;
+  const members = (resp.data.members || []) as WorkspaceMember[];
+  const total = resp.data.total || members.length;
+  
+  membersCache.set(wsId, { members, total, expires: now + CACHE_TTL });
+  return { members, total };
 }
 
-/** Drop the cache entry for a workspace (or all when wsId omitted). Clears every page-size variant. */
 export function clearMembersCache(wsId?: string): void {
-  if (wsId) {
-    for (const key of Object.keys(cache)) {
-      if (key === wsId || key.startsWith(wsId + ':')) delete cache[key];
-    }
-    return;
-  }
-  for (const key of Object.keys(cache)) {
-    delete cache[key];
-  }
+  if (wsId) membersCache.delete(wsId);
+  else membersCache.clear();
 }
 
-/** Read-only peek at cached members — used by the panel for instant render. */
-export function peekCachedMembers(wsId: string, limit: number = DEFAULT_MEMBERS_PAGE_LIMIT): CacheEntry | null {
-  return cache[wsId + ':' + limit] || null;
+/** 
+ * Multi-workspace fetcher — Issue 130 
+ */
+import type { WorkspaceCredit } from './types/credit-types';
+
+export interface PerWsMembers {
+  wsId: string;
+  wsName: string;
+  members: WorkspaceMember[];
+  error?: string;
+}
+
+const bulkCache = new Map<string, PerWsMembers>();
+
+export async function fetchMembersForMany(
+  wsIds: string[],
+  workspaces: ReadonlyArray<WorkspaceCredit>,
+  options: { cap?: number } = {}
+): Promise<PerWsMembers[]> {
+  const cap = options.cap ?? 25;
+  const targetIds = wsIds.slice(0, cap);
+  const results: PerWsMembers[] = [];
+
+  for (const id of targetIds) {
+    const ws = workspaces.find(w => w.id === id);
+    const wsName = ws?.fullName || ws?.name || id;
+
+    if (bulkCache.has(id)) {
+      results.push(bulkCache.get(id)!);
+      continue;
+    }
+
+    try {
+      const { members } = await fetchWorkspaceMembers(id, DEFAULT_MEMBERS_PAGE_LIMIT);
+      const res = { wsId: id, wsName, members };
+      bulkCache.set(id, res);
+      results.push(res);
+    } catch (e: any) {
+      results.push({ wsId: id, wsName, members: [], error: String(e.message || e) });
+    }
+  }
+
+  return results;
+}
+
+export function invalidateMembersCache(wsId?: string): void {
+  if (wsId) {
+      bulkCache.delete(wsId);
+      membersCache.delete(wsId);
+  } else {
+      bulkCache.clear();
+      membersCache.clear();
+  }
 }

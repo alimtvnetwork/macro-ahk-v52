@@ -9,7 +9,7 @@
 import { CREDIT_API_BASE } from './shared-state';
 import { log } from './logging';
 import { logError } from './error-utils';
-import { clearMembersCache } from './ws-members-fetch';
+import { clearMembersCache, invalidateMembersCache } from './ws-members-fetch';
 
 type MemberRole = 'member' | 'owner';
 
@@ -79,4 +79,52 @@ export async function updateMemberRole(wsId: string, userId: string, role: Membe
   }
   clearMembersCache(wsId);
   log('[Members] ✅ role=' + role + ' for ' + userId, 'success');
+}
+
+/** 
+ * Bulk operations — sequential fail-fast. 
+ */
+
+export async function inviteMemberMany(wsIds: string[], emails: string[], role: MemberRole): Promise<{ success: number; fail: number }> {
+    const results = { success: 0, fail: 0 };
+    for (const wsId of wsIds) {
+        for (const email of emails) {
+            try {
+                await inviteMember(wsId, email, role);
+                results.success++;
+            } catch (e: any) {
+                results.fail++;
+            }
+        }
+    }
+    invalidateMembersCache();
+    return results;
+}
+
+export async function updateMemberRoleMany(wsIds: string[], userId: string, role: MemberRole): Promise<{ success: number; fail: number }> {
+    const results = { success: 0, fail: 0 };
+    for (const wsId of wsIds) {
+        try {
+            await updateMemberRole(wsId, userId, role);
+            results.success++;
+        } catch (e: any) {
+            results.fail++;
+        }
+    }
+    invalidateMembersCache();
+    return results;
+}
+
+export async function removeMemberMany(wsIds: string[], userId: string): Promise<{ success: number; fail: number }> {
+    const results = { success: 0, fail: 0 };
+    for (const wsId of wsIds) {
+        try {
+            await removeMember(wsId, userId);
+            results.success++;
+        } catch (e: any) {
+            results.fail++;
+        }
+    }
+    invalidateMembersCache();
+    return results;
 }
