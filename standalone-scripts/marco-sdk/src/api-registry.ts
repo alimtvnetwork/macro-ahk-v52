@@ -183,6 +183,38 @@ export const apiRegistry: ApiRegistry = Object.freeze({
             timeoutMs: 30_000,
         }),
     }),
+
+    gitsync: Object.freeze({
+        /**
+         * Read job progress for a GitSync sync job. Used by `progress-probe.ts`
+         * to detect whether a project is already connected to a GitHub repo
+         * BEFORE POSTing /sync (which would create a repo if none exists).
+         *
+         * Spec: spec/22-app-issues/129-prompts-cache-plan-task-gitsync-remix.md
+         * 404 → no such job (treat as "not yet connected").
+         */
+        progress: Object.freeze({
+            url: "/workspaces/{wsId}/connections/gitsync/projects/{projectId}/jobs/{jobId}/progress",
+            method: "GET" as const,
+            auth: true,
+            description: "Read GitSync job progress (status/step/result.repo_url)",
+            timeoutMs: 10_000,
+        }),
+        /**
+         * Trigger (or re-trigger) a GitSync sync. POST returns a job_id whose
+         * progress can then be polled via `progress` above.
+         *
+         * WARNING: when a project is NOT yet connected this CREATES a new
+         * GitHub repo. Callers MUST probe `progress` first.
+         */
+        syncProject: Object.freeze({
+            url: "/workspaces/{wsId}/connections/gitsync/{connId}/projects/{projectId}/sync",
+            method: "POST" as const,
+            auth: true,
+            description: "Trigger GitSync sync for a project (returns job_id)",
+            timeoutMs: 15_000,
+        }),
+    }),
 });
 
 /* ------------------------------------------------------------------ */
