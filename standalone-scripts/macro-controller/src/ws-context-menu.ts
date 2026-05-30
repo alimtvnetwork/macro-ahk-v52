@@ -46,6 +46,7 @@ import { fetchGitsyncConfig } from './gitsync-api';
 import { fetchAndPersist } from './credit-balance/fetcher';
 import { readCreditBalanceCache } from './credit-balance/store';
 import { showWorkspaceHoverCardPinned } from './ws-hover-card';
+import { resolveConnection } from './gitsync/progress-probe';
 
 // ── Centralized DOM IDs / classnames ──
 const ID_CTX_MENU = 'loop-ws-ctx-menu';
@@ -185,14 +186,84 @@ function appendRemixAndGithubItems(menu: HTMLElement, wsId: string): void {
     removeWsContextMenu();
     void actionRemixNext({ projectId, workspaceId: wsId, currentProjectName: projectName });
   }));
-  menu.appendChild(buildCtxMenuItem('🐙 Open GitHub repo', function () {
-    removeWsContextMenu();
-    void openGithubRepoFlow(wsId, projectId, false);
-  }));
+  menu.appendChild(buildDynamicGithubItem(wsId, projectId));
   menu.appendChild(buildCtxMenuItem('🔄 Refresh gitsync', function () {
     removeWsContextMenu();
     void openGithubRepoFlow(wsId, projectId, true);
   }));
+}
+
+/**
+ * Dynamic GitHub menu item — Issue 129 Step 4 wire-up.
+ *
+ * Renders an initial "checking…" label, then probes the gitsync progress
+ * endpoint to decide the real label + click action:
+ *   - connected  → "🐙 Open GitHub repo"  (opens repoUrl, persists cache)
+ *   - not connected (no_job / no_repo_url) → "🔗 Connect GitHub repo"
+ *     (stub click — wiring to ensureGithubRepo arrives in Step 5)
+ *   - in-flight past deadline → "⏳ GitHub syncing…" (stub click)
+ *
+ * Cached "found" rows short-circuit the probe entirely.
+ */
+function buildDynamicGithubItem(wsId: string, projectId: string): HTMLElement {
+  const item = buildCtxMenuItem('🐙 GitHub: checking…', function () {
+    // Placeholder until probe resolves — re-fall back to legacy flow.
+    removeWsContextMenu();
+    void openGithubRepoFlow(wsId, projectId, false);
+  });
+
+  void (async function () {
+    try {
+      const cached = await getGitsyncCache(wsId, projectId);
+      if (cached && cached.Status === 'found' && cached.RepoUrl) {
+        applyConnected(item, wsId, projectId, cached.RepoUrl);
+        return;
+      }
+      const state = await resolveConnection(wsId, '', projectId);
+      if (state.connected) {
+        setGitsyncCache(wsId, projectId, 'found', state.repoUrl);
+        applyConnected(item, wsId, projectId, state.repoUrl);
+        return;
+      }
+      if (state.reason === 'deadline') {
+        applySyncing(item);
+        return;
+      }
+      applyConnect(item, wsId, projectId);
+    } catch (err: unknown) {
+      logError('wsContextMenu', 'GitHub menu probe failed ws=' + wsId + ' pid=' + projectId, err);
+      applyConnect(item, wsId, projectId);
+    }
+  })();
+
+  return item;
+}
+
+function applyConnected(item: HTMLElement, wsId: string, pid: string, url: string): void {
+  item.textContent = '🐙 Open GitHub repo';
+  item.onclick = function () {
+    removeWsContextMenu();
+    setGitsyncCache(wsId, pid, 'found', url);
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+}
+
+function applyConnect(item: HTMLElement, wsId: string, pid: string): void {
+  item.textContent = '🔗 Connect GitHub repo';
+  item.onclick = function () {
+    removeWsContextMenu();
+    // Step 5 (ensureGithubRepo) will replace this with the POST /sync flow.
+    showToast('🔗 Connect GitHub: arrives in next step. Using legacy lookup…', 'info');
+    void openGithubRepoFlow(wsId, pid, true);
+  };
+}
+
+function applySyncing(item: HTMLElement): void {
+  item.textContent = '⏳ GitHub syncing…';
+  item.onclick = function () {
+    removeWsContextMenu();
+    showToast('⏳ GitHub sync still in progress — try again shortly.', 'info');
+  };
 }
 
 export function showWsContextMenu(
