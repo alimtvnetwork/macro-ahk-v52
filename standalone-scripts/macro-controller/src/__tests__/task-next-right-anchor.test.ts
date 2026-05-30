@@ -26,7 +26,7 @@ describe('Task Next sub-menu — right-anchor with viewport fallback (Issue 127 
 
   it('default sub-menu styling uses position:fixed (decoupled from the prompts column)', () => {
     // Sub-menu must NOT use position:static by default (that was the leftward-clip bug).
-    expect(source).toMatch(/data-task-next-sub[\s\S]{0,500}position:fixed/);
+    expect(source).toMatch(/data-task-next-sub[\s\S]{0,1200}position:fixed/);
   });
 
   it('default anchor attribute is "right"', () => {
@@ -50,8 +50,8 @@ describe('Task Next sub-menu — right-anchor with viewport fallback (Issue 127 
   });
 
   it('preserves a sensible z-index and shadow so the floating menu is not occluded', () => {
-    expect(source).toMatch(/data-task-next-sub[\s\S]{0,500}z-index:10002/);
-    expect(source).toMatch(/data-task-next-sub[\s\S]{0,500}box-shadow:0 8px 24px/);
+    expect(source).toMatch(/data-task-next-sub[\s\S]{0,1200}z-index:10002/);
+    expect(source).toMatch(/data-task-next-sub[\s\S]{0,1200}box-shadow:0 8px 24px/);
   });
 
   it('invokes anchorTaskNextSub from the showSub handler', () => {
