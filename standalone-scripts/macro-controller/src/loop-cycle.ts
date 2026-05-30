@@ -235,11 +235,39 @@ function handleCycleFetchError(err: Error, freshToken: string): void {
     return;
   }
 
+  // Soft-cooldown policy (v3.40.2 — Issue: "loop turns off when tab regains focus")
+  // -----------------------------------------------------------------------------
+  // Previously this branch called `stopLoop()` after `maxRetries` exhausted
+  // transient cycle failures. That was the root cause of the loop appearing
+  // OFF when the user returned to a backgrounded tab: Chrome throttles
+  // timers / stalls fetches in hidden tabs, so 3 consecutive fetch failures
+  // happen easily, and `stopLoop()` killed the runtime permanently.
+  //
+  // The user contract is: "the loop should never stop on its own — it can
+  // pause queue work or skip a cycle, but the runtime stays alive."
+  //
+  // Fix: reset the retry counters, log a non-fatal cooldown, and let the
+  // existing `state.loopIntervalId` interval re-invoke `runCycle` at the
+  // next tick. `state.running` stays TRUE. Sequential fail-fast, no extra
+  // timers, honors mem://constraints/no-retry-policy (we are *clearing* the
+  // retry budget, not scheduling a new background retry).
   state.lastRetryError = err.message;
-  showToast('Cycle failed after ' + state.maxRetries + ' retries: ' + err.message + '. Loop stopped.', 'error', { stack: err.stack, noStop: true });
-  logError('Cycle', 'fallback API fetch failed after \' + state.maxRetries + \' retries: \' + err.message + \' — stopping loop');
-  logSub('Last token source: ' + getLastTokenSource(), 1);
-  stopLoop();
+  showToast(
+    'Cycle failed ' + state.maxRetries + 'x: ' + err.message
+      + ' — loop kept ON, retrying next tick.',
+    'warn',
+    { stack: err.stack, noStop: true },
+  );
+  logError(
+    'Cycle',
+    'API fetch failed after ' + state.maxRetries
+      + ' retries: ' + err.message
+      + ' — loop kept ON, retry budget reset (lastTokenSource='
+      + getLastTokenSource() + ')',
+  );
+  state.retryCount = 0;
+  state.__cycleInFlight = false;
+  state.__cycleRetryPending = false;
   runCycleDomFallback();
 }
 
