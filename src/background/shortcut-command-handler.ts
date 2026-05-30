@@ -15,6 +15,8 @@ import { handleMessage } from "./message-router";
 import { logCaughtError, logBgWarnError, BgLogTag} from "./bg-logger";
 import { loadSession, persistSession } from "./recorder/recorder-session-storage";
 import { recorderReducer, IDLE_SESSION } from "./recorder/recorder-store";
+import { isNewTabOrBlankUrl } from "../shared/url-utils";
+import { evaluateUrlMatches } from "./project-matcher";
 
 const RUN_SCRIPTS_COMMAND = "run-scripts";
 const FORCE_RUN_SCRIPTS_COMMAND = "force-run-scripts";
