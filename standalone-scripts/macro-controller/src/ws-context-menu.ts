@@ -43,6 +43,7 @@ import {
   invalidateGitsyncCache,
 } from './gitsync-cache';
 import { fetchGitsyncConfig } from './gitsync-api';
+import { fetchAndPersist } from './credit-balance/fetcher';
 
 // ── Centralized DOM IDs / classnames ──
 const ID_CTX_MENU = 'loop-ws-ctx-menu';
