@@ -219,6 +219,10 @@ export function showWsContextMenu(
     removeWsContextMenu();
     copyWorkspaceJson(wsId, wsName);
   }));
+  menu.appendChild(buildCtxMenuItem('🛈 Show Tooltip', function () {
+    removeWsContextMenu();
+    showWorkspaceHoverCardPinned(wsId);
+  }));
   menu.appendChild(buildCtxMenuItem('👥 Show Members', function () {
     removeWsContextMenu();
     showWsMembersPanel(wsId, wsName, x, y);
