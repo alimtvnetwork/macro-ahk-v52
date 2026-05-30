@@ -35,14 +35,14 @@ function installSdkMock(handler: () => { ok: boolean; status: number; data: unkn
     };
 }
 
-vi.mock('../../gitsync-cache', () => ({
+vi.mock('../gitsync-cache', () => ({
     invalidateGitsyncCache: (wsId: string, pid: string) => {
         cacheInvalidations.push({ wsId, pid });
     },
 }));
-vi.mock('../../error-utils', () => ({ logError: () => {} }));
-vi.mock('../../logging', () => ({ log: () => {} }));
-vi.mock('../../shared-state', () => ({ CREDIT_API_BASE: 'https://x' }));
+vi.mock('../error-utils', () => ({ logError: () => {} }));
+vi.mock('../logging', () => ({ log: () => {} }));
+vi.mock('../shared-state', () => ({ CREDIT_API_BASE: 'https://x' }));
 
 beforeEach(() => {
     sdkCalls.length = 0;
