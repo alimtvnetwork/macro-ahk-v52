@@ -60,6 +60,13 @@ Trigger: User reports a long-term bug where the Macro Controller toolbar buttons
 ### Completed — Ctrl+Shift+Down shortcut fix (v3.20.0) ✅
 Fixed in v3.20.0: keyboard shortcut and context-menu "Run scripts now" now always send `forceReload: true`, matching the popup Run button. Double-injection guard on forced manual launch splices script id out of body marker before dedup check.
 
+### Queued — Issue 126: Ctrl+Shift+Down script attach regression
+Spec: `spec/22-app-issues/126-ctrl-shift-down-script-attach-shortcut.md`
+- [ ] Regression fix — `Ctrl+Shift+Down` must attach/inject the active project's scripts on first press, matching popup/manual Run behavior.
+- [ ] Diagnostics — no silent empty-script abort; log exact project, tab URL, missing binding/auto-attach reason.
+- [ ] Tests — add shortcut attach regression coverage.
+- [ ] Final bump — include this in the final queued v3.38.0 bump after Issue 125 and Issue 126 are complete.
+
 ### Completed — Gitsync "Open GitHub repo" fix (v3.19.0) ✅
 Fixed in v3.19.0: rewrote `gitsync-api.ts` to route through `window.marco.api.call("projects.gitsync", …)` SDK path so `Authorization: Bearer` header is always attached.
 

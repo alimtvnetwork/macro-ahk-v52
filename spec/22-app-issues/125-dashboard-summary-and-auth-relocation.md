@@ -1,6 +1,6 @@
 # Issue 125 — Dashboard Summary Bar, Auth Relocation & Expire Badge Color Fix
 
-**Version target:** v3.38.0
+**Version target:** v3.38.0 final queued bump after Issue 126 is implemented.
 **Owner modules:** UI panel (TS Macro Controller), `auth-diagnostics`, workspace list filter pipeline, `workspace-badge` classifier.
 
 ---
@@ -107,7 +107,7 @@ Edge cases:
 - [ ] Numbers update within one frame after any filter change (search, chips, Focus Current, etc.).
 - [ ] `Expire`, `Expire-soon`, and `Canceled` badges each render with the correct distinct token (no false red on canceled).
 - [ ] All three new test files pass.
-- [ ] Version bump v3.38.0, changelog entry.
+- [ ] Version bump v3.38.0, changelog entry after Issue 126 is also complete.
 
 ---
 
@@ -117,4 +117,6 @@ Edge cases:
 2. **`summary-bar` module + unit tests**: `compute-summary.ts`, `types.ts`, component shell, `compute-summary.test.ts`.
 3. **Panel wiring + Auth Diagnostics relocation**: mount SummaryBar; move Auth Diagnostics into Tools & Logs as collapsed child; `Ui.ToolsLogs.AuthDiagExpanded` pref; `panel.integration.test.ts`.
 4. **Filter-reactive subscription**: hook SummaryBar to `visibleWorkspaces$` selector; verify O(n) recompute per filter change.
-5. **Expire badge tone fix + version bump v3.38.0**: classifier patch, `classifier-tone.test.ts`, manifest + constants + changelog.
+5. **Expire badge tone fix**: classifier patch and `classifier-tone.test.ts`.
+6. **Ctrl+Shift+Down attach regression**: implement Issue 126 (`spec/22-app-issues/126-ctrl-shift-down-script-attach-shortcut.md`) with shortcut attach/injection regression tests.
+7. **Final version bump v3.38.0**: manifest + constants + changelog after Issues 125 and 126 are complete.
