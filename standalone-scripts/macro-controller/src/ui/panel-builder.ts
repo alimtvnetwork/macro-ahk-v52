@@ -129,7 +129,7 @@ function wireSummaryBarSubscription(summaryBar: SummaryBarHandle): void {
       try { return classifyWorkspaceDisplayStatus(ws, config).kind; }
       catch (_e: unknown) { return 'normal'; }
     };
-    summaryBar.update(computeDashboardSummary(rows, resolver));
+    summaryBar.update(computeDashboardSummary(rows, resolver), computeSummaryDetails(rows, resolver));
   });
 }
 
