@@ -1,6 +1,27 @@
 # Macro Controller — Changelog
 
-## v3.37.0 (2026-05-30)
+## v3.38.0 (2026-05-30)
+
+### Added
+- **Issue 125 — Dashboard Summary Bar, Auth Relocation & Expire Badge Color Fix.**
+  - Compact summary strip below the title row with three pills: `🪪 N Pro (M exp)`, `💳 Available / Total` (Pro credits), `⚡ Available` (Free credits). Numbers recompute in one frame against the currently visible workspace set after any filter change (search, chips, Focus Current, etc.).
+  - `Auth Diagnostics` moved from its top-level panel position into the `Tools & Logs` accordion, collapsed by default. Preference persisted under `Ui.ToolsLogs.AuthDiagExpanded`.
+  - `visible-workspaces-store.ts` tiny pub/sub selector drives both the workspace list and the summary bar.
+  - Expire badge tone fix per `workspace-badge-display` memory contract: `expire-soon` → amber, `canceled` → muted gray (NOT red), `expire` → muted red-orange.
+  - Tests: `compute-summary.test.ts` (aggregator), `classifier-tone.test.ts` (tone snapshot), `panel.integration.test.ts` (mount location + reactivity).
+- **Issue 126 — Ctrl+Shift+Down script attach regression fix.**
+  - `runScriptsFromShortcut` now reads the active tab URL, applies the `isNewTabOrBlankUrl` guard, resolves eligible scripts via `resolveScriptsForShortcut`, and always force-reloads (popup Run button parity).
+  - Empty-set abort now logs `tabId`, `url`, `project`, `source`, `reason`, and a URL auto-attach candidate list so the silent-abort regression cannot recur.
+  - Tests: `shortcut-command-handler.test.ts` (5 tests: active-project, no-active-project, empty-scripts, non-array defensive, probe-failure).
+- **Issue 127 — Prompts dropdown: restored Plan row + Task Next right-anchor fix.**
+  - Re-added `Plan` row inline in the Prompts dropdown body (below Task Next), wired to existing `plan-task-ui.ts` opener.
+  - Task Next sub-menu now anchors **right** of its row by default (`left = rowRect.right + GAP`) with a stacked-below fallback when viewport space is insufficient. Never opens leftward off-screen.
+  - Same right-anchor rule applied to the Plan sub-menu for consistency.
+  - Tests: `task-next-right-anchor.test.ts` (10 tests), `plan-row-in-prompts-dropdown.test.ts` (row presence + opener wiring). Existing `tasks-right-anchor.test.ts`, `tasks-toggle-hover-open.test.ts`, `plan-task-ui.test.ts`, and `prompts-panel-layout.test.ts` still pass.
+- **Issue 128 — Queue auto-resume when loop running.**
+  - `readQueueCount()` with 3-tier selector waterfall (primary XPath → header walk via `data-panel-open` → aria-button walk from Pause/Resume button) returns the exact integer or `null` for invalid/missing.
+  - `autoResumeQueueIfNeeded()` integrated into the loop heartbeat tick (`refreshStatus`). When the loop engine is running, the queue has ≥1 task, and the queue is paused (Pause visible, Resume hidden), it clicks Resume once per tick. No retry; no click when `document.hidden`.
+  - Tests: `queue-count.test.ts` (10 tests, all 3 selector strategies), `auto-resume.test.ts` (9 tests, all 6 policy branches + safety guards).
 
 ### Added
 - **Issue 124 — Loop Run-State Gate + Queue Pause/Resume + Project-Lock detection.**

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.38.0] — 2026-05-30
+
+### Added
+- **Issue 125** — Dashboard Summary Bar + Auth Diagnostics relocation + Expire badge tone fix.
+- **Issue 126** — Ctrl+Shift+Down script attach regression fix with URL guard + diagnostics.
+- **Issue 127** — Prompts dropdown Plan row restored + Task Next right-anchor fix.
+- **Issue 128** — Queue auto-resume when loop running (`readQueueCount` + `autoResumeQueueIfNeeded`).
+
+### Changed
+- Version bump: 3.37.0 → 3.38.0 (all version files synced).
+
+---
+
 ## [v3.37.0] — 2026-05-30
 
 ### Added
