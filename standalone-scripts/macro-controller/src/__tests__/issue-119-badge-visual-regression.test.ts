@@ -46,7 +46,7 @@ describe('Badge visual regression matrix (Issue 119 Step 9)', () => {
 
     expect(snapshot).toEqual({
       muted:   { bg: 'rgba(71,85,105,0.55)',  fg: '#e2e8f0',  border: 'rgba(148,163,184,0.6)' },
-      danger:  { bg: 'rgba(127,29,29,0.85)',  fg: '#fee2e2',  border: '#dc2626' },
+      danger:  { bg: 'rgba(127,29,29,0.85)',  fg: '#ffffff',  border: '#dc2626' },
       warning: { bg: 'rgba(180,83,9,0.55)',   fg: '#fde68a',  border: '#f59e0b' },
       orange:  { bg: 'rgba(194,65,12,0.55)',  fg: '#fed7aa',  border: '#f97316' },
       info:    { bg: 'rgba(2,132,199,0.45)',  fg: '#bae6fd',  border: '#38bdf8' },
@@ -81,7 +81,7 @@ describe('Badge visual regression matrix (Issue 119 Step 9)', () => {
     expect(tone).toBe('danger');
     const style = resolveBadgeStyle(tone);
     expect(styleContainsRedPalette(style)).toBe(true);
-    expect(style.fg.toLowerCase()).toBe('#fee2e2');
+    expect(style.fg.toLowerCase()).toBe('#ffffff');
   });
 
   // Issue 125 §2.4 — `expired` (muted red-orange) and `expire-soon` (amber)
@@ -121,10 +121,11 @@ describe('Badge visual regression matrix (Issue 119 Step 9)', () => {
     expect(styleContainsRedPalette(style)).toBe(false);
   });
 
-  it('past-due-expiring uses warning (amber) — two-pill amber row contract', () => {
-    expect(WORKSPACE_BADGE_DISPLAY['past-due-expiring'].tone).toBe('warning');
-    const style = resolveBadgeStyle('warning');
-    expect(style.border).toBe('#f59e0b');
-    expect(styleContainsRedPalette(style)).toBe(false);
+  it('past-due-expiring uses danger (red bg + white text) — Issue 129', () => {
+    expect(WORKSPACE_BADGE_DISPLAY['past-due-expiring'].tone).toBe('danger');
+    const style = resolveBadgeStyle('danger');
+    expect(style.border).toBe('#dc2626');
+    expect(styleContainsRedPalette(style)).toBe(true);
+    expect(style.fg).toBe('#ffffff');
   });
 });
