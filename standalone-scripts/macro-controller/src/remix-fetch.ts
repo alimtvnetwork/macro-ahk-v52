@@ -116,5 +116,16 @@ export async function submitRemix(opts: {
   const redirectUrl = String(data.redirect_url || data.url || '');
   // Bust the cache so the new name shows up on the next collision check.
   clearProjectNamesCache(opts.workspaceId);
+  // Issue 129 Step 6 — persist the new project pointer so the post-remix
+  // navigation + sentinel-invalidation steps can pick it up.
+  if (newProjectId && redirectUrl) {
+    await persistRemixNewProject({
+      sourceProjectId: opts.projectId,
+      newProjectId,
+      redirectUrl,
+      workspaceId: opts.workspaceId,
+      projectName: opts.projectName,
+    });
+  }
   return { newProjectId, redirectUrl, raw: data };
 }
