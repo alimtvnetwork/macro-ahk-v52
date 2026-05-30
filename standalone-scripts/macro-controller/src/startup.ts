@@ -50,6 +50,7 @@ import { installSpaRouteGuard } from './spa-route-guard';
 import { MAX_SDK_ATTEMPTS, SDK_RETRY_DELAY_MS, MAX_UI_CREATE_RETRIES, STARTUP_WS_MAX_RETRIES } from './constants';
 import { Label } from './types';
 import { loadSettingsOverrides, onSettingsChange } from './settings-store';
+import { hydrateCreditBalanceFromCache } from './credit-balance/hydrate';
 
 // Re-export sub-modules for backward compatibility
 export { setupPersistenceObserver as _setupPersistenceObserver } from './startup-persistence';
