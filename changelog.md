@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.40.0] — 2026-05-30
+
+### Fixed
+- **Post-move free-credit sync** — `moveToWorkspace` now awaits `fetchAndPersist(targetWs, force)` AND then awaits `mc().credits.fetchAsync(false)` before resolving. Previously a fire-and-forget refresh raced a 2s setTimeout, so the `/user/workspaces` parse re-ran the `pro_0` / `pro_1` enrichment against the **stale** SQLite cache and the row kept showing the pre-move daily-free numbers (e.g. `5/5` not updating).
+
+### Added
+- **`📋 Copy JSON` now includes `/credit-balance` JSON for `pro_1` workspaces** — mirrors the existing `pro_0` wrapping. Output: `{ Source, Plan: "pro_1", Workspace, CreditBalance, CreditBalanceCacheRow }`. Falls back to legacy single-workspace JSON when the cache row is missing.
+- **`🛈 Show Tooltip` context-menu item** — pins the rich workspace hover card open over the selected row. Dismisses on outside-click or `Escape`. Provides keyboard / touch access to the same tooltip that previously required mouse hover.
+
+### Changed
+- Version bump: 3.39.0 → 3.40.0 (all unified-version sites synced: `manifest.json`, `version.json`, `src/shared/constants.ts`, `standalone-scripts/macro-controller/src/shared-state.ts`, and every `standalone-scripts/*/src/instruction.ts`).
+- Pinned v3.40.0 in root `readme.md` version badge + install snippets.
+
+---
+
 ## [v3.39.0] — 2026-05-30
 
 ### Changed
