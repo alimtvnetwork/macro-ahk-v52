@@ -625,37 +625,29 @@ function submitInvite(el: HTMLElement, wsId: string, wsName: string, form: HTMLF
 
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending…';
+    submitBtn.textContent = 'Sending (' + validEmails.length + ')…';
   }
 
-  // Optimistic placeholder row inserted at the top of the list.
-  const body = el.querySelector('div[style*="max-height:380px"]') as HTMLElement | null;
-  const optimisticId = 'optimistic-' + Date.now();
-  let optimisticEl: HTMLElement | null = null;
-  if (body) {
-    optimisticEl = document.createElement('div');
-    optimisticEl.setAttribute('data-marco-optimistic', optimisticId);
-    optimisticEl.style.cssText = 'padding:6px 8px;border-bottom:1px solid rgba(148,163,184,0.12);font-size:11px;color:#bae6fd;opacity:0.75;';
-    optimisticEl.textContent = '⏳ Inviting ' + email + ' (' + role + ')…';
-    body.insertBefore(optimisticEl, body.firstChild);
-  }
-
-  inviteMember(wsId, email, role)
-    .then(function () {
-      showToast('✉️ Invited ' + email, 'success');
-      swapFooter(el, false);
-      // Refetch authoritative list — drops optimistic row.
-      loadAndRender(el, wsId, wsName);
-    })
-    .catch(function (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      showToast('❌ Invite failed: ' + msg, 'error');
-      if (optimisticEl && optimisticEl.parentNode) optimisticEl.parentNode.removeChild(optimisticEl);
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send invite';
+  const results = { success: 0, fail: 0 };
+  (async function() {
+    for (const email of validEmails) {
+      try {
+        await inviteMember(wsId, email, role);
+        results.success++;
+      } catch (e: any) {
+        results.fail++;
       }
-    });
+    }
+
+    if (results.fail === 0) {
+      showToast('✉️ Sent ' + results.success + ' invites', 'success');
+    } else {
+      showToast('✉️ Sent ' + results.success + ' (failed ' + results.fail + ')', 'warn');
+    }
+    swapFooter(el, false);
+    loadAndRender(el, wsId, wsName);
+  })();
+}
 }
 
 // eslint-disable-next-line max-lines-per-function
