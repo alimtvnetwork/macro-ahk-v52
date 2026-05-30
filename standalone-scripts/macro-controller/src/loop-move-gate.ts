@@ -46,9 +46,15 @@ function pollForResumeButton(timeoutMs: number, intervalMs: number): Promise<boo
  * ON, waits for an idle composer, pauses the source queue, executes the
  * move, then resumes the destination queue (best-effort, no retry).
  */
+export interface GatedMoveOptions {
+    readonly resumePollTimeoutMs?: number;
+    readonly resumePollIntervalMs?: number;
+}
+
 export async function gatedMoveToWorkspace(
     targetWorkspaceId: string,
     targetWorkspaceName: string,
+    options: GatedMoveOptions = {},
 ): Promise<void> {
     if (!isFeatureFlagEnabled('Loop.RunStateGate.Enabled')) {
         await moveToWorkspace(targetWorkspaceId, targetWorkspaceName);
