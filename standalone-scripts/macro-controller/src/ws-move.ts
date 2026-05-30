@@ -453,8 +453,18 @@ export async function moveToWorkspace(targetWorkspaceId: string, targetWorkspace
     await executeSwitchContext(targetWorkspaceId, targetWorkspaceName, false);
   }
 
-  // 122a: force-refresh the destination workspace's credit balance after move
-  // (bypasses 10s throttle; persists to SQLite). Fire-and-forget.
-  fetchAndPersist(targetWorkspaceId, { force: true, source: 'manual' })
-    .catch((caught: unknown) => logError('moveToWorkspace.creditRefresh', 'post-move refresh failed', caught));
+  // v3.40.0: force-refresh destination /credit-balance FIRST (bypasses 10s
+  // throttle; persists to SQLite), THEN trigger /user/workspaces fetch so the
+  // pro_0 / pro_1 enrichment overlays the fresh free-credit numbers instead
+  // of the stale cached row. Sequential fail-fast — no retry.
+  try {
+    await fetchAndPersist(targetWorkspaceId, { force: true, source: 'manual' });
+  } catch (caught: unknown) {
+    logError('moveToWorkspace.creditRefresh', 'post-move /credit-balance refresh failed', caught);
+  }
+  try {
+    await mc().credits.fetchAsync(false);
+  } catch (caught: unknown) {
+    logError('moveToWorkspace.creditRefresh', 'post-move /user/workspaces refresh failed', caught);
+  }
 }
