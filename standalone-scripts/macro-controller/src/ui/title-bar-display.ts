@@ -6,6 +6,10 @@ export interface TitleBarDisplayState {
   title: string;
   color: string;
   opacity: string;
+  /** Font size in px — 16 for project, 14 for workspace, 10 for detecting state. */
+  fontSize: string;
+  /** Font weight — 600 for project, 500 for workspace/detecting. */
+  fontWeight: string;
 }
 
 export function getCurrentWorkspaceDisplayName(): string {
@@ -23,6 +27,8 @@ export function getTitleBarDisplayState(): TitleBarDisplayState {
       title: 'Project: ' + projectName + (wsName ? ' | Workspace: ' + wsName : ' (workspace not yet detected)') + ' — click to re-detect workspace',
       color: '#fbbf24',
       opacity: '1',
+      fontSize: '16px',
+      fontWeight: '600',
     };
   }
 
@@ -32,6 +38,8 @@ export function getTitleBarDisplayState(): TitleBarDisplayState {
       title: 'Workspace: ' + wsName + ' (project name not yet detected) — click to re-detect workspace',
       color: '#fbbf24',
       opacity: '0.85',
+      fontSize: '14px',
+      fontWeight: '500',
     };
   }
 
@@ -40,5 +48,7 @@ export function getTitleBarDisplayState(): TitleBarDisplayState {
     title: 'Project name not detected — click to re-detect workspace',
     color: '#9ca3af',
     opacity: '1',
+    fontSize: '10px',
+    fontWeight: '500',
   };
 }
