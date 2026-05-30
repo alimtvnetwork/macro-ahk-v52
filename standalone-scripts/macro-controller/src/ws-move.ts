@@ -453,4 +453,9 @@ export async function moveToWorkspace(targetWorkspaceId: string, targetWorkspace
     log('No project ID in URL — using workspace-access-requests fallback', 'warn');
     await executeSwitchContext(targetWorkspaceId, targetWorkspaceName, false);
   }
+
+  // 122a: force-refresh the destination workspace's credit balance after move
+  // (bypasses 10s throttle; persists to SQLite). Fire-and-forget.
+  fetchAndPersist(targetWorkspaceId, { force: true, source: 'manual' })
+    .catch((caught: unknown) => logError('moveToWorkspace.creditRefresh', 'post-move refresh failed', caught));
 }
