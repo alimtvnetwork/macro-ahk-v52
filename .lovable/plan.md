@@ -70,7 +70,7 @@ Spec: `spec/22-app-issues/126-ctrl-shift-down-script-attach-shortcut.md`
 ### Queued — Issue 127: Prompts dropdown missing Plan row + Task Next sub-menu opens left and clips
 Spec: `spec/22-app-issues/127-plan-button-and-task-next-dropdown-overflow.md`
 Scope: extension's **Prompts** button dropdown only — NOT Lovable's native composer Plan button.
-- [ ] Task 1 — Repro: locate where Plan row was removed from `prompt-dropdown.ts` and where Task Next anchor calc opens leftward; fill spec §6 Findings.
+- [x] Task 1 — Repro + findings filed in spec §6 (F-1: Plan moved into floating tasksGroup, F-2: root cause of "opens left/clips" = tasksGroup `left:100%` overflow with no horizontal fallback, F-3: fix direction = inline rows + per-row anchored sub-menu, F-4: tests inventory).
 - [ ] Task 2 — Fix `task-next-ui.ts` so sub-menu opens RIGHT of Prompts dropdown (fallback: stacked below); add right-anchor test.
 - [ ] Task 3 — Re-add `Plan` row inside `prompt-dropdown.ts` (below Task Next), wired to existing `plan-task-ui.ts` opener with same right-anchor rule; add row-presence test.
 - [ ] Task 4 — Full test sweep + 1043×757 visual check; ensure existing `tasks-right-anchor` / `plan-task-ui` / `prompts-panel-layout` tests still pass.

@@ -84,11 +84,48 @@ Plus version bump in the queued v3.38.0 (with Issues 124/125/126).
 
 ---
 
-## 6. Findings (filled in during Task 1)
+## 6. Findings (Task 1 — 2026-05-30)
 
-_TBD — populate during repro step._
+### F-1 — Plan row regression: moved off the dropdown body into a floating right-anchored panel
+
+`renderPlanTaskSubmenu()` is still called, but **not** as a direct row inside the prompts dropdown column. In `prompt-dropdown.ts` `_appendHeaderAndSubmenu()` (L240–277), both `renderTaskNextSubmenu()` and `renderPlanTaskSubmenu()` are appended into a separately created `tasksGroup` `<div>` that is `position:absolute; top:0; left:100%; width:260px; display:none`. The `tasksGroup` is opened only via the `🎯 Tasks ▾` toggle button built in `buildTasksToggle()` (L117–172).
+
+Consequence: from the user's point of view the Plan row is missing because it lives inside a separate floating panel they must first reveal — not as an inline row directly under Task Next inside the prompts dropdown body (which is what the issue's mockup §1 specifies). Tests `tasks-right-anchor.test.ts` and `tasks-toggle-hover-open.test.ts` encode the *current* floating-panel layout; the fix must additionally render Task Next + Plan as inline rows in the dropdown body (the floating panel can stay if desired, but the inline rows are the required UX).
+
+Reference snippet (prompt-dropdown.ts L243–262):
+```
+const tasksGroup = document.createElement('div');
+tasksGroup.setAttribute('data-tasks-anchor', 'right');
+tasksGroup.style.cssText = 'display:none;position:absolute;top:0;left:100%; …width:260px; …';
+renderTaskNextSubmenu(tasksGroup, ctx, taskNextDeps);
+renderPlanTaskSubmenu(tasksGroup, ctx);          // ← Plan only reachable via toggle
+container.appendChild(tasksGroup);
+```
+
+### F-2 — Task Next "opens left / clips" — root cause is the floating panel's lack of viewport-overflow guard
+
+The actual Task Next sub-menu (`taskNextSub`, prompt-dropdown.ts L560–562) uses `position:static; margin:0 6px 6px 6px` — it stacks vertically inside the 260 px `tasksGroup`. There is no horizontal anchor calculation that could "open left" on its own.
+
+The visual "opens left and is clipped" symptom comes one level up: when the Prompts pill sits in the right half of the viewport, the parent prompts dropdown ends near the viewport's right edge, and `tasksGroup`'s `left:100%; margin-left:6px; width:260px` pushes the entire Task Next + Plan panel past `window.innerWidth`. The browser then clips it on the right; the visible remnant appears flush-left against the prompts dropdown, which the user described as "opens left and clips". At a 1043 × 757 viewport with the pill in the right half, ~80–120 px of the panel is off-screen.
+
+There is no `Math.min(spaceRight, 0)` flip-to-left/flip-to-below fallback in the current code. `keepTaskNextSubInView()` (L52–65) only handles vertical scrolling — no horizontal overflow.
+
+### F-3 — Fix direction for Task 2 / Task 3
+
+1. Render Task Next row + Plan row inline in the prompts dropdown body (directly under the dropdown header), in the order shown in §1. This satisfies Bug A and matches user-visible expectation.
+2. When each row's sub-menu opens, compute `anchorRect = row.getBoundingClientRect()` and the menu's natural width. Default position: `left = anchorRect.right + GAP` (open rightward). Fallback: if `left + menuWidth > window.innerWidth - PAD`, stack the sub-menu below the row instead (`position:static; display:block`). Never open leftward off-screen.
+3. Keep the existing `tasksGroup` floating panel and its tests intact for backward-compatibility, or remove it once the inline rows are confirmed; the spec leaves this open — Task 3 should pick the lighter option (inline only, drop floating panel) to avoid two parallel UIs.
+
+### F-4 — Tests inventory
+
+- `tasks-right-anchor.test.ts` — source-level assertions on the current floating-panel attributes; must be updated to match whichever layout Task 3 picks (or kept untouched if floating panel remains).
+- `tasks-toggle-hover-open.test.ts` — same.
+- `plan-task-ui.test.ts` — exercises `renderPlanTaskSubmenu` internals; unaffected by re-anchoring.
+- `prompts-panel-layout.test.ts` — checks header/composition; unaffected unless we re-order header children.
+- New tests required: `plan-row-in-prompts-dropdown.test.ts`, `task-next-right-anchor.test.ts` (or extend `tasks-right-anchor.test.ts`).
 
 ---
+
 
 ## 7. Non-goals
 
