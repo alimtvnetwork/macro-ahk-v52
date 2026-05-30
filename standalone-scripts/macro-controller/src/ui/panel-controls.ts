@@ -58,6 +58,7 @@ import type { PromptEntry } from '../types';
 import type { TaskNextDeps } from './task-next-ui';
 import { logError } from '../error-utils';
 import { showToast } from '../toast';
+import { batchRefreshProOneCreditBalances } from '../credit-balance/batch-refresh';
 import { CssFragment } from '../types';
 // ============================================
 
@@ -262,11 +263,22 @@ function executeCreditFetch(ctx: CreditFetchCtx): void {
     },
     { intervalMs: 500, timeoutMs: 15000 },
   ).then(function () {
-    ctx.onComplete();
-    setCreditBtnLoading(ctx.creditBtn, false);
-    focusCurrentWorkspaceInList();
+    // After the global /credits poll completes, batch-refresh enriched
+    // credit-balance for every pro_1 workspace (sequential, 5s gap).
+    // Throttle (10s per-ws) still applies; right-click bypasses it.
+    const candidates = (loopCreditState.perWorkspace || []).map(function (w) {
+      return { workspaceId: w.id, plan: w.plan };
+    });
+    batchRefreshProOneCreditBalances(candidates).catch(function (err: unknown) {
+      logError('Credits: batchRefreshProOneCreditBalances rejected', err);
+    }).finally(function () {
+      ctx.onComplete();
+      setCreditBtnLoading(ctx.creditBtn, false);
+      focusCurrentWorkspaceInList();
+    });
   });
 }
+
 
 // ============================================
 // Credit button builder
