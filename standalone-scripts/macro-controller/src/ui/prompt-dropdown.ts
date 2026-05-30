@@ -64,6 +64,56 @@ function keepTaskNextSubInView(promptsDropdown: HTMLElement, taskNextSub: HTMLEl
   });
 }
 
+/**
+ * Issue 127 Bug B — Anchor the Task Next sub-menu RIGHT of its row by default,
+ * fall back to a stacked-below layout when right-side viewport space is
+ * insufficient. Never let the menu clip off-screen on the left or right.
+ *
+ *   Default (right):  sub.position=fixed; left = rowRect.right + GAP; top = rowRect.top
+ *   Fallback (below): sub.position=static; menu stacks under the row
+ *
+ * Sets `data-task-next-anchor` to `right` or `below` for tests / debuggers.
+ */
+function anchorTaskNextSub(row: HTMLElement, sub: HTMLElement, host: HTMLElement): void {
+  const GAP = 6;
+  const PAD = 8;
+  const MIN_SUB_WIDTH = 180;
+
+  // Measure natural width by briefly forcing the menu visible off-screen.
+  const prevVisibility = sub.style.visibility;
+  sub.style.visibility = 'hidden';
+  sub.style.position = 'fixed';
+  sub.style.left = '-9999px';
+  sub.style.top = '0px';
+  sub.style.display = 'block';
+  const measuredWidth = Math.max(sub.getBoundingClientRect().width || 0, MIN_SUB_WIDTH);
+  sub.style.visibility = prevVisibility;
+
+  const rowRect = row.getBoundingClientRect();
+  const rightSpace = window.innerWidth - rowRect.right - PAD;
+  const fitsRight = rightSpace >= measuredWidth;
+
+  if (fitsRight) {
+    sub.style.position = 'fixed';
+    sub.style.left = (rowRect.right + GAP) + 'px';
+    sub.style.top = rowRect.top + 'px';
+    sub.style.margin = '0';
+    sub.setAttribute('data-task-next-anchor', 'right');
+    return;
+  }
+
+  // Fallback: stack below the row inside the dropdown column.
+  sub.style.position = 'static';
+  sub.style.left = '';
+  sub.style.top = '';
+  sub.style.margin = '0 6px 6px 6px';
+  sub.setAttribute('data-task-next-anchor', 'below');
+  // Keep the stacked menu visible inside the scrollable prompts dropdown.
+  keepTaskNextSubInView(host, sub);
+}
+
+
+
 // Legacy single-pick chip helper removed in favor of the new Filter menu.
 // (Multi-select state lives in prompt-loader.ts via getPromptCategoryFilterSet.)
 
@@ -559,7 +609,12 @@ function _buildTaskNextMenuShell(promptsDropdown: HTMLElement): { taskNextItem: 
 
   const taskNextSub = document.createElement('div');
   taskNextSub.setAttribute('data-task-next-sub', '1');
-  taskNextSub.style.cssText = 'display:none;position:static;margin:0 6px 6px 6px;min-width:0;background:rgba(0,0,0,0.18);border:1px solid ' + cPrimary + ';border-radius:' + lDropdownRadius + ';box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);';
+  taskNextSub.setAttribute('data-task-next-anchor', 'right');
+  // Issue 127 Bug B: sub-menu opens RIGHTWARD of the Task Next row by default
+  // (position:fixed + computed left/top against row's getBoundingClientRect).
+  // When right-side viewport space is insufficient, anchorTaskNextSub() flips
+  // back to a static stacked-below layout so the menu never clips off-screen.
+  taskNextSub.style.cssText = 'display:none;position:fixed;min-width:180px;max-width:240px;background:rgba(20,16,32,0.96);border:1px solid ' + cPrimary + ';border-radius:' + lDropdownRadius + ';box-shadow:0 8px 24px rgba(0,0,0,0.45);z-index:10002;';
   taskNextItem.appendChild(taskNextRow);
   taskNextItem.appendChild(taskNextSub);
 
@@ -567,7 +622,7 @@ function _buildTaskNextMenuShell(promptsDropdown: HTMLElement): { taskNextItem: 
     taskNextRow.style.background = cBtnMenuHover;
     taskNextArrow.textContent = '▾';
     taskNextSub.style.display = 'block';
-    keepTaskNextSubInView(promptsDropdown, taskNextSub);
+    anchorTaskNextSub(taskNextRow, taskNextSub, promptsDropdown);
   };
   const hideSub = function(): void {
     taskNextRow.style.background = 'transparent';
