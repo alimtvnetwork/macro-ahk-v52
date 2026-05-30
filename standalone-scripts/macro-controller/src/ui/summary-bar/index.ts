@@ -5,5 +5,5 @@
  * without pulling in DOM code.
  */
 
-export { computeDashboardSummary, type DisplayKindResolver } from './compute-summary';
-export { PRO_EXPIRING_KINDS, type DashboardSummary } from './types';
+export { computeDashboardSummary, computeSummaryDetails, type DisplayKindResolver } from './compute-summary';
+export { PRO_EXPIRING_KINDS, type DashboardSummary, type SummaryDetails } from './types';
