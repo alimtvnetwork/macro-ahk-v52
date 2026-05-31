@@ -37,6 +37,7 @@ describe('ws-members-aggregate', () => {
     ];
 
     const { union } = aggregateMembers(data);
+    console.log('UNION:', JSON.stringify(union, null, 2));
     expect(union.length).toBe(2);
     expect(union.find(u => u.userId === 'u1')?.presenceCount).toBe(1);
     expect(union.find(u => u.userId === 'u2')?.presenceCount).toBe(1);
