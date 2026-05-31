@@ -195,13 +195,32 @@ export function renderPromptsDropdown(ctx: PromptContext, taskNextDeps: TaskNext
 // Dropdown header with Load button
 // ============================================
 
-/** Build the dropdown header row: Tasks toggle (left) + Load button (right). */
+/** Build the dropdown header row: Tasks toggle (left) + IO + Load buttons (right). */
 function buildDropdownHeader(ctx: PromptContext, taskNextDeps: TaskNextDeps): HTMLElement {
   const header = document.createElement('div');
   header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 8px;border-bottom:1px solid #7c3aed;';
   header.appendChild(buildTasksToggleButton());
-  header.appendChild(buildLoadButton(ctx, taskNextDeps));
+  const right = document.createElement('div');
+  right.style.cssText = 'display:flex;align-items:center;gap:6px;';
+  right.appendChild(buildIOButton());
+  right.appendChild(buildLoadButton(ctx, taskNextDeps));
+  header.appendChild(right);
   return header;
+}
+
+/** Build the "📥 IO" button that opens the Prompts Import/Export dialog. */
+function buildIOButton(): HTMLElement {
+  const btn = document.createElement('span');
+  btn.textContent = '📥 IO';
+  btn.title = 'Import / Export prompts as JSON';
+  btn.style.cssText = 'cursor:pointer;padding:3px 8px;border-radius:4px;font-size:9px;font-weight:600;color:#fff;background:rgba(124,58,237,0.55);border:1px solid rgba(255,255,255,0.1);';
+  btn.onmouseover = function() { btn.style.background = 'rgba(124,58,237,0.85)'; };
+  btn.onmouseout = function() { btn.style.background = 'rgba(124,58,237,0.55)'; };
+  btn.onclick = function(e: Event) {
+    e.stopPropagation();
+    void import('./prompt-io-dialog').then(function(mod) { mod.renderPromptIODialog(); });
+  };
+  return btn;
 }
 
 /** Build the "🎯 Tasks ▾" toggle that shows/hides the Plan Task + Task Next submenus group. */
