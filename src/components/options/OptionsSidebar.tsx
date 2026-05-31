@@ -136,6 +136,8 @@ export function OptionsSidebar({ selection, onSelect, onErrorDrawerOpen }: Props
                   <DropdownMenu open={overflowOpen} onOpenChange={setOverflowOpen}>
                     <DropdownMenuTrigger asChild>
                       <SidebarMenuButton
+                        aria-label="More items"
+                        tooltip="More items"
                         className={`
                           transition-all duration-200
                           hover:bg-primary/10 hover:text-primary
@@ -182,6 +184,8 @@ export function OptionsSidebar({ selection, onSelect, onErrorDrawerOpen }: Props
                 <div className="anim-fade-in-left hover-shift-right">
                   <SidebarMenuButton
                     onClick={onErrorDrawerOpen}
+                    aria-label="Errors"
+                    tooltip="Errors"
                     className={`
                       transition-all duration-200
                       hover:bg-destructive/10 hover:text-destructive
