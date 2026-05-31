@@ -164,7 +164,7 @@ export class TaskQueueManager {
         await saveTaskQueue(queueState);
       }
     } else {
-      log(`[TaskQueue] Task ${task.id} failed permanently: ${reason}`, 'error');
+      this._logExecution(`Task failed permanently: ${reason}`, 'error');
       await updateTaskStatus(task.id, 'failed', reason);
       
       if (overrides.pauseQueueOnError !== false) {
