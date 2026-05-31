@@ -984,8 +984,16 @@ function renderPromptItem(
 
   if (hasText) {
     appendPromptActions(actions, p, promptsDropdown, promptsCfg, ctx, taskNextDeps);
-    item.onclick = async function(e: Event) {
+    item.onclick = async function(e: MouseEvent) {
       if (actions.contains(e.target as Node)) return;
+      
+      // Inline Editor Trigger (Alt + Click)
+      if (e.altKey) {
+        e.stopPropagation();
+        _openInlinePromptEditor(item, p, ctx, taskNextDeps);
+        return;
+      }
+
       log('Prompt clicked: "' + p.name + '" (' + p.text.length + ' chars)', 'info');
       const outcome = await pasteIntoEditor(p.text, promptsCfg, getByXPathAsElement);
       if (outcome === 'injected' || outcome === 'clipboard') {
@@ -1001,6 +1009,65 @@ function renderPromptItem(
   item.appendChild(actions);
   return item;
 }
+
+/** Open an inline editor for a prompt. */
+function _openInlinePromptEditor(item: HTMLElement, p: LoaderPromptEntry, ctx: PromptContext, taskNextDeps: TaskNextDeps): void {
+  const originalHtml = item.innerHTML;
+  item.innerHTML = '';
+  item.style.background = 'rgba(0,0,0,0.3)';
+  item.style.padding = '8px';
+  item.onclick = (e) => e.stopPropagation();
+
+  const nameInput = document.createElement('input');
+  nameInput.value = p.name;
+  nameInput.placeholder = 'Prompt Name';
+  nameInput.style.cssText = 'width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(124,58,237,0.3);color:#fff;font-size:10px;padding:4px;border-radius:3px;margin-bottom:4px;';
+  
+  const textInput = document.createElement('textarea');
+  textInput.value = p.text;
+  textInput.placeholder = 'Prompt Content';
+  textInput.style.cssText = 'width:100%;height:80px;background:rgba(255,255,255,0.05);border:1px solid rgba(124,58,237,0.3);color:#fff;font-size:10px;padding:4px;border-radius:3px;resize:vertical;';
+
+  const footer = document.createElement('div');
+  footer.style.cssText = 'display:flex;justify-content:flex-end;gap:4px;margin-top:6px;';
+
+  const cancel = document.createElement('button');
+  cancel.textContent = 'Cancel';
+  cancel.style.cssText = 'padding:2px 8px;font-size:9px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:3px;cursor:pointer;';
+  cancel.onclick = () => {
+    item.innerHTML = originalHtml;
+    item.style.background = 'transparent';
+    item.style.padding = '6px 8px';
+    // Re-render whole dropdown to restore listeners correctly
+    renderPromptsDropdown(ctx, taskNextDeps);
+  };
+
+  const save = document.createElement('button');
+  save.textContent = 'Save';
+  save.style.cssText = 'padding:2px 10px;font-size:9px;background:#6d28d9;border:none;color:#fff;border-radius:3px;cursor:pointer;font-weight:600;';
+  save.onclick = () => {
+    const updated = { ...p, name: nameInput.value.trim(), text: textInput.value.trim() };
+    if (!updated.name || !updated.text) return;
+    
+    sendToExtension('SAVE_PROMPT', { prompt: updated }).then(function(resp: Record<string, unknown>) {
+      if (resp && resp.isOk) {
+        log('Prompt updated inline: ' + updated.name, 'success');
+        clearLoadedPrompts();
+        clearUISnapshot();
+        loadPromptsFromJson().then(function() { renderPromptsDropdown(ctx, taskNextDeps); });
+      }
+    });
+  };
+
+  footer.appendChild(cancel);
+  footer.appendChild(save);
+  item.appendChild(nameInput);
+  item.appendChild(textInput);
+  item.appendChild(footer);
+  
+  nameInput.focus();
+}
+
 
 function appendPromptActions(
   actions: HTMLElement, p: PromptEntry, promptsDropdown: HTMLElement,
