@@ -324,6 +324,11 @@ function _renderFresh(
 ): void {
   promptsDropdown.textContent = '';
 
+  _appendHeaderAndSubmenu(promptsDropdown, entries, ctx, taskNextDeps);
+  
+  // Append Search Bar
+  promptsDropdown.appendChild(buildSearchInput(ctx, taskNextDeps));
+
   if (!entries.length) {
     renderEmptyState(promptsDropdown, ctx, taskNextDeps);
     return;
