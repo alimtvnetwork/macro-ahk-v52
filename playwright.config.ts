@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
  * Ref: spec/05-chrome-extension/testing/01-e2e-test-specification.md
  */
 
-const EXTENSION_DIR = path.resolve(__dirname, 'dist'); // adjust to actual build output
+const EXTENSION_DIR = path.resolve(__dirname, 'chrome-extension');
 
 export default defineConfig({
   testDir: './tests/e2e',

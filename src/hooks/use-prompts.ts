@@ -69,9 +69,11 @@ export function usePrompts() {
     const [fatalError, setFatalError] = useState<Error | null>(null);
 
     // Sync prompts across tabs
-    useCrossTabSync<PromptEntry[]>("marco-prompts-sync", prompts, (remotePrompts) => {
+    const onRemotePrompts = useCallback((remotePrompts: PromptEntry[]) => {
         setPrompts(prev => StateReconciler.reconcilePrompts(prev, remotePrompts));
-    });
+    }, []);
+
+    useCrossTabSync<PromptEntry[]>("marco-prompts-sync", prompts, onRemotePrompts);
 
 
     const refresh = useCallback(async () => {

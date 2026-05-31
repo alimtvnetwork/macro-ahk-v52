@@ -79,36 +79,52 @@ test.describe('E2E-23 — Multi-Tab State Synchronization', () => {
 });
 
 async function navigateToSection(page: Page, sectionName: string) {
+  console.log(`[Nav] Navigating to ${sectionName}...`);
   // 1. Wait for the app to be ready, potentially bypassing onboarding
   const marker = page.locator('[data-testid="options-state-marker"]');
-  await expect(marker).toBeAttached({ timeout: 15000 });
+  
+  // Wait for marker to be attached and NOT in 'loading' state
+  await expect(async () => {
+    const branch = await marker.getAttribute('data-branch');
+    if (branch === 'loading' || branch === null) {
+      throw new Error('Still loading or marker not found');
+    }
+  }).toPass({ timeout: 15000 });
   
   // If we're in onboarding, click "Continue/Get Started" until we reach the ready state
   let attempts = 0;
-  while (attempts < 5) {
+  while (attempts < 10) {
     const branch = await marker.getAttribute('data-branch');
-    if (branch !== 'onboarding-flow') break;
+    if (branch === 'ready') break;
+    if (branch === 'loading') {
+       await page.waitForTimeout(500);
+       attempts++;
+       continue;
+    }
 
-    console.log(`Bypassing onboarding step ${attempts + 1}...`);
+    console.log(`[Nav] Bypassing onboarding step ${attempts + 1} (current branch: ${branch})...`);
     const cta = page.locator('[data-onboarding-cta]');
     if (await cta.isVisible()) {
       await cta.click();
       // Wait a bit for the animation/transition
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
     } else {
-      break;
+      console.log('[Nav] Onboarding CTA not visible, waiting...');
+      await page.waitForTimeout(1000);
     }
     attempts++;
   }
 
   // 2. Ensure we are in the 'ready' branch where the sidebar exists
-  await expect(marker).toHaveAttribute('data-branch', 'ready', { timeout: 15000 });
+  console.log('[Nav] Waiting for ready branch...');
+  await expect(marker).toHaveAttribute('data-branch', 'ready', { timeout: 20000 });
 
   // 3. Find the navigation button by its accessible name (robust)
-  // We use .first() to handle cases where there might be multiple (hidden/visible)
+  console.log(`[Nav] Clicking ${sectionName} button...`);
   const navButton = page.getByRole('button', { name: sectionName }).first();
   
   // If not visible yet, maybe we need to wait for a bit
-  await expect(navButton).toBeVisible({ timeout: 10000 });
+  await expect(navButton).toBeVisible({ timeout: 15000 });
   await navButton.click();
+  console.log(`[Nav] Clicked ${sectionName}.`);
 }

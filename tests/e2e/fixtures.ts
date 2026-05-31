@@ -91,7 +91,7 @@ export async function launchExtension(
     );
   }
   return browserType.launchPersistentContext('', {
-    headless: false,
+    headless: true,
     args: [
       `--disable-extensions-except=${EXTENSION_PATH}`,
       `--load-extension=${EXTENSION_PATH}`,

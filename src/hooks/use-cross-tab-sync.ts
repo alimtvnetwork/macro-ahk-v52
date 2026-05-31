@@ -13,9 +13,12 @@ export function useCrossTabSync<T>(
     setState: (next: T) => void,
 ) {
     const isRemoteUpdate = useRef(false);
+    const channelRef = useRef<BroadcastChannel | null>(null);
 
+    // Initialize channel once
     useEffect(() => {
         const channel = new BroadcastChannel(channelName);
+        channelRef.current = channel;
 
         channel.onmessage = (event) => {
             isRemoteUpdate.current = true;
@@ -24,6 +27,7 @@ export function useCrossTabSync<T>(
 
         return () => {
             channel.close();
+            channelRef.current = null;
         };
     }, [channelName, setState]);
 
@@ -35,14 +39,8 @@ export function useCrossTabSync<T>(
             return;
         }
 
-        const channel = new BroadcastChannel(channelName);
-        channel.postMessage(state);
-        
-        return () => {
-            channel.close();
-        };
-    }, [channelName, state]);
+        if (channelRef.current) {
+            channelRef.current.postMessage(state);
+        }
+    }, [state]);
 }
-
-
-

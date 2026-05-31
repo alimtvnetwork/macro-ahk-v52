@@ -547,6 +547,8 @@ export function PromptManagerPanel() {
                             setEditingPrompt(null);
                             setIsAdding(true);
                         }}
+                        title="Add new prompt"
+                        aria-label="Add new prompt"
                     >
                         <Plus className="h-3.5 w-3.5" />
                     </Button>
