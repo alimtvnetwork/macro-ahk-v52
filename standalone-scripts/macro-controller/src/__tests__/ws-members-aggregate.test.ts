@@ -7,12 +7,12 @@ describe('ws-members-aggregate', () => {
       {
         wsId: 'ws-1',
         wsName: 'Workspace 1',
-        members: [{ userId: 'u1', email: 'u1@ex.com', fullName: 'User 1' }]
+        members: [{ user_id: 'u1', email: 'u1@ex.com', display_name: 'User 1' }]
       },
       {
         wsId: 'ws-2',
         wsName: 'Workspace 2',
-        members: [{ userId: 'u1', email: 'u1@ex.com', fullName: 'User 1' }]
+        members: [{ user_id: 'u1', email: 'u1@ex.com', display_name: 'User 1' }]
       }
     ];
 
@@ -27,12 +27,12 @@ describe('ws-members-aggregate', () => {
       {
         wsId: 'ws-1',
         wsName: 'Workspace 1',
-        members: [{ userId: 'u1', email: 'u1@ex.com', fullName: 'User 1' }]
+        members: [{ user_id: 'u1', email: 'u1@ex.com', display_name: 'User 1' }]
       },
       {
         wsId: 'ws-2',
         wsName: 'Workspace 2',
-        members: [{ userId: 'u2', email: 'u2@ex.com', fullName: 'User 2' }]
+        members: [{ user_id: 'u2', email: 'u2@ex.com', display_name: 'User 2' }]
       }
     ];
 

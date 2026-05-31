@@ -12,7 +12,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../logging', () => ({ log: vi.fn() }));
 vi.mock('../error-utils', () => ({ logError: vi.fn() }));
-vi.mock('../shared-state', () => ({ CREDIT_API_BASE: 'https://api.test.com' }));
+vi.mock('../shared-state', () => ({ CREDIT_API_BASE: 'https://api.test.com', CONFIG: {} }));
 
 vi.mock('../ws-members-fetch', () => ({ clearMembersCache: vi.fn() }));
 
