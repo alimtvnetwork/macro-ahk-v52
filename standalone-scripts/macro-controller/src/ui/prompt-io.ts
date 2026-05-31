@@ -99,8 +99,29 @@ export function mergePrompts(
     mergedMap.set(key, imp);
   });
 
-  return {
-    merged: Array.from(mergedMap.values()),
-    results
-  };
+/**
+ * Parses a JSON string and validates its contents as an array of prompts.
+ */
+export function parsePromptsText(jsonText: string): { valid: CachedPromptEntry[]; errors: string[] } {
+  const valid: CachedPromptEntry[] = [];
+  const errors: string[] = [];
+
+  try {
+    const raw = JSON.parse(jsonText);
+    const array = Array.isArray(raw) ? raw : [raw];
+
+    array.forEach((item, index) => {
+      const validated = validatePromptEntry(item);
+      if (validated) {
+        valid.push(validated);
+      } else {
+        errors.push(`Row ${index + 1}: Invalid prompt schema (requires name and text)`);
+      }
+    });
+  } catch (err) {
+    errors.push('Failed to parse JSON: ' + (err instanceof Error ? err.message : String(err)));
+  }
+
+  return { valid, errors };
 }
+

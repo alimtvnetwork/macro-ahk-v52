@@ -5,7 +5,7 @@
 ### Issue 131 — remaining steps
 1. [x] Define `PromptIO` module and types in `prompt-io.ts`.
 2. [x] Implement Export logic (IndexedDB -> JSON Download).
-3. Implement Import Parsing & Schema Validation.
+3. [x] Implement Import Parsing & Schema Validation.
 4. Implement Upsert/Merge logic for prompts.
 5. Create the Import/Export Dialog shell (`prompt-io-dialog.ts`).
 6. Add Drag & Drop support to the dialog.
