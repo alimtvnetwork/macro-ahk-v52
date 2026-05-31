@@ -18,6 +18,12 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
+  { ver: 'v3.43.0', date: '2026-05-31', changes: [
+    'Integrated SQLite database prompts.macro for communication history',
+    'Conditional delay system based on page element detection (e.g. Return button)',
+    'Settings: Added auto-detect delay toggle and 22s default timing',
+    'IO Dialog: Added Drag & Drop and File Picker support for prompt imports'
+  ]},
   { ver: 'v2.241.0', date: DATE_2026_05_14, changes: [
     'Projects modal: Export CSV button with sequential per-project git fetch and progress indicator',
     'CSV columns: workspace, credits used/total, project, GitHub repo + branch, last activity, version, exported timestamp',

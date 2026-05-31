@@ -46,13 +46,15 @@ export interface SettingsOverrides {
   /** Delay before the workspace hover card disappears after mouseleave (ms). Default 220. */
   hoverCardHideGracePeriodMs?: number;
 
-  /** New: Delay between next-prompt submissions (seconds). Default 30. Issue 131 Task 1. */
+  /** Delay between next-prompt submissions (seconds). Default 22. Issue 131 Task 1. */
   nextSubmissionDelaySeconds?: number;
-  /** New: Enable/Disable the submission delay. Default true. */
+  /** Enable/Disable the submission delay. Default true. */
   enableNextSubmissionDelay?: boolean;
-  /** New: Retry prompt on failure (XPath not found / error msg). Default true. */
+  /** Automatically detect if a delay is required based on page content. Default true. */
+  autoDetectDelay?: boolean;
+  /** Retry prompt on failure (XPath not found / error msg). Default true. */
   retryOnFailure?: boolean;
-  /** New: Interval for checking credits (seconds). Default 5. */
+  /** Interval for checking credits (seconds). Default 5. */
   creditPollIntervalSeconds?: number;
 
   /**
@@ -136,6 +138,9 @@ function sanitize(raw: unknown): SettingsOverrides {
   }
   if (typeof r.enableNextSubmissionDelay === 'boolean') {
     out.enableNextSubmissionDelay = r.enableNextSubmissionDelay;
+  }
+  if (typeof r.autoDetectDelay === 'boolean') {
+    out.autoDetectDelay = r.autoDetectDelay;
   }
   if (typeof r.retryOnFailure === 'boolean') {
     out.retryOnFailure = r.retryOnFailure;

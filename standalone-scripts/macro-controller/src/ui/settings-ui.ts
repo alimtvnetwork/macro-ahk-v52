@@ -308,6 +308,7 @@ async function _persistOverrideToggles(generalResult: GeneralPanelResult, timing
 
   if (timingResult.automationToggles) {
     next.enableNextSubmissionDelay = timingResult.automationToggles.enableNextSubmissionDelay?.checked ?? true;
+    next.autoDetectDelay = timingResult.automationToggles.autoDetectDelay?.checked ?? true;
     next.retryOnFailure = timingResult.automationToggles.retryOnFailure?.checked ?? true;
   }
 

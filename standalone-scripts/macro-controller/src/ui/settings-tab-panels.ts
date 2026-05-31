@@ -125,7 +125,7 @@ export function buildTimingPanel(makeField: MakeFieldFn): TimingPanelResult {
   panel.appendChild(autoTitle);
 
   // Delay Slider
-  const delayField = _buildDelaySlider(overrides.nextSubmissionDelaySeconds ?? 30);
+  const delayField = _buildDelaySlider(overrides.nextSubmissionDelaySeconds ?? 22);
   inputs['nextSubmissionDelaySeconds'] = delayField.input;
   panel.appendChild(delayField.row);
 
@@ -144,6 +144,7 @@ export function buildTimingPanel(makeField: MakeFieldFn): TimingPanelResult {
 function _buildAutomationToggles(panel: HTMLElement, overrides: ReturnType<typeof getSettingsOverrides>): Record<string, HTMLInputElement> {
   const items = [
     { key: 'enableNextSubmissionDelay', label: 'Enable Submission Delay', value: overrides.enableNextSubmissionDelay !== false, hint: 'Wait between prompts in the queue.' },
+    { key: 'autoDetectDelay', label: 'Auto-detect delay', value: overrides.autoDetectDelay !== false, hint: 'Automatically wait if Return button is detected.' },
     { key: 'retryOnFailure', label: 'Retry on Failure', value: overrides.retryOnFailure !== false, hint: 'Hold and retry prompts if injection fails.' },
   ];
   const toggles: Record<string, HTMLInputElement> = {};
