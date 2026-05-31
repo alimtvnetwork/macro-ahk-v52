@@ -50,6 +50,8 @@ export function buildTaskQueueSection(): HTMLElement {
   listContainer.addEventListener('refresh-queue', refreshHandler);
   
   setInterval(refreshHandler, 5000);
+  refreshHandler();
+
 
 
   return section;
