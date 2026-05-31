@@ -7,7 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.42.0] — 2026-05-31
+
+### Added
+- **Multi-workspace bulk members operations** (Issue 130) — The Bulk Members panel now supports full member lifecycle management across multiple selected workspaces.
+  - **Bulk invite** — Add multiple emails at once (via chip-input) with a selectable role (Member/Owner) to all selected workspaces.
+  - **Bulk promote/demote** — Right-click any member row in the bulk panel to promote them to Owner or demote to Member across all workspaces they belong to in the selection.
+  - **Bulk remove** — Direct action to remove a member from all selected workspaces with a confirmation prompt.
+  - **Aggregated presence badges** — Member rows show `ALL` (green) if they exist in all selected workspaces, or `SOME (X/N)` (amber) otherwise.
+- **Detailed bulk mutation logging** — Bulk operations now capture and log per-workspace `ReasonDetail` (JSON response body) on failure for easier troubleshooting of "already exists" or "unauthorized" errors.
+
+### Changed
+- Version bump: 3.41.0 → 3.42.0 (manifest, readme, constants, and instruction scripts synced).
+
+---
+
 ## [v3.41.0] — 2026-05-30
+
 
 ### Added
 - **Summary bar tooltips** (Issue 130) — Hovering the Pro / Pro Credits / Free Credits pills now reveals a detailed breakdown: Pro account count by plan, expiring-credit totals, free-credit totals, and at-risk credits with dates. Powered by `computeSummaryDetails()` and a singleton hover-card anchored beneath each pill.

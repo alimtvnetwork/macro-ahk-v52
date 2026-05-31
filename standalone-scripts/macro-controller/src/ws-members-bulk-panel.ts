@@ -5,7 +5,7 @@
  * Shows common members with tri-state badges and supports bulk actions.
  */
 
-import { cPanelBg, cPanelFg, cPanelBorder, cPrimary, lDropdownRadius } from './shared-state';
+import { cPanelBg, cPanelFg, cPanelBorder, cPrimary, lDropdownRadius, tFontTiny } from './shared-state';
 import { fetchMembersForMany, type PerWsMembers } from './ws-members-fetch';
 import { aggregateMembers, type AggregatedMember } from './ws-members-aggregate';
 import { createChipInput } from './ws-members-chip-input';
@@ -13,6 +13,8 @@ import { showToast } from './toast';
 import { logError } from './error-utils';
 import { makeDraggable } from './ui/drag-window';
 import { loopCreditState } from './shared-state';
+import { inviteMemberMany, promoteMemberMany, demoteMemberMany, removeMemberMany } from './ws-members-mutations';
+
 
 const PANEL_ID = 'marco-ws-bulk-members-panel';
 const Z_INDEX = 100003;
@@ -108,12 +110,90 @@ function renderBody(): void {
   
   if (union.length === 0) {
     body.innerHTML = '<div style="padding: 20px; text-align: center; color: #94a3b8;">No members found.</div>';
-    return;
+  } else {
+    body.innerHTML = union.map(m => renderMemberRow(m, totalWs)).join('');
+    attachRowListeners(body, union);
   }
-
-  body.innerHTML = union.map(m => renderMemberRow(m, totalWs)).join('');
   renderFooter();
 }
+
+function attachRowListeners(body: HTMLElement, union: AggregatedMember[]): void {
+  body.querySelectorAll('.bulk-member-row').forEach(row => {
+    const userId = row.getAttribute('data-user-id')!;
+    const member = union.find(m => m.userId === userId);
+    if (!member) return;
+
+    row.addEventListener('contextmenu', (e: any) => {
+        e.preventDefault();
+        showMemberRowContextMenu(member, e.clientX, e.clientY);
+    });
+
+    const moreBtn = row.querySelector('.bulk-member-more');
+    if (moreBtn) {
+        moreBtn.addEventListener('click', (e: any) => {
+            e.stopPropagation();
+            showMemberRowContextMenu(member, e.clientX, e.clientY);
+        });
+    }
+  });
+}
+
+function showMemberRowContextMenu(member: AggregatedMember, x: number, y: number): void {
+    const existing = document.getElementById('bulk-member-row-ctx');
+    if (existing) existing.remove();
+
+    const menu = document.createElement('div');
+    menu.id = 'bulk-member-row-ctx';
+    menu.style.cssText = `
+        position: fixed;
+        left: ${x}px;
+        top: ${y}px;
+        z-index: ${Z_INDEX + 10};
+        background: ${cPanelBg};
+        border: 1px solid ${cPrimary};
+        border-radius: ${lDropdownRadius};
+        padding: 4px 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        min-width: 160px;
+    `;
+
+    const buildItem = (label: string, onClick: () => void) => {
+        const item = document.createElement('div');
+        item.textContent = label;
+        item.style.cssText = `padding: 6px 12px; font-size: ${tFontTiny}; color: ${cPanelFg}; cursor: pointer;`;
+        item.onmouseover = () => item.style.background = 'rgba(139,92,246,0.3)';
+        item.onmouseout = () => item.style.background = 'transparent';
+        item.onclick = () => {
+            menu.remove();
+            onClick();
+        };
+        return item;
+    };
+
+    menu.appendChild(buildItem('👑 Promote to Owner', () => {
+        if (activeState) {
+            promoteMemberMany(activeState.wsIds, member.userId, loopCreditState.perWorkspace || []);
+        }
+    }));
+    menu.appendChild(buildItem('👤 Demote to Member', () => {
+        if (activeState) {
+            demoteMemberMany(activeState.wsIds, member.userId, loopCreditState.perWorkspace || []);
+        }
+    }));
+    menu.appendChild(buildItem('❌ Remove from All', () => {
+        if (confirm(`Remove ${member.fullName} from ALL selected workspaces?`)) {
+            if (activeState) {
+                removeMemberMany(activeState.wsIds, member.userId, loopCreditState.perWorkspace || []);
+            }
+        }
+    }));
+
+    document.body.appendChild(menu);
+    setTimeout(() => {
+        document.addEventListener('click', () => menu.remove(), { once: true });
+    }, 10);
+}
+
 
 function renderMemberRow(m: AggregatedMember, totalWs: number): string {
   const isAll = m.presenceCount === totalWs;
@@ -121,18 +201,19 @@ function renderMemberRow(m: AggregatedMember, totalWs: number): string {
   const badgeLabel = isAll ? 'ALL' : `SOME (${m.presenceCount}/${totalWs})`;
 
   return `
-    <div style="padding: 8px 12px; border-bottom: 1px solid rgba(148,163,184,0.1); display: flex; align-items: center; justify-content: space-between;">
+    <div class="bulk-member-row" data-user-id="${m.userId}" data-email="${m.email}" style="padding: 8px 12px; border-bottom: 1px solid rgba(148,163,184,0.1); display: flex; align-items: center; justify-content: space-between;">
       <div style="min-width: 0;">
         <div style="font-size: 12px; font-weight: 600; color: #f1f5f9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m.fullName}</div>
         <div style="font-size: 10px; color: #94a3b8;">${m.email}</div>
       </div>
       <div style="flex-shrink: 0; display: flex; align-items: center; gap: 8px;">
         <span style="font-size: 9px; font-weight: 700; color: #fff; background: ${badgeColor}; padding: 1px 5px; border-radius: 3px;">${badgeLabel}</span>
-        <button style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 14px;">⋯</button>
+        <button class="bulk-member-more" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 14px;">⋯</button>
       </div>
     </div>
   `;
 }
+
 
 function renderFooter(): void {
   const footer = document.getElementById('bulk-members-footer');
@@ -167,8 +248,10 @@ function renderFooter(): void {
   const inviteBtn = document.getElementById('bulk-invite-btn') as HTMLButtonElement;
   inviteBtn.disabled = true;
   inviteBtn.onclick = () => {
-    const role = (document.getElementById('bulk-role-select') as HTMLSelectElement).value;
-    showToast(`Inviting ${validEmails.length} users to ${activeState?.wsIds.length} workspaces...`, 'info');
-    // Task 10 will implement inviteMemberMany
+    const role = (document.getElementById('bulk-role-select') as HTMLSelectElement).value as any;
+    if (activeState) {
+        inviteMemberMany(activeState.wsIds, validEmails, role, loopCreditState.perWorkspace || []);
+    }
   };
 }
+

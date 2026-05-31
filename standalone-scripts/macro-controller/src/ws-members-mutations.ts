@@ -91,7 +91,7 @@ export interface BulkOpResult {
     success: number;
     fail: number;
     total: number;
-    failures: Array<{ wsId: string; wsName: string; reason: string }>;
+    failures: Array<{ wsId: string; wsName: string; reason: string; reasonDetail?: string }>;
 }
 
 export async function inviteMemberMany(
@@ -113,11 +113,13 @@ export async function inviteMemberMany(
             } catch (e: any) {
                 results.fail++;
                 const reason = e.message || String(e);
-                results.failures.push({ wsId, wsName, reason });
+                const reasonDetail = e.data ? JSON.stringify(e.data) : undefined;
+                results.failures.push({ wsId, wsName, reason, reasonDetail });
                 logError('Members.BulkInvite', `Failed to invite ${email} to ${wsName}: ${reason}`);
             }
         }
     }
+
     
     invalidateMembersCache();
     
@@ -147,14 +149,41 @@ export async function updateMemberRoleMany(
         } catch (e: any) {
             results.fail++;
             const reason = e.message || String(e);
-            results.failures.push({ wsId, wsName, reason });
+            const reasonDetail = e.data ? JSON.stringify(e.data) : undefined;
+            results.failures.push({ wsId, wsName, reason, reasonDetail });
             logError('Members.BulkUpdate', `Failed to update ${userId} in ${wsName}: ${reason}`);
+
         }
     }
     
     invalidateMembersCache();
     return results;
 }
+
+/** 
+ * Bulk promote/demote (Task 12) 
+ * Wraps updateMemberRoleMany with toast feedback.
+ */
+export async function promoteMemberMany(wsIds: string[], userId: string, workspaces: any[] = []): Promise<void> {
+    showToast(`Promoting member in ${wsIds.length} workspaces...`, 'info');
+    const res = await updateMemberRoleMany(wsIds, userId, 'owner', workspaces);
+    if (res.fail > 0) {
+        showToast(`Promotion partial: ${res.success} ok, ${res.fail} failed`, 'warn');
+    } else {
+        showToast(`Successfully promoted in ${res.success} workspaces`, 'success');
+    }
+}
+
+export async function demoteMemberMany(wsIds: string[], userId: string, workspaces: any[] = []): Promise<void> {
+    showToast(`Demoting member in ${wsIds.length} workspaces...`, 'info');
+    const res = await updateMemberRoleMany(wsIds, userId, 'member', workspaces);
+    if (res.fail > 0) {
+        showToast(`Demotion partial: ${res.success} ok, ${res.fail} failed`, 'warn');
+    } else {
+        showToast(`Successfully demoted in ${res.success} workspaces`, 'success');
+    }
+}
+
 
 export async function removeMemberMany(
     wsIds: string[], 
@@ -172,9 +201,11 @@ export async function removeMemberMany(
         } catch (e: any) {
             results.fail++;
             const reason = e.message || String(e);
-            results.failures.push({ wsId, wsName, reason });
+            const reasonDetail = e.data ? JSON.stringify(e.data) : undefined;
+            results.failures.push({ wsId, wsName, reason, reasonDetail });
             logError('Members.BulkRemove', `Failed to remove ${userId} from ${wsName}: ${reason}`);
         }
+
     }
     
     invalidateMembersCache();
