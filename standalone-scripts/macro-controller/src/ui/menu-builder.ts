@@ -85,6 +85,7 @@ export function buildHamburgerMenu(deps: MenuBuilderDeps): MenuBuilderResult {
   menuDropdown.appendChild(createMenuItem(menuCtx, '🗄️', 'Database', 'Browse project database tables and rows', function() { showDatabaseModal(); }));
   menuDropdown.appendChild(createMenuItem(menuCtx, '📂', 'Projects', 'Show open Lovable projects grouped by workspace', function() { showProjectsModal(); }));
   menuDropdown.appendChild(createMenuItem(menuCtx, '💰', 'Credit Totals', 'Show aggregated credit usage across workspaces', function() { showCreditTotalsModal(); }));
+  menuDropdown.appendChild(createMenuItem(menuCtx, '📋', 'Task Queue', 'View pending and active prompt tasks', function() { showTaskQueueModal(); }));
 
   _addAutoAttachSection(menuCtx, menuDropdown);
 
