@@ -138,6 +138,7 @@ interface MemSnapshot {
 }
 let _memSnapshot: MemSnapshot | null = null;
 let _memHydrated = false;
+let _currentSearchQuery = '';
 
 function _hydrateMemSnapshotOnce(): void {
   if (_memHydrated) return;
