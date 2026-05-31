@@ -348,7 +348,7 @@ function _checkPendingTasksOnStartup(): void {
 
 /** Prominent dialog to resume pending tasks on startup. */
 function _showStartupResumeDialog(count: number): void {
-  const s = state as Record<string, string>;
+  const s = state as unknown as Record<string, string>;
   const cPanelBgValue = s.cPanelBg || '#1a1625';
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;top:20px;right:20px;width:300px;background:' + cPanelBgValue + ';border:2px solid ' + (s.cPrimary || '#7c3aed') + ';border-radius:12px;z-index:2147483647;box-shadow:0 10px 40px rgba(0,0,0,0.5);padding:16px;display:flex;flex-direction:column;gap:12px;animation:slide-in-right 0.3s ease-out;';

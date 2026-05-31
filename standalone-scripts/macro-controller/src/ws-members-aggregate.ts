@@ -1,4 +1,4 @@
-import type { PerWsMembers, WorkspaceMember } from './ws-members-fetch';
+import type { PerWsMembers } from './ws-members-fetch';
 
 export interface AggregatedMember {
   userId: string;

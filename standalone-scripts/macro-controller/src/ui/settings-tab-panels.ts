@@ -335,7 +335,7 @@ export function buildConfigDbPanel(
     }
 
     const sections: Record<string, Array<{ key: string; value: string; valueType: string }>> = {};
-    for (const row of rows) {
+    for (const row of (rows || [])) {
       if (!sections[row.section]) sections[row.section] = [];
       sections[row.section].push({ key: row.key, value: row.value, valueType: row.valueType });
     }
@@ -489,7 +489,7 @@ function _showHistoryDetailModal(row: Record<string, unknown>): void {
   overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
   const modal = document.createElement('div');
-  const s = state as Record<string, string>;
+  const s = state as unknown as Record<string, string>;
   modal.style.cssText = 'background:' + (s.cPanelBg || '#1a1625') + ';border:1px solid ' + (s.cPanelBorder || '#2d2b3b') + ';border-radius:12px;width:90%;max-width:600px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 30px 70px rgba(0,0,0,0.6);overflow:hidden;';
   
   const header = document.createElement('div');

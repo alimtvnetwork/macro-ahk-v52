@@ -248,7 +248,7 @@ function renderFooter(): void {
   const inviteBtn = document.getElementById('bulk-invite-btn') as HTMLButtonElement;
   inviteBtn.disabled = true;
   inviteBtn.onclick = () => {
-    const role = (document.getElementById('bulk-role-select') as HTMLSelectElement).value as string;
+    const role = (document.getElementById('bulk-role-select') as HTMLSelectElement).value as any;
     if (activeState) {
         inviteMemberMany(activeState.wsIds, validEmails, role, loopCreditState.perWorkspace || []);
     }

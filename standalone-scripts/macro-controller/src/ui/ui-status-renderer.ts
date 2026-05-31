@@ -65,7 +65,7 @@ export function updateStatus(): void { // eslint-disable-line max-lines-per-func
     loopCreditState.lastCheckedAt || 0,
     loopCreditState.currentWs ? loopCreditState.currentWs.name : '',
     (loopCreditState.perWorkspace || []).length,
-    (state as Record<string, unknown>).__queue_count || 0
+    (state as unknown as Record<string, unknown>).__queue_count || 0
   ].join('|');
 
   // Skip innerHTML rebuild if nothing changed
@@ -111,7 +111,7 @@ export function updateStatus(): void { // eslint-disable-line max-lines-per-func
     import('../task-queue').then(m => {
       m.loadTaskQueue().then(queue => {
         const pending = queue.tasks.filter(t => t.status === 'pending').length;
-        (state as Record<string, unknown>).__queue_count = pending;
+        (state as unknown as Record<string, unknown>).__queue_count = pending;
         const isProcessing = TaskQueueManager.getInstance().isProcessing();
         const isPaused = TaskQueueManager.getInstance().isPaused();
         

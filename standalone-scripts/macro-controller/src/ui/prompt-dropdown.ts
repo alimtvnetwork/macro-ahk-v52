@@ -171,7 +171,7 @@ export function renderPromptsDropdown(ctx: PromptContext, taskNextDeps: TaskNext
   _hydrateMemSnapshotOnce();
 
   const promptsDropdown = ctx.promptsDropdown;
-  const promptsCfg = getPromptsConfig();
+  const promptsCfg = getPromptsConfig() as ResolvedPromptsConfig;
   const entries = promptsCfg.entries;
   const currentHash = computePromptHash(entries as CachedPromptEntry[]);
   const currentFilter = _computeFilterKey();

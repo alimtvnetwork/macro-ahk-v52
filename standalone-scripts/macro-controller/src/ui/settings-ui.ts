@@ -299,7 +299,7 @@ function _importOverridesJson(
 }
 
 async function _persistOverrideToggles(generalResult: GeneralPanelResult, timingResult: TimingPanelResult): Promise<void> {
-  const current = getSettingsOverrides();
+  const current = getSettingsOverrides() as any;
   const next: Partial<SettingsOverrides> = { ...current };
 
   if (generalResult.toggles) {
