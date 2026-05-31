@@ -110,6 +110,59 @@ export function buildTaskQueueSection(): HTMLElement {
   header.appendChild(controls);
   section.appendChild(header);
 
+  // Bulk Actions Row (hidden by default)
+  const bulkRow = document.createElement('div');
+  bulkRow.id = 'task-queue-bulk-row';
+  bulkRow.style.cssText = 'display:none;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px;background:rgba(59,130,246,0.1);border-radius:4px;margin-bottom:4px;border:1px solid rgba(59,130,246,0.2);';
+  
+  const bulkCount = document.createElement('div');
+  bulkCount.id = 'task-bulk-count';
+  bulkCount.style.cssText = 'font-size:9px;color:#60a5fa;font-weight:700;';
+  bulkRow.appendChild(bulkCount);
+
+  const bulkBtns = document.createElement('div');
+  bulkBtns.style.cssText = 'display:flex;gap:4px;';
+
+  const bulkRetry = document.createElement('button');
+  bulkRetry.textContent = '🔄 Re-queue';
+  bulkRetry.style.cssText = 'padding:2px 6px;font-size:9px;background:#1d4ed8;border:none;border-radius:3px;color:#fff;cursor:pointer;';
+  bulkRetry.onclick = async () => {
+    const { bulkRetryTasks } = await import('../task-queue');
+    await bulkRetryTasks(Array.from(_selectedTaskIds));
+    _selectedTaskIds.clear();
+    _selectionMode = false;
+    refreshTaskQueueUI(listContainer);
+  };
+  bulkBtns.appendChild(bulkRetry);
+
+  const bulkDel = document.createElement('button');
+  bulkDel.textContent = '🗑️ Delete';
+  bulkDel.style.cssText = 'padding:2px 6px;font-size:9px;background:#b91c1c;border:none;border-radius:3px;color:#fff;cursor:pointer;';
+  bulkDel.onclick = async () => {
+    if (confirm(`Delete ${_selectedTaskIds.size} selected tasks?`)) {
+      const { bulkDeleteTasks } = await import('../task-queue');
+      await bulkDeleteTasks(Array.from(_selectedTaskIds));
+      _selectedTaskIds.clear();
+      _selectionMode = false;
+      refreshTaskQueueUI(listContainer);
+    }
+  };
+  bulkBtns.appendChild(bulkDel);
+  
+  const bulkCancel = document.createElement('button');
+  bulkCancel.textContent = '✕';
+  bulkCancel.style.cssText = 'padding:2px 6px;font-size:9px;background:transparent;border:none;color:#94a3b8;cursor:pointer;';
+  bulkCancel.onclick = () => {
+    _selectedTaskIds.clear();
+    _selectionMode = false;
+    refreshTaskQueueUI(listContainer);
+  };
+  bulkBtns.appendChild(bulkCancel);
+
+  bulkRow.appendChild(bulkBtns);
+  section.appendChild(bulkRow);
+
+
   // Settings Row
   const settingsRow = document.createElement('div');
   settingsRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px;background:rgba(255,255,255,0.03);border-radius:4px;margin-bottom:4px;';
