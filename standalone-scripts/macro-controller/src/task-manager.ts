@@ -16,6 +16,7 @@ export class TaskQueueManager {
   private static _instance: TaskQueueManager | null = null;
   private _isProcessing = false;
   private _isPaused = false;
+  private _isStopped = false;
   private _abortController: AbortController | null = null;
 
   isProcessing(): boolean { return this._isProcessing; }
