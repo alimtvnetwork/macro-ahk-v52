@@ -27,6 +27,7 @@ import { ApiPath } from './types';
 
 const LOG_SCOPE_CREDIT_FETCH = 'credit-fetch';
 const CREDIT_FETCH_ASYNC_SCOPE = 'credit-fetch-async';
+const LOG_PREFIX = 'Credit API (async): ';
 
 function mc() { return MacroController.getInstance(); }
 

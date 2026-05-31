@@ -23,93 +23,11 @@ export function buildTaskQueueSection(): HTMLElement {
   const section = document.createElement('div');
   section.style.cssText = 'padding:12px;display:flex;flex-direction:column;gap:8px;';
 
-  const header = document.createElement('div');
-  header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;';
-  
-  const titleWrap = document.createElement('div');
-  titleWrap.style.cssText = 'display:flex;align-items:center;gap:6px;';
+  const listContainer = document.createElement('div');
+  listContainer.id = 'task-queue-list';
+  listContainer.style.cssText = 'max-height:160px;overflow-y:auto;background:rgba(0,0,0,0.2);border-radius:6px;padding:4px;display:flex;flex-direction:column;gap:4px;';
 
-  const title = document.createElement('div');
-  title.style.cssText = 'font-size:11px;font-weight:700;color:' + cPrimaryLight + ';text-transform:uppercase;letter-spacing:0.5px;';
-  title.textContent = '📋 Task Queue';
-  title.id = 'task-queue-title-text';
-  titleWrap.appendChild(title);
-
-
-  const countdownBadge = document.createElement('span');
-  countdownBadge.id = 'task-queue-countdown';
-  countdownBadge.style.cssText = 'font-size:9px;color:' + cWarning + ';font-weight:600;min-width:40px;text-align:right;';
-  titleWrap.appendChild(countdownBadge);
-  header.appendChild(titleWrap);
-
-  const controls = document.createElement('div');
-  controls.style.cssText = 'display:flex;gap:6px;';
-
-  const pauseBtn = document.createElement('button');
-  const updatePauseBtnStyle = (isPaused: boolean, isStopped: boolean) => {
-    pauseBtn.textContent = isPaused || isStopped ? '▶ Resume' : '⏸ Pause';
-    pauseBtn.style.background = isPaused || isStopped ? 'rgba(34,197,94,0.15)' : cPanelBgAlt;
-    pauseBtn.style.color = isPaused || isStopped ? '#4ade80' : '#9ca3af';
-  };
-  
-  const mgr = TaskQueueManager.getInstance();
-  updatePauseBtnStyle(mgr.isPaused(), mgr.isStopped());
-
-  pauseBtn.style.cssText = 'padding:2px 8px;font-size:9px;border:1px solid ' + cPanelBorder + ';border-radius:4px;cursor:pointer;transition:all 0.2s;';
-  pauseBtn.onclick = async () => {
-    const queueState = await loadTaskQueue();
-    const currentPaused = queueState.isPaused || mgr.isPaused() || mgr.isStopped();
-    const newPaused = !currentPaused;
-    
-    queueState.isPaused = newPaused;
-    mgr.setPaused(newPaused);
-    mgr.setStopped(false); // Reset stopped state on manual interaction
-    
-    await saveTaskQueue(queueState);
-    updatePauseBtnStyle(newPaused, false);
-    
-    if (!newPaused) {
-      log(TASK_QUEUE_SCOPE + ' Resuming queue...', 'info');
-      void mgr.startProcessing();
-    } else {
-      log(TASK_QUEUE_SCOPE + ' Pausing queue...', 'info');
-      mgr.stopProcessing();
-    }
-    refreshTaskQueueUI(listContainer);
-  };
-  controls.appendChild(pauseBtn);
-
-  const retryBtn = document.createElement('button');
-  retryBtn.textContent = '🔄 Retry';
-  retryBtn.title = 'Retry failed tasks';
-  retryBtn.style.cssText = 'padding:2px 6px;font-size:9px;background:' + cPanelBgAlt + ';border:1px solid ' + cPanelBorder + ';border-radius:4px;color:#9ca3af;cursor:pointer;';
-  retryBtn.onclick = async () => {
-    const { retryFailedTasks } = await import('../task-queue');
-    await retryFailedTasks();
-    refreshTaskQueueUI(listContainer);
-  };
-  controls.appendChild(retryBtn);
-
-  const clearBtn = document.createElement('button');
-  clearBtn.textContent = '🧹 Clear';
-  clearBtn.title = 'Clear completed tasks (Right-click to clear ALL)';
-  clearBtn.style.cssText = 'padding:2px 6px;font-size:9px;background:' + cPanelBgAlt + ';border:1px solid ' + cPanelBorder + ';border-radius:4px;color:#9ca3af;cursor:pointer;';
-  clearBtn.onclick = async () => {
-    await clearCompletedTasks();
-    refreshTaskQueueUI(listContainer);
-  };
-  clearBtn.oncontextmenu = async (e) => {
-    e.preventDefault();
-    if (confirm('Clear ALL tasks from the queue?')) {
-      const { clearAllTasks } = await import('../task-queue');
-      await clearAllTasks();
-      refreshTaskQueueUI(listContainer);
-    }
-  };
-  controls.appendChild(clearBtn);
-
-
-  header.appendChild(controls);
+  const header = _buildQueueHeader(listContainer);
   section.appendChild(header);
 
   // Bulk Actions Row (hidden by default)
@@ -265,12 +183,12 @@ export function buildTaskQueueSection(): HTMLElement {
   section.appendChild(tabsRow);
 
 
-  const listContainer = document.createElement('div');
-  listContainer.id = 'task-queue-list';
-  listContainer.style.cssText = 'max-height:160px;overflow-y:auto;background:rgba(0,0,0,0.2);border-radius:6px;padding:4px;display:flex;flex-direction:column;gap:4px;';
   section.appendChild(listContainer);
 
   // Polling for updates
+  const countdownBadge = section.querySelector('#task-queue-countdown') as HTMLElement;
+  const title = section.querySelector('#task-queue-title-text') as HTMLElement;
+
   const refreshHandler = () => {
     refreshTaskQueueUI(listContainer);
     _updateQueueCountdown(countdownBadge, title);
@@ -283,12 +201,106 @@ export function buildTaskQueueSection(): HTMLElement {
   // Update pause button state based on manager
   setInterval(() => {
     const mgr = TaskQueueManager.getInstance();
-    updatePauseBtnStyle(mgr.isPaused(), mgr.isStopped());
+    const pauseBtn = section.querySelector('.task-pause-btn') as HTMLButtonElement;
+    if (pauseBtn) {
+       const isPaused = mgr.isPaused();
+       const isStopped = mgr.isStopped();
+       pauseBtn.textContent = isPaused || isStopped ? '▶ Resume' : '⏸ Pause';
+       pauseBtn.style.background = isPaused || isStopped ? 'rgba(34,197,94,0.15)' : cPanelBgAlt;
+       pauseBtn.style.color = isPaused || isStopped ? '#4ade80' : '#9ca3af';
+    }
   }, 1000);
 
   refreshHandler();
 
   return section;
+}
+
+function _buildQueueHeader(listContainer: HTMLElement): HTMLElement {
+  const header = document.createElement('div');
+  header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;';
+  
+  const titleWrap = document.createElement('div');
+  titleWrap.style.cssText = 'display:flex;align-items:center;gap:6px;';
+
+  const title = document.createElement('div');
+  title.style.cssText = 'font-size:11px;font-weight:700;color:' + cPrimaryLight + ';text-transform:uppercase;letter-spacing:0.5px;';
+  title.textContent = '📋 Task Queue';
+  title.id = 'task-queue-title-text';
+  titleWrap.appendChild(title);
+
+  const countdownBadge = document.createElement('span');
+  countdownBadge.id = 'task-queue-countdown';
+  countdownBadge.style.cssText = 'font-size:9px;color:' + cWarning + ';font-weight:600;min-width:40px;text-align:right;';
+  titleWrap.appendChild(countdownBadge);
+  header.appendChild(titleWrap);
+
+  const controls = document.createElement('div');
+  controls.style.cssText = 'display:flex;gap:6px;';
+
+  const pauseBtn = document.createElement('button');
+  pauseBtn.className = 'task-pause-btn';
+  const mgr = TaskQueueManager.getInstance();
+  const isPaused = mgr.isPaused();
+  const isStopped = mgr.isStopped();
+  pauseBtn.textContent = isPaused || isStopped ? '▶ Resume' : '⏸ Pause';
+  pauseBtn.style.background = isPaused || isStopped ? 'rgba(34,197,94,0.15)' : cPanelBgAlt;
+  pauseBtn.style.color = isPaused || isStopped ? '#4ade80' : '#9ca3af';
+
+  pauseBtn.style.cssText += 'padding:2px 8px;font-size:9px;border:1px solid ' + cPanelBorder + ';border-radius:4px;cursor:pointer;transition:all 0.2s;';
+  pauseBtn.onclick = async () => {
+    const queueState = await loadTaskQueue();
+    const currentPaused = queueState.isPaused || mgr.isPaused() || mgr.isStopped();
+    const newPaused = !currentPaused;
+    
+    queueState.isPaused = newPaused;
+    mgr.setPaused(newPaused);
+    mgr.setStopped(false); 
+    
+    await saveTaskQueue(queueState);
+    
+    if (!newPaused) {
+      log(TASK_QUEUE_SCOPE + ' Resuming queue...', 'info');
+      void mgr.startProcessing();
+    } else {
+      log(TASK_QUEUE_SCOPE + ' Pausing queue...', 'info');
+      mgr.stopProcessing();
+    }
+    refreshTaskQueueUI(listContainer);
+  };
+  controls.appendChild(pauseBtn);
+
+  const retryBtn = document.createElement('button');
+  retryBtn.textContent = '🔄 Retry';
+  retryBtn.title = 'Retry failed tasks';
+  retryBtn.style.cssText = 'padding:2px 6px;font-size:9px;background:' + cPanelBgAlt + ';border:1px solid ' + cPanelBorder + ';border-radius:4px;color:#9ca3af;cursor:pointer;';
+  retryBtn.onclick = async () => {
+    const { retryFailedTasks } = await import('../task-queue');
+    await retryFailedTasks();
+    refreshTaskQueueUI(listContainer);
+  };
+  controls.appendChild(retryBtn);
+
+  const clearBtn = document.createElement('button');
+  clearBtn.textContent = '🧹 Clear';
+  clearBtn.title = 'Clear completed tasks (Right-click to clear ALL)';
+  clearBtn.style.cssText = 'padding:2px 6px;font-size:9px;background:' + cPanelBgAlt + ';border:1px solid ' + cPanelBorder + ';border-radius:4px;color:#9ca3af;cursor:pointer;';
+  clearBtn.onclick = async () => {
+    await clearCompletedTasks();
+    refreshTaskQueueUI(listContainer);
+  };
+  clearBtn.oncontextmenu = async (e) => {
+    e.preventDefault();
+    if (confirm('Clear ALL tasks from the queue?')) {
+      const { clearAllTasks } = await import('../task-queue');
+      await clearAllTasks();
+      refreshTaskQueueUI(listContainer);
+    }
+  };
+  controls.appendChild(clearBtn);
+
+  header.appendChild(controls);
+  return header;
 }
 
 async function _updateQueueCountdown(badge: HTMLElement, title?: HTMLElement): Promise<void> {
