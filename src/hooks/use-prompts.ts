@@ -4,6 +4,9 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { sendMessage } from "@/lib/message-client";
+import { useCrossTabSync } from "@/hooks/use-cross-tab-sync";
+import { StateReconciler } from "@/lib/state-reconciler";
+
 
 export interface PromptEntry {
     id: string;
@@ -64,6 +67,12 @@ export function usePrompts() {
     const [loading, setLoading] = useState(true);
     const [categoryFilter, setCategoryFilter] = useState<string>("all");
     const [fatalError, setFatalError] = useState<Error | null>(null);
+
+    // Sync prompts across tabs
+    useCrossTabSync<PromptEntry[]>("marco-prompts-sync", prompts, (remotePrompts) => {
+        setPrompts(prev => StateReconciler.reconcilePrompts(prev, remotePrompts));
+    });
+
 
     const refresh = useCallback(async () => {
         setLoading(true);

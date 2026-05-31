@@ -19,6 +19,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { logError } from "./hook-logger";
+import { useCrossTabSync } from "./use-cross-tab-sync";
+import { WorkspaceStorage } from "@/lib/workspace-storage";
+import { StateReconciler } from "@/lib/state-reconciler";
+
 import initSqlJs, { type Database, type SqlJsStatic } from "sql.js";
 
 import {
@@ -132,21 +136,11 @@ type StorageReadResult =
     | { Kind: "Bytes"; Bytes: Uint8Array }
     | { Kind: "Error"; Error: unknown };
 
-function readBytesFromStorage(): StorageReadResult {
-    let raw: string | null;
+async function readBytesFromStorage(): Promise<StorageReadResult> {
     try {
-        raw = localStorage.getItem(STORAGE_KEY);
-    } catch (err) {
-        // Access blocked entirely (e.g. SecurityError in sandboxed iframes).
-        return { Kind: "Error", Error: err };
-    }
-    if (raw === null) return { Kind: "Empty" };
-    try {
-        const arr = JSON.parse(raw) as unknown;
-        if (!Array.isArray(arr)) {
-            return { Kind: "Error", Error: new Error("stored payload is not a numeric array") };
-        }
-        return { Kind: "Bytes", Bytes: new Uint8Array(arr as number[]) };
+        const bytes = await WorkspaceStorage.get<Uint8Array>(STORAGE_KEY);
+        if (!bytes) return { Kind: "Empty" };
+        return { Kind: "Bytes", Bytes: bytes };
     } catch (err) {
         return { Kind: "Error", Error: err };
     }
@@ -154,24 +148,18 @@ function readBytesFromStorage(): StorageReadResult {
 
 /**
  * Write result mirrors the read shape so the bootstrap path can
- * distinguish "saved fine" from "stayed in memory only". Mutation
- * helpers downstream still call this and only `console.warn` on
- * failure, since by then the user has been working with the library
- * and a hard error would lose unsaved work.
+ * distinguish "saved fine" from "stayed in memory only".
  */
-function writeBytesToStorage(bytes: Uint8Array): { Ok: true } | { Ok: false; Error: unknown } {
+async function writeBytesToStorage(bytes: Uint8Array): Promise<{ Ok: true } | { Ok: false; Error: unknown }> {
     try {
-        // localStorage only takes strings — JSON-encode as a numeric
-        // array. Acceptable for a preview-tier persistence (small DBs);
-        // production wiring will flip this over to OPFS.
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(bytes)));
+        await WorkspaceStorage.set(STORAGE_KEY, bytes);
         return { Ok: true };
     } catch (err) {
-        // Quota / private-mode failures should not crash the UI.
-        console.warn("useStepLibrary: localStorage write failed", err);
+        console.warn("useStepLibrary: WorkspaceStorage write failed", err);
         return { Ok: false, Error: err };
     }
 }
+
 
 /* ------------------------------------------------------------------ */
 /*  Public hook surface                                                */
@@ -286,8 +274,30 @@ export function useStepLibrary(): UseStepLibraryApi {
     const [loadError, setLoadError] = useState<StepLibraryLoadError | null>(null);
     const [groupInputs, setGroupInputs] = useState<GroupInputsMap>(() => new Map());
     const [loading, setLoading] = useState(true);
+    const [dbBytes, setDbBytes] = useState<Uint8Array | null>(null);
     /** Bumping this triggers the bootstrap effect to re-run. */
     const [bootstrapNonce, setBootstrapNonce] = useState(0);
+
+    // Sync library state across tabs
+    useCrossTabSync<Uint8Array | null>("marco-step-library-sync", dbBytes, (remoteBytes) => {
+        if (!remoteBytes || !lib || !project) return;
+        // Re-open DB with remote bytes
+        const sqljs = sql;
+        if (!sqljs) return;
+        
+        try {
+            const db = new sqljs.Database(remoteBytes);
+            const wrapper = new StepLibraryDb(db);
+            setLib(wrapper);
+            refreshFromDb(wrapper, project.ProjectId, setGroups, setStepsByGroup);
+            setDbBytes(remoteBytes);
+            // Also notify UI that we synced
+            new BroadcastChannel("marco-sync-activity").postMessage("synced");
+        } catch (err) {
+            console.error("Failed to sync remote library state", err);
+        }
+    });
+
 
     /* ------------------------ bootstrap --------------------------- */
 
@@ -314,8 +324,8 @@ export function useStepLibrary(): UseStepLibraryApi {
             }
             if (cancelled) return;
 
-            // ---- 2. Read persisted DB bytes (localStorage) -------
-            const readResult = readBytesFromStorage();
+            // ---- 2. Read persisted DB bytes (WorkspaceStorage) -------
+            const readResult = await readBytesFromStorage();
             if (readResult.Kind === "Error") {
                 const classified = classifyLoadError(readResult.Error, "storage-read");
                 setLoadError(classified);
@@ -338,7 +348,7 @@ export function useStepLibrary(): UseStepLibraryApi {
                         Name: DEFAULT_PROJECT_NAME,
                     });
                     seedExampleData(wrapper, projectId);
-                    const writeResult = writeBytesToStorage(wrapper.exportDbBytes());
+                    const writeResult = await writeBytesToStorage(wrapper.exportDbBytes());
                     if (!writeResult.Ok) {
                         // Hard-fail on the FIRST write only — the user
                         // hasn't done any work yet, so surfacing this
@@ -352,11 +362,15 @@ export function useStepLibrary(): UseStepLibraryApi {
                         return;
                     }
                 } else {
+
                     projectId = existing[0].ProjectId;
                 }
                 if (cancelled) return;
+                const bytes = wrapper.exportDbBytes();
+                setDbBytes(bytes);
                 setSql(sqljs);
                 setLib(wrapper);
+
                 setProject(wrapper.listProjects().find((p) => p.ProjectId === projectId) ?? null);
                 refreshFromDb(wrapper, projectId, setGroups, setStepsByGroup);
                 setGroupInputs(readAllGroupInputs());
@@ -374,8 +388,11 @@ export function useStepLibrary(): UseStepLibraryApi {
 
     const persist = useCallback(() => {
         if (lib === null) return;
-        writeBytesToStorage(lib.exportDbBytes());
+        const bytes = lib.exportDbBytes();
+        setDbBytes(bytes);
+        void writeBytesToStorage(bytes);
     }, [lib]);
+
 
     const refresh = useCallback(() => {
         if (lib === null || project === null) return;
