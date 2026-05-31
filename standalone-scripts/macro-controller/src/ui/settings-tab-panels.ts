@@ -420,9 +420,6 @@ export function buildGeneralPanel(
 
 /** Builds the History search panel. */
 export function buildHistoryPanel(): { panel: HTMLElement } {
-
-/** Builds the History search panel. */
-function _buildHistoryPanel(): { panel: HTMLElement } {
   const panel = document.createElement('div');
   panel.style.cssText = 'display:flex;flex-direction:column;gap:12px;max-height:400px;';
 
