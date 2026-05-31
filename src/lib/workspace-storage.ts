@@ -24,7 +24,7 @@ export class WorkspaceStorage {
     }
 
 
-    static async set(key: string, value: any): Promise<void> {
+    static async set(key: string, value: unknown): Promise<void> {
         const db = await this.getDB();
         await db.put(STORE_NAME, value, key);
     }
