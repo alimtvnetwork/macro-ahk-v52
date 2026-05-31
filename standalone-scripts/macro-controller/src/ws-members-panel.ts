@@ -354,7 +354,7 @@ function footerFormHtml(): string {
 function footerHtml(wsId: string, expanded = false): string {
   return '<div data-marco-section="members-footer" '
     + 'style="padding:6px 10px;border-top:1px solid ' + cPanelBorder + ';background:rgba(0,0,0,0.2);">'
-    + (expanded ? footerFormHtml(wsId) : footerCollapsedHtml())
+    + (expanded ? footerFormHtml() : footerCollapsedHtml())
     + '</div>';
 }
 
@@ -459,7 +459,7 @@ function swapFooter(el: HTMLElement, expanded: boolean): void {
   const footer = findFooter(el);
   if (!footer) return;
   const wsId = (el as unknown as { _wsId?: string })._wsId || '';
-  footer.innerHTML = expanded ? footerFormHtml(wsId) : footerCollapsedHtml();
+  footer.innerHTML = expanded ? footerFormHtml() : footerCollapsedHtml();
   if (expanded) {
     const chipContainer = footer.querySelector('#marco-chip-input-container');
     const inviteBtn = footer.querySelector('#marco-invite-submit') as HTMLButtonElement | null;

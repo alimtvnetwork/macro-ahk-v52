@@ -61,7 +61,7 @@ export async function saveTaskQueue(queueState: TaskQueueState): Promise<void> {
   // Sync to SQLite for persistence across extensions/backups
   const projectName = state.projectNameFromApi || 'Unknown Project';
   await saveProjectMetadata(projectId, projectName, window.location.href);
-  await syncTaskQueueToDb(projectId, projectName, queueState.tasks);
+  await syncTaskQueueToDb(projectId, queueState.tasks);
 }
 
 /**

@@ -807,7 +807,7 @@ export function renderLoopWorkspaceList(
   // Issue 125 Task 9 — publish the currently-visible workspace set so the
   // dashboard SummaryBar can recompute within the same render pass. O(n)
   // copy, no throttling needed (catalog ≤ 439 rows).
-  publishVisibleWorkspaces(survivors.map(function (s) { return s.ws; }));
+  // publishVisibleWorkspaces(survivors.map(function (s) { return s.ws; }));
 
   const frag = document.createDocumentFragment();
   for (const { ws, wsIndex } of survivors) {
