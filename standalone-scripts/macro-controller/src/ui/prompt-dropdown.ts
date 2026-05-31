@@ -28,6 +28,7 @@ import {
   clearLoadedPrompts,
   forceLoadFromDb,
   saveHtmlCopy,
+  getSuggestedPrompts,
 } from './prompt-loader';
 import { openPromptCreationModal } from './prompt-injection';
 import {
