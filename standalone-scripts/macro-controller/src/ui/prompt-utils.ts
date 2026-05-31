@@ -31,6 +31,7 @@ export function normalizePromptEntries(entries: Partial<PromptEntry & { order?: 
       if (raw.isFavorite) { entry.isFavorite = true; }
       if (raw.isDefault !== undefined) { entry.isDefault = raw.isDefault; }
       if (Array.isArray(raw.tags)) { entry.tags = raw.tags; }
+      else { entry.tags = autoTagPrompt(name, text); }
 
       out.push(entry);
     } else {
@@ -42,6 +43,20 @@ export function normalizePromptEntries(entries: Partial<PromptEntry & { order?: 
     console.warn('[normalizePromptEntries] ⚠️ Dropped ' + droppedCount + '/' + entries.length + ' entries due to missing name or text');
   }
   return out;
+}
+
+/** Auto-tag a prompt based on its name and content. */
+function autoTagPrompt(name: string, text: string): string[] {
+  const tags: string[] = [];
+  const content = (name + ' ' + text).toLowerCase();
+  
+  if (content.includes('ui') || content.includes('style') || content.includes('css')) tags.push('ui');
+  if (content.includes('fix') || content.includes('bug') || content.includes('issue')) tags.push('fix');
+  if (content.includes('test') || content.includes('spec') || content.includes('vitest')) tags.push('testing');
+  if (content.includes('backend') || content.includes('api') || content.includes('sql')) tags.push('backend');
+  if (content.includes('refactor') || content.includes('clean')) tags.push('refactor');
+  
+  return tags;
 }
 
 /** Normalize excessive blank lines: collapse 3+ consecutive newlines to 2 (one blank line).

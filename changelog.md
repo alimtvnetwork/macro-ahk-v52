@@ -7,15 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.49.0] — 2026-05-31
+
+### Added
+- **Folder-based Prompt Organization**: Prompts can now be organized into nested folders using "Parent/Child" category naming.
+- **Live Task Execution Stream**: New real-time log tab showing the detailed progress of the current automated task.
+- **Smart Prompt Suggestions**: Automatically tags and surfaces prompts based on content and project context.
+
+### Changed
+- Version bump: 3.48.0 → 3.49.0 (all version files synced).
+
+---
+
 ## [v3.48.0] — 2026-05-31
 
 ### Added
 - **Task Bulk Actions**: Multi-select mode for the queue allows batch deletion and re-queuing.
-- **Prompt Quick-Editor**: Hold `Alt` while clicking a prompt name to edit it inline.
-- **Enhanced Failure Recovery**: Smarter detection of session timeouts with manual override.
-
-### Changed
-- Version bump: 3.47.0 → 3.48.0 (all version files synced).
 
 ---
 

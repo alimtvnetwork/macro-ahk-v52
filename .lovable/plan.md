@@ -1,26 +1,27 @@
-# v3.48.0 Roadmap: Advanced Task Operations & UI Polishing
+# v3.49.0 Roadmap: Advanced Prompt Library & Execution Monitoring
 
-This update focuses on deepening the Task Queue functionality and refining the prompt management experience.
+This update focuses on scaling the prompt management system and providing deeper visibility into the automated execution pipeline.
 
-### 1. Task Bulk Actions
-- **Bulk Selection**: Multi-select mode for the Task Queue (Active and History).
-- **Batch Actions**: Delete selected, Move to History, or Re-queue (from history) in a single click.
+### 1. Folder-based Prompt Organization
+- **Nested Categories**: Support for "Folder/Subfolder" naming in categories.
+- **Tree View**: The Prompts dropdown will render categories as collapsible folders for a cleaner hierarchical structure.
 
-### 2. Prompt Quick-Editor
-- **Inline Editing**: Click a prompt name while holding `Alt` to instantly edit its title and text without opening a full modal.
-- **Auto-Save**: Changes are persisted to the extension backend immediately.
+### 2. Live Task Execution Stream
+- **Execution Log**: A new "Live Stream" tab in the Task Queue modal showing real-time console-style output of the active task's progress.
+- **Progress Snapshots**: Captured DOM states at the moment of failure for easier debugging.
 
-### 3. Queue Performance & Reliability
-- **Background Worker**: Offload queue status updates to a dedicated background loop to prevent UI lag during high-frequency submissions.
-- **Enhanced Failure Recovery**: Automatic detection of session timeouts with a "Re-auth & Resume" shortcut.
+### 3. Smart Prompt Suggestions
+- **Contextual Prompts**: A new "Suggested" category that surfaces prompts based on the current project's tags or recent activity.
+- **Auto-Tagging**: Prompts are automatically tagged based on their content (e.g., "UI", "Fix", "Feature").
 
-### 4. Version Sync & Polish
-- **Version Bump**: Sync all manifests and constants to `v3.48.0`.
-- **UI Consistency**: Standardize hover effects and transition durations across all panels.
+### 4. Version Sync & Infrastructure
+- **Version Bump**: Sync all manifests and constants to `v3.49.0`.
+- **Worker Hardening**: Improved error boundary handling in the task runner to prevent single-task failures from wedging the entire loop.
 
 ## Technical Details
-- **Task Logic**: Extend `task-queue.ts` with `batchDeleteTasks(ids[])` and `batchRetryTasks(ids[])`.
 - **UI Components**:
-  - Update `macro-ui.ts` with checkbox support in the task list.
-  - Implement `InlinePromptEditor` in `prompt-dropdown.ts`.
-- **State Management**: Refactor `TaskQueueManager` to improve thread-safety between UI and background processing.
+  - Implement a recursive folder renderer in `prompt-dropdown.ts`.
+  - Add `ExecutionStreamViewer` component to `macro-ui.ts`.
+- **Logic**:
+  - Extend `prompt-utils.ts` with basic keyword-based auto-tagging logic.
+  - Refactor `TaskQueueManager` to emit structured execution events for the live stream.

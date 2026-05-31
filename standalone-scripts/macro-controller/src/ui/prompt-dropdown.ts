@@ -28,6 +28,7 @@ import {
   clearLoadedPrompts,
   forceLoadFromDb,
   saveHtmlCopy,
+  getSuggestedPrompts,
 } from './prompt-loader';
 import { openPromptCreationModal } from './prompt-injection';
 import {
@@ -441,7 +442,25 @@ function _appendFilteredItems(
   ctx: PromptContext,
   taskNextDeps: TaskNextDeps,
 ): void {
+  // 0. Render Suggestions (if no search and not in a specific category)
+  if (!getPromptCategoryFilter() && !_currentSearchQuery) {
+    const suggestions = getSuggestedPrompts(entries);
+    if (suggestions.length > 0) {
+      const sugHeader = document.createElement('div');
+      sugHeader.style.cssText = 'padding:6px 10px;font-size:9px;font-weight:700;color:#3daee9;background:rgba(61,174,233,0.05);text-transform:uppercase;letter-spacing:0.5px;';
+      sugHeader.textContent = '✨ Suggested';
+      container.appendChild(sugHeader);
+      suggestions.forEach((p: any, idx: number) => {
+        container.appendChild(renderPromptItem(idx, p, container, promptsCfg, ctx, taskNextDeps));
+      });
+      const sep = document.createElement('div');
+      sep.style.cssText = 'height:1px;background:rgba(124,58,237,0.2);margin:4px 0;';
+      container.appendChild(sep);
+    }
+  }
+
   // 1. Render Favorites (pinned to top)
+
   const favorites = entries.filter(p => p.isFavorite);
   if (favorites.length > 0 && !getPromptCategoryFilter() && !_currentSearchQuery) {
     const favHeader = document.createElement('div');
@@ -456,7 +475,7 @@ function _appendFilteredItems(
     container.appendChild(sep);
   }
 
-  // 2. Render normal filtered items
+  // 2. Render normal filtered items with folder support
   const filtered = filterByCategory(entries);
   if (filtered.length === 0) {
     const empty = document.createElement('div');
@@ -465,9 +484,74 @@ function _appendFilteredItems(
     container.appendChild(empty);
     return;
   }
-  for (const [idx, p] of filtered.entries()) {
-    container.appendChild(renderPromptItem(idx, p, container, promptsCfg, ctx, taskNextDeps));
+
+  // Group by folder if no search active
+  if (!_currentSearchQuery) {
+    _renderFolderTree(container, filtered, promptsCfg, ctx, taskNextDeps);
+  } else {
+    for (const [idx, p] of filtered.entries()) {
+      container.appendChild(renderPromptItem(idx, p, container, promptsCfg, ctx, taskNextDeps));
+    }
   }
+}
+
+/** Render prompts in a collapsible folder tree. */
+function _renderFolderTree(
+  container: HTMLElement,
+  entries: LoaderPromptEntry[],
+  promptsCfg: any,
+  ctx: PromptContext,
+  taskNextDeps: TaskNextDeps,
+): void {
+  const folders: Record<string, LoaderPromptEntry[]> = {};
+  const rootItems: LoaderPromptEntry[] = [];
+
+  entries.forEach(p => {
+    const cat = p.category || '';
+    if (cat.includes('/')) {
+      const folderName = cat.split('/')[0];
+      if (!folders[folderName]) folders[folderName] = [];
+      folders[folderName].push(p);
+    } else {
+      rootItems.push(p);
+    }
+  });
+
+  // Render Folders
+  Object.keys(folders).sort().forEach(folderName => {
+    const folderWrap = document.createElement('div');
+    folderWrap.style.cssText = 'border-bottom:1px solid rgba(124,58,237,0.1);';
+    
+    const folderHeader = document.createElement('div');
+    folderHeader.style.cssText = 'padding:6px 10px;font-size:10px;font-weight:700;color:' + cPrimaryLight + ';cursor:pointer;display:flex;align-items:center;gap:6px;background:rgba(124,58,237,0.03);';
+    folderHeader.innerHTML = `<span>📁</span> <span>${folderName}</span> <span style="font-size:8px;opacity:0.5;margin-left:auto;">(${folders[folderName].length})</span>`;
+    
+    const folderBody = document.createElement('div');
+    folderBody.style.display = 'none';
+    folderBody.style.paddingLeft = '8px';
+    folderBody.style.borderLeft = '1px solid rgba(124,58,237,0.2)';
+    folderBody.style.margin = '2px 0 2px 10px';
+
+    folderHeader.onclick = (e) => {
+      e.stopPropagation();
+      const isOpen = folderBody.style.display !== 'none';
+      folderBody.style.display = isOpen ? 'none' : 'block';
+      folderHeader.querySelector('span')!.textContent = isOpen ? '📁' : '📂';
+    };
+
+    folders[folderName].forEach((p, idx) => {
+      folderBody.appendChild(renderPromptItem(idx, p, container, promptsCfg, ctx, taskNextDeps));
+    });
+
+    folderWrap.appendChild(folderHeader);
+    folderWrap.appendChild(folderBody);
+    container.appendChild(folderWrap);
+  });
+
+  // Render root items
+  rootItems.forEach((p, idx) => {
+    container.appendChild(renderPromptItem(idx, p, container, promptsCfg, ctx, taskNextDeps));
+  });
 }
 
 /** Save UI snapshot + HtmlCopy for fast restore. */

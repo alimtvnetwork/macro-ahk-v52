@@ -18,6 +18,21 @@ export class TaskQueueManager {
   private _isPaused = false;
   private _isStopped = false;
   private _abortController: AbortController | null = null;
+  private _executionLogs: string[] = [];
+  private _onLogUpdate: ((logs: string[]) => void) | null = null;
+
+  private _logExecution(msg: string, level: 'info' | 'success' | 'warn' | 'error' = 'info'): void {
+    const time = new Date().toLocaleTimeString();
+    const logMsg = `[${time}] ${msg}`;
+    this._executionLogs.push(logMsg);
+    if (this._executionLogs.length > 100) this._executionLogs.shift();
+    if (this._onLogUpdate) this._onLogUpdate([...this._executionLogs]);
+    log(`[TaskExecution] ${msg}`, level);
+  }
+
+  getExecutionLogs(): string[] { return this._executionLogs; }
+  onLogUpdate(cb: (logs: string[]) => void): void { this._onLogUpdate = cb; }
+
 
   isProcessing(): boolean { return this._isProcessing; }
   isPaused(): boolean { return this._isPaused; }
@@ -45,7 +60,7 @@ export class TaskQueueManager {
     this._isProcessing = true;
     this._abortController = new AbortController();
     
-    log('[TaskQueue] Starting queue processing...', 'info');
+    this._logExecution('Starting queue processing loop...', 'info');
     
     try {
       while (this._isProcessing && !this._isStopped) {
@@ -91,16 +106,18 @@ export class TaskQueueManager {
    * Process a single task: injection + submission.
    */
   private async processTask(task: MacroTask): Promise<void> {
-    log(`[TaskQueue] Processing task: ${task.id}`, 'info');
+    this._logExecution(`Processing task: ${task.prompt.substring(0, 50)}...`, 'info');
     await updateTaskStatus(task.id, 'processing');
 
     const promptsCfg = getPromptsConfig();
+    this._logExecution('Injecting prompt into editor...', 'info');
     const outcome = pasteIntoEditor(task.prompt, promptsCfg, (xpath) => {
       const node = getByXPath(xpath);
       return node instanceof Element ? node : null;
     });
 
     if (outcome === 'failed') {
+      this._logExecution('Injection failed', 'error');
       await this._handleTaskFailure(task, 'Injection failed');
       return;
     }
@@ -108,13 +125,14 @@ export class TaskQueueManager {
     // Attempt to click submit button
     const submitBtn = this.findSubmitButton();
     if (submitBtn) {
+      this._logExecution('Submit button found, clicking...', 'success');
       submitBtn.click();
       await updateTaskStatus(task.id, 'completed');
       
       // Sync to SQLite
       await saveCommunication(task.projectId, task.prompt);
       
-      log(`[TaskQueue] Task completed: ${task.id}`, 'success');
+      this._logExecution('Task completed successfully', 'success');
     } else {
       // Smarter failure detection
       const isLoggedOut = !document.cookie.includes('lovable-session-id.id');
@@ -134,7 +152,7 @@ export class TaskQueueManager {
 
       const nextRetry = retries + 1;
       const holdMs = 10000 * nextRetry; // 10s, 20s, 30s backoff
-      log(`[TaskQueue] Task ${task.id} failed (${reason}). Retry ${nextRetry}/${maxRetries} in ${holdMs / 1000}s.`, 'warn');
+      this._logExecution(`Task failed (${reason}). Retry ${nextRetry}/${maxRetries} in ${holdMs / 1000}s.`, 'warn');
       
       const queueState = await loadTaskQueue();
       const t = queueState.tasks.find(t => t.id === task.id);
@@ -146,7 +164,7 @@ export class TaskQueueManager {
         await saveTaskQueue(queueState);
       }
     } else {
-      log(`[TaskQueue] Task ${task.id} failed permanently: ${reason}`, 'error');
+      this._logExecution(`Task failed permanently: ${reason}`, 'error');
       await updateTaskStatus(task.id, 'failed', reason);
       
       if (overrides.pauseQueueOnError !== false) {

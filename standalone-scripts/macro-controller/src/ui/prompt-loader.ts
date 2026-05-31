@@ -462,3 +462,19 @@ export function getPromptsConfig(): ResolvedPromptsConfig {
     pasteTargetSelector: promptsCfg.pasteTargetSelector || (promptsCfg.pasteTarget && promptsCfg.pasteTarget.selector) || ''
   };
 }
+
+/** Get contextually suggested prompts. */
+export function getSuggestedPrompts(allEntries: PromptEntry[]): PromptEntry[] {
+  const currentTags = (window as any).RiseupAsiaMacroExt?.Projects?.MacroController?.meta?.tags || [];
+  
+  if (currentTags.length === 0) {
+    // Fallback: recently used or favorites
+    return allEntries.filter(p => p.isFavorite).slice(0, 3);
+  }
+
+  return allEntries.filter(p => {
+    if (!p.tags || p.tags.length === 0) return false;
+    return p.tags.some((t: string) => currentTags.includes(t.toLowerCase()));
+  }).slice(0, 5);
+}
+

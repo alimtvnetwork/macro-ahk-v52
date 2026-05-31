@@ -10,9 +10,10 @@ import { log } from '../logging';
 import { showToast } from '../toast';
 import { CssFragment } from '../types';
 
-let _activeQueueTab: 'active' | 'history' = 'active';
+let _activeQueueTab: 'active' | 'history' | 'live' = 'active';
 let _selectedTaskIds: Set<string> = new Set();
 let _selectionMode = false;
+
 
 /**
  * Build the Task Queue section for the Tools panel.
@@ -219,11 +220,16 @@ export function buildTaskQueueSection(): HTMLElement {
   const historyTab = document.createElement('div');
   historyTab.textContent = 'History';
   historyTab.style.cssText = `flex:1;text-align:center;padding:4px;font-size:9px;font-weight:700;cursor:pointer;border-radius:4px;background:${_activeQueueTab === 'history' ? cPrimary : cPanelBgAlt};color:${_activeQueueTab === 'history' ? '#fff' : '#64748b'};`;
+
+  const liveTab = document.createElement('div');
+  liveTab.textContent = 'Live';
+  liveTab.style.cssText = `flex:1;text-align:center;padding:4px;font-size:9px;font-weight:700;cursor:pointer;border-radius:4px;background:${_activeQueueTab === 'live' ? cPrimary : cPanelBgAlt};color:${_activeQueueTab === 'live' ? '#fff' : '#64748b'};`;
   
   activeTab.onclick = () => {
     _activeQueueTab = 'active';
     activeTab.style.background = cPrimary; activeTab.style.color = '#fff';
     historyTab.style.background = cPanelBgAlt; historyTab.style.color = '#64748b';
+    liveTab.style.background = cPanelBgAlt; liveTab.style.color = '#64748b';
     refreshTaskQueueUI(listContainer);
   };
   
@@ -231,11 +237,21 @@ export function buildTaskQueueSection(): HTMLElement {
     _activeQueueTab = 'history';
     historyTab.style.background = cPrimary; historyTab.style.color = '#fff';
     activeTab.style.background = cPanelBgAlt; activeTab.style.color = '#64748b';
+    liveTab.style.background = cPanelBgAlt; liveTab.style.color = '#64748b';
+    refreshTaskQueueUI(listContainer);
+  };
+
+  liveTab.onclick = () => {
+    _activeQueueTab = 'live';
+    liveTab.style.background = cPrimary; liveTab.style.color = '#fff';
+    activeTab.style.background = cPanelBgAlt; activeTab.style.color = '#64748b';
+    historyTab.style.background = cPanelBgAlt; historyTab.style.color = '#64748b';
     refreshTaskQueueUI(listContainer);
   };
   
   tabsRow.appendChild(activeTab);
   tabsRow.appendChild(historyTab);
+  tabsRow.appendChild(liveTab);
   section.appendChild(tabsRow);
 
 
@@ -288,6 +304,12 @@ async function _updateQueueCountdown(badge: HTMLElement, title?: HTMLElement): P
  */
 async function refreshTaskQueueUI(container: HTMLElement): Promise<void> {
   const state = await loadTaskQueue();
+  
+  if (_activeQueueTab === 'live') {
+    renderLiveStream(container);
+    return;
+  }
+
   const tasksToShow = _activeQueueTab === 'active' ? state.tasks : (state.history || []);
   
   // Update bulk row visibility
@@ -414,6 +436,46 @@ function _toggleTaskSelection(taskId: string, container: HTMLElement): void {
   }
   refreshTaskQueueUI(container);
 }
+
+/** Render the Live Stream tab. */
+function renderLiveStream(container: HTMLElement): void {
+  const mgr = TaskQueueManager.getInstance();
+  const logs = mgr.getExecutionLogs();
+  
+  container.innerHTML = '';
+  container.style.background = 'rgba(0,0,0,0.4)';
+  
+  if (logs.length === 0) {
+    container.innerHTML = '<div style="padding:12px;text-align:center;color:#64748b;font-size:10px;">No active execution logs</div>';
+    return;
+  }
+
+  const logList = document.createElement('div');
+  logList.style.cssText = 'display:flex;flex-direction:column;gap:2px;font-family:ui-monospace,monospace;font-size:9px;';
+  
+  logs.forEach(msg => {
+    const line = document.createElement('div');
+    line.style.cssText = 'padding:2px 4px;border-radius:2px;white-space:pre-wrap;word-break:break-all;';
+    
+    if (msg.includes('successfully')) line.style.color = cSuccess;
+    else if (msg.includes('failed') || msg.includes('error')) line.style.color = cError;
+    else line.style.color = '#94a3b8';
+
+    line.textContent = msg;
+    logList.appendChild(line);
+  });
+
+  container.appendChild(logList);
+  
+  // Auto-scroll to bottom
+  setTimeout(() => { container.scrollTop = container.scrollHeight; }, 0);
+
+  // Hook for updates if not already hooked
+  mgr.onLogUpdate(() => {
+    if (_activeQueueTab === 'live') refreshTaskQueueUI(container);
+  });
+}
+
 
 
 /** Show a modal with full task details. */
