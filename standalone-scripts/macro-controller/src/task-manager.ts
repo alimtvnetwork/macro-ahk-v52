@@ -16,11 +16,14 @@ export class TaskQueueManager {
   private static _instance: TaskQueueManager | null = null;
   private _isProcessing = false;
   private _isPaused = false;
+  private _isStopped = false;
   private _abortController: AbortController | null = null;
 
   isProcessing(): boolean { return this._isProcessing; }
   isPaused(): boolean { return this._isPaused; }
+  isStopped(): boolean { return this._isStopped; }
   setPaused(paused: boolean): void { this._isPaused = paused; }
+  setStopped(stopped: boolean): void { this._isStopped = stopped; }
 
   static getInstance(): TaskQueueManager {
     if (!TaskQueueManager._instance) {
@@ -35,6 +38,7 @@ export class TaskQueueManager {
   async startProcessing(): Promise<void> {
     if (this._isProcessing) return;
     
+    this._isStopped = false;
     const queueState = await loadTaskQueue();
     if (queueState.isPaused || this._isPaused || queueState.tasks.length === 0) return;
 
@@ -44,7 +48,7 @@ export class TaskQueueManager {
     log('[TaskQueue] Starting queue processing...', 'info');
     
     try {
-      while (this._isProcessing) {
+      while (this._isProcessing && !this._isStopped) {
         const queueState = await loadTaskQueue();
         const now = Date.now();
         const nextTask = queueState.tasks.find(t => t.status === 'pending' || (t.status === 'hold' && (t.holdUntil ?? 0) <= now));
@@ -169,8 +173,10 @@ export class TaskQueueManager {
 
   stopProcessing(): void {
     this._isProcessing = false;
+    this._isStopped = true;
     if (this._abortController) {
       this._abortController.abort();
     }
+    log('[TaskQueue] Queue processing stopped manually', 'warn');
   }
 }

@@ -42,15 +42,34 @@ export function buildTaskQueueSection(): HTMLElement {
   controls.style.cssText = 'display:flex;gap:6px;';
 
   const pauseBtn = document.createElement('button');
-  pauseBtn.textContent = '⏸ Pause';
-  pauseBtn.style.cssText = 'padding:2px 6px;font-size:9px;background:' + cPanelBgAlt + ';border:1px solid ' + cPanelBorder + ';border-radius:4px;color:#9ca3af;cursor:pointer;';
+  const updatePauseBtnStyle = (isPaused: boolean, isStopped: boolean) => {
+    pauseBtn.textContent = isPaused || isStopped ? '▶ Resume' : '⏸ Pause';
+    pauseBtn.style.background = isPaused || isStopped ? 'rgba(34,197,94,0.15)' : cPanelBgAlt;
+    pauseBtn.style.color = isPaused || isStopped ? '#4ade80' : '#9ca3af';
+  };
+  
+  const mgr = TaskQueueManager.getInstance();
+  updatePauseBtnStyle(mgr.isPaused(), mgr.isStopped());
+
+  pauseBtn.style.cssText = 'padding:2px 8px;font-size:9px;border:1px solid ' + cPanelBorder + ';border-radius:4px;cursor:pointer;transition:all 0.2s;';
   pauseBtn.onclick = async () => {
     const queueState = await loadTaskQueue();
-    queueState.isPaused = !queueState.isPaused;
+    const currentPaused = queueState.isPaused || mgr.isPaused() || mgr.isStopped();
+    const newPaused = !currentPaused;
+    
+    queueState.isPaused = newPaused;
+    mgr.setPaused(newPaused);
+    mgr.setStopped(false); // Reset stopped state on manual interaction
+    
     await saveTaskQueue(queueState);
-    pauseBtn.textContent = queueState.isPaused ? '▶ Resume' : '⏸ Pause';
-    if (!queueState.isPaused) {
-      void TaskQueueManager.getInstance().startProcessing();
+    updatePauseBtnStyle(newPaused, false);
+    
+    if (!newPaused) {
+      log('[TaskQueue] Resuming queue...', 'info');
+      void mgr.startProcessing();
+    } else {
+      log('[TaskQueue] Pausing queue...', 'info');
+      mgr.stopProcessing();
     }
     refreshTaskQueueUI(listContainer);
   };
@@ -179,6 +198,13 @@ export function buildTaskQueueSection(): HTMLElement {
   listContainer.addEventListener('refresh-queue', refreshHandler);
   
   setInterval(refreshHandler, 1000);
+  
+  // Update pause button state based on manager
+  setInterval(() => {
+    const mgr = TaskQueueManager.getInstance();
+    updatePauseBtnStyle(mgr.isPaused(), mgr.isStopped());
+  }, 1000);
+
   refreshHandler();
 
   return section;
