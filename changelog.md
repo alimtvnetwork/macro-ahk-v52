@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.46.0] — 2026-05-31
+
+### Added
+- **Task Queue History**: Completed and failed tasks now move to a dedicated history tab (last 50).
+- **Task Reordering**: Added "Move Up" and "Move Down" buttons for pending tasks.
+- **Prompt Search & Tags**: New filter bar and tagging system for saved prompts.
+
+### Changed
+- Version bump: 3.45.0 → 3.46.0 (all version files synced).
+
+---
+
 ## [v3.45.0] — 2026-05-31
 
 ### Added

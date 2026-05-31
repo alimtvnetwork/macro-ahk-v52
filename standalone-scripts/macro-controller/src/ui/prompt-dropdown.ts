@@ -138,6 +138,7 @@ interface MemSnapshot {
 }
 let _memSnapshot: MemSnapshot | null = null;
 let _memHydrated = false;
+let _currentSearchQuery = '';
 
 function _hydrateMemSnapshotOnce(): void {
   if (_memHydrated) return;
@@ -176,7 +177,8 @@ export function renderPromptsDropdown(ctx: PromptContext, taskNextDeps: TaskNext
 
   // Fast path — paint synchronously from the in-memory snapshot.
   if (
-    _memSnapshot
+    !_currentSearchQuery
+    && _memSnapshot
     && _memSnapshot.dataHash === currentHash
     && _memSnapshot.categoryFilter === currentFilter
     && _memSnapshot.promptCount === entries.length
@@ -311,6 +313,35 @@ function handleLoadClick(btn: HTMLElement, ctx: PromptContext, taskNextDeps: Tas
   });
 }
 
+/** Build the search input for filtering prompts. */
+function buildSearchInput(ctx: PromptContext, taskNextDeps: TaskNextDeps): HTMLElement {
+  const container = document.createElement('div');
+  container.style.cssText = 'padding:6px 8px;border-bottom:1px solid rgba(124,58,237,0.2);background:rgba(124,58,237,0.05);';
+  
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = '🔍 Search prompts or #tags...';
+  input.value = _currentSearchQuery;
+  input.style.cssText = 'width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:#fff;font-size:10px;padding:4px 8px;outline:none;';
+  
+  input.oninput = function() {
+    _currentSearchQuery = input.value.trim().toLowerCase();
+    // We re-render the filtered items part without rebuilding the whole dropdown
+    // or just re-render the whole dropdown fresh
+    renderPromptsDropdown(ctx, taskNextDeps);
+  };
+  
+  // Focus on render if it was already focused? 
+  // Actually, re-rendering the whole dropdown will lose focus.
+  // Let's try to preserve it.
+  if (_currentSearchQuery) {
+    setTimeout(() => input.focus(), 0);
+  }
+
+  container.appendChild(input);
+  return container;
+}
+
 function _renderFresh(
   promptsDropdown: HTMLElement,
   entries: LoaderPromptEntry[],
@@ -321,6 +352,11 @@ function _renderFresh(
   categoryFilter: string | null,
 ): void {
   promptsDropdown.textContent = '';
+
+  _appendHeaderAndSubmenu(promptsDropdown, entries, ctx, taskNextDeps);
+  
+  // Append Search Bar
+  promptsDropdown.appendChild(buildSearchInput(ctx, taskNextDeps));
 
   if (!entries.length) {
     renderEmptyState(promptsDropdown, ctx, taskNextDeps);
@@ -708,17 +744,33 @@ function collectUniqueCategories(entries: Array<{ category?: string }>): string[
 function _computeFilterKey(): string {
   const legacy = getPromptCategoryFilter() || '';
   const multi = Array.from(getPromptCategoryFilterSet()).sort().join(',');
-  return legacy + '|' + multi;
+  return legacy + '|' + multi + '|' + _currentSearchQuery;
 }
 
-function filterByCategory<T extends { category?: string }>(entries: T[]): T[] {
+function filterByCategory<T extends { name: string; text: string; category?: string; tags?: string[] }>(entries: T[]): T[] {
+  let filtered = entries;
   const set = getPromptCategoryFilterSet();
+  
   if (set.size > 0) {
-    return entries.filter(entry => set.has(String(entry.category || '').trim().toLowerCase()));
+    filtered = entries.filter(entry => set.has(String(entry.category || '').trim().toLowerCase()));
+  } else {
+    const legacy = getPromptCategoryFilter();
+    if (legacy) {
+      filtered = entries.filter(entry => (String(entry.category || '')).trim().toLowerCase() === legacy);
+    }
   }
-  const legacy = getPromptCategoryFilter();
-  if (!legacy) return entries;
-  return entries.filter(entry => (String(entry.category || '')).trim().toLowerCase() === legacy);
+
+  if (_currentSearchQuery) {
+    const q = _currentSearchQuery.toLowerCase();
+    filtered = filtered.filter(entry => {
+      const name = (entry.name || '').toLowerCase();
+      const text = (entry.text || '').toLowerCase();
+      const tags = (entry.tags || []).join(' ').toLowerCase();
+      return name.includes(q) || text.includes(q) || tags.includes(q);
+    });
+  }
+
+  return filtered;
 }
 
 function renderTaskNextSubmenu(container: HTMLElement, ctx: PromptContext, taskNextDeps: TaskNextDeps): void {
@@ -869,7 +921,7 @@ function _appendTaskNextSettings(taskNextSub: HTMLElement, promptsDropdown: HTML
   taskNextSub.appendChild(settingsItem);
 }
 
-interface PromptEntry { id?: string; slug?: string; name: string; text: string; category?: string; isDefault?: boolean }
+interface PromptEntry { id?: string; slug?: string; name: string; text: string; category?: string; isDefault?: boolean; tags?: string[] }
 
 function renderPromptItem(
   idx: number, p: PromptEntry, promptsDropdown: HTMLElement,
@@ -891,7 +943,24 @@ function renderPromptItem(
   nameSpan.textContent = p.name + (hasText ? '' : ' (text not loaded)');
   nameSpan.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
   nameSpan.title = p.text || 'Prompt text not available — click Load to refresh';
-  item.appendChild(nameSpan);
+  
+  const contentWrap = document.createElement('div');
+  contentWrap.style.cssText = 'flex:1;display:flex;flex-direction:column;overflow:hidden;';
+  contentWrap.appendChild(nameSpan);
+
+  if (p.tags && p.tags.length > 0) {
+    const tagsWrap = document.createElement('div');
+    tagsWrap.style.cssText = 'display:flex;gap:4px;flex-wrap:wrap;margin-top:2px;';
+    p.tags.forEach(tag => {
+      const tagEl = document.createElement('span');
+      tagEl.textContent = tag;
+      tagEl.style.cssText = 'font-size:8px;background:rgba(124,58,237,0.2);color:' + cPrimaryLight + ';padding:0px 4px;border-radius:2px;border:1px solid rgba(124,58,237,0.2);';
+      tagsWrap.appendChild(tagEl);
+    });
+    contentWrap.appendChild(tagsWrap);
+  }
+
+  item.appendChild(contentWrap);
 
   const actions = document.createElement('span');
   actions.setAttribute('data-prompt-actions', '');

@@ -72,7 +72,7 @@ function onEscHandler(overlay: HTMLElement): (e: KeyboardEvent) => void {
  * @param editPrompt — existing prompt object for editing (has .id)
  * @param prefillData — pre-fill data for new prompt (no .id, not edit mode)
  */
-export function openPromptCreationModal(_ctx: PromptContext, _taskNextDeps: TaskNextDeps, editPrompt: EditablePrompt | null, prefillData?: { name?: string; text?: string; category?: string }): void {
+export function openPromptCreationModal(_ctx: PromptContext, _taskNextDeps: TaskNextDeps, editPrompt: EditablePrompt | null, prefillData?: { name?: string; text?: string; category?: string; tags?: string[] }): void {
   const existing = document.getElementById('marco-prompt-modal');
   if (existing) existing.remove();
 
@@ -121,6 +121,7 @@ interface PromptBodyResult {
   contentArea: HTMLTextAreaElement;
   catSelect: HTMLSelectElement;
   catCustomInput: HTMLInputElement;
+  tagsInput: HTMLInputElement;
 }
 
 function _buildPromptModalBody(initialData: Record<string, unknown>): PromptBodyResult {
@@ -132,10 +133,13 @@ function _buildPromptModalBody(initialData: Record<string, unknown>): PromptBody
   const catResult = _buildCategorySelect(initialData);
   body.appendChild(catResult.catWrap);
 
+  const tagsResult = _buildTagsInput(initialData);
+  body.appendChild(tagsResult.tagsWrap);
+
   _buildFileDropZone(body, contentArea, charCount, titleInput);
   _buildVariableReference(body);
 
-  return { body, titleInput, contentArea, catSelect: catResult.catSelect, catCustomInput: catResult.catCustomInput };
+  return { body, titleInput, contentArea, catSelect: catResult.catSelect, catCustomInput: catResult.catCustomInput, tagsInput: tagsResult.tagsInput };
 }
 
 function _buildTitleAndContent(body: HTMLElement, initialData: Record<string, unknown>): { titleInput: HTMLInputElement; contentArea: HTMLTextAreaElement; charCount: HTMLElement } {
@@ -208,6 +212,28 @@ function _buildVariableReference(body: HTMLElement): void {
   };
   body.appendChild(varToggle);
   body.appendChild(varList);
+}
+
+// ── Tags Input ──
+function _buildTagsInput(initialData: Record<string, unknown>): { tagsWrap: HTMLElement; tagsInput: HTMLInputElement } {
+  const tagsLabel = document.createElement('label');
+  tagsLabel.textContent = 'Tags (comma separated)';
+  tagsLabel.style.cssText = CssFragment.LabelBlock + cPrimaryLight + CssFragment.LabelSuffix;
+
+  const tagsWrap = document.createElement('div');
+  tagsWrap.style.cssText = 'margin-bottom:12px;';
+  tagsWrap.appendChild(tagsLabel);
+
+  const tagsInput = document.createElement('input');
+  tagsInput.type = 'text';
+  tagsInput.placeholder = 'e.g. ui, backend, logic';
+  tagsInput.value = Array.isArray(initialData.tags) ? initialData.tags.join(', ') : '';
+  tagsInput.style.cssText = 'width:100%;padding:8px 12px;background:' + cPanelBg + CssFragment.BorderSolid + cPrimaryBorderA + CssFragment.BorderRadiusColor + cPanelFg + ';font-size:13px;outline:none;box-sizing:border-box;';
+  tagsInput.onfocus = function() { (this as HTMLElement).style.borderColor = cPrimary; };
+  tagsInput.onblur = function() { (this as HTMLElement).style.borderColor = CssFragment.BorderPrimaryStrong; };
+  
+  tagsWrap.appendChild(tagsInput);
+  return { tagsWrap, tagsInput };
 }
 
 // ── Category Select ──
@@ -309,6 +335,7 @@ function _buildPromptModalFooter(
   saveBtn.onmouseover = function() { (this as HTMLElement).style.background = '#6d28d9'; };
   saveBtn.onmouseout = function() { (this as HTMLElement).style.background = '#7c3aed'; };
   saveBtn.onclick = function() {
+    const { titleInput, contentArea, catSelect, catCustomInput, tagsInput } = bodyResult;
     const name = titleInput.value.trim();
     const text = contentArea.value.trim();
     if (!name) { showPasteToast('❌ Title is required', true); titleInput.focus(); return; }
@@ -319,8 +346,10 @@ function _buildPromptModalFooter(
     saveBtn.textContent = '⏳ Saving…';
 
     const category = getSelectedCategory(catSelect, catCustomInput);
-    const promptPayload: Record<string, string> = { name: name, text: text, source: 'user' };
+    const tags = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
+    const promptPayload: Record<string, any> = { name: name, text: text, source: 'user' };
     if (category) promptPayload.category = category;
+    if (tags.length > 0) promptPayload.tags = tags;
     if (isEdit && editPrompt!.id) promptPayload.id = editPrompt!.id;
 
     sendToExtension('SAVE_PROMPT', { prompt: promptPayload }).then(function(resp: Record<string, unknown>) {

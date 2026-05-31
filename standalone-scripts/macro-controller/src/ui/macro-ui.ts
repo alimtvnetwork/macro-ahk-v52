@@ -10,6 +10,8 @@ import { log } from '../logging';
 import { showToast } from '../toast';
 import { CssFragment } from '../types';
 
+let _activeQueueTab: 'active' | 'history' = 'active';
+
 /**
  * Build the Task Queue section for the Tools panel.
  */
@@ -132,6 +134,36 @@ export function buildTaskQueueSection(): HTMLElement {
   
   section.appendChild(settingsRow);
 
+  // Tabs
+  const tabsRow = document.createElement('div');
+  tabsRow.style.cssText = 'display:flex;gap:4px;margin-bottom:4px;';
+  
+  const activeTab = document.createElement('div');
+  activeTab.textContent = 'Active';
+  activeTab.style.cssText = `flex:1;text-align:center;padding:4px;font-size:9px;font-weight:700;cursor:pointer;border-radius:4px;background:${_activeQueueTab === 'active' ? cPrimary : cPanelBgAlt};color:${_activeQueueTab === 'active' ? '#fff' : '#64748b'};`;
+  
+  const historyTab = document.createElement('div');
+  historyTab.textContent = 'History';
+  historyTab.style.cssText = `flex:1;text-align:center;padding:4px;font-size:9px;font-weight:700;cursor:pointer;border-radius:4px;background:${_activeQueueTab === 'history' ? cPrimary : cPanelBgAlt};color:${_activeQueueTab === 'history' ? '#fff' : '#64748b'};`;
+  
+  activeTab.onclick = () => {
+    _activeQueueTab = 'active';
+    activeTab.style.background = cPrimary; activeTab.style.color = '#fff';
+    historyTab.style.background = cPanelBgAlt; historyTab.style.color = '#64748b';
+    refreshTaskQueueUI(listContainer);
+  };
+  
+  historyTab.onclick = () => {
+    _activeQueueTab = 'history';
+    historyTab.style.background = cPrimary; historyTab.style.color = '#fff';
+    activeTab.style.background = cPanelBgAlt; activeTab.style.color = '#64748b';
+    refreshTaskQueueUI(listContainer);
+  };
+  
+  tabsRow.appendChild(activeTab);
+  tabsRow.appendChild(historyTab);
+  section.appendChild(tabsRow);
+
 
   const listContainer = document.createElement('div');
   listContainer.id = 'task-queue-list';
@@ -175,27 +207,62 @@ async function _updateQueueCountdown(badge: HTMLElement, title?: HTMLElement): P
  */
 async function refreshTaskQueueUI(container: HTMLElement): Promise<void> {
   const state = await loadTaskQueue();
+  const tasksToShow = _activeQueueTab === 'active' ? state.tasks : (state.history || []);
   
-  if (state.tasks.length === 0) {
-    container.innerHTML = '<div style="padding:12px;text-align:center;color:#64748b;font-size:10px;">Queue is empty</div>';
+  if (tasksToShow.length === 0) {
+    container.innerHTML = `<div style="padding:12px;text-align:center;color:#64748b;font-size:10px;">${_activeQueueTab === 'active' ? 'No active tasks' : 'History is empty'}</div>`;
     return;
   }
 
   container.innerHTML = '';
-  state.tasks.forEach(task => {
+  tasksToShow.forEach((task, idx) => {
     const item = document.createElement('div');
-    item.style.cssText = `padding:6px 8px;background:${cPanelBgAlt};border-radius:4px;border-left:3px solid ${getStatusColor(task.status)};display:flex;flex-direction:column;gap:2px;`;
-    
+    item.style.cssText = `padding:6px 8px;background:${cPanelBgAlt};border-radius:4px;border-left:3px solid ${getStatusColor(task.status)};display:flex;flex-direction:column;gap:2px;position:relative;`;
+    if (_activeQueueTab === 'history') item.style.opacity = '0.7';
+
     const row1 = document.createElement('div');
-    row1.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
+    row1.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;';
     
     const promptText = document.createElement('div');
-    promptText.style.cssText = 'font-size:10px;color:' + cPanelFg + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;';
+    promptText.style.cssText = 'font-size:10px;color:' + cPanelFg + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;';
     promptText.textContent = task.prompt;
+    promptText.title = task.prompt;
     row1.appendChild(promptText);
+
+    // Reorder buttons (only for active pending tasks)
+    if (_activeQueueTab === 'active' && task.status === 'pending') {
+      const reorderWrap = document.createElement('div');
+      reorderWrap.style.cssText = 'display:flex;gap:2px;';
+      
+      const upBtn = document.createElement('span');
+      upBtn.textContent = '▲';
+      upBtn.title = 'Move Up';
+      upBtn.style.cssText = 'cursor:pointer;font-size:8px;color:#64748b;padding:0 2px;';
+      upBtn.onclick = async (e) => {
+        e.stopPropagation();
+        const { reorderTask } = await import('../task-queue');
+        await reorderTask(task.id, 'up');
+        refreshTaskQueueUI(container);
+      };
+      
+      const downBtn = document.createElement('span');
+      downBtn.textContent = '▼';
+      downBtn.title = 'Move Down';
+      downBtn.style.cssText = 'cursor:pointer;font-size:8px;color:#64748b;padding:0 2px;';
+      downBtn.onclick = async (e) => {
+        e.stopPropagation();
+        const { reorderTask } = await import('../task-queue');
+        await reorderTask(task.id, 'down');
+        refreshTaskQueueUI(container);
+      };
+      
+      reorderWrap.appendChild(upBtn);
+      reorderWrap.appendChild(downBtn);
+      row1.appendChild(reorderWrap);
+    }
     
     const status = document.createElement('div');
-    status.style.cssText = `font-size:9px;color:${getStatusColor(task.status)};font-weight:600;`;
+    status.style.cssText = `font-size:9px;color:${getStatusColor(task.status)};font-weight:600;min-width:40px;text-align:right;`;
     if (task.status === 'hold' && task.holdUntil) {
       const secs = Math.max(0, Math.ceil((task.holdUntil - Date.now()) / 1000));
       status.textContent = `HOLD ${secs}s`;

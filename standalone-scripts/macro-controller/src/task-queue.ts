@@ -22,6 +22,7 @@ export interface MacroTask {
 
 export interface TaskQueueState {
   tasks: MacroTask[];
+  history?: MacroTask[];
   isPaused: boolean;
 }
 
@@ -33,17 +34,18 @@ const STATE_KEY = 'queue_state';
  */
 export async function loadTaskQueue(): Promise<TaskQueueState> {
   const projectId = extractProjectIdFromUrl();
-  if (!projectId) return { tasks: [], isPaused: false };
+  if (!projectId) return { tasks: [], history: [], isPaused: false };
 
   const store = getProjectKvStore('macro-controller');
   const stateData = await store.get<TaskQueueState>(SECTION, `${STATE_KEY}_${projectId}`);
   
   if (stateData) {
-    log(`[TaskQueue] Loaded ${stateData.tasks.length} tasks for project ${projectId}`, 'info');
+    if (!stateData.history) stateData.history = [];
+    log(`[TaskQueue] Loaded ${stateData.tasks.length} tasks and ${stateData.history.length} history items for project ${projectId}`, 'info');
     return stateData;
   }
   
-  return { tasks: [], isPaused: false };
+  return { tasks: [], history: [], isPaused: false };
 }
 
 /**
@@ -91,36 +93,51 @@ export async function addTaskToQueue(prompt: string, projectName: string): Promi
  */
 export async function updateTaskStatus(taskId: string, status: MacroTask['status'], error?: string): Promise<void> {
   const queueState = await loadTaskQueue();
-  const task = queueState.tasks.find(t => t.id === taskId);
-  if (task) {
+  const index = queueState.tasks.findIndex(t => t.id === taskId);
+  if (index !== -1) {
+    const task = queueState.tasks[index];
     task.status = status;
     if (error) task.error = error;
+    
+    // Move completed/failed to history
+    if (status === 'completed' || status === 'failed') {
+      if (!queueState.history) queueState.history = [];
+      queueState.history.unshift(task);
+      if (queueState.history.length > 50) queueState.history.pop();
+      queueState.tasks.splice(index, 1);
+    }
+    
     await saveTaskQueue(queueState);
   }
 }
 
 /**
- * Clear completed tasks from the queue.
+ * Clear completed tasks from history and main queue.
  */
 export async function clearCompletedTasks(): Promise<void> {
   const queueState = await loadTaskQueue();
-  const count = queueState.tasks.length;
+  const historyCount = queueState.history?.length ?? 0;
+  const completedCount = queueState.tasks.filter(t => t.status === 'completed').length;
+  
+  queueState.history = [];
   queueState.tasks = queueState.tasks.filter(t => t.status !== 'completed');
-  if (queueState.tasks.length !== count) {
+  
+  if (historyCount + completedCount > 0) {
     await saveTaskQueue(queueState);
-    log(`[TaskQueue] Cleared ${count - queueState.tasks.length} completed tasks`, 'info');
+    log(`[TaskQueue] Cleared ${historyCount + completedCount} items from history`, 'info');
   }
 }
 
 /**
- * Clear all tasks from the queue.
+ * Clear all tasks and history.
  */
 export async function clearAllTasks(): Promise<void> {
   const queueState = await loadTaskQueue();
-  if (queueState.tasks.length > 0) {
+  if (queueState.tasks.length > 0 || (queueState.history?.length ?? 0) > 0) {
     queueState.tasks = [];
+    queueState.history = [];
     await saveTaskQueue(queueState);
-    log('[TaskQueue] Cleared all tasks from queue', 'info');
+    log('[TaskQueue] Cleared all tasks and history', 'info');
   }
 }
 
@@ -130,6 +147,8 @@ export async function clearAllTasks(): Promise<void> {
 export async function retryFailedTasks(): Promise<void> {
   const queueState = await loadTaskQueue();
   let count = 0;
+  
+  // Check main tasks (if any)
   queueState.tasks.forEach(t => {
     if (t.status === 'failed') {
       t.status = 'pending';
@@ -138,6 +157,20 @@ export async function retryFailedTasks(): Promise<void> {
       count++;
     }
   });
+
+  // Check history
+  if (queueState.history && queueState.history.length > 0) {
+    const failedInHistory = queueState.history.filter(t => t.status === 'failed');
+    failedInHistory.forEach(t => {
+      t.status = 'pending';
+      delete t.error;
+      t.retryCount = 0;
+      queueState.tasks.push(t);
+      count++;
+    });
+    queueState.history = queueState.history.filter(t => t.status !== 'failed');
+  }
+
   if (count > 0) {
     await saveTaskQueue(queueState);
     log(`[TaskQueue] Reset ${count} failed tasks to pending`, 'info');
@@ -151,6 +184,26 @@ export async function retryFailedTasks(): Promise<void> {
 let _queueDelayUntil = 0;
 export function setQueueDelayUntil(ts: number): void { _queueDelayUntil = ts; }
 export function getQueueDelayUntil(): number { return _queueDelayUntil; }
+
+/**
+ * Reorder a task in the queue.
+ */
+export async function reorderTask(taskId: string, direction: 'up' | 'down'): Promise<void> {
+  const queueState = await loadTaskQueue();
+  const index = queueState.tasks.findIndex(t => t.id === taskId);
+  if (index === -1) return;
+
+  if (direction === 'up' && index > 0) {
+    [queueState.tasks[index - 1], queueState.tasks[index]] = [queueState.tasks[index], queueState.tasks[index - 1]];
+  } else if (direction === 'down' && index < queueState.tasks.length - 1) {
+    [queueState.tasks[index + 1], queueState.tasks[index]] = [queueState.tasks[index], queueState.tasks[index + 1]];
+  } else {
+    return;
+  }
+
+  await saveTaskQueue(queueState);
+  log(`[TaskQueue] Reordered task ${taskId} ${direction}`, 'info');
+}
 
 /**
  * Check if the "Return to Extension" button is present and pause queue if so.
