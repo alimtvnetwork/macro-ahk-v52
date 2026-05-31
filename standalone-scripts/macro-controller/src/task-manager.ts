@@ -21,7 +21,9 @@ export class TaskQueueManager {
 
   isProcessing(): boolean { return this._isProcessing; }
   isPaused(): boolean { return this._isPaused; }
+  isStopped(): boolean { return this._isStopped; }
   setPaused(paused: boolean): void { this._isPaused = paused; }
+  setStopped(stopped: boolean): void { this._isStopped = stopped; }
 
   static getInstance(): TaskQueueManager {
     if (!TaskQueueManager._instance) {
