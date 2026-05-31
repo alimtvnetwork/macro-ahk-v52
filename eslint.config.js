@@ -87,7 +87,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["tests/**/*.{ts,tsx}", "**/__tests__/**/*.{ts,tsx}", "standalone-scripts/**/src/__tests__/**/*.{ts,tsx}", "chrome-extension/tests/**/*.{ts,tsx}"],
+    files: ["tests/**/*.{ts,tsx}", "**/__tests__/**/*.{ts,tsx}", "standalone-scripts/**/src/__tests__/**/*.{ts,tsx}", "chrome-extension/tests/**/*.{ts,tsx}", "spec/**/*.ts"],
     rules: {
       "react-hooks/rules-of-hooks": "off",
       "max-lines-per-function": "off",

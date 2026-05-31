@@ -39,8 +39,6 @@ export function useVisibilityPausedInterval(
     useEffect(() => {
         if (!enabled) { return; }
         if (typeof document === "undefined") {
-            // SSR / non-DOM environment — fall back to plain interval so
-            // unit tests still observe ticks.
             const id = setInterval(() => tickRef.current(), intervalMs);
             return () => clearInterval(id);
         }
@@ -53,9 +51,10 @@ export function useVisibilityPausedInterval(
         };
 
         const stop = (): void => {
-            if (timerId === null) { return; }
-            clearInterval(timerId);
-            timerId = null;
+            if (timerId !== null) {
+                clearInterval(timerId);
+                timerId = null;
+            }
         };
 
         const handleVisibility = (): void => {

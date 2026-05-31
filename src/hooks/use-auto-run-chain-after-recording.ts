@@ -64,8 +64,7 @@ export function shouldAutoRun(
     if (prev === null) { return false; }
     const wasActive = prev.Phase === "Recording" || prev.Phase === "Paused";
     if (!wasActive) { return false; }
-    const isIdle = next === null || next.Phase === "Idle";
-    return isIdle;
+    return next === null || next.Phase === "Idle";
 }
 
 export function useAutoRunChainAfterRecording(opts: UseAutoRunChainOptions): void {

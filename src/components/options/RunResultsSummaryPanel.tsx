@@ -229,4 +229,4 @@ function Stat({ icon, label, value, hint, tone = "default" }: StatProps) {
 }
 
 /** Exposed for unit tests so we can assert on the aggregator independently. */
-export const __testing = { aggregate, countsFromTrace };
+export { aggregate as __aggregateForTest, countsFromTrace as __countsFromTraceForTest };

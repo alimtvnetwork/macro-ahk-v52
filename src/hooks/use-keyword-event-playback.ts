@@ -39,12 +39,11 @@ export function useKeywordEventPlayback(): KeywordEventPlaybackState {
         setRunningId(event.Id);
         setCurrentStepIndex(null);
         try {
-            const result = await runKeywordEvent(event, {
+            return await runKeywordEvent(event, {
                 target: target ?? undefined,
                 signal: ctrl.signal,
                 onStep: (_s: KeywordEventStep, i: number) => setCurrentStepIndex(i),
             });
-            return result;
         } finally {
             if (controllerRef.current === ctrl) controllerRef.current = null;
             setRunningId(prev => (prev === event.Id ? null : prev));
