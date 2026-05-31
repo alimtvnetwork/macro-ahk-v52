@@ -121,6 +121,7 @@ interface PromptBodyResult {
   contentArea: HTMLTextAreaElement;
   catSelect: HTMLSelectElement;
   catCustomInput: HTMLInputElement;
+  tagsInput: HTMLInputElement;
 }
 
 function _buildPromptModalBody(initialData: Record<string, unknown>): PromptBodyResult {
