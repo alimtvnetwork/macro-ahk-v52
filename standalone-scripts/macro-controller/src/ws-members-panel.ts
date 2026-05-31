@@ -608,10 +608,6 @@ function openMemberActionMenu(
   }, 10);
 }
 
-
-
-
-
 // v3.4.3 (task 13) — Submit invite + optimistic insert. Reverts on failure.
 function submitInvite(el: HTMLElement, wsId: string, wsName: string, form: HTMLFormElement): void {
   const validEmails = (el as any)._marcoValidEmails || [];
@@ -650,6 +646,7 @@ function submitInvite(el: HTMLElement, wsId: string, wsName: string, form: HTMLF
     loadAndRender(el, wsId, wsName);
   })();
 }
+
 
 // eslint-disable-next-line max-lines-per-function
 function attachActionHandlers(el: HTMLElement, wsId: string, wsName: string): void {
@@ -771,7 +768,7 @@ function loadAndRender(el: HTMLElement, wsId: string, wsName: string): void {
   const store = el as HTMLElement & PanelHandlerStore;
   const limit = store._marcoMembersLimit ?? DEFAULT_MEMBERS_PAGE_LIMIT;
   render(el, wsName, { kind: 'loading' });
-  fetchWorkspaceMembers(wsId, false, limit)
+  fetchWorkspaceMembers(wsId, limit)
     .then(function (entry) {
       if (!document.getElementById(PANEL_ID)) return; // panel was closed
       store._marcoMembersLatest = { wsName: wsName, members: entry.members, total: entry.total, limit: limit };
@@ -785,6 +782,7 @@ function loadAndRender(el: HTMLElement, wsId: string, wsName: string): void {
     });
 }
 
+
 /** Silent refetch — used by the credit-poll subscription. Skips loading state. */
 function silentRefresh(el: HTMLElement, wsId: string, wsName: string): void {
   const store = el as HTMLElement & PanelHandlerStore;
@@ -793,13 +791,14 @@ function silentRefresh(el: HTMLElement, wsId: string, wsName: string): void {
   const limit = store._marcoMembersLimit ?? DEFAULT_MEMBERS_PAGE_LIMIT;
   store._marcoMembersAutoBusy = true;
   clearMembersCache(wsId);
-  fetchWorkspaceMembers(wsId, true, limit)
+  fetchWorkspaceMembers(wsId, limit)
     .then(function (entry) {
       if (!document.getElementById(PANEL_ID)) return;
       store._marcoMembersLatest = { wsName: wsName, members: entry.members, total: entry.total, limit: limit };
       render(el, wsName, { kind: 'success', members: entry.members, total: entry.total, limit: limit });
     })
     .catch(function (err: unknown) {
+
       const msg = err instanceof Error ? err.message : String(err);
       logError('WsMembersPanel', 'Auto-refresh failed for ' + wsId + ': ' + msg);
     })

@@ -69,5 +69,7 @@ export function resumeQueue(): QueueClickResult {
 export { readQueueCount, readQueueCountDetailed, QUEUE_COUNT_XPATH } from './queue-count';
 export type { QueueCountReadResult } from './queue-count';
 export { autoResumeQueueIfNeeded } from './auto-resume';
-export type { AutoResumeResult, AutoResumeReason, AutoResumeDeps } from './auto-resume';
+export type { AutoResumeResult, AutoResumeDeps } from './auto-resume';
+export { checkAutoResume } from './auto-resume';
+
 

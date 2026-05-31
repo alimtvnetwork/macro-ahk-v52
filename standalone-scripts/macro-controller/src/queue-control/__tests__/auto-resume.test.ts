@@ -27,9 +27,12 @@ function mountQueueHeader(countText: string): void {
 function mountButton(ariaLabel: string): HTMLButtonElement {
     const btn = document.createElement('button');
     btn.setAttribute('aria-label', ariaLabel);
+    // mock offsetParent for visibility check
+    Object.defineProperty(btn, 'offsetParent', { get: () => document.body });
     document.body.appendChild(btn);
     return btn;
 }
+
 
 afterEach(() => {
     document.body.innerHTML = '';
