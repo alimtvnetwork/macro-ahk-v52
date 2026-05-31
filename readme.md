@@ -32,7 +32,7 @@ irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v44/main/scripts/d
 **Windows · PowerShell — pin a version + custom folder name (env-var form, works with `irm | iex`):**
 
 ```powershell
-$env:MARCO_DL_VERSION='v3.44.0'; $env:MARCO_DL_FOLDER='marco'; irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v44/main/scripts/download-extension.ps1 | iex
+$env:MARCO_DL_VERSION='v3.45.0'; $env:MARCO_DL_FOLDER='marco'; irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v44/main/scripts/download-extension.ps1 | iex
 ```
 
 **Windows · PowerShell — run a local clone with explicit flags:**

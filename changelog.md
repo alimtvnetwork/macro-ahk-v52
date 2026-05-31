@@ -6,6 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1.html).
 
 ---
+6: 
+10: ## [v3.45.0] — 2026-05-31
+11: 
+12: ### Added
+13: - **Prompt IO Hardening**: Added "Clear All Prompts" button and "Overwrite" merge strategy toggle to the IO dialog.
+14: - **Task Queue Observability**: Header now shows live pending task count.
+15: - **Task Queue Settings**: Added "Pause on Error" toggle and configurable "Max Retries" numeric input.
+16: - **Unit Tests**: Added `prompt-io.test.ts` covering JSON validation and merge strategies.
+17: 
+18: ### Changed
+19: - Version bump: 3.44.0 → 3.45.0 (all version files synced).
+20: 
+21: ---
+22: 
+23: ## [v3.44.0] — 2026-05-31
+24: 
+25: ### Added
+26: - **Prompt IO Dialog**: New floating dialog for bulk prompt import/export via JSON.
+27: - **Task Queue Controls**: Added Pause/Resume, Retry Failed, and Clear (Completed/All) buttons to the Queue panel.
+28: - **Startup Resume Dialog**: Prominent prompt to resume pending tasks detected on extension injection.
+29: 
+30: ### Fixed
+31: - **Plan/Filter rebind**: Strengthened event listener restoration for the Plan Task and Task Next buttons after snapshot restore.
+32: 
+33: ### Changed
+34: - Version bump: 3.43.0 → 3.44.0 (all version files synced).
+35: 
+36: ---
+
 
 ## [v3.43.0] — 2026-05-31
 
