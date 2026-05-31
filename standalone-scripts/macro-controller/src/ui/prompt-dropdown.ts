@@ -445,7 +445,7 @@ function _rebindDropdownListeners(
   _rebindHeader(promptsDropdown, ctx, taskNextDeps);
   _rebindTaskNextSubmenu(promptsDropdown, ctx, taskNextDeps);
   _rebindPlanTaskSubmenus(promptsDropdown, ctx);
-  _rebindFilterChips(promptsDropdown, entries, ctx, taskNextDeps);
+  _rebindFilterMenu(promptsDropdown, entries, ctx, taskNextDeps);
   _rebindPromptItems(promptsDropdown, entries, promptsCfg, ctx, taskNextDeps);
   _rebindAddButton(promptsDropdown, ctx, taskNextDeps);
 }
@@ -534,16 +534,32 @@ function _cleanupTaskNextSubs(): void {
   subs.forEach(function(el) { el.remove(); });
 }
 
-/** Legacy chip rebind retained as a no-op — old flex-wrap chip bar was removed. */
-function _rebindFilterChips(
-  _container: HTMLElement,
-  _entries: LoaderPromptEntry[],
-  _ctx: PromptContext,
-  _taskNextDeps: TaskNextDeps,
+/** Rebuild the inline Filter menu in the dropdown after snapshot restore. */
+function _rebindFilterMenu(
+  container: HTMLElement,
+  entries: LoaderPromptEntry[],
+  ctx: PromptContext,
+  taskNextDeps: TaskNextDeps,
 ): void {
-  // Filter UI is now the inline Filter menu rendered via renderFilterMenu().
-  // Snapshot restore replaces innerHTML; the menu is rebuilt as part of the fresh render path.
+  // Locate the element with [data-prompt-filter-sub], walk to its item-container and replace it.
+  const sub = container.querySelector('[data-prompt-filter-sub]');
+  if (sub) {
+    const item = sub.parentElement;
+    if (item) {
+      const categories = collectUniqueCategories(entries);
+      item.textContent = ''; // clear it
+      // Replace the item's contents by calling renderFilterMenu but into the item itself
+      // Wait, renderFilterMenu appends the item to the container. I should probably
+      // find the container and replace the old item.
+      const parent = item.parentElement;
+      if (parent) {
+        item.remove();
+        renderFilterMenu(parent, categories, ctx, taskNextDeps, renderPromptsDropdown);
+      }
+    }
+  }
 }
+
 
 /** Re-attach prompt item click/hover handlers from snapshot. */
 function _rebindPromptItems(
