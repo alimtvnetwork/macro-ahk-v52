@@ -441,7 +441,26 @@ function _appendFilteredItems(
   ctx: PromptContext,
   taskNextDeps: TaskNextDeps,
 ): void {
+  // 0. Render Suggestions (if no search and not in a specific category)
+  if (!getPromptCategoryFilter() && !_currentSearchQuery) {
+    const { getSuggestedPrompts } = require('./prompt-loader');
+    const suggestions = getSuggestedPrompts(entries);
+    if (suggestions.length > 0) {
+      const sugHeader = document.createElement('div');
+      sugHeader.style.cssText = 'padding:6px 10px;font-size:9px;font-weight:700;color:#3daee9;background:rgba(61,174,233,0.05);text-transform:uppercase;letter-spacing:0.5px;';
+      sugHeader.textContent = '✨ Suggested';
+      container.appendChild(sugHeader);
+      suggestions.forEach((p: any, idx: number) => {
+        container.appendChild(renderPromptItem(idx, p, container, promptsCfg, ctx, taskNextDeps));
+      });
+      const sep = document.createElement('div');
+      sep.style.cssText = 'height:1px;background:rgba(124,58,237,0.2);margin:4px 0;';
+      container.appendChild(sep);
+    }
+  }
+
   // 1. Render Favorites (pinned to top)
+
   const favorites = entries.filter(p => p.isFavorite);
   if (favorites.length > 0 && !getPromptCategoryFilter() && !_currentSearchQuery) {
     const favHeader = document.createElement('div');
