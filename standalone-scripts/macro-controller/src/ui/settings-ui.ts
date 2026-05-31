@@ -43,6 +43,7 @@ import {
   buildLoggingPanel,
   buildConfigDbPanel,
   buildGeneralPanel,
+  buildHistoryPanel,
 } from './settings-tab-panels';
 import { CssFragment } from '../types';
 // ============================================
