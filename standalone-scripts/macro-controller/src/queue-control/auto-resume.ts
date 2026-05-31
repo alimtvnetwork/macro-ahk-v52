@@ -93,3 +93,12 @@ export function autoResumeQueueIfNeeded(deps: AutoResumeDeps): AutoResumeResult 
         return { acted: false, reason: 'threw' };
     }
 }
+
+/**
+ * Legacy checkAutoResume (v3.x pattern) — v4 implementation uses
+ * autoResumeQueueIfNeeded() in the loop cycle.
+ */
+export function checkAutoResume(): void {
+    // No-op — v4 cycle calls autoResumeQueueIfNeeded directly.
+}
+
