@@ -83,14 +83,22 @@ async function navigateToSection(page: Page, sectionName: string) {
   const marker = page.locator('[data-testid="options-state-marker"]');
   await expect(marker).toBeAttached({ timeout: 15000 });
   
-  const branch = await marker.getAttribute('data-branch');
-  if (branch === 'onboarding-flow') {
-    console.log('Detected onboarding flow, completing it...');
-    // The onboarding flow has a "Get Started" or similar button
-    const getStartedBtn = page.getByRole('button', { name: /get started|next|complete/i }).last();
-    if (await getStartedBtn.isVisible()) {
-      await getStartedBtn.click();
+  // If we're in onboarding, click "Continue/Get Started" until we reach the ready state
+  let attempts = 0;
+  while (attempts < 5) {
+    const branch = await marker.getAttribute('data-branch');
+    if (branch !== 'onboarding-flow') break;
+
+    console.log(`Bypassing onboarding step ${attempts + 1}...`);
+    const cta = page.locator('[data-onboarding-cta]');
+    if (await cta.isVisible()) {
+      await cta.click();
+      // Wait a bit for the animation/transition
+      await page.waitForTimeout(500);
+    } else {
+      break;
     }
+    attempts++;
   }
 
   // 2. Ensure we are in the 'ready' branch where the sidebar exists
