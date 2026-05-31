@@ -6,12 +6,13 @@
 import { loadTaskQueue, saveTaskQueue, clearCompletedTasks, getQueueDelayUntil, type MacroTask } from '../task-queue';
 import { TaskQueueManager } from '../task-manager';
 import { cPanelBg, cPanelFg, cPrimary, cPrimaryLight, cSuccess, cError, cWarning, cPanelBgAlt, cPanelBorder } from '../shared-state';
+const TASK_QUEUE_SCOPE = '[TaskQueue]';
 import { log } from '../logging';
 // import { showToast } from '../toast';
 // import { CssFragment } from '../types';
 
 let _activeQueueTab: 'active' | 'history' | 'live' = 'active';
-let _selectedTaskIds: Set<string> = new Set();
+const _selectedTaskIds: Set<string> = new Set();
 let _selectionMode = false;
 
 
@@ -68,10 +69,10 @@ export function buildTaskQueueSection(): HTMLElement {
     updatePauseBtnStyle(newPaused, false);
     
     if (!newPaused) {
-      log('[TaskQueue] Resuming queue...', 'info');
+      log(TASK_QUEUE_SCOPE + ' Resuming queue...', 'info');
       void mgr.startProcessing();
     } else {
-      log('[TaskQueue] Pausing queue...', 'info');
+      log(TASK_QUEUE_SCOPE + ' Pausing queue...', 'info');
       mgr.stopProcessing();
     }
     refreshTaskQueueUI(listContainer);

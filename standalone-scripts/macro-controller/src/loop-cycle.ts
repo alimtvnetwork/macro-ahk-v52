@@ -16,6 +16,7 @@ import { showToast } from './toast';
 import { resolveToken } from './auth';
 import { getLastTokenSource, invalidateSessionBridgeKey, markBearerTokenExpired, recoverAuthOnce } from './auth';
 import { parseLoopApiResponse, syncCreditStateFromApi, schedulePostParseEnrichment } from './credit-fetch';
+const LOG_SCOPE_LOOP_CYCLE = 'loop-cycle';
 import { MacroController } from './core/MacroController';
 import { isUserTypingInPrompt } from './dom-helpers';
 import { CREDIT_API_BASE, TIMING, loopCreditState, state } from './shared-state';
@@ -128,7 +129,7 @@ async function handleFallbackAuthRecovery(
   fetchWithTokenFn: () => Promise<void>,
 ): Promise<void> {
   if (freshToken) {
-    markBearerTokenExpired('loop-cycle');
+    markBearerTokenExpired(LOG_SCOPE_LOOP_CYCLE);
     invalidateSessionBridgeKey(freshToken);
   }
 
@@ -310,7 +311,7 @@ async function doCycleFetchWithToken(isRetryAttempt: boolean): Promise<void> {
     }
 
     if (isAuthFailure(resp.status) && freshToken) {
-      markBearerTokenExpired('loop-cycle');
+      markBearerTokenExpired(LOG_SCOPE_LOOP_CYCLE);
     }
 
     if (!resp.ok) {

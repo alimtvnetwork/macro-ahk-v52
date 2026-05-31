@@ -26,6 +26,7 @@ import { logError } from './error-utils';
 import { ApiPath } from './types';
 
 const LOG_SCOPE_CREDIT_FETCH = 'credit-fetch';
+const CREDIT_FETCH_ASYNC_SCOPE = 'credit-fetch-async';
 
 function mc() { return MacroController.getInstance(); }
 
@@ -328,7 +329,7 @@ async function resolveTokenWithRecovery(isRetry?: boolean): Promise<string> {
 
 // CQ4: Extracted — handle auth failure in async path
 async function handleAsyncAuthFailure(resp: SdkApiResponse, token: string): Promise<void> {
-  markBearerTokenExpired('credit-fetch-async');
+  markBearerTokenExpired(CREDIT_FETCH_ASYNC_SCOPE);
   if (token) { invalidateSessionBridgeKey(token); }
 
   log('Credit API (async): Auth ' + resp.status + ' — forcing token refresh before retry...', 'warn');
@@ -364,7 +365,7 @@ async function doFetchLoopCreditsAsync(isRetry?: boolean): Promise<void> {
       return handleAsyncAuthFailure(resp, token);
     }
 
-    if (isAuthFailure(resp.status)) { markBearerTokenExpired('credit-fetch-async'); }
+    if (isAuthFailure(resp.status)) { markBearerTokenExpired(CREDIT_FETCH_ASYNC_SCOPE); }
     throw new Error('HTTP ' + resp.status);
   }
 
@@ -378,11 +379,11 @@ async function doFetchLoopCreditsAsync(isRetry?: boolean): Promise<void> {
   // immediately after a move. Sequential fail-fast: each enrichment is
   // independently wrapped so one failure does not block the other.
   const proZeroMutated = await applyProZeroEnrichment().catch(function (err: unknown): number {
-    logError('credit-fetch-async', 'pro_0 enrichment failed', err);
+    logError(CREDIT_FETCH_ASYNC_SCOPE, 'pro_0 enrichment failed', err);
     return 0;
   });
   const proOneMutated = await applyProOneEnrichment().catch(function (err: unknown): number {
-    logError('credit-fetch-async', 'pro_1 enrichment failed', err);
+    logError(CREDIT_FETCH_ASYNC_SCOPE, 'pro_1 enrichment failed', err);
     return 0;
   });
   if (proZeroMutated + proOneMutated > 0) { syncCreditStateFromApi(); mc().updateUI(); }

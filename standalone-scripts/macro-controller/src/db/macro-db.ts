@@ -199,7 +199,7 @@ export async function getCommunicationHistory(projectId: string, limit: number =
       endpoint: 'rawSql',
       params: { sql }
     });
-    return resp?.isOk ? (Array.isArray(resp.rows) ? resp.rows : []) : [];
+    return resp?.isOk ? (Array.isArray(resp.rows) ? (resp.rows as unknown[]) : []) : [];
   } catch (err) {
     logError('MacroDb', 'getCommunicationHistory failed', err);
     return [];
