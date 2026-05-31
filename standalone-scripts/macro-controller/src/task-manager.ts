@@ -3,10 +3,10 @@
  * Coordinates queue processing, delays, and state synchronization.
  */
 
-import { loadTaskQueue, saveTaskQueue, updateTaskStatus, type MacroTask, type TaskQueueState } from './task-queue';
+import { loadTaskQueue, saveTaskQueue, updateTaskStatus, checkForReturnButton, type MacroTask, type TaskQueueState } from './task-queue';
 import { getSettingsOverrides } from './settings-store';
 import { log, logSub } from './logging';
-import { isReturnButtonVisible, getByXPath } from './xpath-utils';
+import { getByXPath, isReturnButtonVisible } from './xpath-utils';
 import { pasteIntoEditor, findPasteTarget } from './ui/prompt-utils';
 import { getPromptsConfig } from './ui/prompt-loader';
 import { MacroController } from './core/MacroController';
@@ -43,6 +43,13 @@ export class TaskQueueManager {
         const queueState = await loadTaskQueue();
         const nextTask = queueState.tasks.find(t => t.status === 'pending');
         
+        // Check for return button (indicates we should pause/delay)
+        if (checkForReturnButton() || isReturnButtonVisible()) {
+          log('[TaskQueue] "Return to Extension" button detected. Pausing processing loop.', 'warn');
+          this._isProcessing = false;
+          break;
+        }
+
         if (!nextTask || queueState.isPaused) {
           this._isProcessing = false;
           break;
@@ -52,6 +59,7 @@ export class TaskQueueManager {
         
         // Apply configured delay
         const overrides = getSettingsOverrides();
+        // Default to 22s as requested by user
         const delaySec = overrides.nextSubmissionDelaySeconds ?? 22;
         
         if (overrides.enableNextSubmissionDelay !== false) {
