@@ -177,7 +177,8 @@ export function renderPromptsDropdown(ctx: PromptContext, taskNextDeps: TaskNext
 
   // Fast path — paint synchronously from the in-memory snapshot.
   if (
-    _memSnapshot
+    !_currentSearchQuery
+    && _memSnapshot
     && _memSnapshot.dataHash === currentHash
     && _memSnapshot.categoryFilter === currentFilter
     && _memSnapshot.promptCount === entries.length
