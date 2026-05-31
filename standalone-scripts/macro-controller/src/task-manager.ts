@@ -7,7 +7,7 @@ import { loadTaskQueue, saveTaskQueue, updateTaskStatus, checkForReturnButton, t
 import { getSettingsOverrides } from './settings-store';
 import { log, logSub } from './logging';
 import { getByXPath, isReturnButtonVisible } from './xpath-utils';
-import { pasteIntoEditor, findPasteTarget } from './ui/prompt-utils';
+import { pasteIntoEditor, findPasteTarget, showPasteToast } from './ui/prompt-utils';
 import { getPromptsConfig } from './ui/prompt-loader';
 import { MacroController } from './core/MacroController';
 import { saveCommunication } from './db/macro-db';
@@ -15,7 +15,12 @@ import { saveCommunication } from './db/macro-db';
 export class TaskQueueManager {
   private static _instance: TaskQueueManager | null = null;
   private _isProcessing = false;
+  private _isPaused = false;
   private _abortController: AbortController | null = null;
+
+  isProcessing(): boolean { return this._isProcessing; }
+  isPaused(): boolean { return this._isPaused; }
+  setPaused(paused: boolean): void { this._isPaused = paused; }
 
   static getInstance(): TaskQueueManager {
     if (!TaskQueueManager._instance) {
@@ -30,8 +35,8 @@ export class TaskQueueManager {
   async startProcessing(): Promise<void> {
     if (this._isProcessing) return;
     
-    const state = await loadTaskQueue();
-    if (state.isPaused || state.tasks.length === 0) return;
+    const queueState = await loadTaskQueue();
+    if (queueState.isPaused || this._isPaused || queueState.tasks.length === 0) return;
 
     this._isProcessing = true;
     this._abortController = new AbortController();
@@ -50,7 +55,14 @@ export class TaskQueueManager {
           break;
         }
 
-        if (!nextTask || queueState.isPaused) {
+        if (checkForReturnButton() || isReturnButtonVisible()) {
+          log('[TaskQueue] "Return to Extension" button detected. Pausing processing loop.', 'warn');
+          this._isPaused = true;
+          this._isProcessing = false;
+          break;
+        }
+
+        if (!nextTask || queueState.isPaused || this._isPaused) {
           this._isProcessing = false;
           break;
         }
@@ -103,8 +115,10 @@ export class TaskQueueManager {
       
       log(`[TaskQueue] Task completed: ${task.id}`, 'success');
     } else {
+      // Fallback: Use clipboard if submit button not found but injection worked
+      log(`[TaskQueue] Submit button not found for task ${task.id}. Retrying next cycle.`, 'warn');
       await updateTaskStatus(task.id, 'failed', 'Submit button not found');
-      log(`[TaskQueue] Submit button not found for task ${task.id}`, 'error');
+      showPasteToast('⚠️ Submit button not found - task marked failed', true);
     }
   }
 

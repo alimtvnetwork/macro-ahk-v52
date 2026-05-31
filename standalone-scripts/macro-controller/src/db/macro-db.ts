@@ -99,6 +99,11 @@ export async function saveProjectMetadata(projectId: string, name: string, url: 
 export async function saveCommunication(projectId: string, prompt: string, response: string = ''): Promise<void> {
   if (!projectId || !prompt) return;
   
+  // Also update Project metadata if we have it in state
+  const { state } = await import('../shared-state');
+  const projectName = state.projectNameFromApi || state.projectNameFromDom || 'Unknown Project';
+  await saveProjectMetadata(projectId, projectName, window.location.href);
+
   const sql = `INSERT INTO Communications (ProjectId, Prompt, Response) 
                VALUES ('${projectId.replace(/'/g, "''")}', '${prompt.replace(/'/g, "''")}', '${response.replace(/'/g, "''")}')`;
   

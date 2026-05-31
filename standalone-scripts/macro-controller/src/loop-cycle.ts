@@ -425,6 +425,14 @@ export function runCycle(): void {
     return;
   }
 
+  // Task Queue Management Logic
+  import('./task-manager').then(m => {
+    const manager = m.TaskQueueManager.getInstance();
+    manager.startProcessing().catch(err => {
+      logError('runCycle', 'TaskQueueManager failed', err);
+    });
+  });
+
   log('Step 1: Checking credit balance via API...', 'check');
 
   checkAndActOnCreditBalance()
