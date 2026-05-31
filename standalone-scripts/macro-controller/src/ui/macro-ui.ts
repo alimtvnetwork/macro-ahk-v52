@@ -2,13 +2,13 @@
  * MacroLoop Controller — Task Queue UI (Modal & Section)
  */
 
-import { taskNextState, type TaskNextDeps } from './task-next-ui';
-import { loadTaskQueue, saveTaskQueue, updateTaskStatus, clearCompletedTasks, getQueueDelayUntil, type MacroTask, type TaskQueueState } from '../task-queue';
+// import { taskNextState, type TaskNextDeps } from './task-next-ui';
+import { loadTaskQueue, saveTaskQueue, clearCompletedTasks, getQueueDelayUntil, type MacroTask } from '../task-queue';
 import { TaskQueueManager } from '../task-manager';
 import { cPanelBg, cPanelFg, cPrimary, cPrimaryLight, cSuccess, cError, cWarning, cPanelBgAlt, cPanelBorder } from '../shared-state';
 import { log } from '../logging';
-import { showToast } from '../toast';
-import { CssFragment } from '../types';
+// import { showToast } from '../toast';
+// import { CssFragment } from '../types';
 
 let _activeQueueTab: 'active' | 'history' | 'live' = 'active';
 let _selectedTaskIds: Set<string> = new Set();
@@ -180,7 +180,7 @@ export function buildTaskQueueSection(): HTMLElement {
   pauseOnErrorCheck.checked = initialSettings.pauseQueueOnError !== false;
   
   pauseOnErrorCheck.onchange = async () => {
-    const s = getSettingsOverrides();
+  const s = getSettingsOverrides();
     s.pauseQueueOnError = pauseOnErrorCheck.checked;
     await saveSettingsOverrides(s);
   };

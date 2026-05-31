@@ -32,7 +32,7 @@ import {
 } from './ws-list-renderer';
 import { showWsMembersPanel } from './ws-members-panel';
 import { showWsMembersBulkPanel } from './ws-members-bulk-panel';
-import { getSelectedWsIds, clearWsSelection } from './selected-workspaces-store';
+import { getSelectedWsIds } from './selected-workspaces-store';
 import { actionRemixManual, actionRemixNext } from './remix-dropdown';
 import { extractProjectIdFromUrl } from './workspace-detection';
 import { getDisplayProjectName } from './logging';

@@ -19,9 +19,6 @@ import {
   cPrimaryLight,
   cPrimaryHL,
   cPrimaryBgAL,
-  cPanelBg,
-  cPanelFg,
-  cPrimary,
 } from './shared-state';
 import { log } from './logging';
 import { calcTotalCredits, renderCreditBar } from './credit-api';
@@ -55,7 +52,7 @@ import { sortByRefillPriority, daysToRefillForWs } from './workspace-refill-prio
 // Issue 115 — collapsed display classifier + centralised tone resolver.
 import { classifyFromStatus, type WorkspaceDisplayStatus } from './workspace-display-status';
 import { resolveBadgeStyle, diluteBadgeBg } from './workspace-badge-styles';
-import { publishVisibleWorkspaces } from './visible-workspaces-store';
+// import { publishVisibleWorkspaces } from './visible-workspaces-store';
 import { 
   getSelectedWsIds, 
   setSelectedWsIds, 

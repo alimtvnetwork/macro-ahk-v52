@@ -329,7 +329,7 @@ function footerCollapsedHtml(): string {
     + '</button>';
 }
 
-function footerFormHtml(wsId: string): string {
+function footerFormHtml(): string {
   // We'll replace the static HTML with a container for the chip input
   return '<form data-marco-action="add-member-submit" '
     + 'style="display:flex;flex-direction:column;gap:6px;">'

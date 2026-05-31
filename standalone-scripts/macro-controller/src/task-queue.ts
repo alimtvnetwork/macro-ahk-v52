@@ -4,7 +4,7 @@
 
 import { getProjectKvStore } from './project-kv-store';
 import { extractProjectIdFromUrl } from './workspace-detection';
-import { log, logSub } from './logging';
+import { log } from './logging';
 import { syncTaskQueueToDb, saveProjectMetadata } from './db/macro-db';
 import { state } from './shared-state';
 

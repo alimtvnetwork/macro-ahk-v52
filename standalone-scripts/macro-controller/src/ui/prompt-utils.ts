@@ -441,7 +441,7 @@ export function setupPromptCapture(promptsCfg: PromptsCfg, getByXPath: (xpath: s
       const isInput = target.tagName === 'TEXTAREA' || target.tagName === 'INPUT';
       const eventType = isInput ? 'input' : 'input'; // both use input for content changes
       
-      target.addEventListener(eventType, (e) => {
+      target.addEventListener(eventType, () => {
         const text = isInput ? (target as HTMLInputElement).value : target.textContent || '';
         if (text.trim().length > 2) {
           throttleSave(text.trim());
