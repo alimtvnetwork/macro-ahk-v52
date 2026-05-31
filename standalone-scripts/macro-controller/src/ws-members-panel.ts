@@ -791,13 +791,14 @@ function silentRefresh(el: HTMLElement, wsId: string, wsName: string): void {
   const limit = store._marcoMembersLimit ?? DEFAULT_MEMBERS_PAGE_LIMIT;
   store._marcoMembersAutoBusy = true;
   clearMembersCache(wsId);
-  fetchWorkspaceMembers(wsId, true, limit)
+  fetchWorkspaceMembers(wsId, limit)
     .then(function (entry) {
       if (!document.getElementById(PANEL_ID)) return;
       store._marcoMembersLatest = { wsName: wsName, members: entry.members, total: entry.total, limit: limit };
       render(el, wsName, { kind: 'success', members: entry.members, total: entry.total, limit: limit });
     })
     .catch(function (err: unknown) {
+
       const msg = err instanceof Error ? err.message : String(err);
       logError('WsMembersPanel', 'Auto-refresh failed for ' + wsId + ': ' + msg);
     })
