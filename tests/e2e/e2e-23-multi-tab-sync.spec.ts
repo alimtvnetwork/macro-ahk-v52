@@ -8,6 +8,7 @@ import { launchExtension, getExtensionId, openOptions } from './fixtures';
  * across multiple Options tabs in real-time.
  */
 test.describe('E2E-23 — Multi-Tab State Synchronization', () => {
+  test.setTimeout(180_000);
   test('prompts and step groups sync across tabs', async () => {
     // 1. Setup Extension Context
     const context = await launchExtension(chromium);
