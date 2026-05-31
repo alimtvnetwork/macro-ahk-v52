@@ -38,6 +38,7 @@ export class TaskQueueManager {
   async startProcessing(): Promise<void> {
     if (this._isProcessing) return;
     
+    this._isStopped = false;
     const queueState = await loadTaskQueue();
     if (queueState.isPaused || this._isPaused || queueState.tasks.length === 0) return;
 
