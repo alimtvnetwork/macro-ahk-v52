@@ -22,7 +22,7 @@ import { runCycle } from '../loop-engine';
 import { trackedSetInterval, trackedClearInterval } from '../interval-registry';
 
 // Re-export status renderer symbols
-export { updateStatus, updateRecordIndicator, statusRenderStats } from './ui-status-renderer';
+export { updateStatus, updateRecordIndicator, statusRenderStats, updateQueueBadge } from './ui-status-renderer';
 import { updateStatus, updateRecordIndicator } from './ui-status-renderer';
 
 /**

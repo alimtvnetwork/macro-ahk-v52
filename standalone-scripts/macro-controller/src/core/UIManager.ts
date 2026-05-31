@@ -9,7 +9,7 @@
  */
 
 import type { UIManagerInterface } from './MacroController';
-import { updateUI, updateUILight, destroyPanel } from '../ui/ui-updaters';
+import { updateUI, updateUILight, destroyPanel, updateQueueBadge } from '../ui/ui-updaters';
 import { populateLoopWorkspaceDropdown } from '../ws-selection-ui';
 import { log } from '../logging';
 import { logError } from '../error-utils';
@@ -44,11 +44,13 @@ export class UIManager implements UIManagerInterface {
   /** Refresh all UI elements (status, buttons, workspace dropdown) */
   update(): void {
     updateUI();
+    updateQueueBadge();
   }
 
   /** Lightweight refresh — status, buttons, record indicator only (no workspace list rebuild) */
   updateLight(): void {
     updateUILight();
+    updateQueueBadge();
   }
 
   /** Rebuild the workspace dropdown list */
