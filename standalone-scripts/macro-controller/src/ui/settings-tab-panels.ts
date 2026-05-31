@@ -482,7 +482,7 @@ export function buildHistoryPanel(): { panel: HTMLElement } {
 }
 
 /** Shows a full-screen modal with history details. */
-function _showHistoryDetailModal(row: any): void {
+function _showHistoryDetailModal(row: Record<string, unknown>): void {
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);z-index:2147483647;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
   overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
