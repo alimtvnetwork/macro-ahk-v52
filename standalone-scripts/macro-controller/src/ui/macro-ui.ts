@@ -306,9 +306,60 @@ async function refreshTaskQueueUI(container: HTMLElement): Promise<void> {
       item.appendChild(err);
     }
     
+    item.onclick = () => showTaskDetailModal(task);
     container.appendChild(item);
   });
 }
+
+/** Show a modal with full task details. */
+function showTaskDetailModal(task: MacroTask): void {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:2147483647;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);font-family:system-ui,-apple-system,sans-serif;';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'background:' + cPanelBg + ';border:1px solid ' + cPanelBorder + ';border-radius:12px;width:90%;max-width:500px;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,0.5);overflow:hidden;';
+  modal.onclick = (e) => e.stopPropagation();
+
+  const header = document.createElement('div');
+  header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid ' + cPanelBorder + ';';
+  header.innerHTML = `<span style="font-size:12px;font-weight:700;color:${getStatusColor(task.status)};">Task: ${task.status.toUpperCase()}</span>`;
+  
+  const closeBtn = document.createElement('span');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = 'cursor:pointer;color:#64748b;font-size:16px;';
+  closeBtn.onclick = () => overlay.remove();
+  header.appendChild(closeBtn);
+  modal.appendChild(header);
+
+  const body = document.createElement('div');
+  body.style.cssText = 'padding:16px;display:flex;flex-direction:column;gap:12px;max-height:70vh;overflow-y:auto;';
+
+  const field = (label: string, value: string, isMonospace = false) => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+    const l = document.createElement('div');
+    l.textContent = label;
+    l.style.cssText = 'font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;';
+    wrap.appendChild(l);
+    const v = document.createElement('div');
+    v.textContent = value;
+    v.style.cssText = `font-size:11px;color:${cPanelFg};white-space:pre-wrap;word-break:break-word;background:rgba(0,0,0,0.2);padding:8px;border-radius:6px;` + (isMonospace ? 'font-family:ui-monospace,monospace;' : '');
+    wrap.appendChild(v);
+    return wrap;
+  };
+
+  body.appendChild(field('Project', task.projectName));
+  body.appendChild(field('Prompt', task.prompt, true));
+  if (task.error) body.appendChild(field('Error', task.error));
+  body.appendChild(field('Timestamp', new Date(task.timestamp).toLocaleString()));
+  body.appendChild(field('ID', task.id));
+
+  modal.appendChild(body);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+}
+
 
 function getStatusColor(status: MacroTask['status']): string {
   switch (status) {
