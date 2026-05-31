@@ -391,9 +391,9 @@ export function useStepLibrary(): UseStepLibraryApi {
     const persist = useCallback(() => {
         if (lib === null) return;
         const bytes = lib.exportDbBytes();
-        console.log("useStepLibrary: persisting dbBytes", bytes.length, "bytes");
         setDbBytes(bytes);
         void writeBytesToStorage(bytes);
+
 
     }, [lib]);
 
