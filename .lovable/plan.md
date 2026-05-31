@@ -1,27 +1,26 @@
-# v3.47.0 Roadmap: Dynamic Variables & Prompt Favorites
+# v3.48.0 Roadmap: Advanced Task Operations & UI Polishing
 
-This update introduces interactive prompt variables and a favoriting system to streamline complex workflows and improve prompt organization.
+This update focuses on deepening the Task Queue functionality and refining the prompt management experience.
 
-### 1. Dynamic Prompt Variables
-- **Interactive Input**: Support for `{{?Variable Name}}` syntax in prompts.
-- **Input Dialog**: Clicking a prompt with dynamic variables will open a small modal to fill in the values before injection.
-- **Auto-Replacement**: Values are injected into the final prompt text.
+### 1. Task Bulk Actions
+- **Bulk Selection**: Multi-select mode for the Task Queue (Active and History).
+- **Batch Actions**: Delete selected, Move to History, or Re-queue (from history) in a single click.
 
-### 2. Prompt Favorites & Pinning
-- **Favorite Toggle**: Add a star icon to prompt items to toggle favorite status.
-- **Priority List**: Favorites will automatically appear in a dedicated "⭐ Favorites" category at the top of the dropdown.
+### 2. Prompt Quick-Editor
+- **Inline Editing**: Click a prompt name while holding `Alt` to instantly edit its title and text without opening a full modal.
+- **Auto-Save**: Changes are persisted to the extension backend immediately.
 
-### 3. Task Inspection
-- **Detail View**: Click on any task in the Queue or History to view its full prompt text and detailed status/error logs in a modal.
+### 3. Queue Performance & Reliability
+- **Background Worker**: Offload queue status updates to a dedicated background loop to prevent UI lag during high-frequency submissions.
+- **Enhanced Failure Recovery**: Automatic detection of session timeouts with a "Re-auth & Resume" shortcut.
 
 ### 4. Version Sync & Polish
-- **Version Bump**: Sync all manifests and constants to `v3.47.0`.
-- **UI Tweaks**: Improved category headers and "Empty" state messages.
+- **Version Bump**: Sync all manifests and constants to `v3.48.0`.
+- **UI Consistency**: Standardize hover effects and transition durations across all panels.
 
 ## Technical Details
-- **Variable Logic**: New `resolveDynamicVariables(text): Promise<string>` helper in `prompt-utils.ts`.
+- **Task Logic**: Extend `task-queue.ts` with `batchDeleteTasks(ids[])` and `batchRetryTasks(ids[])`.
 - **UI Components**:
-  - Update `prompt-dropdown.ts` to render the star icon and "Favorites" category.
-  - New `prompt-variable-modal.ts` for gathering variable inputs.
-  - Update `macro-ui.ts` to handle task clicks for the inspection modal.
-- **Persistence**: `PromptEntry` already has `isFavorite`, so we just need to hook it up to the `SAVE_PROMPT` message.
+  - Update `macro-ui.ts` with checkbox support in the task list.
+  - Implement `InlinePromptEditor` in `prompt-dropdown.ts`.
+- **State Management**: Refactor `TaskQueueManager` to improve thread-safety between UI and background processing.
