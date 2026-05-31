@@ -118,9 +118,10 @@ async function handleAuthRecovery(
   if (token) { invalidateSessionBridgeKey(token); }
 
   log('Credit API: Auth ' + status + ' — forcing token refresh before retry...', 'warn');
+  const userWorkspacesPath = ApiPath.UserWorkspaces;
   showToast('Auth ' + status + ' — recovering session...', 'warn', {
     noStop: true,
-    requestDetail: { method: 'GET', url: CREDIT_API_BASE + ApiPath.UserWorkspaces, headers: {}, status, statusText },
+    requestDetail: { method: 'GET', url: CREDIT_API_BASE + userWorkspacesPath, headers: {}, status, statusText },
   });
 
   const newToken = await getBearerToken({ force: true });

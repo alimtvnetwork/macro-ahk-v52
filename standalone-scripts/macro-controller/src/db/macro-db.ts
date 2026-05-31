@@ -130,7 +130,7 @@ export async function syncTaskQueueToDb(projectId: string, tasks: DbTask[]): Pro
   const deleteSql = `DELETE FROM TaskQueue WHERE ProjectId = '${projectId.replace(/'/g, "''")}'`;
   
   const insertValues = tasks.map(t => {
-    return `('${t.id}', '${t.projectId.replace(/'/g, "''")}', '${(t as any).projectName ? (t as any).projectName.replace(/'/g, "''") : "Unknown"}', '${t.prompt.replace(/'/g, "''")}', '${t.status}', '${(t.error || '').replace(/'/g, "''")}', ${t.timestamp})`;
+    return `('${t.id}', '${t.projectId.replace(/'/g, "''")}', '${(t as { projectName?: string }).projectName ? (t as { projectName: string }).projectName.replace(/'/g, "''") : "Unknown"}', '${t.prompt.replace(/'/g, "''")}', '${t.status}', '${(t.error || '').replace(/'/g, "''")}', ${t.timestamp})`;
   }).join(',');
 
   const sql = insertValues.length > 0 
