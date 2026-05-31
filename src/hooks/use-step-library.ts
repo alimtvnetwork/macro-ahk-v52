@@ -279,7 +279,7 @@ export function useStepLibrary(): UseStepLibraryApi {
     const [bootstrapNonce, setBootstrapNonce] = useState(0);
 
     // Sync library state across tabs
-    useCrossTabSync<Uint8Array | null>("marco-step-library-sync", dbBytes, (remoteBytes) => {
+    const onRemoteBytes = useCallback((remoteBytes: Uint8Array | null) => {
         if (!remoteBytes || !lib || !project) return;
         // Re-open DB with remote bytes
         const sqljs = sql;
@@ -296,7 +296,9 @@ export function useStepLibrary(): UseStepLibraryApi {
         } catch (err) {
             console.error("Failed to sync remote library state", err);
         }
-    });
+    }, [lib, project, sql]);
+
+    useCrossTabSync<Uint8Array | null>("marco-step-library-sync", dbBytes, onRemoteBytes);
 
 
     /* ------------------------ bootstrap --------------------------- */
