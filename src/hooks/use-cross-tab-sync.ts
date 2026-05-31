@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 /**
  * Syncs state across browser tabs using BroadcastChannel.
@@ -12,28 +12,35 @@ export function useCrossTabSync<T>(
     state: T,
     setState: (next: T) => void,
 ) {
+    const isRemoteUpdate = useRef(false);
+
     useEffect(() => {
         const channel = new BroadcastChannel(channelName);
 
-        // Notify other tabs of the current state on mount
-        channel.postMessage(state);
-
-        // Update local state when other tabs broadcast an update
         channel.onmessage = (event) => {
+            isRemoteUpdate.current = true;
             setState(event.data as T);
         };
 
         return () => {
             channel.close();
         };
-    }, [channelName, state, setState]);
+    }, [channelName, setState]);
 
-    // Send updates to other tabs whenever the local state changes
+    // Send updates to other tabs whenever the local state changes,
+    // but only if the change didn't originate from a remote update.
     useEffect(() => {
+        if (isRemoteUpdate.current) {
+            isRemoteUpdate.current = false;
+            return;
+        }
+
         const channel = new BroadcastChannel(channelName);
         channel.postMessage(state);
+        
         return () => {
             channel.close();
         };
     }, [channelName, state]);
 }
+
