@@ -26,7 +26,9 @@ export function buildTaskQueueSection(): HTMLElement {
   const title = document.createElement('div');
   title.style.cssText = 'font-size:11px;font-weight:700;color:' + cPrimaryLight + ';text-transform:uppercase;letter-spacing:0.5px;';
   title.textContent = '📋 Task Queue';
+  title.id = 'task-queue-title-text';
   titleWrap.appendChild(title);
+
 
   const countdownBadge = document.createElement('span');
   countdownBadge.id = 'task-queue-countdown';
@@ -85,6 +87,52 @@ export function buildTaskQueueSection(): HTMLElement {
   header.appendChild(controls);
   section.appendChild(header);
 
+  // Settings Row
+  const settingsRow = document.createElement('div');
+  settingsRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px;background:rgba(255,255,255,0.03);border-radius:4px;margin-bottom:4px;';
+  
+  const pauseOnErrorWrap = document.createElement('label');
+  pauseOnErrorWrap.style.cssText = 'display:flex;align-items:center;gap:6px;font-size:9px;color:#94a3b8;cursor:pointer;user-select:none;';
+  
+  const pauseOnErrorCheck = document.createElement('input');
+  pauseOnErrorCheck.type = 'checkbox';
+  pauseOnErrorCheck.style.cssText = 'margin:0;';
+  
+  const { getSettingsOverrides, saveSettingsOverrides } = await import('../settings-store');
+  const initialSettings = getSettingsOverrides();
+  pauseOnErrorCheck.checked = initialSettings.pauseQueueOnError !== false;
+  
+  pauseOnErrorCheck.onchange = async () => {
+    const s = getSettingsOverrides();
+    s.pauseQueueOnError = pauseOnErrorCheck.checked;
+    await saveSettingsOverrides(s);
+  };
+  
+  pauseOnErrorWrap.appendChild(pauseOnErrorCheck);
+  pauseOnErrorWrap.appendChild(document.createTextNode('Pause on error'));
+  settingsRow.appendChild(pauseOnErrorWrap);
+
+  const retriesWrap = document.createElement('div');
+  retriesWrap.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:9px;color:#94a3b8;';
+  retriesWrap.innerHTML = 'Retries: ';
+  
+  const retriesInput = document.createElement('input');
+  retriesInput.type = 'number';
+  retriesInput.min = '0';
+  retriesInput.max = '10';
+  retriesInput.value = String(initialSettings.maxTaskRetries ?? 3);
+  retriesInput.style.cssText = `width:28px;background:${cPanelBgAlt};border:1px solid ${cPanelBorder};color:#fff;font-size:9px;padding:1px 2px;border-radius:2px;`;
+  retriesInput.onchange = async () => {
+    const s = getSettingsOverrides();
+    s.maxTaskRetries = parseInt(retriesInput.value) || 0;
+    await saveSettingsOverrides(s);
+  };
+  retriesWrap.appendChild(retriesInput);
+  settingsRow.appendChild(retriesWrap);
+  
+  section.appendChild(settingsRow);
+
+
   const listContainer = document.createElement('div');
   listContainer.id = 'task-queue-list';
   listContainer.style.cssText = 'max-height:160px;overflow-y:auto;background:rgba(0,0,0,0.2);border-radius:6px;padding:4px;display:flex;flex-direction:column;gap:4px;';
@@ -93,8 +141,9 @@ export function buildTaskQueueSection(): HTMLElement {
   // Polling for updates
   const refreshHandler = () => {
     refreshTaskQueueUI(listContainer);
-    _updateQueueCountdown(countdownBadge);
+    _updateQueueCountdown(countdownBadge, title);
   };
+
   listContainer.addEventListener('refresh-queue', refreshHandler);
   
   setInterval(refreshHandler, 1000);
@@ -103,7 +152,7 @@ export function buildTaskQueueSection(): HTMLElement {
   return section;
 }
 
-function _updateQueueCountdown(badge: HTMLElement): void {
+async function _updateQueueCountdown(badge: HTMLElement, title?: HTMLElement): Promise<void> {
   const until = getQueueDelayUntil();
   if (until > Date.now()) {
     const secs = Math.ceil((until - Date.now()) / 1000);
@@ -111,7 +160,15 @@ function _updateQueueCountdown(badge: HTMLElement): void {
   } else {
     badge.textContent = '';
   }
+
+  if (title) {
+    const { loadTaskQueue } = await import('../task-queue');
+    const q = await loadTaskQueue();
+    const pending = q.tasks.filter(t => t.status === 'pending' || t.status === 'hold').length;
+    title.textContent = pending > 0 ? `📋 Task Queue (${pending})` : '📋 Task Queue';
+  }
 }
+
 
 /**
  * Refresh the task list UI.

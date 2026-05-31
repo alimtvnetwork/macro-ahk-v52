@@ -79,7 +79,9 @@ export function validatePromptEntry(entry: unknown): CachedPromptEntry | null {
 export function mergePrompts(
   existing: CachedPromptEntry[],
   imported: CachedPromptEntry[],
+  overwrite: boolean = true
 ): { merged: CachedPromptEntry[]; results: PromptImportResults } {
+
   const results: PromptImportResults = { added: 0, updated: 0, total: imported.length, errors: [] };
   const mergedMap = new Map<string, CachedPromptEntry>();
 
@@ -91,11 +93,15 @@ export function mergePrompts(
   imported.forEach((imp) => {
     const key = imp.slug || imp.name;
     if (mergedMap.has(key)) {
-      results.updated++;
+      if (overwrite) {
+        results.updated++;
+        mergedMap.set(key, imp);
+      }
     } else {
       results.added++;
+      mergedMap.set(key, imp);
     }
-    mergedMap.set(key, imp);
+
   });
 
   return { merged: Array.from(mergedMap.values()), results };
@@ -130,11 +136,15 @@ export function parsePromptsText(jsonText: string): { valid: CachedPromptEntry[]
 /**
  * Orchestrates the full import process: read cache -> merge -> write cache.
  */
-export async function performPromptImport(importedPrompts: CachedPromptEntry[]): Promise<PromptImportResults> {
+export async function performPromptImport(
+  importedPrompts: CachedPromptEntry[],
+  options: { overwrite?: boolean } = {}
+): Promise<PromptImportResults> {
   const record = await readJsonCopy();
   const existing = record ? record.entries : [];
 
-  const { merged, results } = mergePrompts(existing, importedPrompts);
+  const { merged, results } = mergePrompts(existing, importedPrompts, options.overwrite !== false);
+
 
   const { writeJsonCopy, clearPromptCache } = await import('./prompt-cache');
   await writeJsonCopy(merged);
@@ -145,3 +155,16 @@ export async function performPromptImport(importedPrompts: CachedPromptEntry[]):
 
   return results;
 }
+
+/**
+ * Destructive: Clear all prompts from the cache.
+ */
+export async function performClearAllPrompts(): Promise<void> {
+  const { writeJsonCopy, clearPromptCache } = await import('./prompt-cache');
+  await writeJsonCopy([]);
+  await clearPromptCache();
+
+  const { invalidatePromptCache } = await import('./prompt-loader');
+  invalidatePromptCache();
+}
+

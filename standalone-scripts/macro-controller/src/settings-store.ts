@@ -56,6 +56,11 @@ export interface SettingsOverrides {
   retryOnFailure?: boolean;
   /** Interval for checking credits (seconds). Default 5. */
   creditPollIntervalSeconds?: number;
+  /** Automatically pause the task queue if a task fails. Default true. */
+  pauseQueueOnError?: boolean;
+  /** Maximum number of retries for a failed task. Default 3. */
+  maxTaskRetries?: number;
+
 
   /**
    * Per-workspace lifecycle overrides keyed by workspace id (string UUID).
@@ -148,6 +153,13 @@ function sanitize(raw: unknown): SettingsOverrides {
   if (isFiniteNonNegative(r.creditPollIntervalSeconds)) {
     out.creditPollIntervalSeconds = Math.floor(r.creditPollIntervalSeconds);
   }
+  if (typeof r.pauseQueueOnError === 'boolean') {
+    out.pauseQueueOnError = r.pauseQueueOnError;
+  }
+  if (isFiniteNonNegative(r.maxTaskRetries)) {
+    out.maxTaskRetries = Math.floor(r.maxTaskRetries);
+  }
+
   const perWs = sanitizePerWorkspace(r.perWorkspace);
   if (perWs) {
     out.perWorkspace = perWs;

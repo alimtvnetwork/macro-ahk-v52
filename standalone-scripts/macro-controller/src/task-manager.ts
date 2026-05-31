@@ -120,9 +120,10 @@ export class TaskQueueManager {
   private async _handleTaskFailure(task: MacroTask, reason: string): Promise<void> {
     const overrides = getSettingsOverrides();
     const retries = task.retryCount ?? 0;
-    const maxRetries = 3;
+    const maxRetries = overrides.maxTaskRetries ?? 3;
 
     if (overrides.retryOnFailure !== false && retries < maxRetries) {
+
       const nextRetry = retries + 1;
       const holdMs = 10000 * nextRetry; // 10s, 20s, 30s backoff
       log(`[TaskQueue] Task ${task.id} failed (${reason}). Retry ${nextRetry}/${maxRetries} in ${holdMs / 1000}s.`, 'warn');
@@ -139,7 +140,16 @@ export class TaskQueueManager {
     } else {
       log(`[TaskQueue] Task ${task.id} failed permanently: ${reason}`, 'error');
       await updateTaskStatus(task.id, 'failed', reason);
+      
+      if (overrides.pauseQueueOnError !== false) {
+        log('[TaskQueue] Pausing queue due to failure (Pause on Error enabled)', 'warn');
+        this._isPaused = true;
+        const queueState = await loadTaskQueue();
+        queueState.isPaused = true;
+        await saveTaskQueue(queueState);
+      }
     }
+
   }
 
   private findSubmitButton(): HTMLElement | null {

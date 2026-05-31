@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.45.0] — 2026-05-31
+
+### Added
+- **Prompt IO Hardening**: Added "Clear All Prompts" button and "Overwrite" merge strategy toggle to the IO dialog.
+- **Task Queue Observability**: Header now shows live pending task count.
+- **Task Queue Settings**: Added "Pause on Error" toggle and configurable "Max Retries" numeric input.
+- **Unit Tests**: Added `prompt-io.test.ts` covering JSON validation and merge strategies.
+
+### Changed
+- Version bump: 3.44.0 → 3.45.0 (all version files synced).
+
+---
+
+## [v3.44.0] — 2026-05-31
+
+### Added
+- **Prompt IO Dialog**: New floating dialog for bulk prompt import/export via JSON.
+- **Task Queue Controls**: Added Pause/Resume, Retry Failed, and Clear (Completed/All) buttons to the Queue panel.
+- **Startup Resume Dialog**: Prominent prompt to resume pending tasks detected on extension injection.
+
+### Fixed
+- **Plan/Filter rebind**: Strengthened event listener restoration for the Plan Task and Task Next buttons after snapshot restore.
+
+### Changed
+- Version bump: 3.43.0 → 3.44.0 (all version files synced).
+
+---
+
 ## [v3.43.0] — 2026-05-31
 
 ### Added
@@ -404,10 +432,10 @@ The Issue 115 fix (v3.12.0) collapsed the *status pill side* to a single label b
 ## [v3.18.0] — 2026-05-25
 
 ### Fixed
-- **Manual Run always re-injects (popup “Run script” bug)**: clicking Run from the popup now always sends `forceReload: true` to the background `INJECT_SCRIPTS` handler. Previously, after closing the macro-controller panel, a second Run was silently absorbed by the per-tab injection cache (whose only purpose is to dedupe passive/auto-injects), and nothing happened. Root cause: `src/hooks/use-popup-actions.ts` only set `forceReload` when an internal `options.forceReload` flag was passed, which the Run button never did. Force is now unconditional for any `launchSource: "manual"` invocation; the cache continues to dedupe passive/auto-injects untouched.
+- **Manual Run always re-injects (popup "Run script" bug)**: clicking Run from the popup now always sends `forceReload: true` to the background `INJECT_SCRIPTS` handler. Previously, after closing the macro-controller panel, a second Run was silently absorbed by the per-tab injection cache (whose only purpose is to dedupe passive/auto-injects), and nothing happened. Root cause: `src/hooks/use-popup-actions.ts` only set `forceReload` when an internal `options.forceReload` flag was passed, which the Run button never did. Force is now unconditional for any `launchSource: "manual"` invocation; the cache continues to dedupe passive/auto-injects untouched.
 
 ### Changed
-- **macro-controller is never auto-injected**: added `NEVER_AUTO_INJECT_SCRIPT_IDS` allow-list in `src/background/auto-injector.ts` containing `default-macro-looping`. The macro-controller mounts a visible floating UI panel and must only appear when the user explicitly launches it (popup Run, keyboard shortcut, context menu). The script’s own `autoInject` flag and any project URL rule are now overridden for this ID. SPA reinject already delegates through the same pipeline, so it inherits the guard automatically.
+- **macro-controller is never auto-injected**: added `NEVER_AUTO_INJECT_SCRIPT_IDS` allow-list in `src/background/auto-injector.ts` containing `default-macro-looping`. The macro-controller mounts a visible floating UI panel and must only appear when the user explicitly launches it (popup Run, keyboard shortcut, context menu). The script's own `autoInject` flag and any project URL rule are now overridden for this ID. SPA reinject already delegates through the same pipeline, so it inherits the guard automatically.
 
 ### Bumped
 - Version bump: 3.17.1 → 3.18.0 across manifest.json, src/shared/constants.ts, standalone-scripts/macro-controller/src/shared-state.ts, and every standalone-scripts/*/src/instruction.ts. `node scripts/check-version-sync.mjs` exits 0.
@@ -644,3 +672,5 @@ The Issue 115 fix (v3.12.0) collapsed the *status pill side* to a single label b
 ### Changed
 - Webhook result schema versioning (`WEBHOOK_RESULT_SCHEMA_VERSION = 2`).
 - Error-swallow audit generator (`scripts/audit-error-swallow.mjs`).
+
+---
