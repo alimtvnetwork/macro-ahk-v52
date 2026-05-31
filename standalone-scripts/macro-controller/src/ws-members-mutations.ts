@@ -11,9 +11,10 @@ import { log } from './logging';
 import { logError } from './error-utils';
 import { clearMembersCache, invalidateMembersCache } from './ws-members-fetch';
 import { showToast } from './toast';
+import { WorkspaceCredit } from './types/credit-types';
 
 
-type MemberRole = 'member' | 'owner';
+export type MemberRole = 'member' | 'owner';
 
 interface MembershipsApi {
   invite: (wsId: string, email: string, role: MemberRole, options?: { baseUrl?: string }) => Promise<{ ok: boolean; status: number; data: unknown }>;
@@ -164,7 +165,7 @@ export async function updateMemberRoleMany(
  * Bulk promote/demote (Task 12) 
  * Wraps updateMemberRoleMany with toast feedback.
  */
-export async function promoteMemberMany(wsIds: string[], userId: string, workspaces: unknown[] = []): Promise<void> {
+export async function promoteMemberMany(wsIds: string[], userId: string, workspaces: WorkspaceCredit[] = []): Promise<void> {
     showToast(`Promoting member in ${wsIds.length} workspaces...`, 'info');
     const res = await updateMemberRoleMany(wsIds, userId, 'owner', workspaces as WorkspaceCredit[]);
     if (res.fail > 0) {
@@ -174,7 +175,7 @@ export async function promoteMemberMany(wsIds: string[], userId: string, workspa
     }
 }
 
-export async function demoteMemberMany(wsIds: string[], userId: string, workspaces: unknown[] = []): Promise<void> {
+export async function demoteMemberMany(wsIds: string[], userId: string, workspaces: WorkspaceCredit[] = []): Promise<void> {
     showToast(`Demoting member in ${wsIds.length} workspaces...`, 'info');
     const res = await updateMemberRoleMany(wsIds, userId, 'member', workspaces as WorkspaceCredit[]);
     if (res.fail > 0) {
@@ -188,7 +189,7 @@ export async function demoteMemberMany(wsIds: string[], userId: string, workspac
 export async function removeMemberMany(
     wsIds: string[], 
     userId: string,
-    workspaces: ReadonlyArray<import('./types/credit-types').WorkspaceCredit> = []
+    workspaces: ReadonlyArray<WorkspaceCredit> = []
 ): Promise<BulkOpResult> {
     const results: BulkOpResult = { success: 0, fail: 0, total: wsIds.length, failures: [] };
     
