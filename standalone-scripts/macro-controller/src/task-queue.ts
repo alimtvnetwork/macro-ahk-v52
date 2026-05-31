@@ -22,6 +22,7 @@ export interface MacroTask {
 
 export interface TaskQueueState {
   tasks: MacroTask[];
+  history?: MacroTask[];
   isPaused: boolean;
 }
 
