@@ -20,10 +20,19 @@ export function buildTaskQueueSection(): HTMLElement {
   const header = document.createElement('div');
   header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;';
   
+  const titleWrap = document.createElement('div');
+  titleWrap.style.cssText = 'display:flex;align-items:center;gap:6px;';
+
   const title = document.createElement('div');
   title.style.cssText = 'font-size:11px;font-weight:700;color:' + cPrimaryLight + ';text-transform:uppercase;letter-spacing:0.5px;';
   title.textContent = '📋 Task Queue';
-  header.appendChild(title);
+  titleWrap.appendChild(title);
+
+  const countdownBadge = document.createElement('span');
+  countdownBadge.id = 'task-queue-countdown';
+  countdownBadge.style.cssText = 'font-size:9px;color:' + cWarning + ';font-weight:600;min-width:40px;text-align:right;';
+  titleWrap.appendChild(countdownBadge);
+  header.appendChild(titleWrap);
 
   const controls = document.createElement('div');
   controls.style.cssText = 'display:flex;gap:6px;';
