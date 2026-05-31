@@ -364,7 +364,6 @@ function _renderFresh(
     return;
   }
 
-  _appendHeaderAndSubmenu(promptsDropdown, entries, ctx, taskNextDeps);
   _appendFilteredItems(promptsDropdown, entries, promptsCfg, ctx, taskNextDeps);
   promptsDropdown.appendChild(buildAddPromptButton(promptsDropdown, ctx, taskNextDeps));
   _persistSnapshot(promptsDropdown, entries, dataHash, categoryFilter);
