@@ -326,7 +326,7 @@ function createUiAndObserver(): void {
   _checkPendingTasksOnStartup();
 }
 
-/** Check for pending tasks and offer to resume via toast. */
+/** Check for pending tasks and auto-resume if queue is not paused. */
 function _checkPendingTasksOnStartup(): void {
   setTimeout(async () => {
     try {
@@ -334,18 +334,16 @@ function _checkPendingTasksOnStartup(): void {
       const { TaskQueueManager } = await import('./task-manager');
       const queueState = await loadTaskQueue();
       const pending = queueState.tasks.filter(t => t.status === 'pending' || t.status === 'hold');
-      if (pending.length > 0) {
-        showToast(`📋 ${pending.length} pending task${pending.length > 1 ? 's' : ''} in queue. Click to resume.`, 'info', {
-          noStop: true,
-          onClick: () => {
-            void TaskQueueManager.getInstance().startProcessing();
-          },
-        });
+      if (pending.length > 0 && !queueState.isPaused) {
+        showToast(`📋 Resuming ${pending.length} pending task${pending.length > 1 ? 's' : ''} from queue`, 'info', { noStop: true });
+        void TaskQueueManager.getInstance().startProcessing();
+      } else if (pending.length > 0 && queueState.isPaused) {
+        showToast(`📋 ${pending.length} task${pending.length > 1 ? 's' : ''} in queue (paused). Open Task Queue to resume.`, 'info', { noStop: true });
       }
     } catch (_e: unknown) {
-      // Non-critical startup check — silently ignore errors
+      /* Non-critical startup check — silently ignore */
     }
-  }, 1500);
+  }, 2000);
 }
 
 function tryCreateUiNow(mc: MacroController): boolean {
