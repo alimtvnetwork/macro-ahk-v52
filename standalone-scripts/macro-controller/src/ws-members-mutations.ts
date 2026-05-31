@@ -110,10 +110,10 @@ export async function inviteMemberMany(
             try {
                 await inviteMember(wsId, email, role);
                 results.success++;
-            } catch (e: any) {
+            } catch (e: unknown) {
                 results.fail++;
-                const reason = e.message || String(e);
-                const reasonDetail = e.data ? JSON.stringify(e.data) : undefined;
+                const reason = e instanceof Error ? e.message : String(e);
+                const reasonDetail = (e as { data?: unknown }).data ? JSON.stringify((e as { data?: unknown }).data) : undefined;
                 results.failures.push({ wsId, wsName, reason, reasonDetail });
                 logError('Members.BulkInvite', `Failed to invite ${email} to ${wsName}: ${reason}`);
             }
@@ -146,10 +146,10 @@ export async function updateMemberRoleMany(
         try {
             await updateMemberRole(wsId, userId, role);
             results.success++;
-        } catch (e: any) {
+        } catch (e: unknown) {
             results.fail++;
-            const reason = e.message || String(e);
-            const reasonDetail = e.data ? JSON.stringify(e.data) : undefined;
+            const reason = e instanceof Error ? e.message : String(e);
+            const reasonDetail = (e as { data?: unknown }).data ? JSON.stringify((e as { data?: unknown }).data) : undefined;
             results.failures.push({ wsId, wsName, reason, reasonDetail });
             logError('Members.BulkUpdate', `Failed to update ${userId} in ${wsName}: ${reason}`);
 
@@ -166,7 +166,7 @@ export async function updateMemberRoleMany(
  */
 export async function promoteMemberMany(wsIds: string[], userId: string, workspaces: unknown[] = []): Promise<void> {
     showToast(`Promoting member in ${wsIds.length} workspaces...`, 'info');
-    const res = await updateMemberRoleMany(wsIds, userId, 'owner', workspaces as any);
+    const res = await updateMemberRoleMany(wsIds, userId, 'owner', workspaces as WorkspaceCredit[]);
     if (res.fail > 0) {
         showToast(`Promotion partial: ${res.success} ok, ${res.fail} failed`, 'warn');
     } else {
@@ -176,7 +176,7 @@ export async function promoteMemberMany(wsIds: string[], userId: string, workspa
 
 export async function demoteMemberMany(wsIds: string[], userId: string, workspaces: unknown[] = []): Promise<void> {
     showToast(`Demoting member in ${wsIds.length} workspaces...`, 'info');
-    const res = await updateMemberRoleMany(wsIds, userId, 'member', workspaces as any);
+    const res = await updateMemberRoleMany(wsIds, userId, 'member', workspaces as WorkspaceCredit[]);
     if (res.fail > 0) {
         showToast(`Demotion partial: ${res.success} ok, ${res.fail} failed`, 'warn');
     } else {
@@ -198,10 +198,10 @@ export async function removeMemberMany(
         try {
             await removeMember(wsId, userId);
             results.success++;
-        } catch (e: any) {
+        } catch (e: unknown) {
             results.fail++;
-            const reason = e.message || String(e);
-            const reasonDetail = e.data ? JSON.stringify(e.data) : undefined;
+            const reason = e instanceof Error ? e.message : String(e);
+            const reasonDetail = (e as { data?: unknown }).data ? JSON.stringify((e as { data?: unknown }).data) : undefined;
             results.failures.push({ wsId, wsName, reason, reasonDetail });
             logError('Members.BulkRemove', `Failed to remove ${userId} from ${wsName}: ${reason}`);
         }
