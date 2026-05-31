@@ -94,7 +94,7 @@ export class TaskQueueManager {
     });
 
     if (outcome === 'failed') {
-      await updateTaskStatus(task.id, 'failed', 'Injection failed');
+      await this._handleTaskFailure(task, 'Injection failed');
       return;
     }
 
@@ -109,10 +109,33 @@ export class TaskQueueManager {
       
       log(`[TaskQueue] Task completed: ${task.id}`, 'success');
     } else {
-      // Fallback: Use clipboard if submit button not found but injection worked
-      log(`[TaskQueue] Submit button not found for task ${task.id}. Retrying next cycle.`, 'warn');
-      await updateTaskStatus(task.id, 'failed', 'Submit button not found');
+      await this._handleTaskFailure(task, 'Submit button not found');
       showPasteToast('⚠️ Submit button not found - task marked failed', true);
+    }
+  }
+
+  private async _handleTaskFailure(task: MacroTask, reason: string): Promise<void> {
+    const overrides = getSettingsOverrides();
+    const retries = task.retryCount ?? 0;
+    const maxRetries = 3;
+
+    if (overrides.retryOnFailure !== false && retries < maxRetries) {
+      const nextRetry = retries + 1;
+      const holdMs = 10000 * nextRetry; // 10s, 20s, 30s backoff
+      log(`[TaskQueue] Task ${task.id} failed (${reason}). Retry ${nextRetry}/${maxRetries} in ${holdMs / 1000}s.`, 'warn');
+      
+      const queueState = await loadTaskQueue();
+      const t = queueState.tasks.find(t => t.id === task.id);
+      if (t) {
+        t.status = 'hold';
+        t.error = reason;
+        t.retryCount = nextRetry;
+        t.holdUntil = Date.now() + holdMs;
+        await saveTaskQueue(queueState);
+      }
+    } else {
+      log(`[TaskQueue] Task ${task.id} failed permanently: ${reason}`, 'error');
+      await updateTaskStatus(task.id, 'failed', reason);
     }
   }
 
