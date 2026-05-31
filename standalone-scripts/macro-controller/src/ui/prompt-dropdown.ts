@@ -1167,7 +1167,7 @@ function appendPromptActions(
 
 /** Build the favorite ⭐ toggle icon for a prompt item. */
 function _buildFavoriteIcon(p: LoaderPromptEntry, _dropdown: HTMLElement, ctx: PromptContext, taskNextDeps: TaskNextDeps): HTMLElement {
-  const isFav = !!(p as any).isFavorite;
+  const isFav = !!(p as LoaderPromptEntry & { isFavorite?: boolean }).isFavorite;
   const icon = _makeActionIcon(isFav ? '⭐' : '☆', isFav ? 'Remove from favorites' : 'Mark as favorite', isFav ? '1' : '0.4');
   icon.onclick = function(e: Event) {
     e.stopPropagation();

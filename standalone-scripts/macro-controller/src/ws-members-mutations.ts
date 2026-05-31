@@ -11,9 +11,10 @@ import { log } from './logging';
 import { logError } from './error-utils';
 import { clearMembersCache, invalidateMembersCache } from './ws-members-fetch';
 import { showToast } from './toast';
+import { WorkspaceCredit } from './types/credit-types';
 
 
-type MemberRole = 'member' | 'owner';
+export type MemberRole = 'member' | 'owner';
 
 interface MembershipsApi {
   invite: (wsId: string, email: string, role: MemberRole, options?: { baseUrl?: string }) => Promise<{ ok: boolean; status: number; data: unknown }>;
@@ -98,29 +99,16 @@ export async function inviteMemberMany(
     wsIds: string[], 
     emails: string[], 
     role: MemberRole,
-    workspaces: ReadonlyArray<import('./types/credit-types').WorkspaceCredit> = []
+    workspaces: ReadonlyArray<WorkspaceCredit> = []
 ): Promise<BulkOpResult> {
     const results: BulkOpResult = { success: 0, fail: 0, total: wsIds.length * emails.length, failures: [] };
     
     for (const wsId of wsIds) {
         const ws = workspaces.find(w => w.id === wsId);
         const wsName = ws?.fullName || ws?.name || wsId;
-
-        for (const email of emails) {
-            try {
-                await inviteMember(wsId, email, role);
-                results.success++;
-            } catch (e: any) {
-                results.fail++;
-                const reason = e.message || String(e);
-                const reasonDetail = e.data ? JSON.stringify(e.data) : undefined;
-                results.failures.push({ wsId, wsName, reason, reasonDetail });
-                logError('Members.BulkInvite', `Failed to invite ${email} to ${wsName}: ${reason}`);
-            }
-        }
+        await _bulkInviteEmails(wsId, wsName, emails, role, results);
     }
 
-    
     invalidateMembersCache();
     
     if (results.fail > 0) {
@@ -128,8 +116,23 @@ export async function inviteMemberMany(
     } else if (results.success > 0) {
         showToast(`Successfully invited to ${results.success} targets`, 'success');
     }
-
+    
     return results;
+}
+
+async function _bulkInviteEmails(wsId: string, wsName: string, emails: string[], role: MemberRole, results: BulkOpResult) {
+    for (const email of emails) {
+        try {
+            await inviteMember(wsId, email, role);
+            results.success++;
+        } catch (e: unknown) {
+            results.fail++;
+            const reason = e instanceof Error ? e.message : String(e);
+            const reasonDetail = (e as { data?: unknown }).data ? JSON.stringify((e as { data?: unknown }).data) : undefined;
+            results.failures.push({ wsId, wsName, reason, reasonDetail });
+            logError('Members.BulkInvite', `Failed to invite ${email} to ${wsName}: ${reason}`);
+        }
+    }
 }
 
 export async function updateMemberRoleMany(
@@ -146,10 +149,10 @@ export async function updateMemberRoleMany(
         try {
             await updateMemberRole(wsId, userId, role);
             results.success++;
-        } catch (e: any) {
+        } catch (e: unknown) {
             results.fail++;
-            const reason = e.message || String(e);
-            const reasonDetail = e.data ? JSON.stringify(e.data) : undefined;
+            const reason = e instanceof Error ? e.message : String(e);
+            const reasonDetail = (e as { data?: unknown }).data ? JSON.stringify((e as { data?: unknown }).data) : undefined;
             results.failures.push({ wsId, wsName, reason, reasonDetail });
             logError('Members.BulkUpdate', `Failed to update ${userId} in ${wsName}: ${reason}`);
 
@@ -164,9 +167,9 @@ export async function updateMemberRoleMany(
  * Bulk promote/demote (Task 12) 
  * Wraps updateMemberRoleMany with toast feedback.
  */
-export async function promoteMemberMany(wsIds: string[], userId: string, workspaces: unknown[] = []): Promise<void> {
+export async function promoteMemberMany(wsIds: string[], userId: string, workspaces: WorkspaceCredit[] = []): Promise<void> {
     showToast(`Promoting member in ${wsIds.length} workspaces...`, 'info');
-    const res = await updateMemberRoleMany(wsIds, userId, 'owner', workspaces as any);
+    const res = await updateMemberRoleMany(wsIds, userId, 'owner', workspaces as WorkspaceCredit[]);
     if (res.fail > 0) {
         showToast(`Promotion partial: ${res.success} ok, ${res.fail} failed`, 'warn');
     } else {
@@ -174,9 +177,9 @@ export async function promoteMemberMany(wsIds: string[], userId: string, workspa
     }
 }
 
-export async function demoteMemberMany(wsIds: string[], userId: string, workspaces: unknown[] = []): Promise<void> {
+export async function demoteMemberMany(wsIds: string[], userId: string, workspaces: WorkspaceCredit[] = []): Promise<void> {
     showToast(`Demoting member in ${wsIds.length} workspaces...`, 'info');
-    const res = await updateMemberRoleMany(wsIds, userId, 'member', workspaces as any);
+    const res = await updateMemberRoleMany(wsIds, userId, 'member', workspaces as WorkspaceCredit[]);
     if (res.fail > 0) {
         showToast(`Demotion partial: ${res.success} ok, ${res.fail} failed`, 'warn');
     } else {
@@ -188,7 +191,7 @@ export async function demoteMemberMany(wsIds: string[], userId: string, workspac
 export async function removeMemberMany(
     wsIds: string[], 
     userId: string,
-    workspaces: ReadonlyArray<import('./types/credit-types').WorkspaceCredit> = []
+    workspaces: ReadonlyArray<WorkspaceCredit> = []
 ): Promise<BulkOpResult> {
     const results: BulkOpResult = { success: 0, fail: 0, total: wsIds.length, failures: [] };
     
@@ -198,10 +201,10 @@ export async function removeMemberMany(
         try {
             await removeMember(wsId, userId);
             results.success++;
-        } catch (e: any) {
+        } catch (e: unknown) {
             results.fail++;
-            const reason = e.message || String(e);
-            const reasonDetail = e.data ? JSON.stringify(e.data) : undefined;
+            const reason = e instanceof Error ? e.message : String(e);
+            const reasonDetail = (e as { data?: unknown }).data ? JSON.stringify((e as { data?: unknown }).data) : undefined;
             results.failures.push({ wsId, wsName, reason, reasonDetail });
             logError('Members.BulkRemove', `Failed to remove ${userId} from ${wsName}: ${reason}`);
         }

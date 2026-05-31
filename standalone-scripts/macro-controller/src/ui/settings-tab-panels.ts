@@ -442,7 +442,7 @@ export function buildHistoryPanel(): { panel: HTMLElement } {
 
     const rows = await getCommunicationHistory(projectId, 100);
     const filtered = filter 
-      ? (rows as any[]).filter(r => (r.Prompt || '').toLowerCase().includes(filter.toLowerCase()) || (r.Response || '').toLowerCase().includes(filter.toLowerCase()))
+      ? (rows as Array<{ Prompt?: string; Response?: string }>).filter(r => (r.Prompt || '').toLowerCase().includes(filter.toLowerCase()) || (r.Response || '').toLowerCase().includes(filter.toLowerCase()))
       : rows;
 
     listContainer.innerHTML = '';
@@ -507,7 +507,7 @@ function _showHistoryDetailModal(row: Record<string, unknown>): void {
 
   const content = document.createElement('div');
   content.style.cssText = 'flex:1;overflow-y:auto;padding:20px;font-family:monospace;font-size:12px;color:' + cPanelText + ';white-space:pre-wrap;line-height:1.5;background:' + cPanelBgAlt + ';';
-  content.textContent = (row as any).Prompt;
+  content.textContent = (row as { Prompt?: string }).Prompt || '';
 
   const footer = document.createElement('div');
   footer.style.cssText = 'padding:12px 20px;border-top:1px solid ' + cPanelBorder + ';display:flex;justify-content:flex-end;gap:10px;';
@@ -516,7 +516,7 @@ function _showHistoryDetailModal(row: Record<string, unknown>): void {
   copyBtn.textContent = '📋 Copy Prompt';
   copyBtn.style.cssText = 'padding:8px 16px;background:' + cPrimary + ';color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;';
   copyBtn.onclick = () => {
-    navigator.clipboard.writeText((row as any).Prompt);
+    navigator.clipboard.writeText((row as { Prompt?: string }).Prompt || '');
     showToast('✅ Prompt copied to clipboard', 'info');
   };
 
