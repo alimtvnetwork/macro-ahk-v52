@@ -11,7 +11,7 @@
 import { taskNextState } from './task-next-ui';
 import { getBackdropOpacity, setBackdropOpacity } from './panel-layout';
 import { getSettingsOverrides, saveSettingsOverrides, type PerWorkspaceLifecycleOverride, type SettingsOverrides } from '../settings-store';
-import type { PromptEntry } from '../types';
+
 import { showToast } from '../toast';
 import { logError } from '../error-utils';
 import type { ExtensionResponse, ResolvedPromptsConfig } from '../types';
@@ -442,7 +442,7 @@ export function buildHistoryPanel(): { panel: HTMLElement } {
 
     const rows = await getCommunicationHistory(projectId, 100);
     const filtered = filter 
-      ? rows.filter(r => (r.Prompt || '').toLowerCase().includes(filter.toLowerCase()) || (r.Response || '').toLowerCase().includes(filter.toLowerCase()))
+      ? (rows as any[]).filter(r => (r.Prompt || '').toLowerCase().includes(filter.toLowerCase()) || (r.Response || '').toLowerCase().includes(filter.toLowerCase()))
       : rows;
 
     listContainer.innerHTML = '';
