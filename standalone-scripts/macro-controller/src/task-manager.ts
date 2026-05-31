@@ -70,7 +70,10 @@ export class TaskQueueManager {
         
         if (overrides.enableNextSubmissionDelay !== false) {
           log(`[TaskQueue] Waiting ${delaySec}s before next task...`, 'info');
-          await new Promise(resolve => setTimeout(resolve, delaySec * 1000));
+          const delayMs = delaySec * 1000;
+          setQueueDelayUntil(Date.now() + delayMs);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          setQueueDelayUntil(0);
         }
       }
     } catch (err) {
