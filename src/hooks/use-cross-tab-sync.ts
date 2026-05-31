@@ -18,7 +18,6 @@ export function useCrossTabSync<T>(
         const channel = new BroadcastChannel(channelName);
 
         channel.onmessage = (event) => {
-            console.log(`[CrossTabSync] Received update on ${channelName}`, event.data);
             isRemoteUpdate.current = true;
             setState(event.data as T);
         };
@@ -37,7 +36,6 @@ export function useCrossTabSync<T>(
         }
 
         const channel = new BroadcastChannel(channelName);
-        console.log(`[CrossTabSync] Sending update on ${channelName}`, state);
         channel.postMessage(state);
         
         return () => {
@@ -45,5 +43,6 @@ export function useCrossTabSync<T>(
         };
     }, [channelName, state]);
 }
+
 
 
