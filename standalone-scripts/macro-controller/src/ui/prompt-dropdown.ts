@@ -564,22 +564,23 @@ function _rebindFilterMenu(
   taskNextDeps: TaskNextDeps,
 ): void {
   // Locate the element with [data-prompt-filter-sub], walk to its item-container and replace it.
-  const sub = container.querySelector('[data-prompt-filter-sub]');
-  if (sub) {
-    const item = sub.parentElement;
-    if (item) {
+  const filterSub = container.querySelector('[data-prompt-filter-sub]');
+  if (filterSub) {
+    const filterItem = filterSub.parentElement;
+    if (filterItem && filterItem.parentElement === container) {
       const categories = collectUniqueCategories(entries);
-      item.textContent = ''; // clear it
-      // Replace the item's contents by calling renderFilterMenu but into the item itself
-      // Wait, renderFilterMenu appends the item to the container. I should probably
-      // find the container and replace the old item.
-      const parent = item.parentElement;
-      if (parent) {
-        item.remove();
-        renderFilterMenu(parent, categories, ctx, taskNextDeps, renderPromptsDropdown);
+      filterItem.textContent = '';
+      const idx = Array.from(container.children).indexOf(filterItem);
+      filterItem.remove();
+      renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
+      // Try to maintain order if possible, though append is usually fine
+      const newItem = container.lastElementChild;
+      if (newItem && container.children[idx]) {
+        container.insertBefore(newItem, container.children[idx]);
       }
     }
   }
+
 }
 
 

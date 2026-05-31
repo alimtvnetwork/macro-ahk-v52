@@ -52,15 +52,35 @@ export function buildTaskQueueSection(): HTMLElement {
   };
   controls.appendChild(pauseBtn);
 
-  const clearBtn = document.createElement('button');
+  const retryBtn = document.createElement('button');
+  retryBtn.textContent = '🔄 Retry';
+  retryBtn.title = 'Retry failed tasks';
+  retryBtn.style.cssText = 'padding:2px 6px;font-size:9px;background:' + cPanelBgAlt + ';border:1px solid ' + cPanelBorder + ';border-radius:4px;color:#9ca3af;cursor:pointer;';
+  retryBtn.onclick = async () => {
+    const { retryFailedTasks } = await import('../task-queue');
+    await retryFailedTasks();
+    refreshTaskQueueUI(listContainer);
+  };
+  controls.appendChild(retryBtn);
 
-  clearBtn.textContent = 'Clear Done';
+  const clearBtn = document.createElement('button');
+  clearBtn.textContent = '🧹 Clear';
+  clearBtn.title = 'Clear completed tasks (Right-click to clear ALL)';
   clearBtn.style.cssText = 'padding:2px 6px;font-size:9px;background:' + cPanelBgAlt + ';border:1px solid ' + cPanelBorder + ';border-radius:4px;color:#9ca3af;cursor:pointer;';
   clearBtn.onclick = async () => {
     await clearCompletedTasks();
     refreshTaskQueueUI(listContainer);
   };
+  clearBtn.oncontextmenu = async (e) => {
+    e.preventDefault();
+    if (confirm('Clear ALL tasks from the queue?')) {
+      const { clearAllTasks } = await import('../task-queue');
+      await clearAllTasks();
+      refreshTaskQueueUI(listContainer);
+    }
+  };
   controls.appendChild(clearBtn);
+
 
   header.appendChild(controls);
   section.appendChild(header);

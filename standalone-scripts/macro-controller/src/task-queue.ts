@@ -113,6 +113,39 @@ export async function clearCompletedTasks(): Promise<void> {
 }
 
 /**
+ * Clear all tasks from the queue.
+ */
+export async function clearAllTasks(): Promise<void> {
+  const queueState = await loadTaskQueue();
+  if (queueState.tasks.length > 0) {
+    queueState.tasks = [];
+    await saveTaskQueue(queueState);
+    log('[TaskQueue] Cleared all tasks from queue', 'info');
+  }
+}
+
+/**
+ * Move all failed tasks back to pending.
+ */
+export async function retryFailedTasks(): Promise<void> {
+  const queueState = await loadTaskQueue();
+  let count = 0;
+  queueState.tasks.forEach(t => {
+    if (t.status === 'failed') {
+      t.status = 'pending';
+      delete t.error;
+      t.retryCount = 0;
+      count++;
+    }
+  });
+  if (count > 0) {
+    await saveTaskQueue(queueState);
+    log(`[TaskQueue] Reset ${count} failed tasks to pending`, 'info');
+  }
+}
+
+
+/**
  * Shared queue delay countdown state.
  */
 let _queueDelayUntil = 0;

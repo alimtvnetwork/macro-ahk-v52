@@ -335,16 +335,66 @@ function _checkPendingTasksOnStartup(): void {
       const queueState = await loadTaskQueue();
       const pending = queueState.tasks.filter(t => t.status === 'pending' || t.status === 'hold');
       if (pending.length > 0 && !queueState.isPaused) {
-        showToast(`📋 Resuming ${pending.length} pending task${pending.length > 1 ? 's' : ''} from queue`, 'info', { noStop: true });
-        void TaskQueueManager.getInstance().startProcessing();
+        _showStartupResumeDialog(pending.length);
       } else if (pending.length > 0 && queueState.isPaused) {
         showToast(`📋 ${pending.length} task${pending.length > 1 ? 's' : ''} in queue (paused). Open Task Queue to resume.`, 'info', { noStop: true });
       }
+
     } catch (_e: unknown) {
       /* Non-critical startup check — silently ignore */
     }
   }, 2000);
 }
+
+/** Prominent dialog to resume pending tasks on startup. */
+function _showStartupResumeDialog(count: number): void {
+  const { cPanelBg, cPrimary, cPrimaryLight, cPanelBorder } = state;
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:20px;right:20px;width:300px;background:' + (cPanelBg || '#1a1625') + ';border:2px solid ' + (cPrimary || '#7c3aed') + ';border-radius:12px;z-index:2147483647;box-shadow:0 10px 40px rgba(0,0,0,0.5);padding:16px;display:flex;flex-direction:column;gap:12px;animation:slide-in-right 0.3s ease-out;';
+  
+  const title = document.createElement('div');
+  title.style.cssText = 'font-size:14px;font-weight:700;color:' + (cPrimaryLight || '#a78bfa') + ';display:flex;align-items:center;gap:8px;';
+  title.innerHTML = `<span>📋 Task Queue</span>`;
+  overlay.appendChild(title);
+
+  const desc = document.createElement('div');
+  desc.style.cssText = 'font-size:12px;color:#d1d5db;line-height:1.4;';
+  desc.textContent = `You have ${count} pending task${count > 1 ? 's' : ''} in the queue. Would you like to resume processing now?`;
+  overlay.appendChild(desc);
+
+  const actions = document.createElement('div');
+  actions.style.cssText = 'display:flex;gap:8px;justify-content:flex-end;';
+  
+  const ignoreBtn = document.createElement('button');
+  ignoreBtn.textContent = 'Keep Paused';
+  ignoreBtn.style.cssText = 'padding:6px 12px;font-size:11px;background:rgba(255,255,255,0.05);border:1px solid ' + (cPanelBorder || '#2d2b3b') + ';border-radius:6px;color:#9ca3af;cursor:pointer;';
+  ignoreBtn.onclick = async () => {
+    const { loadTaskQueue, saveTaskQueue } = await import('./task-queue');
+    const q = await loadTaskQueue();
+    q.isPaused = true;
+    await saveTaskQueue(q);
+    overlay.remove();
+  };
+  actions.appendChild(ignoreBtn);
+
+  const resumeBtn = document.createElement('button');
+  resumeBtn.textContent = '▶ Resume Now';
+  resumeBtn.style.cssText = 'padding:6px 12px;font-size:11px;background:' + (cPrimary || '#7c3aed') + ';border:none;border-radius:6px;color:#fff;font-weight:600;cursor:pointer;';
+  resumeBtn.onclick = async () => {
+    const { TaskQueueManager } = await import('./task-manager');
+    void TaskQueueManager.getInstance().startProcessing();
+    overlay.remove();
+    showToast(`🚀 Resuming ${count} tasks...`, 'success');
+  };
+  actions.appendChild(resumeBtn);
+
+  overlay.appendChild(actions);
+  document.body.appendChild(overlay);
+
+  // Auto-remove after 15 seconds if ignored
+  setTimeout(() => { if (overlay.parentElement) overlay.remove(); }, 15000);
+}
+
 
 function tryCreateUiNow(mc: MacroController): boolean {
   if (window.__MARCO_LAUNCH_SOURCE__ === 'passive') {
