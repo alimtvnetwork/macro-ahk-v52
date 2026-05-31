@@ -54,7 +54,7 @@ function injectPlanPrompt(n: number): void {
   console.log('[PlanTask] Injection outcome: ' + outcome);
   // Success ('injected') and clipboard-fallback ('clipboard') already toast from prompt-utils.
   // Only show a caller-side toast on hard failure.
-  if ((outcome as any) === 'failed') showPasteToast('❌ Plan prompt: injection failed', true);
+  if (String(outcome) === 'failed') showPasteToast('❌ Plan prompt: injection failed', true);
 }
 
 /** Render the Plan Task inline accordion into the container. */
