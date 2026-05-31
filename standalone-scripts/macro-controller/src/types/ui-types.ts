@@ -52,6 +52,7 @@ export interface PromptEntry {
   category?: string;
   isFavorite?: boolean;
   isDefault?: boolean;
+  tags?: string[];
 }
 
 export interface PromptsCfg {
