@@ -122,6 +122,23 @@ export function parsePromptsText(jsonText: string): { valid: CachedPromptEntry[]
     errors.push('Failed to parse JSON: ' + (err instanceof Error ? err.message : String(err)));
   }
 
-  return { valid, errors };
+/**
+ * Orchestrates the full import process: read cache -> merge -> write cache.
+ */
+export async function performPromptImport(importedPrompts: CachedPromptEntry[]): Promise<PromptImportResults> {
+  const record = await readJsonCopy();
+  const existing = record ? record.entries : [];
+  
+  const { merged, results } = mergePrompts(existing, importedPrompts);
+  
+  const { writeJsonCopy, clearPromptCache } = await import('./prompt-cache');
+  await writeJsonCopy(merged);
+  await clearPromptCache(); // Force UI refresh
+  
+  const { invalidatePromptCache } = await import('./prompt-loader');
+  invalidatePromptCache();
+
+  return results;
 }
+
 
