@@ -9,6 +9,8 @@
 import { log, logSub } from '../logging';
 import type { ResolvedPromptsConfig } from '../types';
 import { showPasteToast, pasteIntoEditor } from './prompt-utils';
+import { getSettingsOverrides } from '../settings-store';
+import { isReturnButtonVisible } from '../xpath-utils';
 
 import { cPanelBg, cPanelFg, cPrimary, cPrimaryLight } from '../shared-state';
 import { logError } from '../error-utils';
@@ -256,6 +258,16 @@ function doNextTask(ctx: TaskNextLoopCtx, index: number): void {
   }
 
   const outcome = pasteIntoEditor(ctx.prompt.text, ctx.promptsCfg, ctx.deps.getByXPath);
+
+  // Conditional delay check
+  const overrides = getSettingsOverrides();
+  let delay = taskNextState.settings.preClickDelayMs;
+  
+  if (overrides.autoDetectDelay !== false && isReturnButtonVisible()) {
+    const delaySec = overrides.nextSubmissionDelaySeconds ?? 22;
+    log('Task Next: Return button detected, applying ' + delaySec + 's delay...', 'info');
+    delay += delaySec * 1000;
+  }
 
   if (outcome === 'failed') {
     logError('Task Next', 'Failed to inject prompt at task ' + (index + 1));
