@@ -307,7 +307,7 @@ function _buildPromptModalFooter(
   overlay: HTMLElement,
   bodyResult: PromptBodyResult,
 ): HTMLElement {
-  const { titleInput, contentArea, catSelect, catCustomInput } = bodyResult;
+  const { contentArea } = bodyResult;
   const footer = document.createElement('div');
   footer.style.cssText = 'display:flex;gap:8px;justify-content:flex-end;padding:12px 20px;border-top:1px solid rgba(124,58,237,0.3);';
 

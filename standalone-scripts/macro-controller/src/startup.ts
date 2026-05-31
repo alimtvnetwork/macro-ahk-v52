@@ -331,7 +331,7 @@ function _checkPendingTasksOnStartup(): void {
   setTimeout(async () => {
     try {
       const { loadTaskQueue } = await import('./task-queue');
-      const { TaskQueueManager } = await import('./task-manager');
+      // const { TaskQueueManager } = await import('./task-manager');
       const queueState = await loadTaskQueue();
       const pending = queueState.tasks.filter(t => t.status === 'pending' || t.status === 'hold');
       if (pending.length > 0 && !queueState.isPaused) {
@@ -348,12 +348,12 @@ function _checkPendingTasksOnStartup(): void {
 
 /** Prominent dialog to resume pending tasks on startup. */
 function _showStartupResumeDialog(count: number): void {
-  const { cPanelBg, cPrimary, cPrimaryLight, cPanelBorder } = state;
+  const cPanelBg = (state as any).cPanelBg || '#1a1625';
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;top:20px;right:20px;width:300px;background:' + (cPanelBg || '#1a1625') + ';border:2px solid ' + (cPrimary || '#7c3aed') + ';border-radius:12px;z-index:2147483647;box-shadow:0 10px 40px rgba(0,0,0,0.5);padding:16px;display:flex;flex-direction:column;gap:12px;animation:slide-in-right 0.3s ease-out;';
+  overlay.style.cssText = 'position:fixed;top:20px;right:20px;width:300px;background:' + cPanelBg + ';border:2px solid ' + ((state as any).cPrimary || '#7c3aed') + ';border-radius:12px;z-index:2147483647;box-shadow:0 10px 40px rgba(0,0,0,0.5);padding:16px;display:flex;flex-direction:column;gap:12px;animation:slide-in-right 0.3s ease-out;';
   
   const title = document.createElement('div');
-  title.style.cssText = 'font-size:14px;font-weight:700;color:' + (cPrimaryLight || '#a78bfa') + ';display:flex;align-items:center;gap:8px;';
+  title.style.cssText = 'font-size:14px;font-weight:700;color:' + ((state as any).cPrimaryLight || '#a78bfa') + ';display:flex;align-items:center;gap:8px;';
   title.innerHTML = `<span>📋 Task Queue</span>`;
   overlay.appendChild(title);
 
@@ -367,7 +367,7 @@ function _showStartupResumeDialog(count: number): void {
   
   const ignoreBtn = document.createElement('button');
   ignoreBtn.textContent = 'Keep Paused';
-  ignoreBtn.style.cssText = 'padding:6px 12px;font-size:11px;background:rgba(255,255,255,0.05);border:1px solid ' + (cPanelBorder || '#2d2b3b') + ';border-radius:6px;color:#9ca3af;cursor:pointer;';
+  ignoreBtn.style.cssText = 'padding:6px 12px;font-size:11px;background:rgba(255,255,255,0.05);border:1px solid ' + ((state as any).cPanelBorder || '#2d2b3b') + ';border-radius:6px;color:#9ca3af;cursor:pointer;';
   ignoreBtn.onclick = async () => {
     const { loadTaskQueue, saveTaskQueue } = await import('./task-queue');
     const q = await loadTaskQueue();
@@ -379,7 +379,7 @@ function _showStartupResumeDialog(count: number): void {
 
   const resumeBtn = document.createElement('button');
   resumeBtn.textContent = '▶ Resume Now';
-  resumeBtn.style.cssText = 'padding:6px 12px;font-size:11px;background:' + (cPrimary || '#7c3aed') + ';border:none;border-radius:6px;color:#fff;font-weight:600;cursor:pointer;';
+  resumeBtn.style.cssText = 'padding:6px 12px;font-size:11px;background:' + ((state as any).cPrimary || '#7c3aed') + ';border:none;border-radius:6px;color:#fff;font-weight:600;cursor:pointer;';
   resumeBtn.onclick = async () => {
     const { TaskQueueManager } = await import('./task-manager');
     void TaskQueueManager.getInstance().startProcessing();

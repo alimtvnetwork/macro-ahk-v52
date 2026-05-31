@@ -4,7 +4,7 @@
 
 import { getProjectKvStore } from './project-kv-store';
 import { extractProjectIdFromUrl } from './workspace-detection';
-import { log, logSub } from './logging';
+import { log } from './logging';
 import { syncTaskQueueToDb, saveProjectMetadata } from './db/macro-db';
 import { state } from './shared-state';
 
@@ -61,7 +61,7 @@ export async function saveTaskQueue(queueState: TaskQueueState): Promise<void> {
   // Sync to SQLite for persistence across extensions/backups
   const projectName = state.projectNameFromApi || 'Unknown Project';
   await saveProjectMetadata(projectId, projectName, window.location.href);
-  await syncTaskQueueToDb(projectId, projectName, queueState.tasks);
+  await syncTaskQueueToDb(projectId, queueState.tasks);
 }
 
 /**

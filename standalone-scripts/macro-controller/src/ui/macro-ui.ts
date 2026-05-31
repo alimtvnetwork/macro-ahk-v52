@@ -2,13 +2,13 @@
  * MacroLoop Controller — Task Queue UI (Modal & Section)
  */
 
-import { taskNextState, type TaskNextDeps } from './task-next-ui';
-import { loadTaskQueue, saveTaskQueue, updateTaskStatus, clearCompletedTasks, getQueueDelayUntil, type MacroTask, type TaskQueueState } from '../task-queue';
+// import { taskNextState, type TaskNextDeps } from './task-next-ui';
+import { loadTaskQueue, saveTaskQueue, clearCompletedTasks, getQueueDelayUntil, type MacroTask } from '../task-queue';
 import { TaskQueueManager } from '../task-manager';
 import { cPanelBg, cPanelFg, cPrimary, cPrimaryLight, cSuccess, cError, cWarning, cPanelBgAlt, cPanelBorder } from '../shared-state';
 import { log } from '../logging';
-import { showToast } from '../toast';
-import { CssFragment } from '../types';
+// import { showToast } from '../toast';
+// import { CssFragment } from '../types';
 
 let _activeQueueTab: 'active' | 'history' | 'live' = 'active';
 let _selectedTaskIds: Set<string> = new Set();
@@ -175,14 +175,21 @@ export function buildTaskQueueSection(): HTMLElement {
   pauseOnErrorCheck.type = 'checkbox';
   pauseOnErrorCheck.style.cssText = 'margin:0;';
   
-  const { getSettingsOverrides, saveSettingsOverrides } = await import('../settings-store');
-  const initialSettings = getSettingsOverrides();
+  const initialSettings = (function() {
+    try {
+      return (window as any).RiseupAsiaMacroExt.Projects.MacroController.getSettingsOverrides();
+    } catch {
+      return { pauseQueueOnError: true, maxTaskRetries: 3 };
+    }
+  })();
   pauseOnErrorCheck.checked = initialSettings.pauseQueueOnError !== false;
   
-  pauseOnErrorCheck.onchange = async () => {
-    const s = getSettingsOverrides();
-    s.pauseQueueOnError = pauseOnErrorCheck.checked;
-    await saveSettingsOverrides(s);
+  pauseOnErrorCheck.onchange = () => {
+    import('../settings-store').then(mod => {
+      const s = mod.getSettingsOverrides();
+      s.pauseQueueOnError = pauseOnErrorCheck.checked;
+      void mod.saveSettingsOverrides(s);
+    });
   };
   
   pauseOnErrorWrap.appendChild(pauseOnErrorCheck);
@@ -199,10 +206,12 @@ export function buildTaskQueueSection(): HTMLElement {
   retriesInput.max = '10';
   retriesInput.value = String(initialSettings.maxTaskRetries ?? 3);
   retriesInput.style.cssText = `width:28px;background:${cPanelBgAlt};border:1px solid ${cPanelBorder};color:#fff;font-size:9px;padding:1px 2px;border-radius:2px;`;
-  retriesInput.onchange = async () => {
-    const s = getSettingsOverrides();
-    s.maxTaskRetries = parseInt(retriesInput.value) || 0;
-    await saveSettingsOverrides(s);
+  retriesInput.onchange = () => {
+    import('../settings-store').then(mod => {
+      const s = mod.getSettingsOverrides();
+      s.maxTaskRetries = parseInt(retriesInput.value) || 0;
+      void mod.saveSettingsOverrides(s);
+    });
   };
   retriesWrap.appendChild(retriesInput);
   settingsRow.appendChild(retriesWrap);

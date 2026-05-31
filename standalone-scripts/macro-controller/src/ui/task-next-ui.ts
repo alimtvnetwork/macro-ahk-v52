@@ -269,7 +269,7 @@ function doNextTask(ctx: TaskNextLoopCtx, index: number): void {
     delay += delaySec * 1000;
   }
 
-  if (outcome === 'failed') {
+  if ((outcome as any) === 'failed') {
     logError('Task Next', 'Failed to inject prompt at task ' + (index + 1));
     showPasteToast('❌ Task Next: Injection failed at ' + (index + 1) + '/' + ctx.count, true);
     taskNextState.running = false;

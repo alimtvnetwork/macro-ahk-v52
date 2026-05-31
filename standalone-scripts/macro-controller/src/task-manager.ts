@@ -3,13 +3,13 @@
  * Coordinates queue processing, delays, and state synchronization.
  */
 
-import { loadTaskQueue, saveTaskQueue, updateTaskStatus, checkForReturnButton, setQueueDelayUntil, type MacroTask, type TaskQueueState } from './task-queue';
+import { loadTaskQueue, saveTaskQueue, updateTaskStatus, checkForReturnButton, setQueueDelayUntil, type MacroTask } from './task-queue';
 import { getSettingsOverrides } from './settings-store';
-import { log, logSub } from './logging';
+import { log } from './logging';
 import { getByXPath, isReturnButtonVisible } from './xpath-utils';
-import { pasteIntoEditor, findPasteTarget, showPasteToast } from './ui/prompt-utils';
+import { pasteIntoEditor, showPasteToast } from './ui/prompt-utils';
 import { getPromptsConfig } from './ui/prompt-loader';
-import { MacroController } from './core/MacroController';
+// import { MacroController } from './core/MacroController';
 import { saveCommunication } from './db/macro-db';
 
 export class TaskQueueManager {
@@ -116,7 +116,7 @@ export class TaskQueueManager {
       return node instanceof Element ? node : null;
     });
 
-    if (outcome === 'failed') {
+    if ((outcome as any) === 'failed') {
       this._logExecution('Injection failed', 'error');
       await this._handleTaskFailure(task, 'Injection failed');
       return;
@@ -188,7 +188,8 @@ export class TaskQueueManager {
 
     for (const selector of sendSelectors) {
       const el = document.querySelector(selector);
-      if (el instanceof HTMLElement && !el.disabled) return el;
+      if (el instanceof HTMLButtonElement && !el.disabled) return el;
+      if (el instanceof HTMLInputElement && !el.disabled) return el;
     }
     return null;
   }

@@ -123,14 +123,14 @@ export async function saveCommunication(projectId: string, prompt: string, respo
 /**
  * Sync the entire task queue for a project to SQLite.
  */
-export async function syncTaskQueueToDb(projectId: string, projectName: string, tasks: DbTask[]): Promise<void> {
+export async function syncTaskQueueToDb(projectId: string, tasks: DbTask[]): Promise<void> {
   if (!projectId) return;
 
   // Clear existing queue for this project
   const deleteSql = `DELETE FROM TaskQueue WHERE ProjectId = '${projectId.replace(/'/g, "''")}'`;
   
   const insertValues = tasks.map(t => {
-    return `('${t.id}', '${t.projectId.replace(/'/g, "''")}', '${t.projectName.replace(/'/g, "''")}', '${t.prompt.replace(/'/g, "''")}', '${t.status}', '${(t.error || '').replace(/'/g, "''")}', ${t.timestamp})`;
+    return `('${t.id}', '${t.projectId.replace(/'/g, "''")}', '${(t as any).projectName ? (t as any).projectName.replace(/'/g, "''") : "Unknown"}', '${t.prompt.replace(/'/g, "''")}', '${t.status}', '${(t.error || '').replace(/'/g, "''")}', ${t.timestamp})`;
   }).join(',');
 
   const sql = insertValues.length > 0 
@@ -156,16 +156,15 @@ export async function forceSyncQueueToDb(): Promise<void> {
   const { visualSyncConfirm } = await import('../ui/prompt-utils');
   const { loadTaskQueue } = await import('../task-queue');
   const { extractProjectIdFromUrl } = await import('../workspace-detection');
-  const { state } = await import('../shared-state');
   
   const projectId = extractProjectIdFromUrl();
   if (!projectId) return;
 
   const queueState = await loadTaskQueue();
-  const projectName = state.projectNameFromApi || state.projectNameFromDom || 'Unknown Project';
+  // const projectName = state.projectNameFromApi || state.projectNameFromDom || 'Unknown Project';
   
   log('[MacroDb] Force-syncing task queue to SQLite...', 'check');
-  await syncTaskQueueToDb(projectId, projectName, queueState.tasks);
+  await syncTaskQueueToDb(projectId, queueState.tasks);
   visualSyncConfirm();
   log('[MacroDb] Queue synced to SQLite', 'success');
 }
@@ -200,7 +199,7 @@ export async function getCommunicationHistory(projectId: string, limit: number =
       endpoint: 'rawSql',
       params: { sql }
     });
-    return resp?.isOk ? resp.rows || [] : [];
+    return resp?.isOk ? (Array.isArray(resp.rows) ? resp.rows : []) : [];
   } catch (err) {
     logError('MacroDb', 'getCommunicationHistory failed', err);
     return [];

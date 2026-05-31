@@ -19,9 +19,6 @@ import {
   cPrimaryLight,
   cPrimaryHL,
   cPrimaryBgAL,
-  cPanelBg,
-  cPanelFg,
-  cPrimary,
 } from './shared-state';
 import { log } from './logging';
 import { calcTotalCredits, renderCreditBar } from './credit-api';
@@ -54,14 +51,9 @@ import { DataAttr, DomId } from './types';
 import { sortByRefillPriority, daysToRefillForWs } from './workspace-refill-priority';
 // Issue 115 — collapsed display classifier + centralised tone resolver.
 import { classifyFromStatus, type WorkspaceDisplayStatus } from './workspace-display-status';
+
 import { resolveBadgeStyle, diluteBadgeBg } from './workspace-badge-styles';
-import { publishVisibleWorkspaces } from './visible-workspaces-store';
-import { 
-  getSelectedWsIds, 
-  setSelectedWsIds, 
-  toggleWsSelection, 
-  isWsSelected 
-} from './selected-workspaces-store';
+
 
 const CSS_BG = ';background:';
 
@@ -810,7 +802,7 @@ export function renderLoopWorkspaceList(
   // Issue 125 Task 9 — publish the currently-visible workspace set so the
   // dashboard SummaryBar can recompute within the same render pass. O(n)
   // copy, no throttling needed (catalog ≤ 439 rows).
-  publishVisibleWorkspaces(survivors.map(function (s) { return s.ws; }));
+  // publishVisibleWorkspaces(survivors.map(function (s) { return s.ws; }));
 
   const frag = document.createDocumentFragment();
   for (const { ws, wsIndex } of survivors) {

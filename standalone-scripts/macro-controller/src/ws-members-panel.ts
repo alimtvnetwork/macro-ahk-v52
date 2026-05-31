@@ -329,7 +329,7 @@ function footerCollapsedHtml(): string {
     + '</button>';
 }
 
-function footerFormHtml(wsId: string): string {
+function footerFormHtml(): string {
   // We'll replace the static HTML with a container for the chip input
   return '<form data-marco-action="add-member-submit" '
     + 'style="display:flex;flex-direction:column;gap:6px;">'
@@ -351,10 +351,10 @@ function footerFormHtml(wsId: string): string {
     + '</form>';
 }
 
-function footerHtml(wsId: string, expanded = false): string {
+function footerHtml(_wsId: string, expanded = false): string {
   return '<div data-marco-section="members-footer" '
     + 'style="padding:6px 10px;border-top:1px solid ' + cPanelBorder + ';background:rgba(0,0,0,0.2);">'
-    + (expanded ? footerFormHtml(wsId) : footerCollapsedHtml())
+    + (expanded ? footerFormHtml() : footerCollapsedHtml())
     + '</div>';
 }
 
@@ -458,8 +458,8 @@ function findFooter(el: HTMLElement): HTMLElement | null {
 function swapFooter(el: HTMLElement, expanded: boolean): void {
   const footer = findFooter(el);
   if (!footer) return;
-  const wsId = (el as unknown as { _wsId?: string })._wsId || '';
-  footer.innerHTML = expanded ? footerFormHtml(wsId) : footerCollapsedHtml();
+  
+  footer.innerHTML = expanded ? footerFormHtml() : footerCollapsedHtml();
   if (expanded) {
     const chipContainer = footer.querySelector('#marco-chip-input-container');
     const inviteBtn = footer.querySelector('#marco-invite-submit') as HTMLButtonElement | null;
