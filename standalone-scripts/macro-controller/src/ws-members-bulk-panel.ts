@@ -13,7 +13,7 @@ import { createChipInput } from './ws-members-chip-input';
 // import { logError } from './error-utils';
 import { makeDraggable } from './ui/drag-window';
 import { loopCreditState } from './shared-state';
-import { inviteMemberMany, promoteMemberMany, demoteMemberMany, removeMemberMany } from './ws-members-mutations';
+import { inviteMemberMany, promoteMemberMany, demoteMemberMany, removeMemberMany, type MemberRole } from './ws-members-mutations';
 
 
 const PANEL_ID = 'marco-ws-bulk-members-panel';
