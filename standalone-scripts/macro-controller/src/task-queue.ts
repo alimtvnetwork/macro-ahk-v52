@@ -34,17 +34,18 @@ const STATE_KEY = 'queue_state';
  */
 export async function loadTaskQueue(): Promise<TaskQueueState> {
   const projectId = extractProjectIdFromUrl();
-  if (!projectId) return { tasks: [], isPaused: false };
+  if (!projectId) return { tasks: [], history: [], isPaused: false };
 
   const store = getProjectKvStore('macro-controller');
   const stateData = await store.get<TaskQueueState>(SECTION, `${STATE_KEY}_${projectId}`);
   
   if (stateData) {
-    log(`[TaskQueue] Loaded ${stateData.tasks.length} tasks for project ${projectId}`, 'info');
+    if (!stateData.history) stateData.history = [];
+    log(`[TaskQueue] Loaded ${stateData.tasks.length} tasks and ${stateData.history.length} history items for project ${projectId}`, 'info');
     return stateData;
   }
   
-  return { tasks: [], isPaused: false };
+  return { tasks: [], history: [], isPaused: false };
 }
 
 /**
