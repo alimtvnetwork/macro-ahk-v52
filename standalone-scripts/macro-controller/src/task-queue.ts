@@ -113,6 +113,13 @@ export async function clearCompletedTasks(): Promise<void> {
 }
 
 /**
+ * Shared queue delay countdown state.
+ */
+let _queueDelayUntil = 0;
+export function setQueueDelayUntil(ts: number): void { _queueDelayUntil = ts; }
+export function getQueueDelayUntil(): number { return _queueDelayUntil; }
+
+/**
  * Check if the "Return to Extension" button is present and pause queue if so.
  */
 export function checkForReturnButton(): boolean {
