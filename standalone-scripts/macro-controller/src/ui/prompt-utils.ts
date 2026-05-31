@@ -31,6 +31,7 @@ export function normalizePromptEntries(entries: Partial<PromptEntry & { order?: 
       if (raw.isFavorite) { entry.isFavorite = true; }
       if (raw.isDefault !== undefined) { entry.isDefault = raw.isDefault; }
       if (Array.isArray(raw.tags)) { entry.tags = raw.tags; }
+      else { entry.tags = autoTagPrompt(name, text); }
 
       out.push(entry);
     } else {
