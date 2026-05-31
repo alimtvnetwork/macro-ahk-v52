@@ -171,9 +171,10 @@ export function createUI(deps: PanelBuilderDeps): void {
   const { titleRow } = buildTitleRow(deps, plCtx);
   const { status, infoRow } = buildStatusBar();
   const { btnRow, btnStyle, taskNextDeps } = buildButtonRow(deps);
-  const { toolsSection, wsDropSection, jsBody, settingsDeps } = buildToolsMasterSection(deps, btnStyle, taskNextDeps);
+  const { toolsSection, taskQueueSection, wsDropSection, jsBody, settingsDeps } = buildToolsMasterSection(deps, btnStyle, taskNextDeps);
 
   // Dashboard Summary Bar — sits below the title row (Issue 125 §2.2).
+
   const summaryBar = createSummaryBar();
   nsWrite('_internal.summaryBar', summaryBar);
   wireSummaryBarSubscription(summaryBar);
@@ -181,7 +182,7 @@ export function createUI(deps: PanelBuilderDeps): void {
   // Track body elements for minimize/restore. Auth Diagnostics has moved
   // INSIDE Tools & Logs (Issue 125 §2.1) and is no longer a panel-root
   // child, so it is excluded from this list.
-  plCtx.bodyElements = [status, infoRow, summaryBar.root, btnRow, wsDropSection, toolsSection];
+  plCtx.bodyElements = [status, infoRow, summaryBar.root, btnRow, wsDropSection, taskQueueSection, toolsSection];
 
   // Assembly
   ui.appendChild(titleRow);
@@ -190,7 +191,9 @@ export function createUI(deps: PanelBuilderDeps): void {
   ui.appendChild(infoRow);
   ui.appendChild(btnRow);
   ui.appendChild(wsDropSection);
+  ui.appendChild(taskQueueSection);
   ui.appendChild(toolsSection);
+
 
   container.appendChild(ui);
 

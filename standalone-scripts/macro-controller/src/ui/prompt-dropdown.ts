@@ -12,7 +12,10 @@ import type { PromptEntry as LoaderPromptEntry } from '../types';
 import { cPanelFg, cPanelFgDim, cPrimary, cPrimaryLight, cBtnMenuHover, lDropdownRadius } from '../shared-state';
 import { getByXPath } from '../xpath-utils';
 import { pasteIntoEditor, showPasteToast } from './prompt-utils';
-import { runTaskNextLoop, openTaskNextSettingsModal, type TaskNextDeps } from './task-next-ui';
+import { runTaskNextLoop, openTaskNextSettingsModal, type TaskNextDeps, findNextTasksPrompt } from './task-next-ui';
+import { addTaskToQueue } from '../task-queue';
+import { getDisplayProjectName } from '../logging';
+
 import type { PromptContext } from './prompt-loader';
 import {
   getPromptsConfig,
@@ -759,11 +762,40 @@ function _appendPresetCounts(taskNextSub: HTMLElement, promptsDropdown: HTMLElem
   const presetCounts = [1, 2, 3, 5, 7, 10, 12, 15, 20, 30, 40];
   for (const count of presetCounts) {
     const subItem = document.createElement('div');
-    subItem.style.cssText = 'padding:5px 12px;cursor:pointer;font-size:10px;color:' + cPanelFg + ';';
-    subItem.textContent = 'Next ' + count + ' task' + (count > 1 ? 's' : '');
-    subItem.onmouseover = function() { (this as HTMLElement).style.background = cBtnMenuHover; };
-    subItem.onmouseout = function() { (this as HTMLElement).style.background = 'transparent'; };
-    subItem.onclick = function(e: Event) {
+    subItem.style.cssText = 'padding:5px 12px;cursor:pointer;font-size:10px;color:' + cPanelFg + ';display:flex;justify-content:space-between;align-items:center;';
+    
+    const label = document.createElement('span');
+    label.textContent = 'Next ' + count + ' task' + (count > 1 ? 's' : '');
+    subItem.appendChild(label);
+
+    const queueBtn = document.createElement('span');
+    queueBtn.textContent = '➕';
+    queueBtn.title = 'Add ' + count + ' tasks to queue';
+    queueBtn.style.cssText = 'padding:2px 4px;font-size:10px;cursor:pointer;opacity:0.6;';
+    queueBtn.onclick = async (e: Event) => {
+      e.stopPropagation();
+      const prompt = findNextTasksPrompt(taskNextDeps);
+      if (!prompt) {
+        showPasteToast('❌ "Next Tasks" prompt not found', true);
+        return;
+      }
+      const projectName = getDisplayProjectName();
+      for (let i = 0; i < count; i++) {
+        await addTaskToQueue(prompt.text, projectName);
+      }
+      showPasteToast(`✅ Queued ${count} tasks`, false);
+      const queueList = document.getElementById('task-queue-list');
+      if (queueList) {
+        // Force refresh Task Queue UI if visible
+        queueList.dispatchEvent(new CustomEvent('refresh-queue'));
+      }
+    };
+    subItem.appendChild(queueBtn);
+
+    subItem.onmouseover = function() { (this as HTMLElement).style.background = cBtnMenuHover; queueBtn.style.opacity = '1'; };
+    subItem.onmouseout = function() { (this as HTMLElement).style.background = 'transparent'; queueBtn.style.opacity = '0.6'; };
+    
+    label.onclick = function(e: Event) {
       e.stopPropagation();
       promptsDropdown.style.display = 'none';
       taskNextSub.style.display = 'none';
@@ -772,6 +804,7 @@ function _appendPresetCounts(taskNextSub: HTMLElement, promptsDropdown: HTMLElem
     taskNextSub.appendChild(subItem);
   }
 }
+
 
 function _appendCustomCountRow(taskNextSub: HTMLElement, promptsDropdown: HTMLElement, taskNextDeps: TaskNextDeps): void {
   const customRow = document.createElement('div');

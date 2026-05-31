@@ -17,4 +17,5 @@ export enum StorageKey {
   ReinjectPrefix = '__marco_reinject_',
   GkvForbiddenGroup = 'rename_forbidden',
   ForcedTheme = 'dark',
+  TaskQueue = 'marco_task_queue',
 }

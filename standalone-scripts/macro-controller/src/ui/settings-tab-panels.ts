@@ -190,7 +190,8 @@ function _buildDelaySlider(initialValue: number): { row: HTMLDivElement; input: 
   slider.type = 'range';
   slider.min = '0';
   slider.max = '120';
-  slider.step = '5';
+  slider.step = '1';
+
   slider.value = String(initialValue);
   slider.style.cssText = 'flex:1;height:6px;accent-color:' + cPrimary + ';cursor:pointer;';
 

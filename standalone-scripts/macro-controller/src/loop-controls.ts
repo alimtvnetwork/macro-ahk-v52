@@ -27,6 +27,8 @@ import { logError } from './error-utils';
 import { emitCreditPollTick } from './credit-poll-events';
 import { requireUserGesture } from './user-gesture-guard';
 import { autoResumeQueueIfNeeded } from './queue-control';
+import { TaskQueueManager } from './task-manager';
+
 
 
 
@@ -306,9 +308,13 @@ export function refreshStatus(): void {
   // Single click attempt per tick; no retries (mem://constraints/no-retry-policy).
   try {
     autoResumeQueueIfNeeded({ isLoopRunning: () => state.running });
+    
+    // Also trigger Task Queue processing
+    void TaskQueueManager.getInstance().startProcessing();
   } catch (caught: unknown) {
     logError('refreshStatus.autoResumeQueue', 'auto-resume tick threw', caught);
   }
+
   refreshStatusRunning();
   emitCreditPollTick();
 }
