@@ -280,3 +280,19 @@ export function updateWorkspaceXPath(newXPath: string): boolean {
   }
   return false;
 }
+
+/**
+ * Detect if the "Return to Extension" button is visible.
+ * Used for conditional delays in the macro loop.
+ */
+export function isReturnButtonVisible(): boolean {
+  const descriptor: ElementDescriptor = {
+    name: 'Return Button',
+    xpath: '/html/body/div[2]/main/div/div[2]/div/div/div/div[1]/div/div[2]/button',
+    textMatch: ['Voltar à Extensão', 'Return to Extension'],
+    selector: ['#ql-native-return-btn', '.ql-native-return-btn'],
+    tag: 'button'
+  };
+  // Use findElement which handles XPath and multiple fallbacks
+  return !!findElement(descriptor);
+}
