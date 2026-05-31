@@ -11,6 +11,8 @@ import { showToast } from '../toast';
 import { CssFragment } from '../types';
 
 let _activeQueueTab: 'active' | 'history' = 'active';
+let _selectedTaskIds: Set<string> = new Set();
+let _selectionMode = false;
 
 /**
  * Build the Task Queue section for the Tools panel.
