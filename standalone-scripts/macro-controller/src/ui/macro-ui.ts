@@ -121,6 +121,7 @@ function getStatusColor(status: MacroTask['status']): string {
     case 'processing': return cPrimary;
     case 'completed': return cSuccess;
     case 'failed': return cError;
+    case 'hold': return cWarning;
     default: return '#9ca3af';
   }
 }
