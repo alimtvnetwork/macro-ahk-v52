@@ -46,15 +46,10 @@ export class TaskQueueManager {
     try {
       while (this._isProcessing) {
         const queueState = await loadTaskQueue();
-        const nextTask = queueState.tasks.find(t => t.status === 'pending');
+        const now = Date.now();
+        const nextTask = queueState.tasks.find(t => t.status === 'pending' || (t.status === 'hold' && (t.holdUntil ?? 0) <= now));
         
         // Check for return button (indicates we should pause/delay)
-        if (checkForReturnButton() || isReturnButtonVisible()) {
-          log('[TaskQueue] "Return to Extension" button detected. Pausing processing loop.', 'warn');
-          this._isProcessing = false;
-          break;
-        }
-
         if (checkForReturnButton() || isReturnButtonVisible()) {
           log('[TaskQueue] "Return to Extension" button detected. Pausing processing loop.', 'warn');
           this._isPaused = true;
@@ -71,7 +66,6 @@ export class TaskQueueManager {
         
         // Apply configured delay
         const overrides = getSettingsOverrides();
-        // Default to 22s as requested by user
         const delaySec = overrides.nextSubmissionDelaySeconds ?? 22;
         
         if (overrides.enableNextSubmissionDelay !== false) {
