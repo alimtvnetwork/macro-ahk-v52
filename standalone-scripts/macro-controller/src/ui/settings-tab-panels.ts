@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 /**
  * MacroLoop Controller — Settings Tab Panel Builders
  *
@@ -294,7 +293,7 @@ export function buildLoggingPanel(deps: SettingsDeps): LoggingPanelResult {
 
   const resetLogBtn = document.createElement('button');
   resetLogBtn.textContent = '↺ Reset Logging Defaults';
-  // eslint-disable-next-line sonarjs/no-duplicate-string
+  
   resetLogBtn.style.cssText = btnStyle + 'background:' + cWarning + ';color:#1e1e2e;padding:5px 12px;font-size:11px;margin-top:12px;';
   resetLogBtn.onclick = function() {
     resetLogConfig();
