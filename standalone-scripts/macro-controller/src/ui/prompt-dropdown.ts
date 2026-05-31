@@ -744,7 +744,7 @@ function collectUniqueCategories(entries: Array<{ category?: string }>): string[
 function _computeFilterKey(): string {
   const legacy = getPromptCategoryFilter() || '';
   const multi = Array.from(getPromptCategoryFilterSet()).sort().join(',');
-  return legacy + '|' + multi;
+  return legacy + '|' + multi + '|' + _currentSearchQuery;
 }
 
 function filterByCategory<T extends { category?: string }>(entries: T[]): T[] {
