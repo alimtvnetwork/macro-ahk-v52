@@ -3,7 +3,7 @@
 **Active workstream:** **Issue 131** — Prompts Import/Export (JSON-based). Spec: `spec/22-app-issues/131-prompts-import-export.md`. **12 sequential steps**; one per `next`.
 
 ### Issue 131 — remaining steps
-1. Define `PromptIO` module and types in `prompt-io.ts`.
+1. [x] Define `PromptIO` module and types in `prompt-io.ts`.
 2. Implement Export logic (IndexedDB -> JSON Download).
 3. Implement Import Parsing & Schema Validation.
 4. Implement Upsert/Merge logic for prompts.
