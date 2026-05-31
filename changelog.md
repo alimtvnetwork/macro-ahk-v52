@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.47.0] — 2026-05-31
+
+### Added
+- **Dynamic Prompt Variables**: Added support for `{{?Variable Name}}` syntax which prompts for input before injection.
+- **Prompt Favorites**: Star your most used prompts to pin them to a dedicated "Favorites" category at the top.
+- **Task Inspection**: Click on any task in the queue or history to view full prompt text and error details.
+
+### Changed
+- Version bump: 3.46.0 → 3.47.0 (all version files synced).
+
+---
+
 ## [v3.46.0] — 2026-05-31
 
 ### Added
