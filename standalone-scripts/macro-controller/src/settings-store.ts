@@ -45,6 +45,16 @@ export interface SettingsOverrides {
   enableWorkspaceHoverDetails?: boolean;
   /** Delay before the workspace hover card disappears after mouseleave (ms). Default 220. */
   hoverCardHideGracePeriodMs?: number;
+
+  /** New: Delay between next-prompt submissions (seconds). Default 30. Issue 131 Task 1. */
+  nextSubmissionDelaySeconds?: number;
+  /** New: Enable/Disable the submission delay. Default true. */
+  enableNextSubmissionDelay?: boolean;
+  /** New: Retry prompt on failure (XPath not found / error msg). Default true. */
+  retryOnFailure?: boolean;
+  /** New: Interval for checking credits (seconds). Default 5. */
+  creditPollIntervalSeconds?: number;
+
   /**
    * Per-workspace lifecycle overrides keyed by workspace id (string UUID).
    * Values here override the global `expiryGracePeriodDays` /
@@ -120,6 +130,18 @@ function sanitize(raw: unknown): SettingsOverrides {
   }
   if (isFiniteNonNegative(r.hoverCardHideGracePeriodMs)) {
     out.hoverCardHideGracePeriodMs = Math.floor(r.hoverCardHideGracePeriodMs);
+  }
+  if (isFiniteNonNegative(r.nextSubmissionDelaySeconds)) {
+    out.nextSubmissionDelaySeconds = Math.floor(r.nextSubmissionDelaySeconds);
+  }
+  if (typeof r.enableNextSubmissionDelay === 'boolean') {
+    out.enableNextSubmissionDelay = r.enableNextSubmissionDelay;
+  }
+  if (typeof r.retryOnFailure === 'boolean') {
+    out.retryOnFailure = r.retryOnFailure;
+  }
+  if (isFiniteNonNegative(r.creditPollIntervalSeconds)) {
+    out.creditPollIntervalSeconds = Math.floor(r.creditPollIntervalSeconds);
   }
   const perWs = sanitizePerWorkspace(r.perWorkspace);
   if (perWs) {
