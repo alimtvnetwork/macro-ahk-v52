@@ -747,14 +747,30 @@ function _computeFilterKey(): string {
   return legacy + '|' + multi + '|' + _currentSearchQuery;
 }
 
-function filterByCategory<T extends { category?: string }>(entries: T[]): T[] {
+function filterByCategory<T extends { name: string; text: string; category?: string; tags?: string[] }>(entries: T[]): T[] {
+  let filtered = entries;
   const set = getPromptCategoryFilterSet();
+  
   if (set.size > 0) {
-    return entries.filter(entry => set.has(String(entry.category || '').trim().toLowerCase()));
+    filtered = entries.filter(entry => set.has(String(entry.category || '').trim().toLowerCase()));
+  } else {
+    const legacy = getPromptCategoryFilter();
+    if (legacy) {
+      filtered = entries.filter(entry => (String(entry.category || '')).trim().toLowerCase() === legacy);
+    }
   }
-  const legacy = getPromptCategoryFilter();
-  if (!legacy) return entries;
-  return entries.filter(entry => (String(entry.category || '')).trim().toLowerCase() === legacy);
+
+  if (_currentSearchQuery) {
+    const q = _currentSearchQuery.toLowerCase();
+    filtered = filtered.filter(entry => {
+      const name = (entry.name || '').toLowerCase();
+      const text = (entry.text || '').toLowerCase();
+      const tags = (entry.tags || []).join(' ').toLowerCase();
+      return name.includes(q) || text.includes(q) || tags.includes(q);
+    });
+  }
+
+  return filtered;
 }
 
 function renderTaskNextSubmenu(container: HTMLElement, ctx: PromptContext, taskNextDeps: TaskNextDeps): void {
