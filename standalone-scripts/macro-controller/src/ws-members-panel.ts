@@ -650,7 +650,6 @@ function submitInvite(el: HTMLElement, wsId: string, wsName: string, form: HTMLF
     loadAndRender(el, wsId, wsName);
   })();
 }
-}
 
 // eslint-disable-next-line max-lines-per-function
 function attachActionHandlers(el: HTMLElement, wsId: string, wsName: string): void {
