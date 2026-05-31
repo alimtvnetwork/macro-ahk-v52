@@ -367,8 +367,10 @@ export function useStepLibrary(): UseStepLibraryApi {
                 }
                 if (cancelled) return;
                 const bytes = wrapper.exportDbBytes();
+                console.log("useStepLibrary: setting dbBytes", bytes.length, "bytes");
                 setDbBytes(bytes);
                 setSql(sqljs);
+
                 setLib(wrapper);
 
                 setProject(wrapper.listProjects().find((p) => p.ProjectId === projectId) ?? null);
