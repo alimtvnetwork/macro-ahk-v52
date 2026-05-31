@@ -173,8 +173,10 @@ export class TaskQueueManager {
 
   stopProcessing(): void {
     this._isProcessing = false;
+    this._isStopped = true;
     if (this._abortController) {
       this._abortController.abort();
     }
+    log('[TaskQueue] Queue processing stopped manually', 'warn');
   }
 }
