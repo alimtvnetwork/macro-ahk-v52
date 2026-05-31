@@ -990,12 +990,33 @@ function appendPromptActions(
   actions: HTMLElement, p: PromptEntry, promptsDropdown: HTMLElement,
   _promptsCfg: ReturnType<typeof getPromptsConfig>, ctx: PromptContext, taskNextDeps: TaskNextDeps,
 ): void {
+  actions.appendChild(_buildFavoriteIcon(p, promptsDropdown, ctx, taskNextDeps));
   actions.appendChild(_buildEditIcon(p, promptsDropdown, ctx, taskNextDeps));
   if (!p.isDefault) {
     actions.appendChild(_buildDeleteIcon(p, promptsDropdown, ctx, taskNextDeps));
   }
   actions.appendChild(_buildCopyIcon(p));
 }
+
+/** Build the favorite ⭐ toggle icon for a prompt item. */
+function _buildFavoriteIcon(p: PromptEntry, _dropdown: HTMLElement, ctx: PromptContext, taskNextDeps: TaskNextDeps): HTMLElement {
+  const isFav = !!p.isFavorite;
+  const icon = _makeActionIcon(isFav ? '⭐' : '☆', isFav ? 'Remove from favorites' : 'Mark as favorite', isFav ? '1' : '0.4');
+  icon.onclick = function(e: Event) {
+    e.stopPropagation();
+    const updated = { ...p, isFavorite: !isFav };
+    sendToExtension('SAVE_PROMPT', { prompt: updated }).then(function(resp: Record<string, unknown>) {
+      if (resp && resp.isOk) {
+        log((!isFav ? 'Added to' : 'Removed from') + ' favorites: ' + p.name, 'success');
+        clearLoadedPrompts();
+        clearUISnapshot();
+        loadPromptsFromJson().then(function() { renderPromptsDropdown(ctx, taskNextDeps); });
+      }
+    });
+  };
+  return icon;
+}
+
 
 /** Build the edit ✏️ action icon for a prompt item. */
 function _buildEditIcon(p: PromptEntry, dropdown: HTMLElement, ctx: PromptContext, taskNextDeps: TaskNextDeps): HTMLElement {
