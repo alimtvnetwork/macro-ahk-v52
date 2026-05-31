@@ -111,8 +111,8 @@ export function useShiftClickSelection<Id extends SelectionId>(
     // Prune ids that vanished from the list (e.g. after delete/filter).
     useEffect(() => {
         const known = new Set(orderedIds);
-        let mutated = false;
         const pruned = new Set<Id>();
+        let mutated = false;
         for (const id of selected) {
             if (known.has(id)) {
                 pruned.add(id);
