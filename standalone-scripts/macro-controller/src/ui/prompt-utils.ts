@@ -235,11 +235,124 @@ function pasteIntoContentEditable(target: HTMLElement, text: string): boolean {
   return false;
 }
 
-export type PasteOutcome = 'injected' | 'clipboard' | 'failed';
+export type PasteOutcome = 'injected' | 'clipboard' | 'failed' | 'cancelled';
 
-export function pasteIntoEditor(rawText: string, promptsCfg: PromptsCfg, getByXPath: (xpath: string) => Element | null): PasteOutcome {
-  const text = normalizeNewlines(rawText);
+/**
+ * Scan text for {{?Variable Name}} and prompt user for values.
+ */
+export async function resolveDynamicVariables(text: string): Promise<string | null> {
+  const variableRegex = /\{\{\?([^}]+)\}\}/g;
+  const matches = Array.from(text.matchAll(variableRegex));
+  
+  if (matches.length === 0) return text;
+
+  // Deduplicate variables
+  const uniqueVars = Array.from(new Set(matches.map(m => m[1].trim())));
+  
+  // Show input modal
+  const values = await showVariableInputModal(uniqueVars);
+  if (!values) return null; // User cancelled
+
+  let resolvedText = text;
+  uniqueVars.forEach(v => {
+    const escapedVar = v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`\\{\\{\\?\\s*${escapedVar}\\s*\\}\\}`, 'g');
+    resolvedText = resolvedText.replace(regex, values[v] || '');
+  });
+
+  return resolvedText;
+}
+
+/**
+ * Show a simple modal to collect variable values.
+ */
+function showVariableInputModal(vars: string[]): Promise<Record<string, string> | null> {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:2147483647;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);font-family:system-ui,-apple-system,sans-serif;';
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = 'background:#1e1e2e;border:1px solid #313147;border-radius:12px;width:400px;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,0.5);display:flex;flex-direction:column;gap:12px;';
+    
+    const header = document.createElement('div');
+    header.style.cssText = 'font-size:14px;font-weight:700;color:#3daee9;margin-bottom:8px;';
+    header.textContent = 'Variables Required';
+    modal.appendChild(header);
+
+    const inputs: Record<string, HTMLInputElement> = {};
+    
+    vars.forEach(v => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+      
+      const label = document.createElement('label');
+      label.textContent = v;
+      label.style.cssText = 'font-size:11px;color:#94a3b8;font-weight:600;';
+      row.appendChild(label);
+      
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = `Enter value for ${v}...`;
+      input.style.cssText = 'background:#252536;border:1px solid #313147;border-radius:6px;padding:8px 10px;color:#fff;font-size:12px;outline:none;';
+      input.onfocus = () => input.style.borderColor = '#007acc';
+      input.onblur = () => input.style.borderColor = '#313147';
+      
+      row.appendChild(input);
+      modal.appendChild(row);
+      inputs[v] = input;
+    });
+
+    const footer = document.createElement('div');
+    footer.style.cssText = 'display:flex;justify-content:flex-end;gap:8px;margin-top:8px;';
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.style.cssText = 'padding:6px 12px;font-size:12px;background:transparent;border:1px solid #313147;color:#94a3b8;border-radius:6px;cursor:pointer;';
+    cancelBtn.onclick = () => { overlay.remove(); resolve(null); };
+    
+    const submitBtn = document.createElement('button');
+    submitBtn.textContent = 'Inject Prompt';
+    submitBtn.style.cssText = 'padding:6px 16px;font-size:12px;background:#007acc;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;';
+    submitBtn.onclick = () => {
+      const results: Record<string, string> = {};
+      vars.forEach(v => results[v] = inputs[v].value.trim());
+      overlay.remove();
+      resolve(results);
+    };
+
+    footer.appendChild(cancelBtn);
+    footer.appendChild(submitBtn);
+    modal.appendChild(footer);
+    
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    
+    // Focus first input
+    const firstVar = vars[0];
+    if (firstVar) inputs[firstVar].focus();
+
+    // Enter to submit
+    overlay.onkeydown = (e) => {
+      if (e.key === 'Enter') submitBtn.click();
+      if (e.key === 'Escape') cancelBtn.click();
+    };
+  });
+}
+
+export async function pasteIntoEditor(rawText: string, promptsCfg: PromptsCfg, getByXPath: (xpath: string) => Element | null): Promise<PasteOutcome> {
+  // 1. Handle date/time (legacy)
+  const now = new Date();
+  let text = rawText
+    .replace(/\{\{date\}\}/gi, now.toLocaleDateString())
+    .replace(/\{\{time\}\}/gi, now.toLocaleTimeString());
+
+  // 2. Handle dynamic variables
+  const resolved = await resolveDynamicVariables(text);
+  if (resolved === null) return 'cancelled';
+  text = normalizeNewlines(resolved);
+
   const target = findPasteTarget(promptsCfg, getByXPath) as HTMLElement | null;
+
   if (!target) {
     log('Prompt paste: No editor target found — copying to clipboard instead', 'warn');
     navigator.clipboard.writeText(text).then(function() {

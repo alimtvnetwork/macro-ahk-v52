@@ -1,26 +1,27 @@
-# v3.46.0 Roadmap: Task History, Search & Reordering
+# v3.47.0 Roadmap: Dynamic Variables & Prompt Favorites
 
-This update focuses on Task Queue organization and Prompt discoverability, introducing a dedicated task history and improved queue management.
+This update introduces interactive prompt variables and a favoriting system to streamline complex workflows and improve prompt organization.
 
-### 1. Task Queue Enhancements
-- **Task History**: Completed tasks will now be moved to a separate history list (persisted in IndexedDB) rather than staying in the main pending list.
-- **Queue Reordering**: Add "Move Up" and "Move Down" controls to pending tasks, allowing users to prioritize urgent prompts.
-- **Completed/Failed Filter**: The Task Queue UI will now feature tabs: **Active** (Pending/Hold) and **History** (Completed/Failed).
+### 1. Dynamic Prompt Variables
+- **Interactive Input**: Support for `{{?Variable Name}}` syntax in prompts.
+- **Input Dialog**: Clicking a prompt with dynamic variables will open a small modal to fill in the values before injection.
+- **Auto-Replacement**: Values are injected into the final prompt text.
 
-### 2. Prompt Management
-- **Search Bar**: A new search input at the top of the Prompts panel to filter saved prompts by title or content.
-- **Prompt Tagging**: Support for optional `tags` in prompt definitions, searchable via the new filter.
-- **Tag UI**: Render small colored tags beneath prompt titles in the list.
+### 2. Prompt Favorites & Pinning
+- **Favorite Toggle**: Add a star icon to prompt items to toggle favorite status.
+- **Priority List**: Favorites will automatically appear in a dedicated "⭐ Favorites" category at the top of the dropdown.
 
-### 3. Polish & Synchronization
-- **Version Bump**: Sync all manifests and constants to `v3.46.0`.
-- **UI Consistency**: Ensure history items are styled as "muted" to distinguish from active tasks.
+### 3. Task Inspection
+- **Detail View**: Click on any task in the Queue or History to view its full prompt text and detailed status/error logs in a modal.
+
+### 4. Version Sync & Polish
+- **Version Bump**: Sync all manifests and constants to `v3.47.0`.
+- **UI Tweaks**: Improved category headers and "Empty" state messages.
 
 ## Technical Details
-- **State Changes**: Update `TaskQueueState` in `task-queue.ts` to include a `history` array.
-- **Persistence**: Refactor `saveTaskQueue` to handle the new history structure.
-- **UI Components**: 
-  - Update `macro-ui.ts` to implement the Tab switcher in the Task Queue.
-  - Add search logic to `prompt-dropdown.ts` or `macro-ui.ts` depending on where the list is rendered.
-- **Logic**: Add `reorderTask` helper to `task-queue.ts`.
-- **Files**: `manifest.json`, `standalone-scripts/macro-controller/src/task-queue.ts`, `standalone-scripts/macro-controller/src/ui/macro-ui.ts`, `standalone-scripts/*/src/instruction.ts`, etc.
+- **Variable Logic**: New `resolveDynamicVariables(text): Promise<string>` helper in `prompt-utils.ts`.
+- **UI Components**:
+  - Update `prompt-dropdown.ts` to render the star icon and "Favorites" category.
+  - New `prompt-variable-modal.ts` for gathering variable inputs.
+  - Update `macro-ui.ts` to handle task clicks for the inspection modal.
+- **Persistence**: `PromptEntry` already has `isFavorite`, so we just need to hook it up to the `SAVE_PROMPT` message.
