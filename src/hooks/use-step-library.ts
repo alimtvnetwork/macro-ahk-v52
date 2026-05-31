@@ -369,6 +369,8 @@ export function useStepLibrary(): UseStepLibraryApi {
                 const bytes = wrapper.exportDbBytes();
                 setDbBytes(bytes);
                 setSql(sqljs);
+
+
                 setLib(wrapper);
 
                 setProject(wrapper.listProjects().find((p) => p.ProjectId === projectId) ?? null);
@@ -391,6 +393,8 @@ export function useStepLibrary(): UseStepLibraryApi {
         const bytes = lib.exportDbBytes();
         setDbBytes(bytes);
         void writeBytesToStorage(bytes);
+
+
     }, [lib]);
 
 
