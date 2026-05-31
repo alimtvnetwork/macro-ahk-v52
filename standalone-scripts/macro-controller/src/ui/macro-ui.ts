@@ -134,6 +134,36 @@ export function buildTaskQueueSection(): HTMLElement {
   
   section.appendChild(settingsRow);
 
+  // Tabs
+  const tabsRow = document.createElement('div');
+  tabsRow.style.cssText = 'display:flex;gap:4px;margin-bottom:4px;';
+  
+  const activeTab = document.createElement('div');
+  activeTab.textContent = 'Active';
+  activeTab.style.cssText = `flex:1;text-align:center;padding:4px;font-size:9px;font-weight:700;cursor:pointer;border-radius:4px;background:${_activeQueueTab === 'active' ? cPrimary : cPanelBgAlt};color:${_activeQueueTab === 'active' ? '#fff' : '#64748b'};`;
+  
+  const historyTab = document.createElement('div');
+  historyTab.textContent = 'History';
+  historyTab.style.cssText = `flex:1;text-align:center;padding:4px;font-size:9px;font-weight:700;cursor:pointer;border-radius:4px;background:${_activeQueueTab === 'history' ? cPrimary : cPanelBgAlt};color:${_activeQueueTab === 'history' ? '#fff' : '#64748b'};`;
+  
+  activeTab.onclick = () => {
+    _activeQueueTab = 'active';
+    activeTab.style.background = cPrimary; activeTab.style.color = '#fff';
+    historyTab.style.background = cPanelBgAlt; historyTab.style.color = '#64748b';
+    refreshTaskQueueUI(listContainer);
+  };
+  
+  historyTab.onclick = () => {
+    _activeQueueTab = 'history';
+    historyTab.style.background = cPrimary; historyTab.style.color = '#fff';
+    activeTab.style.background = cPanelBgAlt; activeTab.style.color = '#64748b';
+    refreshTaskQueueUI(listContainer);
+  };
+  
+  tabsRow.appendChild(activeTab);
+  tabsRow.appendChild(historyTab);
+  section.appendChild(tabsRow);
+
 
   const listContainer = document.createElement('div');
   listContainer.id = 'task-queue-list';
