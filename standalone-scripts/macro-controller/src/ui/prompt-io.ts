@@ -5,7 +5,43 @@
  * for importing/exporting prompts from the controller cache.
  */
 
-import { CachedPromptEntry } from './prompt-cache';
+import { CachedPromptEntry, readJsonCopy } from './prompt-cache';
+import { log } from '../logging';
+import { showToast } from '../toast';
+
+/**
+ * Exports current prompts from IndexedDB as a JSON file download.
+ */
+export async function exportPromptsToJson(): Promise<void> {
+  try {
+    const record = await readJsonCopy();
+    if (!record || !record.entries || record.entries.length === 0) {
+      showToast('No prompts found to export', 'warn');
+      return;
+    }
+
+    const data = JSON.stringify(record.entries, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `prompts-export-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+    
+    showToast(`Exported ${record.entries.length} prompts`, 'success');
+  } catch (err) {
+    log('[PromptIO] Export failed: ' + String(err), 'error');
+    showToast('Export failed', 'error');
+  }
+}
+
 
 export interface PromptImportResults {
   added: number;
