@@ -1,24 +1,26 @@
-## Phase v3.45.0: Prompt IO Hardening & Task Queue Polish
+# v3.46.0 Roadmap: Task History, Search & Reordering
 
-The v3.45.0 roadmap focuses on closing out the Prompt IO feature (Issue 131), adding regression tests, and polishing the Task Queue UI for better observability and control.
+This update focuses on Task Queue organization and Prompt discoverability, introducing a dedicated task history and improved queue management.
 
-### 1. Close out Prompt IO (Issue 131)
-- **Clear All prompts**: Add a destructive "Clear All Prompts" button to the IO dialog with a confirmation prompt.
-- **Merge Strategy UI**: Add a simple checkbox "Overwrite existing" (defaults to true) in the IO dialog.
-- **Regression Tests**: Create `standalone-scripts/macro-controller/src/__tests__/prompt-io.test.ts` covering JSON validation, slug-based matching, and merge strategies.
+### 1. Task Queue Enhancements
+- **Task History**: Completed tasks will now be moved to a separate history list (persisted in IndexedDB) rather than staying in the main pending list.
+- **Queue Reordering**: Add "Move Up" and "Move Down" controls to pending tasks, allowing users to prioritize urgent prompts.
+- **Completed/Failed Filter**: The Task Queue UI will now feature tabs: **Active** (Pending/Hold) and **History** (Completed/Failed).
 
-### 2. Task Queue UI & Logic Polish
-- **Queue Count Header**: Update the Task Queue panel header to show `(N pending)` in real-time.
-- **Pause on Error**: Add a setting in the UI to toggle "Auto-pause queue on failure".
-- **Clear All UI hint**: Ensure the right-click "Clear All" hint on the Clear button is visible or documented in a tooltip.
-- **Max Retries Config**: Add a numeric input for "Max Retries" in the settings panel (currently hardcoded to 3).
+### 2. Prompt Management
+- **Search Bar**: A new search input at the top of the Prompts panel to filter saved prompts by title or content.
+- **Prompt Tagging**: Support for optional `tags` in prompt definitions, searchable via the new filter.
+- **Tag UI**: Render small colored tags beneath prompt titles in the list.
 
-### 3. Documentation & Versioning
-- **Changelog Sync**: Sync `changelog.md` with v3.44.0 and v3.45.0 changes.
-- **Readme & Manifest**: Bump unified version to v3.45.0.
+### 3. Polish & Synchronization
+- **Version Bump**: Sync all manifests and constants to `v3.46.0`.
+- **UI Consistency**: Ensure history items are styled as "muted" to distinguish from active tasks.
 
-### Technical Details
-- Use `PromptCacheKey.Store` for total reset logic.
-- Extend `MacroTask` or `TaskQueueState` if needed for new settings, or use `settings-store.ts`.
-- Ensure all new UI elements use the established `cPrimary`, `cPanelBg`, etc. variables.
-- Update `manifest.json`, `src/shared/constants.ts`, and `standalone-scripts/*/src/instruction.ts` for version sync.
+## Technical Details
+- **State Changes**: Update `TaskQueueState` in `task-queue.ts` to include a `history` array.
+- **Persistence**: Refactor `saveTaskQueue` to handle the new history structure.
+- **UI Components**: 
+  - Update `macro-ui.ts` to implement the Tab switcher in the Task Queue.
+  - Add search logic to `prompt-dropdown.ts` or `macro-ui.ts` depending on where the list is rendered.
+- **Logic**: Add `reorderTask` helper to `task-queue.ts`.
+- **Files**: `manifest.json`, `standalone-scripts/macro-controller/src/task-queue.ts`, `standalone-scripts/macro-controller/src/ui/macro-ui.ts`, `standalone-scripts/*/src/instruction.ts`, etc.
