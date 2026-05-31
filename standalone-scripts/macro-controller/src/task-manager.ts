@@ -116,8 +116,12 @@ export class TaskQueueManager {
       
       log(`[TaskQueue] Task completed: ${task.id}`, 'success');
     } else {
-      await this._handleTaskFailure(task, 'Submit button not found');
-      showPasteToast('⚠️ Submit button not found - task marked failed', true);
+      // Smarter failure detection
+      const isLoggedOut = !document.cookie.includes('lovable-session-id.id');
+      const failReason = isLoggedOut ? 'Session expired (Logged out)' : 'Submit button not found';
+      
+      await this._handleTaskFailure(task, failReason);
+      showPasteToast(`⚠️ ${failReason} - task marked failed`, true);
     }
   }
 
