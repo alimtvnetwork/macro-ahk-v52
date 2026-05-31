@@ -1,23 +1,23 @@
-# Plan
+{# Plan
 
-**Active workstream:** **Issue 130** — Members popup: multi-workspace bulk operations + inline promote. Spec: `spec/22-app-issues/130-members-popup-multi-workspace-bulk-ops.md`. **15 sequential steps**; one per `next`.
+**Active workstream:** **Issue 131** — Prompts Import/Export (JSON-based). Spec: `spec/22-app-issues/131-prompts-import-export.md`. **12 sequential steps**; one per `next`.
 
-### Issue 130 — remaining steps
-1. Spec authoring & plan.md sync — DONE.
-2. `selected-workspaces-store.ts` (pub/sub) + 6 unit tests.
-3. `ws-list-renderer.ts` checkbox column + Shift/Ctrl click selection + 4 tests.
-4. `ws-context-menu.ts` bulk-aware `Show Members (N)` routing + 3 tests.
-5. `fetchMembersForMany(wsIds, {cap:25})` sequential-cached + 5 tests.
-6. `ws-members-aggregate.ts` (pure) — union + presenceCount + 8 tests.
-7. `ws-members-bulk-panel.ts` shell with tri-state badges + sort + 6 tests.
-8. `ws-members-chip-input.ts` (multi-email chip input) + 10 tests.
-9. Wire chip-input into bulk panel + single-ws panel Add row + 4 tests.
-10. `inviteMemberMany()` sequential fail-fast with partial-success + 6 tests.
-11. `updateMemberRoleMany` / `removeMemberMany` mirrors + 6 tests.
-12. Row right-click `👑 Promote member… / 👤 Demote member…` picker + 4 tests.
-13. Bulk failure-log schema (per-ws Reason+ReasonDetail) + 3 tests.
-14. Full vitest sweep from repo root — 0 fail.
-15. MINOR bump v3.42.0 + changelog + readme pin + `.gitmap/release/v3.42.0.json` + memory.
+### Issue 131 — remaining steps
+1. Define `PromptIO` module and types in `prompt-io.ts`.
+2. Implement Export logic (IndexedDB -> JSON Download).
+3. Implement Import Parsing & Schema Validation.
+4. Implement Upsert/Merge logic for prompts.
+5. Create the Import/Export Dialog shell (`prompt-io-dialog.ts`).
+6. Add Drag & Drop support to the dialog.
+7. Add File Picker support to the dialog.
+8. Integrate the dialog trigger into the Prompts Dropdown UI.
+9. Implement UI feedback (toasts, counts) for IO operations.
+10. Add "Clear All" safety utility to the IO dialog.
+11. Add Vitest unit tests for the merger/parser.
+12. Bump version to **v3.43.0** and final cleanup.
+
+### Issue 130 — Multi-workspace Member Bulk Operations & Popups (v3.42.0) ✅
+All 15 steps shipped 2026-05-31. See `spec/22-app-issues/130-members-popup-multi-workspace-bulk-ops.md`.
 
 ### Issue 129 — Prompts cache + GitSync + Remix + Project-name dropdown (v3.41.0) ✅
 All 15 steps shipped 2026-05-30. See `spec/22-app-issues/129-prompts-cache-plan-task-gitsync-remix.md`.
@@ -47,6 +47,10 @@ When the user says `next`:
 ---
 
 ## Remaining tasks
+
+### Completed — Issue 130 (15 steps, v3.42.0) ✅
+Spec: `spec/22-app-issues/130-members-popup-multi-workspace-bulk-ops.md`
+- [x] Step 1..15 — Bulk member operations, aggregate panel, promote/demote direct actions, and failure logging.
 
 ### Completed — Issue 116 (5 steps, v3.14.1) ✅
 Spec: `spec/22-app-issues/116-credit-totals-modal.md`
