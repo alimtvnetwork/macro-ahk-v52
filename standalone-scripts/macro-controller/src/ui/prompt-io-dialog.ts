@@ -16,7 +16,9 @@ import {
   exportPromptsToJson,
   parsePromptsText,
   performPromptImport,
+  performClearAllPrompts,
 } from './prompt-io';
+
 import { rerenderPromptsDropdown } from './prompt-loader';
 
 export function renderPromptIODialog(): void {
@@ -55,7 +57,25 @@ export function renderPromptIODialog(): void {
 
   // Body
   const body = document.createElement('div');
-  body.style.cssText = 'padding:16px;display:flex;flex-direction:column;gap:12px;';
+  body.style.cssText = 'padding:16px;display:flex;flex-direction:column;gap:14px;';
+
+  // Options row
+  const optionsRow = document.createElement('div');
+  optionsRow.style.cssText = 'display:flex;align-items:center;gap:8px;font-size:10px;color:#94a3b8;';
+  
+  const overwriteLabel = document.createElement('label');
+  overwriteLabel.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:pointer;';
+  
+  const overwriteCheck = document.createElement('input');
+  overwriteCheck.type = 'checkbox';
+  overwriteCheck.checked = true;
+  overwriteCheck.style.cssText = 'margin:0;';
+  
+  overwriteLabel.appendChild(overwriteCheck);
+  overwriteLabel.appendChild(document.createTextNode('Overwrite existing prompts (by slug/name)'));
+  optionsRow.appendChild(overwriteLabel);
+  body.appendChild(optionsRow);
+
 
   // Export
   const exportBtn = document.createElement('button');
@@ -74,8 +94,9 @@ export function renderPromptIODialog(): void {
   fileInput.style.display = 'none';
   fileInput.onchange = () => {
     const file = fileInput.files?.[0];
-    if (file) void _handleFile(file);
+    if (file) void _handleFile(file, overwriteCheck.checked);
     fileInput.value = '';
+
   };
   body.appendChild(fileInput);
 
