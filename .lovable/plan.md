@@ -1,27 +1,20 @@
-# v3.49.0 Roadmap: Advanced Prompt Library & Execution Monitoring
+# v3.50.0 Roadmap: Collaborative Workspaces & Advanced State Recovery
 
-This update focuses on scaling the prompt management system and providing deeper visibility into the automated execution pipeline.
+This milestone focuses on multi-tab synchronization and robust persistence for long-running automation sessions.
 
-### 1. Folder-based Prompt Organization
-- **Nested Categories**: Support for "Folder/Subfolder" naming in categories.
-- **Tree View**: The Prompts dropdown will render categories as collapsible folders for a cleaner hierarchical structure.
+### 1. Cross-Tab State Sync
+- **BroadcastChannel Integration**: Sync the Task Queue and Prompt Library state across all open browser tabs in real-time.
+- **Global Lock Mechanism**: Prevent conflicting automations from running in multiple tabs simultaneously.
 
-### 2. Live Task Execution Stream
-- **Execution Log**: A new "Live Stream" tab in the Task Queue modal showing real-time console-style output of the active task's progress.
-- **Progress Snapshots**: Captured DOM states at the moment of failure for easier debugging.
+### 2. Snapshots & Time-Travel Recovery
+- **Queue Snapshots**: Automatically save the state of the queue every 5 minutes.
+- **Session Restore**: If the browser crashes or is closed, offer to resume the exact state of the pending tasks on restart.
 
-### 3. Smart Prompt Suggestions
-- **Contextual Prompts**: A new "Suggested" category that surfaces prompts based on the current project's tags or recent activity.
-- **Auto-Tagging**: Prompts are automatically tagged based on their content (e.g., "UI", "Fix", "Feature").
-
-### 4. Version Sync & Infrastructure
-- **Version Bump**: Sync all manifests and constants to `v3.49.0`.
-- **Worker Hardening**: Improved error boundary handling in the task runner to prevent single-task failures from wedging the entire loop.
+### 3. Workspace Profiles
+- **Profile Switching**: Save different sets of prompts and queue configurations for different projects.
+- **Export/Import**: One-click sharing of "Automation Recipes" (prompt sets + queue templates).
 
 ## Technical Details
-- **UI Components**:
-  - Implement a recursive folder renderer in `prompt-dropdown.ts`.
-  - Add `ExecutionStreamViewer` component to `macro-ui.ts`.
-- **Logic**:
-  - Extend `prompt-utils.ts` with basic keyword-based auto-tagging logic.
-  - Refactor `TaskQueueManager` to emit structured execution events for the live stream.
+- **Storage**: Migrate high-frequency state updates to `indexedDB` for better performance and larger capacity compared to `chrome.storage.local`.
+- **UI**: Add a "Workspace" selector in the main header and a "Recovery" indicator in the status bar.
+- **Logic**: Implement a `StateReconciler` to handle merging updates from different tabs.
