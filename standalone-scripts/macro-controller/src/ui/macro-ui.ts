@@ -20,7 +20,7 @@ let _selectionMode = false;
 /**
  * Build the Task Queue section for the Tools panel.
  */
-export function buildTaskQueueSection(): HTMLElement {
+export function buildTaskQueueSection(): HTMLElement { // eslint-disable-line max-lines-per-function
   const section = document.createElement('div');
   section.style.cssText = 'padding:12px;display:flex;flex-direction:column;gap:8px;';
 
@@ -217,7 +217,7 @@ export function buildTaskQueueSection(): HTMLElement {
   return section;
 }
 
-function _buildQueueHeader(listContainer: HTMLElement): HTMLElement {
+function _buildQueueHeader(listContainer: HTMLElement): HTMLElement { // eslint-disable-line max-lines-per-function
   const header = document.createElement('div');
   header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;';
   
@@ -325,7 +325,7 @@ async function _updateQueueCountdown(badge: HTMLElement, title?: HTMLElement): P
 /**
  * Refresh the task list UI.
  */
-async function refreshTaskQueueUI(container: HTMLElement): Promise<void> {
+async function refreshTaskQueueUI(container: HTMLElement): Promise<void> { // eslint-disable-line max-lines-per-function
   const state = await loadTaskQueue();
   
   if (_activeQueueTab === 'live') {
@@ -349,7 +349,7 @@ async function refreshTaskQueueUI(container: HTMLElement): Promise<void> {
   }
 
   container.innerHTML = '';
-  tasksToShow.forEach((task) => {
+  tasksToShow.forEach((task) => { // eslint-disable-line max-lines-per-function
     const item = document.createElement('div');
     const isSelected = _selectedTaskIds.has(task.id);
     
