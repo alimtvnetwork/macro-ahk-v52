@@ -30,6 +30,7 @@ export function normalizePromptEntries(entries: Partial<PromptEntry & { order?: 
       if (raw.category) { entry.category = raw.category; }
       if (raw.isFavorite) { entry.isFavorite = true; }
       if (raw.isDefault !== undefined) { entry.isDefault = raw.isDefault; }
+      if (Array.isArray(raw.tags)) { entry.tags = raw.tags; }
 
       out.push(entry);
     } else {
