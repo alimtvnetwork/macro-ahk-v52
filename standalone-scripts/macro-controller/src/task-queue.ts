@@ -147,6 +147,8 @@ export async function clearAllTasks(): Promise<void> {
 export async function retryFailedTasks(): Promise<void> {
   const queueState = await loadTaskQueue();
   let count = 0;
+  
+  // Check main tasks (if any)
   queueState.tasks.forEach(t => {
     if (t.status === 'failed') {
       t.status = 'pending';
@@ -155,6 +157,20 @@ export async function retryFailedTasks(): Promise<void> {
       count++;
     }
   });
+
+  // Check history
+  if (queueState.history && queueState.history.length > 0) {
+    const failedInHistory = queueState.history.filter(t => t.status === 'failed');
+    failedInHistory.forEach(t => {
+      t.status = 'pending';
+      delete t.error;
+      t.retryCount = 0;
+      queueState.tasks.push(t);
+      count++;
+    });
+    queueState.history = queueState.history.filter(t => t.status !== 'failed');
+  }
+
   if (count > 0) {
     await saveTaskQueue(queueState);
     log(`[TaskQueue] Reset ${count} failed tasks to pending`, 'info');
