@@ -610,6 +610,8 @@ function openMemberActionMenu(
 
 
 
+
+
 // v3.4.3 (task 13) — Submit invite + optimistic insert. Reverts on failure.
 function submitInvite(el: HTMLElement, wsId: string, wsName: string, form: HTMLFormElement): void {
   const validEmails = (el as any)._marcoValidEmails || [];
