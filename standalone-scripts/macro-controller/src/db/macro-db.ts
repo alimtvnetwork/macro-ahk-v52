@@ -205,3 +205,34 @@ export async function getCommunicationHistory(projectId: string, limit: number =
   }
 }
 
+/**
+ * Export the entire prompts.macro database as a SQL dump.
+ */
+export async function exportDatabaseDump(): Promise<void> {
+  try {
+    const resp = await sendToExtension('PROJECT_API', {
+      project: DB_NAME,
+      method: 'EXPORT',
+      endpoint: 'dump'
+    });
+    
+    if (resp && resp.isOk && resp.dump) {
+      const blob = new Blob([resp.dump as string], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      a.href = url;
+      a.download = `prompts-macro-dump-${stamp}.sql`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      log('Database dump exported successfully', 'success');
+    } else {
+      logError('MacroDb', 'Export failed: ' + (resp?.errorMessage || 'no dump data'));
+    }
+  } catch (err) {
+    logError('MacroDb', 'Failed to export database', err);
+  }
+}
+

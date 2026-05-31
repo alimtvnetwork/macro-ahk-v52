@@ -10,6 +10,7 @@
 import { clearSkeletons } from './skeleton';
 import { IDS, TIMING, state, loopCreditState, cWarning, tFontTiny, cPrimaryLight, cLogSuccess } from '../shared-state';
 import { calcTotalCredits, calcAvailableCredits, renderCreditBar } from '../credit-api';
+import { TaskQueueManager } from '../task-manager';
 
 // ============================================
 // StatusRenderState — encapsulated render state (CQ11, CQ17)
@@ -111,9 +112,23 @@ export function updateStatus(): void {
       m.loadTaskQueue().then(queue => {
         const pending = queue.tasks.filter(t => t.status === 'pending').length;
         (state as any).__queue_count = pending;
+        const isProcessing = TaskQueueManager.getInstance().isProcessing();
+        const isPaused = TaskQueueManager.getInstance().isPaused();
+        
+        let statusDotColor = cLogSuccess;
+        let statusText = 'Synced';
+        
+        if (isPaused) {
+          statusDotColor = '#f97316'; // orange
+          statusText = 'Paused';
+        } else if (isProcessing) {
+          statusDotColor = '#3b82f6'; // blue
+          statusText = 'Active';
+        }
+
         queueStatusEl.innerHTML = `
           <span style="color:#64748b;display:flex;align-items:center;gap:4px;">
-            <span style="color:${cLogSuccess};">●</span> Synced Queue:
+            <span style="color:${statusDotColor}; transition: opacity 0.5s; ${isProcessing ? 'animation: marco-blink 1s infinite;' : ''}">●</span> Queue (${statusText}):
           </span>
           <span style="${pending > 0 ? `color:${cPrimaryLight};font-weight:700;` : 'color:#64748b;'}">${pending} Tasks</span>
         `;
@@ -141,11 +156,18 @@ export function updateQueueBadge(): void {
   import('../task-queue').then(m => {
     m.loadTaskQueue().then(queue => {
       const pending = queue.tasks.filter(t => t.status === 'pending').length;
+      const isProcessing = TaskQueueManager.getInstance().isProcessing();
       const badge = document.getElementById('loop-queue-badge');
       if (badge) {
         if (pending > 0) {
           badge.textContent = String(pending);
           badge.style.display = 'block';
+          badge.style.background = isProcessing ? '#3b82f6' : '#ef4444';
+          if (isProcessing) {
+            badge.style.animation = 'marco-pulse 2s infinite';
+          } else {
+            badge.style.animation = 'none';
+          }
         } else {
           badge.style.display = 'none';
         }

@@ -14,6 +14,8 @@ import { showToast } from './toast';
 import { VERSION, loopCreditState, state } from './shared-state';
 import { extractProjectIdFromUrl } from './workspace-detection';
 import { stopLoop } from './loop-engine';
+import { checkForReturnButton } from './task-queue';
+import { TaskQueueManager } from './task-manager';
 import { pushOverlayError } from './ui/error-overlay';
 import type { DiagnosticDump } from './types';
 
@@ -52,6 +54,32 @@ export function setupGlobalErrorHandlers(): void {
 
     showToast('Unhandled rejection: ' + errMsg, 'error', { stack: stack, noStop: true });
     pushOverlayError('error', errMsg, stack, 'unhandled-rejection');
+  });
+
+  // Hotkey: Ctrl + Alt + R to resume queue
+  window.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'r') {
+      e.preventDefault();
+      if (!state.running) {
+        log('Hotkey: Loop is not running — cannot resume queue', 'warn');
+        showToast('Loop must be ON to resume queue', 'warn');
+        return;
+      }
+      
+      const hasReturnButton = checkForReturnButton();
+      if (hasReturnButton) {
+        log('Hotkey: Cannot resume while "Return to Extension" button is present', 'warn');
+        showToast('Close the extension overlay first', 'warn');
+        return;
+      }
+
+      log('Hotkey: Resuming task queue manually...', 'success');
+      showToast('🚀 Resuming queue...', 'success');
+      TaskQueueManager.getInstance().setPaused(false);
+      TaskQueueManager.getInstance().startProcessing().catch(err => {
+        logError('Hotkey', 'Failed to resume queue', err);
+      });
+    }
   });
 }
 

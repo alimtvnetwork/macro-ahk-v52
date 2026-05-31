@@ -800,6 +800,17 @@ function _buildDbMaintenancePanel(): HTMLDivElement {
 
   btnContainer.appendChild(syncBtn);
   btnContainer.appendChild(purgeBtn);
+
+  const dumpBtn = document.createElement('button');
+  dumpBtn.textContent = '💾 Export DB Dump';
+  dumpBtn.style.cssText = 'padding:6px 12px;background:#64748b;color:#fff;border:none;border-radius:6px;font-size:10px;cursor:pointer;font-weight:600;';
+  dumpBtn.onclick = async function() {
+    const { exportDatabaseDump } = await import('../db/macro-db');
+    await exportDatabaseDump();
+    showToast('✅ Database dump triggered', 'info');
+  };
+  btnContainer.appendChild(dumpBtn);
+
   row.appendChild(btnContainer);
 
   return row;
