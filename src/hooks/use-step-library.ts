@@ -302,8 +302,8 @@ export function useStepLibrary(): UseStepLibraryApi {
             }
             if (cancelled) return;
 
-            // ---- 2. Read persisted DB bytes (localStorage) -------
-            const readResult = readBytesFromStorage();
+            // ---- 2. Read persisted DB bytes (WorkspaceStorage) -------
+            const readResult = await readBytesFromStorage();
             if (readResult.Kind === "Error") {
                 const classified = classifyLoadError(readResult.Error, "storage-read");
                 setLoadError(classified);
@@ -326,7 +326,7 @@ export function useStepLibrary(): UseStepLibraryApi {
                         Name: DEFAULT_PROJECT_NAME,
                     });
                     seedExampleData(wrapper, projectId);
-                    const writeResult = writeBytesToStorage(wrapper.exportDbBytes());
+                    const writeResult = await writeBytesToStorage(wrapper.exportDbBytes());
                     if (!writeResult.Ok) {
                         // Hard-fail on the FIRST write only — the user
                         // hasn't done any work yet, so surfacing this
@@ -340,6 +340,7 @@ export function useStepLibrary(): UseStepLibraryApi {
                         return;
                     }
                 } else {
+
                     projectId = existing[0].ProjectId;
                 }
                 if (cancelled) return;
