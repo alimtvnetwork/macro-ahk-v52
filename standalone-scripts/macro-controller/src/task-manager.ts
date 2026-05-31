@@ -106,16 +106,18 @@ export class TaskQueueManager {
    * Process a single task: injection + submission.
    */
   private async processTask(task: MacroTask): Promise<void> {
-    log(`[TaskQueue] Processing task: ${task.id}`, 'info');
+    this._logExecution(`Processing task: ${task.prompt.substring(0, 50)}...`, 'info');
     await updateTaskStatus(task.id, 'processing');
 
     const promptsCfg = getPromptsConfig();
+    this._logExecution('Injecting prompt into editor...', 'info');
     const outcome = pasteIntoEditor(task.prompt, promptsCfg, (xpath) => {
       const node = getByXPath(xpath);
       return node instanceof Element ? node : null;
     });
 
     if (outcome === 'failed') {
+      this._logExecution('Injection failed', 'error');
       await this._handleTaskFailure(task, 'Injection failed');
       return;
     }
@@ -123,13 +125,14 @@ export class TaskQueueManager {
     // Attempt to click submit button
     const submitBtn = this.findSubmitButton();
     if (submitBtn) {
+      this._logExecution('Submit button found, clicking...', 'success');
       submitBtn.click();
       await updateTaskStatus(task.id, 'completed');
       
       // Sync to SQLite
       await saveCommunication(task.projectId, task.prompt);
       
-      log(`[TaskQueue] Task completed: ${task.id}`, 'success');
+      this._logExecution('Task completed successfully', 'success');
     } else {
       // Smarter failure detection
       const isLoggedOut = !document.cookie.includes('lovable-session-id.id');
