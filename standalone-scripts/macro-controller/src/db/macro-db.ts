@@ -153,6 +153,7 @@ export async function syncTaskQueueToDb(projectId: string, projectName: string, 
  * Manual trigger to sync current IndexedDB queue state to SQLite.
  */
 export async function forceSyncQueueToDb(): Promise<void> {
+  const { visualSyncConfirm } = await import('../ui/prompt-utils');
   const { loadTaskQueue } = await import('../task-queue');
   const { extractProjectIdFromUrl } = await import('../workspace-detection');
   const { state } = await import('../shared-state');
@@ -165,6 +166,7 @@ export async function forceSyncQueueToDb(): Promise<void> {
   
   log('[MacroDb] Force-syncing task queue to SQLite...', 'check');
   await syncTaskQueueToDb(projectId, projectName, queueState.tasks);
+  visualSyncConfirm();
   log('[MacroDb] Queue synced to SQLite', 'success');
 }
 

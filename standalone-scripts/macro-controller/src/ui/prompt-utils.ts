@@ -322,3 +322,22 @@ export function setupPromptCapture(promptsCfg: PromptsCfg, getByXPath: (xpath: s
     }
   }, 3000);
 }
+
+/**
+ * Sync logic: subtle visual confirmation on status indicator.
+ */
+export async function visualSyncConfirm(): Promise<void> {
+  const dot = document.querySelector('#marco-queue-status span[style*="color"]');
+  if (dot) {
+    const origColor = (dot as HTMLElement).style.color;
+    (dot as HTMLElement).style.color = '#3daee9'; // light blue sync color
+    (dot as HTMLElement).style.transform = 'scale(1.4)';
+    (dot as HTMLElement).style.transition = 'all 0.3s ease';
+    
+    setTimeout(() => {
+      (dot as HTMLElement).style.color = origColor;
+      (dot as HTMLElement).style.transform = 'scale(1)';
+    }, 800);
+  }
+}
+
