@@ -177,6 +177,66 @@ export async function retryFailedTasks(): Promise<void> {
   }
 }
 
+/**
+ * Bulk delete tasks by ID.
+ */
+export async function bulkDeleteTasks(taskIds: string[]): Promise<void> {
+  if (taskIds.length === 0) return;
+  const queueState = await loadTaskQueue();
+  const initialCount = queueState.tasks.length + (queueState.history?.length ?? 0);
+  
+  queueState.tasks = queueState.tasks.filter(t => !taskIds.includes(t.id));
+  if (queueState.history) {
+    queueState.history = queueState.history.filter(t => !taskIds.includes(t.id));
+  }
+  
+  const finalCount = queueState.tasks.length + (queueState.history?.length ?? 0);
+  const deleted = initialCount - finalCount;
+  
+  if (deleted > 0) {
+    await saveTaskQueue(queueState);
+    log(`[TaskQueue] Bulk deleted ${deleted} tasks`, 'info');
+  }
+}
+
+/**
+ * Bulk retry/re-queue tasks by ID.
+ */
+export async function bulkRetryTasks(taskIds: string[]): Promise<void> {
+  if (taskIds.length === 0) return;
+  const queueState = await loadTaskQueue();
+  let count = 0;
+
+  // 1. Move from history back to tasks if needed
+  if (queueState.history) {
+    const fromHistory = queueState.history.filter(t => taskIds.includes(t.id));
+    fromHistory.forEach(t => {
+      t.status = 'pending';
+      delete t.error;
+      t.retryCount = 0;
+      queueState.tasks.push(t);
+      count++;
+    });
+    queueState.history = queueState.history.filter(t => !taskIds.includes(t.id));
+  }
+
+  // 2. Update existing active tasks
+  queueState.tasks.forEach(t => {
+    if (taskIds.includes(t.id) && t.status !== 'pending') {
+      t.status = 'pending';
+      delete t.error;
+      t.retryCount = 0;
+      count++;
+    }
+  });
+
+  if (count > 0) {
+    await saveTaskQueue(queueState);
+    log(`[TaskQueue] Bulk re-queued ${count} tasks`, 'info');
+  }
+}
+
+
 
 /**
  * Shared queue delay countdown state.
