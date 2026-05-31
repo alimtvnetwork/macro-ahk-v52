@@ -34,7 +34,7 @@ describe('Prompts dropdown — synchronous paint (Issue 129 Step 2)', () => {
     // before any IDB call. We assert the fast-path branch exists with the
     // synchronous innerHTML assignment.
     // Fixed: Flexible regex that doesn't care about the order of conditions in the if()
-    expect(source).toMatch(/if \(\s*[\s\S]*?_memSnapshot\b[\s\S]*?\)\s*\{[\s\S]*?\.innerHTML = _memSnapshot\.html/);
+    expect(source).toMatch(/if\s*\(.*_memSnapshot.*\)\s*\{[\s\S]*?\.innerHTML\s*=\s*_memSnapshot\.html/);
   });
 
   it('does NOT gate paint on readUISnapshot().then(...)', () => {
