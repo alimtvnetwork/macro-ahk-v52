@@ -245,6 +245,8 @@ function NavItem({ item, index, isActive, isExpanded, onSelect }: NavItemProps) 
           onClick={onSelect}
           aria-label={item.label}
           tooltip={item.label}
+          data-testid={`sidebar-button-${item.id}`}
+          data-section={item.id}
           className={`
             transition-all duration-200 
             hover:bg-primary/10 hover:text-primary
