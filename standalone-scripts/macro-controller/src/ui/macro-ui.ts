@@ -99,7 +99,12 @@ async function refreshTaskQueueUI(container: HTMLElement): Promise<void> {
     
     const status = document.createElement('div');
     status.style.cssText = `font-size:9px;color:${getStatusColor(task.status)};font-weight:600;`;
-    status.textContent = task.status.toUpperCase();
+    if (task.status === 'hold' && task.holdUntil) {
+      const secs = Math.max(0, Math.ceil((task.holdUntil - Date.now()) / 1000));
+      status.textContent = `HOLD ${secs}s`;
+    } else {
+      status.textContent = task.status.toUpperCase();
+    }
     row1.appendChild(status);
     
     item.appendChild(row1);
