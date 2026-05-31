@@ -274,8 +274,30 @@ export function useStepLibrary(): UseStepLibraryApi {
     const [loadError, setLoadError] = useState<StepLibraryLoadError | null>(null);
     const [groupInputs, setGroupInputs] = useState<GroupInputsMap>(() => new Map());
     const [loading, setLoading] = useState(true);
+    const [dbBytes, setDbBytes] = useState<Uint8Array | null>(null);
     /** Bumping this triggers the bootstrap effect to re-run. */
     const [bootstrapNonce, setBootstrapNonce] = useState(0);
+
+    // Sync library state across tabs
+    useCrossTabSync<Uint8Array | null>("marco-step-library-sync", dbBytes, (remoteBytes) => {
+        if (!remoteBytes || !lib || !project) return;
+        // Re-open DB with remote bytes
+        const sqljs = sql;
+        if (!sqljs) return;
+        
+        try {
+            const db = new sqljs.Database(remoteBytes);
+            const wrapper = new StepLibraryDb(db);
+            setLib(wrapper);
+            refreshFromDb(wrapper, project.ProjectId, setGroups, setStepsByGroup);
+            setDbBytes(remoteBytes);
+            // Also notify UI that we synced
+            new BroadcastChannel("marco-sync-activity").postMessage("synced");
+        } catch (err) {
+            console.error("Failed to sync remote library state", err);
+        }
+    });
+
 
     /* ------------------------ bootstrap --------------------------- */
 
