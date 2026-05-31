@@ -290,28 +290,53 @@ async function refreshTaskQueueUI(container: HTMLElement): Promise<void> {
   const state = await loadTaskQueue();
   const tasksToShow = _activeQueueTab === 'active' ? state.tasks : (state.history || []);
   
+  // Update bulk row visibility
+  const bulkRow = document.getElementById('task-queue-bulk-row');
+  if (bulkRow) {
+    bulkRow.style.display = _selectionMode && _selectedTaskIds.size > 0 ? 'flex' : 'none';
+    const bulkCount = document.getElementById('task-bulk-count');
+    if (bulkCount) bulkCount.textContent = `${_selectedTaskIds.size} selected`;
+  }
+
   if (tasksToShow.length === 0) {
     container.innerHTML = `<div style="padding:12px;text-align:center;color:#64748b;font-size:10px;">${_activeQueueTab === 'active' ? 'No active tasks' : 'History is empty'}</div>`;
     return;
   }
 
   container.innerHTML = '';
-  tasksToShow.forEach((task, idx) => {
+  tasksToShow.forEach((task) => {
     const item = document.createElement('div');
-    item.style.cssText = `padding:6px 8px;background:${cPanelBgAlt};border-radius:4px;border-left:3px solid ${getStatusColor(task.status)};display:flex;flex-direction:column;gap:2px;position:relative;`;
-    if (_activeQueueTab === 'history') item.style.opacity = '0.7';
+    const isSelected = _selectedTaskIds.has(task.id);
+    
+    item.style.cssText = `padding:6px 8px;background:${isSelected ? 'rgba(59,130,246,0.15)' : cPanelBgAlt};border-radius:4px;border-left:3px solid ${getStatusColor(task.status)};display:flex;flex-direction:column;gap:2px;position:relative;cursor:pointer;transition:all 0.1s;`;
+    if (_activeQueueTab === 'history' && !isSelected) item.style.opacity = '0.7';
+    if (isSelected) item.style.borderColor = '#3b82f6';
 
     const row1 = document.createElement('div');
     row1.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;';
     
+    // Checkbox / Selection Toggle
+    const checkWrap = document.createElement('div');
+    checkWrap.style.cssText = 'display:flex;align-items:center;';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = isSelected;
+    checkbox.style.cssText = 'margin:0 6px 0 0;width:10px;height:10px;cursor:pointer;';
+    checkbox.onclick = (e) => {
+      e.stopPropagation();
+      _toggleTaskSelection(task.id, container);
+    };
+    checkWrap.appendChild(checkbox);
+    row1.appendChild(checkWrap);
+
     const promptText = document.createElement('div');
     promptText.style.cssText = 'font-size:10px;color:' + cPanelFg + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;';
     promptText.textContent = task.prompt;
     promptText.title = task.prompt;
     row1.appendChild(promptText);
 
-    // Reorder buttons (only for active pending tasks)
-    if (_activeQueueTab === 'active' && task.status === 'pending') {
+    // Reorder buttons (only for active pending tasks, hidden in selection mode)
+    if (_activeQueueTab === 'active' && task.status === 'pending' && !_selectionMode) {
       const reorderWrap = document.createElement('div');
       reorderWrap.style.cssText = 'display:flex;gap:2px;';
       
@@ -361,10 +386,35 @@ async function refreshTaskQueueUI(container: HTMLElement): Promise<void> {
       item.appendChild(err);
     }
     
-    item.onclick = () => showTaskDetailModal(task);
+    item.onclick = (e) => {
+      if (_selectionMode || e.shiftKey) {
+        _toggleTaskSelection(task.id, container);
+      } else {
+        showTaskDetailModal(task);
+      }
+    };
+
+    // Right-click to enter selection mode
+    item.oncontextmenu = (e) => {
+      e.preventDefault();
+      _selectionMode = true;
+      _toggleTaskSelection(task.id, container);
+    };
+
     container.appendChild(item);
   });
 }
+
+function _toggleTaskSelection(taskId: string, container: HTMLElement): void {
+  if (_selectedTaskIds.has(taskId)) {
+    _selectedTaskIds.delete(taskId);
+  } else {
+    _selectedTaskIds.add(taskId);
+    _selectionMode = true;
+  }
+  refreshTaskQueueUI(container);
+}
+
 
 /** Show a modal with full task details. */
 function showTaskDetailModal(task: MacroTask): void {
