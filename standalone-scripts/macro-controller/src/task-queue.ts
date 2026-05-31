@@ -112,27 +112,32 @@ export async function updateTaskStatus(taskId: string, status: MacroTask['status
 }
 
 /**
- * Clear completed tasks from the queue.
+ * Clear completed tasks from history and main queue.
  */
 export async function clearCompletedTasks(): Promise<void> {
   const queueState = await loadTaskQueue();
-  const count = queueState.tasks.length;
+  const historyCount = queueState.history?.length ?? 0;
+  const completedCount = queueState.tasks.filter(t => t.status === 'completed').length;
+  
+  queueState.history = [];
   queueState.tasks = queueState.tasks.filter(t => t.status !== 'completed');
-  if (queueState.tasks.length !== count) {
+  
+  if (historyCount + completedCount > 0) {
     await saveTaskQueue(queueState);
-    log(`[TaskQueue] Cleared ${count - queueState.tasks.length} completed tasks`, 'info');
+    log(`[TaskQueue] Cleared ${historyCount + completedCount} items from history`, 'info');
   }
 }
 
 /**
- * Clear all tasks from the queue.
+ * Clear all tasks and history.
  */
 export async function clearAllTasks(): Promise<void> {
   const queueState = await loadTaskQueue();
-  if (queueState.tasks.length > 0) {
+  if (queueState.tasks.length > 0 || (queueState.history?.length ?? 0) > 0) {
     queueState.tasks = [];
+    queueState.history = [];
     await saveTaskQueue(queueState);
-    log('[TaskQueue] Cleared all tasks from queue', 'info');
+    log('[TaskQueue] Cleared all tasks and history', 'info');
   }
 }
 
