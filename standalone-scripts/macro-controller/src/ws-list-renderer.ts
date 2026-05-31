@@ -50,6 +50,7 @@ import { SEL_LOOP_WS_ITEM, REFILL_PRIORITY_WINDOW_DAYS } from './constants';
 import { DataAttr, DomId } from './types';
 import { sortByRefillPriority, daysToRefillForWs } from './workspace-refill-priority';
 // Issue 115 — collapsed display classifier + centralised tone resolver.
+import { classifyFromStatus, type WorkspaceDisplayStatus } from './workspace-display-status';
 
 import { resolveBadgeStyle, diluteBadgeBg } from './workspace-badge-styles';
 // import { publishVisibleWorkspaces } from './visible-workspaces-store';
