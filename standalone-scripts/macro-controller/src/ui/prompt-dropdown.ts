@@ -943,7 +943,24 @@ function renderPromptItem(
   nameSpan.textContent = p.name + (hasText ? '' : ' (text not loaded)');
   nameSpan.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
   nameSpan.title = p.text || 'Prompt text not available — click Load to refresh';
-  item.appendChild(nameSpan);
+  
+  const contentWrap = document.createElement('div');
+  contentWrap.style.cssText = 'flex:1;display:flex;flex-direction:column;overflow:hidden;';
+  contentWrap.appendChild(nameSpan);
+
+  if (p.tags && p.tags.length > 0) {
+    const tagsWrap = document.createElement('div');
+    tagsWrap.style.cssText = 'display:flex;gap:4px;flex-wrap:wrap;margin-top:2px;';
+    p.tags.forEach(tag => {
+      const tagEl = document.createElement('span');
+      tagEl.textContent = tag;
+      tagEl.style.cssText = 'font-size:8px;background:rgba(124,58,237,0.2);color:' + cPrimaryLight + ';padding:0px 4px;border-radius:2px;border:1px solid rgba(124,58,237,0.2);';
+      tagsWrap.appendChild(tagEl);
+    });
+    contentWrap.appendChild(tagsWrap);
+  }
+
+  item.appendChild(contentWrap);
 
   const actions = document.createElement('span');
   actions.setAttribute('data-prompt-actions', '');
