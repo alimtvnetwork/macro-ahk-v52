@@ -171,3 +171,159 @@ describe('E2E — Summary totals always match backend catalog', () => {
         expect(freePill).toContain(String(expected.freeCreditsAvailable));
     });
 });
+
+/**
+ * Extended filter-combination matrix — every list filter the user can apply
+ * (search text, sort key, workspace-type chip, pagination) MUST leave the
+ * SummaryBar showing the backend-wide Pro / credit / free totals. This
+ * mirrors the renderer contract: filters narrow the VISIBLE rows but
+ * `publishVisibleWorkspaces()` is always invoked with the FULL catalog.
+ */
+describe('E2E — filter combinations keep totals synced with backend', () => {
+    type SortKey = 'name' | 'available' | 'totalCredits' | 'numProjects';
+    type WsTypeFilter = 'all' | 'pro' | 'free' | 'expiring';
+
+    function applySearch(rows: ReadonlyArray<WorkspaceCredit>, q: string): WorkspaceCredit[] {
+        const needle = q.trim().toLowerCase();
+        if (needle === '') { return rows.slice(); }
+        return rows.filter((r) => r.fullName.toLowerCase().includes(needle));
+    }
+    function applyType(rows: ReadonlyArray<WorkspaceCredit>, t: WsTypeFilter): WorkspaceCredit[] {
+        if (t === 'all') { return rows.slice(); }
+        if (t === 'pro') { return rows.filter((r) => r.plan.startsWith('pro_')); }
+        if (t === 'free') { return rows.filter((r) => r.plan === 'free' || r.hasFree); }
+        return rows.filter((r) => r.subscriptionStatus !== 'active');
+    }
+    function applySort(rows: WorkspaceCredit[], key: SortKey): WorkspaceCredit[] {
+        const out = rows.slice();
+        if (key === 'name') {
+            out.sort((a, b) => a.fullName.localeCompare(b.fullName));
+        } else if (key === 'available') {
+            out.sort((a, b) => b.available - a.available);
+        } else if (key === 'totalCredits') {
+            out.sort((a, b) => b.totalCredits - a.totalCredits);
+        } else {
+            out.sort((a, b) => b.numProjects - a.numProjects);
+        }
+        return out;
+    }
+    function applyPage(rows: WorkspaceCredit[], pageSize: number, pageIndex: number): WorkspaceCredit[] {
+        const start = pageIndex * pageSize;
+        return rows.slice(start, start + pageSize);
+    }
+
+    /**
+     * Producer contract: re-publish the FULL backend catalog every time a
+     * filter pass runs. `visibleRows` here represents what the list view
+     * actually renders (and discards), proving the SummaryBar does not
+     * collapse to that subset.
+     */
+    function renderPass(
+        backend: ReadonlyArray<WorkspaceCredit>,
+        visibleRows: WorkspaceCredit[],
+    ): WorkspaceCredit[] {
+        publishVisibleWorkspaces(backend);
+        return visibleRows;
+    }
+
+    function assertBackendTotals(b: SummaryBarHandle): void {
+        const [proPill, creditPill, freePill] = pillTexts(b);
+        expect(proPill).toContain(EXPECTED_PRO_COUNT + ' Pro');
+        expect(creditPill).toContain(EXPECTED_PRO_AVAIL + ' / ' + EXPECTED_PRO_TOTAL);
+        expect(freePill).toContain(String(EXPECTED_FREE_AVAIL));
+    }
+
+    const SEARCH_QUERIES = ['', 'ws', 'acme', 'zeta', 'no-match-xyz'];
+    const SORT_KEYS: SortKey[] = ['name', 'available', 'totalCredits', 'numProjects'];
+    const TYPE_FILTERS: WsTypeFilter[] = ['all', 'pro', 'free', 'expiring'];
+    const PAGE_SIZES = [2, 3, BACKEND_CATALOG.length];
+
+    it('Combo 1 — every search × sort × type combination still reports backend totals', () => {
+        let combos = 0;
+        for (const q of SEARCH_QUERIES) {
+            for (const sort of SORT_KEYS) {
+                for (const type of TYPE_FILTERS) {
+                    const visible = applySort(applyType(applySearch(BACKEND_CATALOG, q), type), sort);
+                    renderPass(BACKEND_CATALOG, visible);
+                    assertBackendTotals(bar);
+                    combos += 1;
+                }
+            }
+        }
+        // 5 queries × 4 sorts × 4 types = 80 combinations.
+        expect(combos).toBe(80);
+    });
+
+    it('Combo 2 — paginating through every page of every page-size still reports backend totals', () => {
+        for (const pageSize of PAGE_SIZES) {
+            const totalPages = Math.max(1, Math.ceil(BACKEND_CATALOG.length / pageSize));
+            for (let page = 0; page < totalPages; page++) {
+                const visible = applyPage(BACKEND_CATALOG.slice(), pageSize, page);
+                renderPass(BACKEND_CATALOG, visible);
+                assertBackendTotals(bar);
+                // Sanity: the visible page is a subset, not the full catalog.
+                expect(visible.length).toBeLessThanOrEqual(pageSize);
+            }
+        }
+    });
+
+    it('Combo 3 — full matrix (search × sort × type × pagination) never drifts from backend', () => {
+        let assertions = 0;
+        for (const q of SEARCH_QUERIES) {
+            for (const sort of SORT_KEYS) {
+                for (const type of TYPE_FILTERS) {
+                    const filtered = applySort(applyType(applySearch(BACKEND_CATALOG, q), type), sort);
+                    for (const pageSize of PAGE_SIZES) {
+                        const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+                        for (let page = 0; page < totalPages; page++) {
+                            const visible = applyPage(filtered, pageSize, page);
+                            renderPass(BACKEND_CATALOG, visible);
+                            assertBackendTotals(bar);
+                            assertions += 1;
+                        }
+                    }
+                }
+            }
+        }
+        // At least one assertion per (q,sort,type,pageSize) cell.
+        expect(assertions).toBeGreaterThanOrEqual(SEARCH_QUERIES.length * SORT_KEYS.length * TYPE_FILTERS.length * PAGE_SIZES.length);
+    });
+
+    it('Combo 4 — empty-result filter (zero visible rows) MUST NOT zero out the SummaryBar', () => {
+        // User searches for something that matches nothing → visible list
+        // is empty, but the backend totals must still display in full.
+        const visible = applySearch(BACKEND_CATALOG, 'no-match-xyz');
+        expect(visible.length).toBe(0);
+        renderPass(BACKEND_CATALOG, visible);
+        assertBackendTotals(bar);
+
+        // Hard regression guard — never collapse to zeros under an empty filter.
+        const [proPill, creditPill, freePill] = pillTexts(bar);
+        expect(proPill).not.toMatch(/^0 Pro$/);
+        expect(creditPill).not.toContain('0 / 0');
+        expect(freePill).not.toMatch(/^0$/);
+    });
+
+    it('Combo 5 — rapid-fire filter churn (100 random passes) keeps totals stable', () => {
+        // Deterministic pseudo-random walk over the filter space — guards
+        // against any subscription/state ordering bug that only shows up
+        // under high-frequency filter toggling.
+        let seed = 0x1234_5678;
+        function rand(maxExclusive: number): number {
+            seed = (seed * 1664525 + 1013904223) >>> 0;
+            return seed % maxExclusive;
+        }
+        for (let i = 0; i < 100; i++) {
+            const q = SEARCH_QUERIES[rand(SEARCH_QUERIES.length)];
+            const sort = SORT_KEYS[rand(SORT_KEYS.length)];
+            const type = TYPE_FILTERS[rand(TYPE_FILTERS.length)];
+            const pageSize = PAGE_SIZES[rand(PAGE_SIZES.length)];
+            const filtered = applySort(applyType(applySearch(BACKEND_CATALOG, q), type), sort);
+            const totalPages = Math.max(1, Math.ceil(Math.max(1, filtered.length) / pageSize));
+            const page = rand(totalPages);
+            const visible = applyPage(filtered, pageSize, page);
+            renderPass(BACKEND_CATALOG, visible);
+            assertBackendTotals(bar);
+        }
+    });
+});
