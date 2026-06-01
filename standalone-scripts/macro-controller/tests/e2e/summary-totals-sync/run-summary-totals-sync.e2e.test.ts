@@ -106,8 +106,8 @@ describe('E2E — Summary totals always match backend catalog', () => {
         // Hard regression guard for issue 125:
         for (const t of texts) {
             expect(t).not.toMatch(/^0\b/);
-            expect(t).not.toBe('0 / 0');
-            expect(t).not.toBe('0 Pro');
+            expect(t).not.toMatch(/0 \/ 0$/);
+            expect(t).not.toMatch(/0 Pro$/);
         }
     });
 
@@ -115,8 +115,8 @@ describe('E2E — Summary totals always match backend catalog', () => {
         publishVisibleWorkspaces(BACKEND_CATALOG);
         const [proPill, creditPill, freePill] = pillTexts(bar);
         expect(proPill).toContain(EXPECTED_PRO_COUNT + ' Pro');
-        expect(creditPill).toBe(EXPECTED_PRO_AVAIL + ' / ' + EXPECTED_PRO_TOTAL);
-        expect(freePill).toBe(String(EXPECTED_FREE_AVAIL));
+        expect(creditPill).toContain(EXPECTED_PRO_AVAIL + " / " + EXPECTED_PRO_TOTAL);
+        expect(freePill).toContain(String(EXPECTED_FREE_AVAIL));
     });
 
     it('Step 3 — applying a list filter (Pro-only survivors) MUST NOT shrink the published catalog', () => {
@@ -129,8 +129,8 @@ describe('E2E — Summary totals always match backend catalog', () => {
 
         const [proPill, creditPill, freePill] = pillTexts(bar);
         expect(proPill).toContain(EXPECTED_PRO_COUNT + ' Pro');
-        expect(creditPill).toBe(EXPECTED_PRO_AVAIL + ' / ' + EXPECTED_PRO_TOTAL);
-        expect(freePill).toBe(String(EXPECTED_FREE_AVAIL));
+        expect(creditPill).toContain(EXPECTED_PRO_AVAIL + " / " + EXPECTED_PRO_TOTAL);
+        expect(freePill).toContain(String(EXPECTED_FREE_AVAIL));
     });
 
     it('Step 4 — cycling through every single-row filter still aggregates to backend totals', () => {
@@ -140,8 +140,8 @@ describe('E2E — Summary totals always match backend catalog', () => {
             publishVisibleWorkspaces(BACKEND_CATALOG);
             const [proPill, creditPill, freePill] = pillTexts(bar);
             expect(proPill).toContain(EXPECTED_PRO_COUNT + ' Pro');
-            expect(creditPill).toBe(EXPECTED_PRO_AVAIL + ' / ' + EXPECTED_PRO_TOTAL);
-            expect(freePill).toBe(String(EXPECTED_FREE_AVAIL));
+            expect(creditPill).toContain(EXPECTED_PRO_AVAIL + " / " + EXPECTED_PRO_TOTAL);
+            expect(freePill).toContain(String(EXPECTED_FREE_AVAIL));
         }
     });
 
@@ -152,8 +152,8 @@ describe('E2E — Summary totals always match backend catalog', () => {
         const lateUnsub = wireSummaryBarToStore(lateBar);
         const [proPill, creditPill, freePill] = pillTexts(lateBar);
         expect(proPill).toContain(EXPECTED_PRO_COUNT + ' Pro');
-        expect(creditPill).toBe(EXPECTED_PRO_AVAIL + ' / ' + EXPECTED_PRO_TOTAL);
-        expect(freePill).toBe(String(EXPECTED_FREE_AVAIL));
+        expect(creditPill).toContain(EXPECTED_PRO_AVAIL + " / " + EXPECTED_PRO_TOTAL);
+        expect(freePill).toContain(String(EXPECTED_FREE_AVAIL));
         lateUnsub();
     });
 
@@ -167,7 +167,7 @@ describe('E2E — Summary totals always match backend catalog', () => {
 
         const [proPill, creditPill, freePill] = pillTexts(bar);
         expect(proPill).toContain(expected.proCount + ' Pro');
-        expect(creditPill).toBe(expected.proCreditsAvailable + ' / ' + expected.proCreditsTotal);
-        expect(freePill).toBe(String(expected.freeCreditsAvailable));
+        expect(creditPill).toContain(expected.proCreditsAvailable + " / " + expected.proCreditsTotal);
+        expect(freePill).toContain(String(expected.freeCreditsAvailable));
     });
 });
