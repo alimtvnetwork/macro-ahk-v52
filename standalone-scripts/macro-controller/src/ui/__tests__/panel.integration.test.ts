@@ -29,12 +29,12 @@ describe('Panel integration — Summary Bar + Auth Diagnostics relocation', () =
         expect(pills.length).toBe(3);
     });
 
-    it('Summary Bar initial render shows zeros', () => {
+    it('Summary Bar initial render shows loading placeholder (not misleading zeros)', () => {
         const bar = createSummaryBar();
         const pills = bar.root.querySelectorAll('[role="status"]');
-        expect(pills[0]?.textContent).toContain('0 Pro');
-        expect(pills[1]?.textContent).toContain('0 / 0');
-        expect(pills[2]?.textContent?.trim().endsWith('0')).toBe(true);
+        expect(pills[0]?.textContent).toContain('…');
+        expect(pills[1]?.textContent).toContain('…');
+        expect(pills[2]?.textContent).toContain('…');
     });
 
     it('Summary Bar update() reflects new values synchronously', () => {
