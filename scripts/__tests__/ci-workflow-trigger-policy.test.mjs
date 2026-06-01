@@ -180,10 +180,26 @@ test("E2E-23 only runs in its dedicated retry-enabled CI job", () => {
 
     assert.ok(generalE2e, "ci.yml must keep the broad e2e job");
     assert.ok(e2e23, "ci.yml must keep the dedicated E2E-23 job");
-    assert.match(generalE2e, /--grep-invert\s+"E2E-23\|Multi-Tab State Synchronization"/, "broad e2e job must exclude E2E-23 so the non-retry suite cannot fail it first");
-    assert.match(e2e23, /npx playwright install --with-deps chromium/, "dedicated E2E-23 job must explicitly install Chromium before running");
-    assert.match(e2e23, /e2e-23-multi-tab-sync\.spec\.ts/, "dedicated E2E-23 job must run the multi-tab sync spec");
-    assert.match(e2e23, /--retries=2/, "dedicated E2E-23 job must retry transient timeout failures");
+    assert.match(
+        generalE2e,
+        /--grep-invert\s+"E2E-23\|Multi-Tab State Synchronization"/,
+        "broad e2e job must exclude E2E-23 so the non-retry suite cannot fail it first",
+    );
+    assert.match(
+        e2e23,
+        /npx playwright install --with-deps chromium/,
+        "dedicated E2E-23 job must explicitly install Chromium before running",
+    );
+    assert.match(
+        e2e23,
+        /e2e-23-multi-tab-sync\.spec\.ts/,
+        "dedicated E2E-23 job must run the multi-tab sync spec",
+    );
+    assert.match(
+        e2e23,
+        /--retries=2/,
+        "dedicated E2E-23 job must retry transient timeout failures",
+    );
 });
 
 test("Ping diagnostic workflow exists and triggers on every push", () => {
