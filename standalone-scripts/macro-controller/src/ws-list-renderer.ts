@@ -21,6 +21,7 @@ import {
   cPrimaryBgAL,
 } from './shared-state';
 import { log } from './logging';
+import { publishVisibleWorkspaces } from './visible-workspaces-store';
 import { calcTotalCredits, renderCreditBar } from './credit-api';
 import {
   fetchLoopCredits,
