@@ -173,6 +173,35 @@ test("CI Build has no main-only push guards on required jobs", () => {
     );
 });
 
+test("E2E-23 only runs in its dedicated retry-enabled CI job", () => {
+    const src = readFileSync(CI_WORKFLOW, "utf8");
+    const generalE2e = extractIndentedBlock(src, "e2e", 2);
+    const e2e23 = extractIndentedBlock(src, "e2e-23-multi-tab-sync", 2);
+
+    assert.ok(generalE2e, "ci.yml must keep the broad e2e job");
+    assert.ok(e2e23, "ci.yml must keep the dedicated E2E-23 job");
+    assert.match(
+        generalE2e,
+        /--grep-invert\s+"E2E-23\|Multi-Tab State Synchronization"/,
+        "broad e2e job must exclude E2E-23 so the non-retry suite cannot fail it first",
+    );
+    assert.match(
+        e2e23,
+        /npx playwright install --with-deps chromium/,
+        "dedicated E2E-23 job must explicitly install Chromium before running",
+    );
+    assert.match(
+        e2e23,
+        /e2e-23-multi-tab-sync\.spec\.ts/,
+        "dedicated E2E-23 job must run the multi-tab sync spec",
+    );
+    assert.match(
+        e2e23,
+        /--retries=2/,
+        "dedicated E2E-23 job must retry transient timeout failures",
+    );
+});
+
 test("Ping diagnostic workflow exists and triggers on every push", () => {
     assert.ok(existsSync(PING_WORKFLOW), `Workflow missing at ${PING_WORKFLOW}`);
     const src = readFileSync(PING_WORKFLOW, "utf8");
