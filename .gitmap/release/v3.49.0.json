@@ -1,0 +1,18 @@
+{
+  "version": "3.49.0",
+  "branch": "release/v3.49.0",
+  "sourceBranch": "main",
+  "commit": "97a3d29fc4c277cbbf224504d7f61e46d36687de",
+  "tag": "v3.49.0",
+  "assets": [],
+  "changelog": [
+    "**Folder-based Prompt Organization**: Prompts can now be organized into nested folders using \"Parent/Child\" category naming.",
+    "**Live Task Execution Stream**: New real-time log tab showing the detailed progress of the current automated task.",
+    "**Smart Prompt Suggestions**: Automatically tags and surfaces prompts based on content and project context.",
+    "Version bump: 3.48.0 → 3.49.0 (all version files synced)."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-01T19:50:06Z",
+  "isLatest": false
+}
