@@ -21,6 +21,7 @@ import {
   cPrimaryBgAL,
 } from './shared-state';
 import { log } from './logging';
+import { publishVisibleWorkspaces } from './visible-workspaces-store';
 import { calcTotalCredits, renderCreditBar } from './credit-api';
 import {
   fetchLoopCredits,
@@ -799,10 +800,11 @@ export function renderLoopWorkspaceList(
   const maxTotalCredits = computeMaxTotalCredits(workspaces);
   const survivors = filterAndSortWorkspaces(workspaces, filter);
 
-  // Issue 125 Task 9 — publish the currently-visible workspace set so the
-  // dashboard SummaryBar can recompute within the same render pass. O(n)
-  // copy, no throttling needed (catalog ≤ 439 rows).
-  // publishVisibleWorkspaces(survivors.map(function (s) { return s.ws; }));
+  // Issue 125 Task 9 — publish the FULL workspace catalog so the dashboard
+  // SummaryBar always reflects the true Pro count + total credits, not the
+  // filtered/visible subset. Pro counts must never appear as 0 just because
+  // a filter is hiding rows.
+  publishVisibleWorkspaces(workspaces);
 
   const frag = document.createDocumentFragment();
   for (const { ws, wsIndex } of survivors) {
