@@ -78,7 +78,7 @@ function ids(survivors: ReturnType<typeof filterAndSortWorkspaces>): string[] {
   return survivors.map((s) => String(s.ws.id));
 }
 
-// eslint-disable-next-line max-lines-per-function
+ 
 describe('Credit-sort filter E2E (v3.30.0)', () => {
   beforeEach(() => {
     try { localStorage.clear(); } catch { /* jsdom */ }

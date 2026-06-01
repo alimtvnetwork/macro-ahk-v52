@@ -44,7 +44,7 @@ function ws(p: Partial<WorkspaceCredit>): WorkspaceCredit {
 
 const TWENTY_SIX_DAYS_AGO = new Date(Date.now() - 26 * 86_400_000).toISOString();
 
-// eslint-disable-next-line max-lines-per-function
+ 
 describe('Free-plan expiry suppression (E2E)', () => {
   it('FREE + canceled (z L30 E3 Malaysia case) → normal, no canceled badge', () => {
     const free = ws({
