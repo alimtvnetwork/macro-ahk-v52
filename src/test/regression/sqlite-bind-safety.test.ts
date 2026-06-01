@@ -112,7 +112,7 @@ describe("BindError", () => {
 /*  2. assertBindable — column-name inference across SQL shapes        */
 /* ------------------------------------------------------------------ */
 
-// eslint-disable-next-line max-lines-per-function -- test suite: each `it` block is self-contained; describe arrow is grouping only
+ 
 describe("assertBindable — column-name inference", () => {
     it("returns params unchanged when nothing is undefined", () => {
         const params = ["a", 1, null, true] as const;
@@ -212,7 +212,7 @@ describe("assertBindable — column-name inference", () => {
     });
 
     it("treats null as a valid bind value (only undefined is rejected)", () => {
-        // eslint-disable-next-line sonarjs/no-duplicate-string -- SQL literal naturally repeats across `it` blocks; extracting a constant would obscure each test's intent
+         
         const sql = "INSERT INTO Foo (A, B) VALUES (?, ?)";
         expect(() => assertBindable(sql, ["x", null])).not.toThrow();
     });
@@ -222,7 +222,7 @@ describe("assertBindable — column-name inference", () => {
 /*  3. wrapDatabaseWithBindSafety — Database Proxy interception        */
 /* ------------------------------------------------------------------ */
 
-// eslint-disable-next-line max-lines-per-function -- test suite: each `it` block is self-contained; describe arrow is grouping only
+ 
 describe("wrapDatabaseWithBindSafety — Database Proxy", () => {
     it("intercepts db.run() and throws BindError BEFORE delegating", () => {
         const stub = makeStubDatabase();

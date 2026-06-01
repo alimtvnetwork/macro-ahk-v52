@@ -42,7 +42,7 @@ describe("MacroController namespace registration", () => {
     });
 });
 
-// eslint-disable-next-line max-lines-per-function
+ 
 describe("Startup recovery hooks are wired", () => {
     it("startup.ts imports setupPersistenceObserver", () => {
         const content = readFile(STARTUP_FILE);
