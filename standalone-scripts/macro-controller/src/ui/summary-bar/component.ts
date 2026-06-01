@@ -125,15 +125,34 @@ export function createSummaryBar(): SummaryBarHandle {
     wireHover(proCredits.el, 'proCredits');
     wireHover(freeCredits.el, 'freeCredits');
 
+    let hydrated = false;
+    const LOADING = '…';
+
+    function renderLoading(): void {
+        pro.text.textContent = LOADING + ' Pro';
+        proCredits.text.textContent = LOADING + ' / ' + LOADING;
+        freeCredits.text.textContent = LOADING;
+    }
+
     function update(summary: DashboardSummary, details?: SummaryDetails): void {
         const s = summary ?? ZERO_SUMMARY;
+        // Guard against an "all zeros" snapshot arriving before credits have
+        // actually loaded — keep the loading placeholder so the user never
+        // sees a misleading "0 Pro" / "0 / 0" during cold start.
+        const looksEmpty = s.proCount === 0 && s.proCreditsTotal === 0 && s.freeCreditsAvailable === 0;
+        if (!hydrated && looksEmpty) {
+            renderLoading();
+            lastDetails = details ?? ZERO_DETAILS;
+            return;
+        }
+        hydrated = true;
         pro.text.textContent = fmtPro(s);
         proCredits.text.textContent = fmtProCredits(s);
         freeCredits.text.textContent = fmtFreeCredits(s);
         lastDetails = details ?? ZERO_DETAILS;
     }
 
-    update(ZERO_SUMMARY);
+    renderLoading();
 
     return { root, update };
 }
