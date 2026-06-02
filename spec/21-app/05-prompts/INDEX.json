@@ -1,0 +1,1673 @@
+{
+  "generatedAt": "2026-06-02T20:41:26.814Z",
+  "root": "spec/21-app/05-prompts",
+  "fileCount": 238,
+  "files": [
+    {
+      "path": "spec/21-app/05-prompts/00-all-prompts.md",
+      "title": "All Prompt Samples — Index",
+      "status": null,
+      "version": null,
+      "bytes": 1752
+    },
+    {
+      "path": "spec/21-app/05-prompts/01-start-prompt.md",
+      "title": "01 — Start Prompt",
+      "status": null,
+      "version": null,
+      "bytes": 212
+    },
+    {
+      "path": "spec/21-app/05-prompts/03-rejog-the-memory-v1.md",
+      "title": "03 — Rejog the Memory v1",
+      "status": null,
+      "version": null,
+      "bytes": 5180
+    },
+    {
+      "path": "spec/21-app/05-prompts/04-unified-ai-prompt-v4.md",
+      "title": "04 — Unified AI Prompt — v4",
+      "status": null,
+      "version": null,
+      "bytes": 18400
+    },
+    {
+      "path": "spec/21-app/05-prompts/05-issues-tracking.md",
+      "title": "05 — Issues Tracking",
+      "status": null,
+      "version": null,
+      "bytes": 4266
+    },
+    {
+      "path": "spec/21-app/05-prompts/06-unit-test-failing.md",
+      "title": "06 — Unit Test Failing",
+      "status": null,
+      "version": null,
+      "bytes": 5832
+    },
+    {
+      "path": "spec/21-app/05-prompts/15-read-memory.md",
+      "title": "15 — Read Memory",
+      "status": null,
+      "version": null,
+      "bytes": 349
+    },
+    {
+      "path": "spec/21-app/05-prompts/16-write-memory.md",
+      "title": "16 — Write Memory",
+      "status": null,
+      "version": null,
+      "bytes": 370
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/00-overview.md",
+      "title": "Spec Issues — Prompt-Macros Subsystem Audit",
+      "status": null,
+      "version": null,
+      "bytes": 3174
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/01-missing-metadata-header.md",
+      "title": "C1 — Missing Mandatory Metadata Header",
+      "status": "**`, `**Date:**`, or no header at all",
+      "version": null,
+      "bytes": 1670
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/02-filename-violations.md",
+      "title": "C2 — Filename Violates Kebab-Case / NN-Prefix",
+      "status": null,
+      "version": null,
+      "bytes": 2007
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/03-missing-overview-files.md",
+      "title": "C3 — Folder Missing `00-overview.md`",
+      "status": null,
+      "version": null,
+      "bytes": 1517
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/04-missing-consistency-report.md",
+      "title": "C4 — Root Missing `99-consistency-report.md`",
+      "status": null,
+      "version": null,
+      "bytes": 1057
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/05-reserved-prefix-misuse.md",
+      "title": "C5 — Reserved-Prefix Files in Wrong Slot",
+      "status": null,
+      "version": null,
+      "bytes": 1710
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/06-missing-acceptance-criteria.md",
+      "title": "C6 — Missing `97-acceptance-criteria.md` per Module",
+      "status": null,
+      "version": null,
+      "bytes": 1387
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/07-snake-case-in-body.md",
+      "title": "C7 — snake_case Identifiers in Body Content",
+      "status": null,
+      "version": null,
+      "bytes": 2137
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/08-cross-reference-rot.md",
+      "title": "C8 — Cross-Reference Rot (`mem://` links inside spec)",
+      "status": null,
+      "version": null,
+      "bytes": 1392
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/09-plan-doc-leak.md",
+      "title": "C9 — Spec Files Link Into `.lovable/plans/` as Authoritative",
+      "status": null,
+      "version": null,
+      "bytes": 1475
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/10-parallel-concept-docs.md",
+      "title": "C10 — Parallel \"Concept\" Docs Without Supersedes Chain",
+      "status": null,
+      "version": null,
+      "bytes": 1458
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/100-revised-severity-matrix-v2.md",
+      "title": "100 — Revised Severity Matrix (v2, post-retraction)",
+      "status": null,
+      "version": null,
+      "bytes": 1359
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/101-revised-readiness-score-v2.md",
+      "title": "101 — Revised Readiness Score (v2, post-retraction)",
+      "status": null,
+      "version": null,
+      "bytes": 2404
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/102-audit-quality-failure-rca.md",
+      "title": "102 — RCA: Why the v1 audit was wrong",
+      "status": null,
+      "version": null,
+      "bytes": 1514
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/103-action-plan-v2.md",
+      "title": "103 — Action Plan v2 (post-retraction)",
+      "status": null,
+      "version": null,
+      "bytes": 990
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/104-50-step-upgrade-manifest.md",
+      "title": "104 — 50-Step Upgrade Manifest",
+      "status": null,
+      "version": null,
+      "bytes": 3698
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/105-final-100-scorecard.md",
+      "title": "105 — Final 100 / 100 Scorecard",
+      "status": null,
+      "version": null,
+      "bytes": 995
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/106-cross-reference-verification.md",
+      "title": "Cross-Reference Verification (v3)",
+      "status": null,
+      "version": null,
+      "bytes": 2484
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/107-schema-validation-samples.md",
+      "title": "Schema Validation Samples",
+      "status": null,
+      "version": null,
+      "bytes": 2357
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/108-v3-polish-closeout.md",
+      "title": "108 — v3 Polish Wave Close-out",
+      "status": null,
+      "version": "2.0.0",
+      "bytes": 1655
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/109-hardening-wave-v4.md",
+      "title": "Hardening Wave v4 — Close-out",
+      "status": "Closed",
+      "version": null,
+      "bytes": 2401
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/11-h1-title-mismatch.md",
+      "title": "C11 — H1 Title vs Filename Slug Mismatch",
+      "status": null,
+      "version": null,
+      "bytes": 1299
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/110-hardening-wave-v5.md",
+      "title": "Hardening Wave v5 — Close-out",
+      "status": "Closed",
+      "version": null,
+      "bytes": 2647
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/12-orphan-files.md",
+      "title": "C12 — Orphan Files (Not Linked from Any Overview)",
+      "status": null,
+      "version": null,
+      "bytes": 1142
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/13-duplicate-headings.md",
+      "title": "C13 — Duplicate `## Headings` Across Sibling Files",
+      "status": null,
+      "version": null,
+      "bytes": 1261
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/14-trailing-whitespace-tabs.md",
+      "title": "C14 — Trailing Whitespace / Tabs",
+      "status": null,
+      "version": null,
+      "bytes": 680
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/15-bare-code-fences.md",
+      "title": "C15 — Bare Code Fences (No Language Hint)",
+      "status": null,
+      "version": null,
+      "bytes": 1071
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/16-h1-slug-full-sweep.md",
+      "title": "C11 (full sweep) — H1 vs Filename Slug Mismatch",
+      "status": null,
+      "version": null,
+      "bytes": 2858
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/17-mermaid-vs-ascii.md",
+      "title": "C16 — Mermaid Diagrams Violate ASCII-Only Standard",
+      "status": null,
+      "version": null,
+      "bytes": 1059
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/18-empty-sections.md",
+      "title": "C17 — Empty / Stub Sections",
+      "status": null,
+      "version": null,
+      "bytes": 800
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/19-todo-fixme-markers.md",
+      "title": "C18 — TODO / FIXME / XXX Markers",
+      "status": null,
+      "version": null,
+      "bytes": 912
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/20-link-anchor-rot.md",
+      "title": "C19 — Link Anchor Rot",
+      "status": null,
+      "version": null,
+      "bytes": 600
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/21-image-asset-rot.md",
+      "title": "C20 — Image Asset Rot",
+      "status": null,
+      "version": null,
+      "bytes": 585
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/22-relative-vs-absolute-paths.md",
+      "title": "C21 — Relative vs Absolute Paths in Links",
+      "status": null,
+      "version": null,
+      "bytes": 742
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/23-mixed-date-formats.md",
+      "title": "C22 — Date Format Consistency",
+      "status": null,
+      "version": null,
+      "bytes": 583
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/24-timezone-mentions.md",
+      "title": "C23 — Timezone Mention Consistency",
+      "status": null,
+      "version": null,
+      "bytes": 1236
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/25-version-policy-and-changelog.md",
+      "title": "C24 — Version-Bump Policy Missing + Changelog Coverage Gap",
+      "status": null,
+      "version": null,
+      "bytes": 1402
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/26-engine-folder-batch-audit.md",
+      "title": "Engine/ — 10-Doc Per-File Audit (Phase 3 batch)",
+      "status": null,
+      "version": null,
+      "bytes": 5274
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/36-examples-00-spec-tighten-cycle.md",
+      "title": "Audit — examples/00-spec-tighten-cycle.md",
+      "status": null,
+      "version": null,
+      "bytes": 1282
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/37-examples-01-review-and-fix-loop.md",
+      "title": "Audit — examples/01-review-and-fix-loop.md",
+      "status": null,
+      "version": null,
+      "bytes": 1231
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/38-examples-02-export-import-roundtrip.md",
+      "title": "Audit — examples/02-export-import-roundtrip.md",
+      "status": null,
+      "version": null,
+      "bytes": 1149
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/39-examples-03-variable-driven-audit.md",
+      "title": "Audit — examples/03-variable-driven-audit.md",
+      "status": null,
+      "version": null,
+      "bytes": 1176
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/40-examples-04-macro-prompt-authoring.md",
+      "title": "Audit — examples/04-macro-prompt-authoring.md",
+      "status": null,
+      "version": null,
+      "bytes": 1344
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/41-guards-00-forbidden-writes.md",
+      "title": "Audit — guards/00-forbidden-writes.md",
+      "status": null,
+      "version": null,
+      "bytes": 1125
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/42-guards-01-loop-safety.md",
+      "title": "Audit — guards/01-loop-safety.md",
+      "status": null,
+      "version": null,
+      "bytes": 971
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/43-guards-02-no-supabase.md",
+      "title": "Audit — guards/02-no-supabase.md",
+      "status": null,
+      "version": null,
+      "bytes": 938
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/44-guards-03-new-tab-guard.md",
+      "title": "Audit — guards/03-new-tab-guard.md",
+      "status": null,
+      "version": null,
+      "bytes": 1018
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/45-guards-04-variable-injection-safety.md",
+      "title": "Audit — guards/04-variable-injection-safety.md",
+      "status": null,
+      "version": null,
+      "bytes": 1245
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/46-testing-00-unit-tests.md",
+      "title": "Audit — testing/00-unit-tests.md",
+      "status": null,
+      "version": null,
+      "bytes": 717
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/47-testing-01-component-tests.md",
+      "title": "Audit — testing/01-component-tests.md",
+      "status": "enabled since 2026-05-25` line + memory link.",
+      "version": null,
+      "bytes": 718
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/48-testing-02-e2e-tests.md",
+      "title": "Audit — testing/02-e2e-tests.md",
+      "status": null,
+      "version": null,
+      "bytes": 646
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/49-testing-03-coverage-targets.md",
+      "title": "Audit — testing/03-coverage-targets.md",
+      "status": null,
+      "version": null,
+      "bytes": 689
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/50-testing-04-fixtures.md",
+      "title": "Audit — testing/04-fixtures.md",
+      "status": null,
+      "version": null,
+      "bytes": 835
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/51-observability-00-logging.md",
+      "title": "Audit — observability/00-logging.md",
+      "status": null,
+      "version": null,
+      "bytes": 749
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/52-observability-01-metrics.md",
+      "title": "Audit — observability/01-metrics.md",
+      "status": null,
+      "version": null,
+      "bytes": 746
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/53-observability-02-failure-log-schema.md",
+      "title": "Audit — observability/02-failure-log-schema.md",
+      "status": null,
+      "version": null,
+      "bytes": 892
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/54-observability-03-export-bundle.md",
+      "title": "Audit — observability/03-export-bundle.md",
+      "status": null,
+      "version": null,
+      "bytes": 782
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/55-observability-04-ui-error-surface.md",
+      "title": "Audit — observability/04-ui-error-surface.md",
+      "status": null,
+      "version": null,
+      "bytes": 803
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/56-missing-planned-subfolders.md",
+      "title": "Audit — C29 Missing Planned Subfolders (CRITICAL)",
+      "status": null,
+      "version": null,
+      "bytes": 2121
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/57-macros-00-concept.md",
+      "title": "Audit — macros/00-concept.md (Canonical)",
+      "status": null,
+      "version": null,
+      "bytes": 1106
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/58-macros-01-step-kinds.md",
+      "title": "Audit — macros/01-step-kinds.md",
+      "status": null,
+      "version": null,
+      "bytes": 821
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/59-macros-02-run-model.md",
+      "title": "Audit — macros/02-run-model.md",
+      "status": null,
+      "version": null,
+      "bytes": 719
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/60-macros-03-audit-artifacts.md",
+      "title": "Audit — macros/03-audit-artifacts.md",
+      "status": null,
+      "version": null,
+      "bytes": 823
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/61-macros-04-loop-and-score.md",
+      "title": "Audit — macros/04-loop-and-score.md",
+      "status": null,
+      "version": null,
+      "bytes": 937
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/62-macros-05-failure-modes.md",
+      "title": "Audit — macros/05-failure-modes.md",
+      "status": null,
+      "version": null,
+      "bytes": 993
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/63-macros-06-storage-contract.md",
+      "title": "Audit — macros/06-storage-contract.md",
+      "status": null,
+      "version": null,
+      "bytes": 897
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/64-macros-07-permissions-and-scope.md",
+      "title": "Audit — macros/07-permissions-and-scope.md",
+      "status": null,
+      "version": null,
+      "bytes": 762
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/65-folder-layout-batch.md",
+      "title": "Audit — macros/folder-layout/ (5 docs, batch)",
+      "status": null,
+      "version": null,
+      "bytes": 1612
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/66-mem-prompt-macros-missing.md",
+      "title": "Audit — mem://features/prompt-macros (REFERENCED BUT MISSING)",
+      "status": null,
+      "version": null,
+      "bytes": 1094
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/67-mem-prompt-variables-missing.md",
+      "title": "Audit — mem://features/prompt-variables (REFERENCED BUT MISSING)",
+      "status": null,
+      "version": null,
+      "bytes": 1073
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/68-mem-macro-prompts-folder.md",
+      "title": "Audit — mem://architecture/macro-prompts-folder",
+      "status": null,
+      "version": null,
+      "bytes": 1078
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/69-memory-index-stale.md",
+      "title": "Audit — .lovable/memory/index.md (Stale References)",
+      "status": null,
+      "version": null,
+      "bytes": 1492
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/70-readiness-score-falsified.md",
+      "title": "Audit — READINESS-SCORE.md (Bogus 100/100)",
+      "status": null,
+      "version": null,
+      "bytes": 2364
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/71-migration-executability.md",
+      "title": "Audit — MIGRATION.md (Blind-AI Executability)",
+      "status": null,
+      "version": null,
+      "bytes": 1550
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/72-changelog-falsified.md",
+      "title": "Audit — CHANGELOG.md vs Actual Artifacts",
+      "status": null,
+      "version": null,
+      "bytes": 2619
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/90-master-issue-list.md",
+      "title": "90 — Master Issue List (Consolidated)",
+      "status": null,
+      "version": null,
+      "bytes": 2562
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/91-severity-matrix.md",
+      "title": "91 — Severity Matrix",
+      "status": null,
+      "version": null,
+      "bytes": 1339
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/92-fix-effort-estimate.md",
+      "title": "92 — Fix-Effort Estimate",
+      "status": null,
+      "version": null,
+      "bytes": 2095
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/93-blind-ai-failure-modes.md",
+      "title": "93 — Blind-AI Failure Modes (Concrete Scenarios)",
+      "status": null,
+      "version": null,
+      "bytes": 3186
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/94-revised-readiness-score.md",
+      "title": "94 — Revised Readiness Score (Replaces Falsified 100/100)",
+      "status": null,
+      "version": null,
+      "bytes": 2814
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/95-close-out.md",
+      "title": "95 — Audit Close-Out & Fix-Pass Offer",
+      "status": null,
+      "version": null,
+      "bytes": 2674
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/96-RETRACTION-c29-folders-exist.md",
+      "title": "96 — RETRACTION: C29 (\"missing subfolders\") is FALSE",
+      "status": null,
+      "version": null,
+      "bytes": 1243
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/97-RETRACTION-c70-readiness-evidence-valid.md",
+      "title": "97 — RETRACTION: C70 (\"READINESS-SCORE.md falsified\") is FALSE",
+      "status": null,
+      "version": null,
+      "bytes": 879
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/98-RETRACTION-c68-memory-exists.md",
+      "title": "98 — RETRACTION: C68 (`mem://architecture/macro-prompts-folder` missing) is FALSE",
+      "status": null,
+      "version": null,
+      "bytes": 563
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/99-CONFIRMED-c66-c67-memory-files-missing.md",
+      "title": "99 — CONFIRMED: C66 + C67 — Two memory files genuinely missing",
+      "status": null,
+      "version": null,
+      "bytes": 1177
+    },
+    {
+      "path": "spec/21-app/05-prompts/ACRONYMS.md",
+      "title": "Acronyms & Terms",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 1110
+    },
+    {
+      "path": "spec/21-app/05-prompts/BLIND-AI-SMOKE-TEST.md",
+      "title": "Blind-AI Smoke Test — 20 Questions",
+      "status": null,
+      "version": null,
+      "bytes": 2304
+    },
+    {
+      "path": "spec/21-app/05-prompts/folder-structure.md",
+      "title": "Spec: Prompt Folder Structure & Seeding",
+      "status": null,
+      "version": null,
+      "bytes": 6645
+    },
+    {
+      "path": "spec/21-app/05-prompts/GLOSSARY.md",
+      "title": "Glossary",
+      "status": null,
+      "version": null,
+      "bytes": 1861
+    },
+    {
+      "path": "spec/21-app/05-prompts/IMPLEMENTATION-CHECKLIST.md",
+      "title": "Implementation Checklist (Blind-AI Runbook)",
+      "status": null,
+      "version": null,
+      "bytes": 2816
+    },
+    {
+      "path": "spec/21-app/05-prompts/json/00-overview.md",
+      "title": "JSON I/O — Overview",
+      "status": null,
+      "version": null,
+      "bytes": 1394
+    },
+    {
+      "path": "spec/21-app/05-prompts/json/01-save-single.md",
+      "title": "Save (single prompt or macro)",
+      "status": null,
+      "version": null,
+      "bytes": 1699
+    },
+    {
+      "path": "spec/21-app/05-prompts/json/02-export-all.md",
+      "title": "Export All",
+      "status": null,
+      "version": null,
+      "bytes": 1388
+    },
+    {
+      "path": "spec/21-app/05-prompts/json/03-import-merge.md",
+      "title": "Import — Merge by Slug",
+      "status": null,
+      "version": null,
+      "bytes": 1651
+    },
+    {
+      "path": "spec/21-app/05-prompts/json/04-replace-atomic.md",
+      "title": "Replace All — Atomic Swap",
+      "status": null,
+      "version": null,
+      "bytes": 2059
+    },
+    {
+      "path": "spec/21-app/05-prompts/json/05-validation-and-errors.md",
+      "title": "Validation & Errors",
+      "status": null,
+      "version": null,
+      "bytes": 1597
+    },
+    {
+      "path": "spec/21-app/05-prompts/json/06-versioning-and-migration.md",
+      "title": "Versioning & Migration",
+      "status": null,
+      "version": null,
+      "bytes": 1531
+    },
+    {
+      "path": "spec/21-app/05-prompts/json/07-clipboard-format.md",
+      "title": "Clipboard Format",
+      "status": null,
+      "version": null,
+      "bytes": 1224
+    },
+    {
+      "path": "spec/21-app/05-prompts/json/08-drag-drop-import.md",
+      "title": "Drag-drop Import",
+      "status": null,
+      "version": null,
+      "bytes": 1568
+    },
+    {
+      "path": "spec/21-app/05-prompts/json/09-cli-equivalents.md",
+      "title": "CLI Equivalents",
+      "status": null,
+      "version": null,
+      "bytes": 1961
+    },
+    {
+      "path": "spec/21-app/05-prompts/macro-prompts/00-folder-structure.md",
+      "title": "Macro-Prompts — Folder Structure",
+      "status": null,
+      "version": null,
+      "bytes": 2212
+    },
+    {
+      "path": "spec/21-app/05-prompts/macro-prompts/01-naming-and-numbering.md",
+      "title": "Macro-Prompts — Naming & Numbering",
+      "status": null,
+      "version": null,
+      "bytes": 1867
+    },
+    {
+      "path": "spec/21-app/05-prompts/macro-prompts/02-info-json-schema.md",
+      "title": "Macro-Prompts — `info.json` Schema",
+      "status": null,
+      "version": null,
+      "bytes": 4359
+    },
+    {
+      "path": "spec/21-app/05-prompts/macro-prompts/03-aggregation-pipeline.md",
+      "title": "Macro-Prompts — Aggregation Pipeline",
+      "status": null,
+      "version": null,
+      "bytes": 3683
+    },
+    {
+      "path": "spec/21-app/05-prompts/macro-prompts/04-resolution-order.md",
+      "title": "Macro-Prompts — Resolution Order",
+      "status": null,
+      "version": null,
+      "bytes": 2448
+    },
+    {
+      "path": "spec/21-app/05-prompts/macro-prompts/05-seed-bundle.md",
+      "title": "Macro-Prompts — Seed Bundle",
+      "status": null,
+      "version": null,
+      "bytes": 2977
+    },
+    {
+      "path": "spec/21-app/05-prompts/macro-prompts/06-versioning.md",
+      "title": "Macro-Prompts — Versioning",
+      "status": null,
+      "version": null,
+      "bytes": 2801
+    },
+    {
+      "path": "spec/21-app/05-prompts/macro-prompts/07-starter-pack.md",
+      "title": "Macro-Prompts — Starter Pack",
+      "status": null,
+      "version": null,
+      "bytes": 3465
+    },
+    {
+      "path": "spec/21-app/05-prompts/macro-prompts/README.md",
+      "title": "Macro-Prompts — Separation Rationale",
+      "status": null,
+      "version": null,
+      "bytes": 1947
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/00-concept.md",
+      "title": "Prompt Macros — Concept (Canonical)",
+      "status": "** Normative. Subsequent docs in `spec/21-app/05-prompts/macros/` refine",
+      "version": null,
+      "bytes": 5845
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/01-step-kinds.md",
+      "title": "Step Kinds — Full Reference",
+      "status": null,
+      "version": null,
+      "bytes": 5590
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/02-run-model.md",
+      "title": "Run Model — Lifecycle, runId, Resume",
+      "status": "\"Running\" | \"Paused\" | \"Done\" | \"Failed\" | \"Stopped\";",
+      "version": null,
+      "bytes": 2785
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/03-audit-artifacts.md",
+      "title": "Audit Artifacts — Files Written per Run",
+      "status": null,
+      "version": null,
+      "bytes": 3297
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/04-loop-and-score.md",
+      "title": "Loop & Score — Gating Rules",
+      "status": null,
+      "version": null,
+      "bytes": 2786
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/05-failure-modes.md",
+      "title": "Failure Modes — Every Error Path",
+      "status": null,
+      "version": null,
+      "bytes": 5970
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/06-storage-contract.md",
+      "title": "Storage Contract — `chrome.storage.local` Keys",
+      "status": null,
+      "version": null,
+      "bytes": 3365
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/07-permissions-and-scope.md",
+      "title": "Permissions & Scope — Allowed / Forbidden Writes",
+      "status": null,
+      "version": null,
+      "bytes": 3048
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/CHANGELOG.md",
+      "title": "Prompt Macros — CHANGELOG",
+      "status": null,
+      "version": null,
+      "bytes": 3404
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/EDGE-CASES.md",
+      "title": "Edge Cases — Normative",
+      "status": null,
+      "version": null,
+      "bytes": 2046
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/00-architecture.md",
+      "title": "Engine Architecture",
+      "status": null,
+      "version": null,
+      "bytes": 2101
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/01-state-machine.md",
+      "title": "State Machine",
+      "status": null,
+      "version": null,
+      "bytes": 1919
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/02-resume-after-sw-restart.md",
+      "title": "Resume After Service-Worker Restart",
+      "status": null,
+      "version": null,
+      "bytes": 1753
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/03-score-extraction.md",
+      "title": "Score Extraction",
+      "status": null,
+      "version": null,
+      "bytes": 1478
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/04-audit-folder-writer.md",
+      "title": "Audit Folder Writer",
+      "status": null,
+      "version": null,
+      "bytes": 2091
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/05-variable-interpolator.md",
+      "title": "Variable Interpolator",
+      "status": null,
+      "version": null,
+      "bytes": 2121
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/06-message-contract.md",
+      "title": "Message Contract",
+      "status": null,
+      "version": null,
+      "bytes": 2085
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/07-concurrency.md",
+      "title": "Concurrency",
+      "status": null,
+      "version": null,
+      "bytes": 2030
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/08-watchdog.md",
+      "title": "Watchdog",
+      "status": null,
+      "version": null,
+      "bytes": 1791
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/09-event-stream.md",
+      "title": "Event Stream",
+      "status": null,
+      "version": null,
+      "bytes": 2154
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/10-pseudocode-runner.md",
+      "title": "Runner Pseudo-code",
+      "status": "\"Running\",",
+      "version": null,
+      "bytes": 2689
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/11-pseudocode-interpolator.md",
+      "title": "Interpolator Pseudo-code",
+      "status": null,
+      "version": null,
+      "bytes": 1891
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/12-pseudocode-score-parser.md",
+      "title": "Score Parser Pseudo-code",
+      "status": null,
+      "version": null,
+      "bytes": 985
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/13-pseudocode-watchdog.md",
+      "title": "Watchdog Pseudo-code",
+      "status": null,
+      "version": null,
+      "bytes": 1055
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/14-pseudocode-audit-writer.md",
+      "title": "Audit Writer Pseudo-code",
+      "status": null,
+      "version": null,
+      "bytes": 1322
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/15-message-contract-typescript.md",
+      "title": "Message Contract — TypeScript",
+      "status": null,
+      "version": null,
+      "bytes": 2353
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/16-runtime-defaults.md",
+      "title": "Runtime Defaults",
+      "status": null,
+      "version": null,
+      "bytes": 1516
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/engine/17-concurrency-model.md",
+      "title": "Concurrency & Race Conditions",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 1351
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/examples/00-spec-tighten-cycle.md",
+      "title": "Worked Example — Spec Tighten Cycle",
+      "status": null,
+      "version": null,
+      "bytes": 2904
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/examples/01-review-and-fix-loop.md",
+      "title": "Worked Example — Review-and-Fix Loop (3 iterations, TargetScore=95)",
+      "status": null,
+      "version": null,
+      "bytes": 1808
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/examples/02-export-import-roundtrip.md",
+      "title": "Worked Example — Export / Import Round-trip",
+      "status": null,
+      "version": null,
+      "bytes": 2199
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/examples/03-variable-driven-audit.md",
+      "title": "Worked Example — Variable-Driven Audit",
+      "status": null,
+      "version": null,
+      "bytes": 1872
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/examples/04-macro-prompt-authoring.md",
+      "title": "Worked Example — Authoring a New Macro-Prompt with 3 Variables",
+      "status": null,
+      "version": null,
+      "bytes": 2860
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/examples/10-end-to-end-walkthrough.md",
+      "title": "End-to-End Walkthrough (Happy Path)",
+      "status": null,
+      "version": null,
+      "bytes": 1632
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/examples/11-recovery-walkthrough.md",
+      "title": "Recovery Walkthrough (SW Restart Mid-Run)",
+      "status": null,
+      "version": null,
+      "bytes": 1471
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/examples/12-failure-walkthrough.md",
+      "title": "Failure Walkthrough (Loop Budget Exceeded)",
+      "status": null,
+      "version": null,
+      "bytes": 1482
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/folder-layout/00-overview.md",
+      "title": "Macros Folder Layout — Overview",
+      "status": null,
+      "version": null,
+      "bytes": 2299
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/folder-layout/01-naming.md",
+      "title": "Macros — Naming",
+      "status": null,
+      "version": null,
+      "bytes": 2329
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/folder-layout/02-schema-reference.md",
+      "title": "Macros — Schema Reference",
+      "status": null,
+      "version": null,
+      "bytes": 5076
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/folder-layout/03-aggregation.md",
+      "title": "Macros — Aggregation",
+      "status": null,
+      "version": null,
+      "bytes": 4200
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/folder-layout/04-starter-macros.md",
+      "title": "Macros — Starter Macros",
+      "status": null,
+      "version": null,
+      "bytes": 3631
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/governance/10-versioning-deprecation.md",
+      "title": "Versioning & Deprecation Policy",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 937
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/guards/00-forbidden-writes.md",
+      "title": "Guard — Forbidden Writes",
+      "status": null,
+      "version": null,
+      "bytes": 1857
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/guards/01-loop-safety.md",
+      "title": "Guard — Loop Safety",
+      "status": null,
+      "version": null,
+      "bytes": 1897
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/guards/02-no-supabase.md",
+      "title": "Guard — No Supabase",
+      "status": null,
+      "version": null,
+      "bytes": 1686
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/guards/03-new-tab-guard.md",
+      "title": "Guard — New-Tab Refusal",
+      "status": null,
+      "version": null,
+      "bytes": 1691
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/guards/04-variable-injection-safety.md",
+      "title": "Guard — Variable Injection Safety",
+      "status": null,
+      "version": null,
+      "bytes": 2658
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/guards/10-forbidden-allowed-matrix.md",
+      "title": "Forbidden / Allowed Matrix",
+      "status": null,
+      "version": null,
+      "bytes": 1725
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/guards/11-injection-attack-vectors.md",
+      "title": "Injection Attack Vectors",
+      "status": null,
+      "version": null,
+      "bytes": 1936
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/guards/12-loop-budget-table.md",
+      "title": "Loop Budget Table",
+      "status": null,
+      "version": null,
+      "bytes": 1110
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/json/10-macro-definition.schema.json",
+      "title": null,
+      "status": null,
+      "version": null,
+      "bytes": 1602
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/json/11-run-state.schema.json",
+      "title": null,
+      "status": null,
+      "version": null,
+      "bytes": 1179
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/json/12-audit-output.schema.json",
+      "title": null,
+      "status": null,
+      "version": null,
+      "bytes": 1168
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/json/13-event-stream.schema.json",
+      "title": null,
+      "status": null,
+      "version": null,
+      "bytes": 2585
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/json/14-info-json.schema.json",
+      "title": null,
+      "status": null,
+      "version": null,
+      "bytes": 1324
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/MIGRATION-TEMPLATE.md",
+      "title": "MIGRATION Template — Spec MAJOR vN → vN+1",
+      "status": "Template",
+      "version": "1.0.0",
+      "bytes": 1664
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/MIGRATION.md",
+      "title": "Prompt Macros — MIGRATION",
+      "status": null,
+      "version": null,
+      "bytes": 3663
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/observability/00-logging.md",
+      "title": "Observability — Logging",
+      "status": null,
+      "version": null,
+      "bytes": 2120
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/observability/01-metrics.md",
+      "title": "Observability — Metrics",
+      "status": null,
+      "version": null,
+      "bytes": 2300
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/observability/02-failure-log-schema.md",
+      "title": "Observability — Failure Log Schema",
+      "status": null,
+      "version": null,
+      "bytes": 3668
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/observability/03-export-bundle.md",
+      "title": "Observability — Export Bundle Integration",
+      "status": null,
+      "version": null,
+      "bytes": 2031
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/observability/04-ui-error-surface.md",
+      "title": "Observability — UI Error Surface",
+      "status": null,
+      "version": null,
+      "bytes": 2955
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/observability/10-log-format-spec.md",
+      "title": "Log Format Spec",
+      "status": null,
+      "version": null,
+      "bytes": 1637
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/observability/11-metrics-glossary.md",
+      "title": "Metrics Glossary",
+      "status": null,
+      "version": null,
+      "bytes": 1467
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/observability/12-failure-reason-codes.md",
+      "title": "Failure Reason Codes",
+      "status": null,
+      "version": null,
+      "bytes": 1804
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/observability/13-telemetry-privacy.md",
+      "title": "Telemetry & Privacy Policy",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 1175
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/observability/14-error-taxonomy-quickref.md",
+      "title": "Error Taxonomy Quick Reference",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 1697
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/observability/15-runbooks-top15.md",
+      "title": "Runbooks — Top-15 Reason Codes",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 2793
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/performance/10-budgets.md",
+      "title": "Performance Budgets — Prompt Macros",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 990
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/READINESS-SCORE-v2.md",
+      "title": "Readiness Score (v2 — Honest 100/100)",
+      "status": null,
+      "version": null,
+      "bytes": 2463
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/READINESS-SCORE.md",
+      "title": "Prompt Macros — Blind-AI Readiness Score",
+      "status": null,
+      "version": null,
+      "bytes": 2955
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/README.md",
+      "title": "Prompt Macros — Spec Index",
+      "status": "** ✅ v2.0 complete. Audited readiness **100 / 100** (`READINESS-SCORE-v2.md`). See `../README.md` (root index) and `../IMPLEMENTATION-CHECKLIST.md` for the blind-AI runbook.",
+      "version": null,
+      "bytes": 2492
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/SCHEMA-INDEX.md",
+      "title": "Schema Index",
+      "status": null,
+      "version": null,
+      "bytes": 907
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/security/10-threat-model.md",
+      "title": "Threat Model — Prompt Macros (STRIDE)",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 1303
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/storage/10-quota-and-eviction.md",
+      "title": "Storage Quota & Eviction",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 1108
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/00-unit-tests.md",
+      "title": "Unit Tests",
+      "status": null,
+      "version": null,
+      "bytes": 1986
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/01-component-tests.md",
+      "title": "Component Tests",
+      "status": null,
+      "version": null,
+      "bytes": 2055
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/02-e2e-tests.md",
+      "title": "E2E Tests",
+      "status": null,
+      "version": null,
+      "bytes": 2443
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/03-coverage-targets.md",
+      "title": "Coverage Targets",
+      "status": null,
+      "version": "1.0.0",
+      "bytes": 1481
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/04-fixtures.md",
+      "title": "Fixtures",
+      "status": null,
+      "version": null,
+      "bytes": 2737
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/10-unit-test-inventory.md",
+      "title": "Unit Test Inventory (Required)",
+      "status": null,
+      "version": null,
+      "bytes": 1708
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/11-component-test-inventory.md",
+      "title": "Component Test Inventory (Required)",
+      "status": null,
+      "version": null,
+      "bytes": 978
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/12-e2e-test-inventory.md",
+      "title": "E2E Test Inventory (Required)",
+      "status": null,
+      "version": null,
+      "bytes": 981
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/13-fixture-catalog.md",
+      "title": "Fixture Catalog",
+      "status": null,
+      "version": null,
+      "bytes": 1493
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/14-ci-gates.md",
+      "title": "CI Gates",
+      "status": null,
+      "version": null,
+      "bytes": 1296
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/15-race-fixture-pack.md",
+      "title": "Concurrency Race Fixture Pack (R-01..R-05)",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 1766
+    },
+    {
+      "path": "spec/21-app/05-prompts/OWNERSHIP.md",
+      "title": "Spec Ownership",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 1077
+    },
+    {
+      "path": "spec/21-app/05-prompts/README.md",
+      "title": "Prompt-Macros Subsystem — Master Index",
+      "status": null,
+      "version": null,
+      "bytes": 2577
+    },
+    {
+      "path": "spec/21-app/05-prompts/RELEASE-CHECKLIST.md",
+      "title": "Spec Release Checklist",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 1331
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/00-prompts-button.md",
+      "title": "Prompts Button — Trigger & Anchor",
+      "status": null,
+      "version": null,
+      "bytes": 5181
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/01-panel-layout.md",
+      "title": "Prompts Panel — Layout",
+      "status": null,
+      "version": null,
+      "bytes": 7314
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/02-filter-and-search.md",
+      "title": "Prompts Panel — Filter & Search",
+      "status": null,
+      "version": null,
+      "bytes": 3727
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/03-categories.md",
+      "title": "Prompts Panel — Categories",
+      "status": null,
+      "version": null,
+      "bytes": 4386
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/04-favorites.md",
+      "title": "Prompts Panel — Favorites",
+      "status": null,
+      "version": null,
+      "bytes": 3853
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/05-macros-tab.md",
+      "title": "Macros Tab — Rows & Actions",
+      "status": null,
+      "version": "1.2.0",
+      "bytes": 6110
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/06-macro-builder.md",
+      "title": "Macros Tab — Macro Builder",
+      "status": null,
+      "version": null,
+      "bytes": 8578
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/07-run-banner.md",
+      "title": "Macros Tab — Run Banner",
+      "status": null,
+      "version": null,
+      "bytes": 6852
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/08-keyboard-shortcuts.md",
+      "title": "Prompts & Macros — Keyboard Shortcuts",
+      "status": null,
+      "version": null,
+      "bytes": 5285
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/09-variable-input-dialog.md",
+      "title": "Variable Input Dialog",
+      "status": null,
+      "version": null,
+      "bytes": 7191
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/10-keyboard-map.md",
+      "title": "Keyboard Map",
+      "status": null,
+      "version": null,
+      "bytes": 977
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/11-a11y-matrix.md",
+      "title": "A11y Matrix",
+      "status": null,
+      "version": null,
+      "bytes": 1433
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/12-state-diagrams.md",
+      "title": "UI State Diagrams",
+      "status": null,
+      "version": null,
+      "bytes": 1529
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/13-css-tokens.md",
+      "title": "CSS Tokens (Semantic)",
+      "status": null,
+      "version": null,
+      "bytes": 1346
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/14-error-surface-catalog.md",
+      "title": "Error Surface Catalog",
+      "status": null,
+      "version": null,
+      "bytes": 1721
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/15-empty-states.md",
+      "title": "Empty States",
+      "status": null,
+      "version": null,
+      "bytes": 957
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/00-overview.md",
+      "title": "Variables — Overview",
+      "status": null,
+      "version": null,
+      "bytes": 2337
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/01-syntax.md",
+      "title": "Variable Syntax — Mustache-Lite",
+      "status": null,
+      "version": null,
+      "bytes": 2827
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/02-declaration.md",
+      "title": "Variable Declaration — `info.json` Schema",
+      "status": null,
+      "version": null,
+      "bytes": 3530
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/03-resolution-order.md",
+      "title": "Variable Resolution — 5-Tier Waterfall",
+      "status": null,
+      "version": null,
+      "bytes": 3966
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/04-types.md",
+      "title": "Variable Types — Supported `Type` Values & Coercion",
+      "status": null,
+      "version": null,
+      "bytes": 3430
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/05-built-in-context.md",
+      "title": "Built-in Run Context",
+      "status": null,
+      "version": null,
+      "bytes": 3974
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/06-validation.md",
+      "title": "Variable Validation & Failure-Log Shape",
+      "status": null,
+      "version": null,
+      "bytes": 5152
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/07-sensitive-masking.md",
+      "title": "Sensitive Variable Masking",
+      "status": null,
+      "version": null,
+      "bytes": 3839
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/08-ui-prompting.md",
+      "title": "Variable-Input Dialog — Inline Form Spec",
+      "status": null,
+      "version": null,
+      "bytes": 5796
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/10-grammar-bnf.md",
+      "title": "Variable Grammar — BNF",
+      "status": null,
+      "version": null,
+      "bytes": 1243
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/11-resolution-waterfall.md",
+      "title": "Resolution Waterfall",
+      "status": null,
+      "version": null,
+      "bytes": 1114
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/12-type-coercion-table.md",
+      "title": "Type Coercion Table",
+      "status": null,
+      "version": null,
+      "bytes": 1410
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/13-sensitive-patterns.md",
+      "title": "Sensitive Value Patterns",
+      "status": null,
+      "version": null,
+      "bytes": 1342
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/14-builtin-context-reference.md",
+      "title": "Built-in Context Reference",
+      "status": null,
+      "version": null,
+      "bytes": 1189
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/15-examples-bundle.md",
+      "title": "Examples Bundle",
+      "status": null,
+      "version": null,
+      "bytes": 1453
+    },
+    {
+      "path": "spec/21-app/05-prompts/variables/README.md",
+      "title": "Variables & Templating — Spec Index",
+      "status": null,
+      "version": null,
+      "bytes": 1674
+    }
+  ]
+}
