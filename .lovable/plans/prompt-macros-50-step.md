@@ -141,11 +141,11 @@ Trigger 💬 button in chatbox → panel:
 Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ### Block 1 — Foundations & Concept Docs (Tasks 1–10)
-1. [ ] Create `spec/21-app/05-prompts/macros/` with `README.md` (overview + link map to all subsections).
-2. [ ] Write `spec/21-app/05-prompts/macros/00-concept.md` — copy Part A.1–A.7 verbatim as canonical concept doc.
-3. [ ] Write `spec/21-app/05-prompts/macros/01-step-kinds.md` — full table per kind: inputs, outputs, error modes, examples.
-4. [ ] Write `spec/21-app/05-prompts/macros/02-run-model.md` — runId format, Mermaid state diagram, SW-restart resume contract.
-5. [ ] Write `spec/21-app/05-prompts/macros/03-audit-artifacts.md` — exact files under `spec/audit/<runId>/` with schemas.
+1. [x] Create `spec/21-app/05-prompts/macros/` with `README.md` (overview + link map to all subsections).
+2. [x] Write `spec/21-app/05-prompts/macros/00-concept.md` — copy Part A.1–A.7 verbatim as canonical concept doc.
+3. [x] Write `spec/21-app/05-prompts/macros/01-step-kinds.md` — full table per kind: inputs, outputs, error modes, examples.
+4. [x] Write `spec/21-app/05-prompts/macros/02-run-model.md` — runId format, Mermaid state diagram, SW-restart resume contract.
+5. [x] Write `spec/21-app/05-prompts/macros/03-audit-artifacts.md` — exact files under `spec/audit/<runId>/` with schemas.
 6. [ ] Write `spec/21-app/05-prompts/macros/04-loop-and-score.md` — score parsing, `TargetScore` gating, `MaxLoops` safety, infinite-loop guard.
 7. [ ] Write `spec/21-app/05-prompts/macros/05-failure-modes.md` — every error path with mandatory failure-log shape (Reason + ReasonDetail + SelectorAttempts + VariableContext).
 8. [ ] Write `spec/21-app/05-prompts/macros/06-storage-contract.md` — chrome.storage.local keys, identity-only mapping (no PascalCase migration).
