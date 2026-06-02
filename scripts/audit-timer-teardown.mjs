@@ -19,13 +19,23 @@ const INSTALLERS = [
   { rx: /\.addEventListener\s*\(/g, pair: /\.removeEventListener\s*\(/ },
 ];
 
+// Ignore test files, generated files, and SDK template strings — these are
+// either Vitest fixtures (lifecycle bound to the test runner) or string
+// templates compiled into the SDK (not runtime installers).
+const IGNORE_PATTERNS = [
+    /[\\/]__tests__[\\/]/,
+    /\.test\.(ts|tsx|js|mjs)$/,
+    /\.generated\.(ts|tsx)$/,
+    /[\\/]marco-sdk-template\.ts$/,
+];
+
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
     if (name === 'node_modules' || name.startsWith('.')) continue;
     const p = join(dir, name);
     const s = statSync(p);
     if (s.isDirectory()) walk(p, out);
-    else if (/\.(ts|tsx|js|mjs)$/.test(name)) out.push(p);
+    else if (/\.(ts|tsx|js|mjs)$/.test(name) && !IGNORE_PATTERNS.some((rx) => rx.test(p))) out.push(p);
   }
   return out;
 }
