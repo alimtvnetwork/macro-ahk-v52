@@ -1,0 +1,40 @@
+%% T40 · Loader lifecycle — load → cache → render → invalidate
+%% Created: 2026-06-02 (Asia/Kuala_Lumpur)
+%% Render with any Mermaid 10+ renderer. Dark theme assumed.
+stateDiagram-v2
+    [*] --> Idle
+
+    Idle: Idle\n(cache: empty)
+    Loading: Loading\n(single in-flight fetch)
+    Cached: Cached\n(cache: Prompt[])
+    Rendering: Rendering\n(resolve {{vars}})
+    Failed: Failed\n(typed PromptError)
+
+    Idle --> Loading: loadAll()
+    Loading --> Cached: store.list() ok\n+ merge defaults/user
+    Loading --> Failed: ParseFailed / SchemaInvalid /\nSlugCollision / StoreUnavailable
+
+    Cached --> Rendering: render(slug, ctx)
+    Rendering --> Cached: text returned\n(may emit UnresolvedVariable warning)
+    Rendering --> Failed: NotFound
+
+    Cached --> Loading: invalidate()\nthen loadAll()
+    Cached --> Idle: invalidate()\n(no immediate re-fetch)
+
+    Failed --> Idle: caller handled error\n+ optional retry
+
+    note right of Cached
+      Invalidation triggers (T37):
+      I1 explicit invalidate()
+      I2 store.onChange(saved/deleted/imported)
+      I3 fs mtime advanced (fs-backed)
+      I4 defaults bundle reloaded
+    end note
+
+    note left of Rendering
+      Variable precedence (T38):
+      1. ctx.vars[name]
+      2. ctx.editor.*
+      3. ctx.now → date/time/datetime/iso
+      4. empty + UnresolvedVariable event
+    end note
