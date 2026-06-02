@@ -1,0 +1,36 @@
+# 04 — Recovery
+
+**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Task:** T84
+
+## Recovery surface, not retry
+
+Per the No-Retry Policy, the engine never auto-recovers. Recovery is **always user-initiated** via explicit UI actions.
+
+## Per-reason recovery menu
+
+| Reason | Primary action | Secondary |
+|--------|---------------|-----------|
+| `LoggedOut` | Open login → after success, `resumeAll()` | Cancel queue |
+| `SubmitMissing`/`SubmitDisabled` | Re-enqueue failed task | Inspect failure |
+| `InsertRejected`/`PasteRejected` | Re-enqueue failed task | Edit prompt |
+| `TargetDetached` | Re-enqueue failed task | Cancel queue |
+| `IdleTimeout` | Re-enqueue failed task | Increase delay in Settings |
+| `NavigationLost` | Cancel queue (mandatory; tab changed) | — |
+| `PromptMissing` | Edit / restore prompt | Cancel queue |
+| `VersionConflict` | Reload prompt → re-edit | — |
+| `CapacityExceeded` | Wait for drain → re-enqueue | — |
+| `CancelledByUser` | (none) | — |
+
+## Re-enqueue API
+
+```ts
+QueueEngine.requeue(taskId): Promise<string>;  // returns new task id
+```
+- Loads the failed task, clones with fresh `id`, `attemptCount=0`, status `pending`.
+- Re-renders body via the loader (picks up any prompt edits).
+- Subject to the same capacity check.
+
+## Single re-check (one-shot)
+
+The only automatic recovery is the readiness-grace re-check inside `runOne` for `SubmitDisabled`. That re-check is **one attempt**, not a loop, and it consumes the task's `attemptCount` budget.
