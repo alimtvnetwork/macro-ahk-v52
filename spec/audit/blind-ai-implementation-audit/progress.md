@@ -129,3 +129,13 @@ Remaining: Batches B (steps 11–20), C (21–30), D (31–40), E (41–50).
 ---
 
 ## Plan complete (steps 1–50 across Batches A–E).
+
+---
+
+## Post-plan cleanup — 2026-06-02
+
+**Batch F (post-50): Spec README backfill + CI wire-up**
+
+1–9. Generated 25 stub READMEs via `/tmp/gen-readmes.mjs` for: `01-spec-authoring-guide`, `02-architecture`, `02-coding-guidelines`, `03-error-manage`, `04-database-conventions`, `05-split-db-architecture`, `06-seedable-config-architecture`, `07-design-system`, `08-docs-viewer-ui`, `09-code-block-system`, `10-research`, `11-powershell-integration`, `12-cicd-pipeline-workflows`, `14-update`, `17-consolidated-guidelines`, `21-app`, `22-app-issues`, `23-database`, `26-chrome-extension-generic`, `30-import-export`, `31-macro-recorder`, `32-app-performance`, `99-archive`, `audit`, `validation-reports`. Repaired `spec/2026-spec/README.md` (Overview + Files sections). **`check-spec-readme-structure.mjs --strict` now passes 0 issues.**
+
+10. Added **Preflight · Blind-AI Audit Guards** job in `.github/workflows/ci.yml` running: coding-guidelines coverage, swallow-baseline monotonic, spec README structure (strict), forbidden anim libs, timer-teardown audit (advisory). Preserves the unfiltered `on: push:` trigger contract.

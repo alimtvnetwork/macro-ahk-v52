@@ -71,6 +71,44 @@ jobs:
         run: node scripts/report-spec-links-ci.mjs
 
   # ════════════════════════════════════════════════════════════
+  # Job 0a-bis: Blind-AI Audit Guards (Batch B–D output)
+  #
+  # Bundled preflight that fails fast if any of the 6 audit guards
+  # produced during the 50-step blind-AI remediation regress:
+  #   - coding-guidelines coverage  (Batch B)
+  #   - logger compliance           (Batch C, advisory)
+  #   - timer/observer teardown     (Batch D, advisory)
+  #   - swallow-baseline monotonic  (Batch D)
+  #   - spec README structure       (Batch D)
+  #   - forbidden anim libs         (Batch D)
+  # No install required; pure Node + fs.
+  # ════════════════════════════════════════════════════════════
+  blind-ai-audit-guards:
+    name: Preflight · Blind-AI Audit Guards
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Coding-guidelines coverage gate
+        run: node scripts/check-coding-guidelines-coverage.mjs
+      - name: Swallow-baseline monotonic gate
+        run: node scripts/check-swallow-baseline-monotonic.mjs
+      - name: Spec README structure gate
+        run: node scripts/check-spec-readme-structure.mjs --strict
+      - name: Forbidden animation libraries gate
+        run: node scripts/check-forbidden-anim-libs.mjs
+      - name: Timer/observer teardown audit (advisory)
+        run: node scripts/audit-timer-teardown.mjs
+
+
+
+  # ════════════════════════════════════════════════════════════
   # Job 0a0b: Nested-template-literal scanner — fast-fail guard
   #
   # Targets `standalone-scripts/lovable-common/src/report/run-summary-types.ts`
