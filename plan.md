@@ -559,3 +559,27 @@ in priority order (P0/P1 from the error-swallowing audit page,
 once the scanner from the previous follow-up lands) and remove
 entries from the baseline as fixes ship. Final goal: empty
 `entries: []` array and pass `npm run check:no-swallowed-errors:strict`.
+
+---
+
+## v3.50.0 Roadmap: Collaborative Workspaces & Advanced State Recovery
+_(Migrated from `.lovable/plan.md` 2026-06-02 per audit S81 — single plan SOT.)_
+
+Multi-tab synchronization and robust persistence for long-running automation sessions.
+
+### 1. Cross-Tab State Sync
+- **BroadcastChannel Integration**: Sync Task Queue and Prompt Library state across open tabs in real-time.
+- **Global Lock Mechanism**: Prevent conflicting automations from running in multiple tabs simultaneously.
+
+### 2. Snapshots & Time-Travel Recovery
+- **Queue Snapshots**: Automatically save queue state every 5 minutes.
+- **Session Restore**: On browser crash/close, offer to resume pending tasks on restart.
+
+### 3. Workspace Profiles
+- **Profile Switching**: Save prompt sets and queue configs per project.
+- **Export/Import**: One-click sharing of "Automation Recipes" (prompt sets + queue templates).
+
+### Technical Details
+- **Storage**: Migrate high-frequency state updates to `indexedDB` (vs. `chrome.storage.local`).
+- **UI**: "Workspace" selector in main header; "Recovery" indicator in status bar.
+- **Logic**: `StateReconciler` to merge updates from different tabs.
