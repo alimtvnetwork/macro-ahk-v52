@@ -201,8 +201,8 @@ Each completed follow-up task increments a checkbox here:
 - [x] T36–T40  Loader  *(2026-06-02)*
 - [x] T41–T45  UI  *(2026-06-02)*
 - [x] T46–T50  Injection  *(2026-06-02)*
-- [ ] T51–T55  Editor adapters
-- [ ] T56–T60  Save/create/edit
+- [x] T51–T55  Editor adapters
+- [x] T56–T60  Save/create/edit
 - [ ] T61–T65  Next overview
 - [ ] T66–T70  Queue model
 - [ ] T71–T75  Queue lifecycle
