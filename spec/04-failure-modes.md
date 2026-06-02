@@ -22,3 +22,131 @@ Recurring drifts captured during the blind-AI audit (steps 1–110). Each row = 
 | F-readme | Auto-update `readme.txt` timestamp | LLM "helpfully" adds time | SP-1..SP-7 hard ban. |
 
 When you catch yourself about to do any of the above, stop and re-read the linked memory entry.
+
+---
+
+## Worked examples — copy-paste-ready
+
+### F-S13 / Ban #9 — bare `console.error` → namespace logger
+
+```ts
+// ❌ BAD — bare console.error swallows project scope, fails CI audit.
+try {
+    await loadProject(slug);
+} catch (caught) {
+    console.error("load failed", caught); // F-S13 violation
+}
+
+// ✅ GOOD — namespace logger with exact path + reason.
+import { Logger } from "<NAMESPACE>";
+
+try {
+    await loadProject(slug);
+} catch (caught: unknown) {
+    Logger.error(
+        "loadProject",
+        `Project '${slug}' failed to load from chrome.storage.local — slug missing or DB unreachable`,
+        caught,
+    );
+    throw caught; // never swallow — see Ban #10
+}
+```
+
+### F-retry / Ban #3 — exponential backoff → sequential fail-fast
+
+```ts
+// ❌ BAD — recursive retry with backoff (banned).
+async function postWebhook(payload: WebhookPayload, attempt = 0): Promise<void> {
+    try { await fetch(url, { method: "POST", body: JSON.stringify(payload) }); }
+    catch (caught) {
+        if (attempt < 5) {
+            await new Promise(r => setTimeout(r, 2 ** attempt * 1000)); // ⛔ backoff
+            return postWebhook(payload, attempt + 1);                   // ⛔ retry
+        }
+        throw caught;
+    }
+}
+
+// ✅ GOOD — single attempt, fail-fast, structured log.
+async function postWebhook(payload: WebhookPayload): Promise<void> {
+    try {
+        const response = await fetch(url, { method: "POST", body: JSON.stringify(payload) });
+        if (!response.ok) {
+            Logger.error("postWebhook", `HTTP ${response.status} from ${url} — single-attempt policy, not retrying`);
+        }
+    } catch (caught: unknown) {
+        Logger.error("postWebhook", `Network failure posting to ${url} — single-attempt policy, not retrying`, caught);
+        throw caught;
+    }
+}
+```
+
+### F-S60 / Ban #15 — timer without teardown
+
+```tsx
+// ❌ BAD — setTimeout leaks across unmount / pagehide.
+useEffect(() => {
+    setTimeout(() => setMessage(null), 3000);
+}, [message]);
+
+// ✅ GOOD — ref-tracked id, cleared on re-run, unmount, and pagehide.
+const timerRef = useRef<number | null>(null);
+useEffect(() => {
+    if (timerRef.current !== null) { window.clearTimeout(timerRef.current); }
+    timerRef.current = window.setTimeout(() => setMessage(null), 3000);
+    const onPageHide = () => {
+        if (timerRef.current !== null) { window.clearTimeout(timerRef.current); timerRef.current = null; }
+    };
+    window.addEventListener("pagehide", onPageHide);
+    return () => {
+        if (timerRef.current !== null) { window.clearTimeout(timerRef.current); }
+        window.removeEventListener("pagehide", onPageHide);
+    };
+}, [message]);
+```
+
+### Storage routing — never rewrite `StoredProject` keys
+
+```ts
+// ❌ BAD — PascalCase migration (Phase 2c-storage v2, banned).
+const migrated = { Slug: stored.slug, Name: stored.name };
+await chrome.storage.local.set({ [stored.slug]: migrated });
+
+// ✅ GOOD — identity-only mapping, preserve original camelCase keys.
+const project: StoredProject = stored;
+await chrome.storage.local.set({ [project.slug]: project });
+```
+
+### Failure-log JSON — mandatory shape
+
+```json
+{
+    "Reason": "SelectorMiss",
+    "ReasonDetail": "Primary XPath returned 0 nodes after 5000ms wait",
+    "StepId": 17,
+    "StepKind": "Click",
+    "Phase": "Replay",
+    "Timestamp": "2026-06-02T08:00:00+08:00",
+    "SelectorAttempts": [
+        {
+            "selectorId": 42,
+            "strategy": "XPathFull",
+            "expression": "//button[@id='submit']",
+            "matched": false,
+            "matchCount": 0,
+            "reason": "Element removed from DOM before evaluation"
+        }
+    ],
+    "VariableContext": [
+        {
+            "name": "userEmail",
+            "source": "DataSource.csv",
+            "row": 3,
+            "column": "email",
+            "resolvedValue": "***@***.com",
+            "type": "string",
+            "reason": "Masked (sensitive field auto-detected)"
+        }
+    ]
+}
+```

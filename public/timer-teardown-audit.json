@@ -1,55 +1,7 @@
 {
-  "generatedAt": "2026-06-02T16:28:04.906Z",
-  "totalFindings": 50,
+  "generatedAt": "2026-06-02T18:54:34.298Z",
+  "totalFindings": 31,
   "findings": [
-    {
-      "file": "src/background/marco-sdk-template.ts",
-      "installer": "\\.addEventListener\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/recorder/__tests__/condition-ac-19-2.test.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/recorder/__tests__/dropzone-overlay.test.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 2,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/recorder/__tests__/live-dom-replay.test.ts",
-      "installer": "\\.addEventListener\\s*\\(",
-      "installs": 5,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/recorder/__tests__/retry-step.test.ts",
-      "installer": "\\.addEventListener\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/recorder/__tests__/wait-for-element.test.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/recorder/__tests__/wait-for-element.test.ts",
-      "installer": "\\.addEventListener\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/recorder/step-library/__tests__/replay-bridge.test.ts",
-      "installer": "\\.addEventListener\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
     {
       "file": "src/background/spa-reinject.ts",
       "installer": "\\bsetTimeout\\s*\\(",
@@ -123,18 +75,6 @@
       "teardowns": 0
     },
     {
-      "file": "src/components/recorder/__tests__/BulkRenameSequenceDialog.help-tooltip.test.tsx",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/components/recorder/__tests__/LiveRecordedActionsTree.scroll.test.tsx",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
       "file": "src/content-scripts/message-relay.ts",
       "installer": "\\bsetTimeout\\s*\\(",
       "installs": 1,
@@ -165,36 +105,6 @@
       "teardowns": 0
     },
     {
-      "file": "src/lib/__tests__/chain-runner.test.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 3,
-      "teardowns": 0
-    },
-    {
-      "file": "src/lib/__tests__/chain-runner.test.ts",
-      "installer": "\\.addEventListener\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/lib/__tests__/keyword-event-playback.test.ts",
-      "installer": "\\.addEventListener\\s*\\(",
-      "installs": 3,
-      "teardowns": 0
-    },
-    {
-      "file": "src/lib/__tests__/keyword-event-target.test.ts",
-      "installer": "\\.addEventListener\\s*\\(",
-      "installs": 6,
-      "teardowns": 0
-    },
-    {
-      "file": "src/lib/__tests__/recorder-session-sync.test.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 7,
-      "teardowns": 0
-    },
-    {
       "file": "src/lib/click-trail.ts",
       "installer": "\\.addEventListener\\s*\\(",
       "installs": 3,
@@ -203,24 +113,6 @@
     {
       "file": "src/lib/condition-evaluators.ts",
       "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/lib/developer-guide-data.generated.ts",
-      "installer": "\\bsetInterval\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/lib/developer-guide-data.generated.ts",
-      "installer": "\\bnew\\s+MutationObserver\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/lib/developer-guide-data.generated.ts",
-      "installer": "\\.addEventListener\\s*\\(",
       "installs": 1,
       "teardowns": 0
     },
@@ -294,12 +186,6 @@
       "file": "src/popup/components/SqliteBundleActions.tsx",
       "installer": "\\bsetTimeout\\s*\\(",
       "installs": 2,
-      "teardowns": 0
-    },
-    {
-      "file": "src/test/regression/sdk-selftest-handler.test.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
       "teardowns": 0
     }
   ]

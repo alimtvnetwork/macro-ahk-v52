@@ -1,0 +1,7 @@
+{
+  "baseline": "2026-06-02",
+  "totalFindings": 31,
+  "note": "Locked baseline after ignoring __tests__/**, *.test.*, *.generated.*, and marco-sdk-template.ts. CI must not let this number grow.",
+  "policy": "monotonic-non-increasing",
+  "remediation": "Each remaining finding is tracked in spec/audit/blind-ai-implementation-audit/timer-teardown-backlog.md and gets fixed during normal feature work — not in a bulk sweep that risks regression."
+}
