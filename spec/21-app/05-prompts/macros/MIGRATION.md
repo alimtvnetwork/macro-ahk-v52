@@ -91,3 +91,25 @@ Demote macro → single-shot: delete the folder, restore `<slug>.md` under `prom
 | Inject once into chatbox | Engine drives chained steps |
 | No variables | `{{ VarName }}` with 5-tier resolution |
 | No audit output | Writes `spec/audit/<runId>/` |
+
+## Spec version migration (1.0 → 2.0)
+
+The 50-step blind-AI upgrade on 2026-06-02 is **additive only** — no breaking
+changes to schemas, storage keys, message contracts, or UI behavior. All v1
+macros continue to load and run unchanged.
+
+What changed:
+- 47 new spec docs (pseudo-code, matrices, schemas, walkthroughs, inventories).
+- 2 new memory files (`mem://features/prompt-macros`, `mem://features/prompt-variables`).
+- New canonical scorecard: `macros/READINESS-SCORE-v2.md` supersedes v1.
+
+What did NOT change:
+- All `StepKindId` values (1–8) and their semantics.
+- The 5-tier variable resolution waterfall.
+- `chrome.storage.local` keys.
+- The `Score: NN / 100` regex.
+- The `MacroEvent` union shape (additions go through schema versioning).
+
+Implementers who already shipped against v1 need do nothing. New
+implementations SHOULD start from `IMPLEMENTATION-CHECKLIST.md`.
+
