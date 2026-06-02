@@ -20,19 +20,19 @@
 
 ## Phase 1 — Expand remaining Phase-0 categories — Tasks 6–10
 
-6. [ ] Write `06-missing-acceptance-criteria.md` (C6) — list 9 folders, what acceptance each needs.
-7. [ ] Write `07-snake-case-in-body.md` (C7) — enumerate every metric name + decision (keep Prometheus convention vs PascalCase).
-8. [ ] Write `08-cross-reference-rot.md` (C8) — grep all `mem://` / relative links in spec, list broken or unresolved.
-9. [ ] Write `09-plan-doc-leak.md` (C9) — spec links pointing into `.lovable/plans/` (should be self-contained).
-10. [ ] Write `10-parallel-concept-docs.md` (C10) — `00-concept.md` vs `engine/00-architecture.md` overlap, no `supersedes:` field.
+6. [x] Write `06-missing-acceptance-criteria.md` (C6) — list 9 folders, what acceptance each needs.
+7. [x] Write `07-snake-case-in-body.md` (C7) — enumerate every metric name + decision (keep Prometheus convention vs PascalCase).
+8. [x] Write `08-cross-reference-rot.md` (C8) — grep all `mem://` / relative links in spec, list broken or unresolved.
+9. [x] Write `09-plan-doc-leak.md` (C9) — spec links pointing into `.lovable/plans/` (should be self-contained).
+10. [x] Write `10-parallel-concept-docs.md` (C10) — `00-concept.md` vs `engine/00-architecture.md` overlap, no `supersedes:` field.
 
 ## Phase 2 — Deep dive: structural — Tasks 11–25
 
-11. [ ] Grep + write `11-h1-title-mismatch.md` — H1 vs filename slug mismatches.
-12. [ ] `12-orphan-files.md` — files not linked from any `00-overview.md`.
-13. [ ] `13-duplicate-headings.md` — repeated H2 across siblings (signals overlap).
-14. [ ] `14-trailing-whitespace-tabs.md` — lint-style spec hygiene.
-15. [ ] `15-bare-code-fences.md` — fences missing language hint.
+11. [x] Grep + write `11-h1-title-mismatch.md` — H1 vs filename slug mismatches.
+12. [x] `12-orphan-files.md` — files not linked from any `00-overview.md`.
+13. [x] `13-duplicate-headings.md` — repeated H2 across siblings (signals overlap).
+14. [x] `14-trailing-whitespace-tabs.md` — lint-style spec hygiene.
+15. [x] `15-bare-code-fences.md` — fences missing language hint.
 16. [ ] `16-mermaid-vs-ascii-diagrams.md` — guide says ASCII; check compliance.
 17. [ ] `17-empty-sections.md` — `## Heading` followed by no content.
 18. [ ] `18-todo-fixme-markers.md` — accidental dev markers.
