@@ -1,0 +1,50 @@
+# T37 · Cache rules
+
+**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+
+The loader owns exactly one cache: the merged prompt list produced by
+`loadAll()`. No partial / per-prompt caching — keeps invalidation trivial.
+
+## Cache key
+
+A single conceptual key: `"prompts:all"`. There is no per-category or
+per-slug cache.
+
+## Population
+
+- First `loadAll()` call fetches from the `PromptStore`, applies the
+  default/user merge, sorts, and stores the resulting array.
+- Subsequent calls within the same process return the cached array
+  (a shallow copy) without touching the store.
+
+## Invalidation triggers (loader MUST drop the cache when any fires)
+
+| # | Trigger | Source |
+|---|---|---|
+| I1 | Explicit `loader.invalidate()` call | UI "Reload prompts" button, tests |
+| I2 | `PromptStore.onChange({kind: "saved"\|"deleted"\|"imported"})` | Any successful write |
+| I3 | The on-disk reference corpus's mtime advanced (file-backed stores only) | Optional polling / fs.watch |
+| I4 | HostApp signals it has reloaded the defaults bundle | Integrator hook (e.g. after extension update) |
+
+No timer-based / TTL invalidation. The cache is valid until something
+real changes.
+
+## Concurrency
+
+- A pending `loadAll()` in flight when `invalidate()` is called:
+  the in-flight promise is **discarded** (its result MUST NOT be cached),
+  and the next caller triggers a fresh fetch.
+- Two concurrent first-time callers share one fetch (single in-flight
+  guarantee, T36).
+
+## Manual reload UX
+
+The UI SHOULD expose a "Reload prompts" affordance that calls
+`invalidate()` followed by `loadAll()`. Helpful when the integrator
+edits prompt files outside the app.
+
+## Memory footprint
+
+The cache holds at most one `Prompt[]` (typically < 100 records,
+each < 64 KiB body — see T33). Total cap ~6 MiB worst case; no
+eviction policy needed.
