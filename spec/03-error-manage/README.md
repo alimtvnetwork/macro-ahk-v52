@@ -1,16 +1,18 @@
-# Error Manage
+# Error Management
 
 ## Overview
-Spec section for **Error Manage**. See `spec/00-what-to-read-first.md` for global reading order, and `spec/03-decision-tree.md` for how this section fits into request routing.
+
+End-to-end error-handling contract: resolution flow (`01-error-resolution/`), runtime architecture (`02-error-architecture/`), and the canonical error-code registry (`03-error-code-registry/`). Pairs with the mandatory failure-log shape in `mem://standards/verbose-logging-and-failure-diagnostics` and the namespace-logger rule in `mem://standards/error-logging-via-namespace-logger.md`.
+
+CI gates: `scripts/audit-error-swallow.mjs` (P0/P1/P2 swallow audit) and `scripts/check-swallow-baseline-monotonic.mjs` (baseline never grows).
 
 ## Files
 - [`00-overview.md`](./00-overview.md)
 - [`97-acceptance-criteria.md`](./97-acceptance-criteria.md)
 - [`98-changelog.md`](./98-changelog.md)
 - [`99-consistency-report.md`](./99-consistency-report.md)
-- [`structure.md`](./structure.md)
 
 ## Subdirectories
-- [`01-error-resolution/`](./01-error-resolution/)
-- [`02-error-architecture/`](./02-error-architecture/)
-- [`03-error-code-registry/`](./03-error-code-registry/)
+- [`01-error-resolution/`](./01-error-resolution/) — diagnose → fix → verify flow
+- [`02-error-architecture/`](./02-error-architecture/) — runtime layers + BootFailureBanner
+- [`03-error-code-registry/`](./03-error-code-registry/) — canonical Reason codes

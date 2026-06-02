@@ -1,7 +1,10 @@
 # Design System
 
 ## Overview
-Spec section for **Design System**. See `spec/00-what-to-read-first.md` for global reading order, and `spec/03-decision-tree.md` for how this section fits into request routing.
+
+Visual design system spec: principles (`01`), theme variable architecture (`02`), typography (`03`), spacing/layout (`04`), borders/shapes (`05`), motion/transitions (`06`), and code-block styling (`07`). Theme variables follow HSL semantic tokens; motion uses Tailwind + standard CSS keyframes only (zero external animation libraries — see `mem://style/animation-strategy` and `mem://preferences/dark-only-theme`).
+
+Hard ban: no light mode, no theme toggle, no `framer-motion`/`gsap` (enforced by `scripts/check-forbidden-anim-libs.mjs`).
 
 ## Files
 - [`00-overview.md`](./00-overview.md)
@@ -12,12 +15,3 @@ Spec section for **Design System**. See `spec/00-what-to-read-first.md` for glob
 - [`05-borders-shapes.md`](./05-borders-shapes.md)
 - [`06-motion-transitions.md`](./06-motion-transitions.md)
 - [`07-code-blocks.md`](./07-code-blocks.md)
-- [`08-header-navigation.md`](./08-header-navigation.md)
-- [`09-button-system.md`](./09-button-system.md)
-- [`10-sidebar-system.md`](./10-sidebar-system.md)
-- [`11-section-patterns.md`](./11-section-patterns.md)
-- [`12-page-creation-rules.md`](./12-page-creation-rules.md)
-- [`13-wordpress-migration.md`](./13-wordpress-migration.md)
-- [`97-acceptance-criteria.md`](./97-acceptance-criteria.md)
-- [`99-consistency-report.md`](./99-consistency-report.md)
-

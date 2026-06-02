@@ -1,10 +1,10 @@
-# Cicd Pipeline Workflows
+# CI/CD Pipeline Workflows
 
 ## Overview
-Spec section for **Cicd Pipeline Workflows**. See `spec/00-what-to-read-first.md` for global reading order, and `spec/03-decision-tree.md` for how this section fits into request routing.
+
+CI/CD specification covering the GitHub Actions pipeline (`.github/workflows/ci.yml`), release watcher (`release-watcher.yml`), installer tests, quality badges, and the repo-rename helper script (`01-repo-rename-script.md`). All workflows MUST honor the unfiltered-trigger contract: `ci.yml` uses bare `on: push:` with NO `branches`/`paths` filters (filters silently skip Lovable branch commits — regression has recurred 3×; see `mem://constraints/ci-push-trigger-unfiltered` and the canary `ping.yml` workflow). Notifications are forbidden (`mem://constraints/no-ci-notifications`).
 
 ## Files
 - [`00-overview.md`](./00-overview.md)
 - [`01-repo-rename-script.md`](./01-repo-rename-script.md)
 - [`99-consistency-report.md`](./99-consistency-report.md)
-
