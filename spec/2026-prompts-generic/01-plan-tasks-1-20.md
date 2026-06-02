@@ -203,10 +203,10 @@ Each completed follow-up task increments a checkbox here:
 - [x] T46–T50  Injection  *(2026-06-02)*
 - [x] T51–T55  Editor adapters
 - [x] T56–T60  Save/create/edit
-- [ ] T61–T65  Next overview
-- [ ] T66–T70  Queue model
-- [ ] T71–T75  Queue lifecycle
-- [ ] T76–T80  Delay engine
+- [x] T61–T65  Next overview  *(2026-06-02)*
+- [x] T66–T70  Queue model  *(2026-06-02)*
+- [x] T71–T75  Queue lifecycle  *(2026-06-02)*
+- [x] T76–T80  Delay engine  *(2026-06-02)*
 - [ ] T81–T85  Failure handling
 - [ ] T86–T90  Plan mode
 - [ ] T91–T95  Settings
