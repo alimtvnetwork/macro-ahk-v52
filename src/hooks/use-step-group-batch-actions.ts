@@ -50,9 +50,9 @@ export function buildDeletePreview(
     for (const g of allGroups) {
         byId.set(g.StepGroupId, g);
         const key = g.ParentStepGroupId ?? null;
-        const arr = byParent.get(key) ?? [];
-        arr.push(g);
-        byParent.set(key, arr);
+        const items = byParent.get(key) ?? [];
+        items.push(g);
+        byParent.set(key, items);
     }
 
     // A "root of selection" = a selected group whose nearest selected

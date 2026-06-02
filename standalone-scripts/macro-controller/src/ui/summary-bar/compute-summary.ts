@@ -26,7 +26,7 @@ import { PRO_EXPIRING_KINDS, type DashboardSummary, type SummaryDetails } from '
 
 export type DisplayKindResolver = (ws: WorkspaceCredit) => WorkspaceDisplayKind;
 
-function num(value: unknown): number {
+function num0(value: unknown): number {
     const n = typeof value === 'number' ? value : Number(value ?? 0);
     return Number.isFinite(n) ? n : 0;
 }
@@ -60,14 +60,14 @@ export function computeDashboardSummary(
     let freeCreditsAvailable = 0;
 
     for (const ws of rows) {
-        freeCreditsAvailable += num(ws.dailyFree);
+        freeCreditsAvailable += num0(ws.dailyFree);
 
         if (!isProPlan(ws.plan)) {
             continue;
         }
         proCount += 1;
-        proCreditsAvailable += num(ws.available);
-        proCreditsTotal += num(ws.totalCredits);
+        proCreditsAvailable += num0(ws.available);
+        proCreditsTotal += num0(ws.totalCredits);
 
         const kind = getDisplayKind(ws);
         if (PRO_EXPIRING_KINDS.has(kind)) {
@@ -121,7 +121,7 @@ export function computeSummaryDetails(
     const byPlan: Record<string, number> = {};
 
     for (const ws of rows) {
-        const daily = num(ws.dailyFree);
+        const daily = num0(ws.dailyFree);
         freeDaily += daily;
         if (daily > 0) {
             freeWorkspaces += 1;
@@ -130,9 +130,9 @@ export function computeSummaryDetails(
             continue;
         }
         proCount += 1;
-        const avail = num(ws.available);
+        const avail = num0(ws.available);
         proCreditsAvailable += avail;
-        proCreditsTotal += num(ws.totalCredits);
+        proCreditsTotal += num0(ws.totalCredits);
         const planKey = String(ws.plan).trim().toLowerCase();
         byPlan[planKey] = (byPlan[planKey] ?? 0) + 1;
         const kind = getDisplayKind(ws);

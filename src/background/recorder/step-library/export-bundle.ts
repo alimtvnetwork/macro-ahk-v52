@@ -148,9 +148,9 @@ export function resolveSelection(
     const childrenOf = new Map<number, number[]>();
     for (const g of allInProject) {
         if (g.ParentStepGroupId !== null) {
-            const arr = childrenOf.get(g.ParentStepGroupId) ?? [];
-            arr.push(g.StepGroupId);
-            childrenOf.set(g.ParentStepGroupId, arr);
+            const items = childrenOf.get(g.ParentStepGroupId) ?? [];
+            items.push(g.StepGroupId);
+            childrenOf.set(g.ParentStepGroupId, items);
         }
     }
 

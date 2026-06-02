@@ -183,9 +183,9 @@ describe("evaluateSelector", () => {
     it("uses querySelectorAll for CSS", () => {
         const root = {
             querySelectorAll: vi.fn(() => {
-                const arr = [stubElement(true), stubElement(true)];
+                const items = [stubElement(true), stubElement(true)];
                 return {
-                    forEach: (cb: (el: ElementLike) => void) => arr.forEach(cb),
+                    forEach: (cb: (el: ElementLike) => void) => items.forEach(cb),
                 };
             }),
         } as unknown as ParentNode;
@@ -230,9 +230,9 @@ describe("waitForSelector", () => {
     function makeRoot(matchesAtTick: number, ticker: () => number): ParentNode {
         return {
             querySelectorAll: () => {
-                const arr = ticker() >= matchesAtTick ? [stubElement(true)] : [];
+                const items = ticker() >= matchesAtTick ? [stubElement(true)] : [];
                 return {
-                    forEach: (cb: (el: ElementLike) => void) => arr.forEach(cb),
+                    forEach: (cb: (el: ElementLike) => void) => items.forEach(cb),
                 };
             },
         } as unknown as ParentNode;

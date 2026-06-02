@@ -42,9 +42,9 @@ function csvVal(v: string | number | boolean | null | undefined): string {
 }
 
 /** Round to 1 decimal; returns '' for non-finite. */
-function pct(num: number, denom: number): string {
-  if (!Number.isFinite(num) || !Number.isFinite(denom) || denom <= 0) return '';
-  return (Math.round((num / denom) * 1000) / 10).toFixed(1);
+function pct(count: number, denom: number): string {
+  if (!Number.isFinite(count) || !Number.isFinite(denom) || denom <= 0) return '';
+  return (Math.round((count / denom) * 1000) / 10).toFixed(1);
 }
 
 /** Malaysia-timezone (UTC+8) ISO-like timestamp: 2026-04-22T19:40:43+08:00. */

@@ -107,11 +107,11 @@ function testEnumValidation(value: string, v: EnumValidation): boolean {
 }
 
 function testNumberValidation(value: string, v: NumberValidation): boolean {
-  const num = Number(value);
-  if (isNaN(num)) return false;
-  if (v.integer && !Number.isInteger(num)) return false;
-  if (v.min !== undefined && num < v.min) return false;
-  if (v.max !== undefined && num > v.max) return false;
+  const count = Number(value);
+  if (isNaN(count)) return false;
+  if (v.integer && !Number.isInteger(count)) return false;
+  if (v.min !== undefined && count < v.min) return false;
+  if (v.max !== undefined && count > v.max) return false;
   return true;
 }
 

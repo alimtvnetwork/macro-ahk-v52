@@ -75,9 +75,9 @@ const STATUS_STYLE: Record<BatchGroupStatus, string> = {
     Skipped:   "bg-amber-500/15 text-amber-600 dark:text-amber-400",
 };
 
-function move<T>(arr: ReadonlyArray<T>, from: number, to: number): T[] {
-    if (to < 0 || to >= arr.length) return arr.slice();
-    const next = arr.slice();
+function move<T>(values: ReadonlyArray<T>, from: number, to: number): T[] {
+    if (to < 0 || to >= values.length) return values.slice();
+    const next = values.slice();
     [next[from], next[to]] = [next[to], next[from]];
     return next;
 }

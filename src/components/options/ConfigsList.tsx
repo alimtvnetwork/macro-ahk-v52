@@ -222,9 +222,9 @@ export function ConfigsList({ configs, loading, onSave, onDelete }: Props) {
   );
 }
 
-function validateJson(str: string): boolean {
+function validateJson(json: string): boolean {
   try {
-    JSON.parse(str);
+    JSON.parse(json);
     return true;
   } catch {
     return false;

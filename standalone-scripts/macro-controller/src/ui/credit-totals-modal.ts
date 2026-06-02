@@ -144,8 +144,8 @@ export function sortWorkspaces(
 ): ReadonlyArray<WorkspaceCredit> {
   if (state.dir === 'none') return workspaces;
   const mult = state.dir === 'asc' ? 1 : -1;
-  const arr = workspaces.slice();
-  arr.sort((a, b) => {
+  const values = workspaces.slice();
+  values.sort((a, b) => {
     const av = pickSortValue(a, state.key);
     const bv = pickSortValue(b, state.key);
     if (typeof av === 'number' && typeof bv === 'number') {
@@ -153,7 +153,7 @@ export function sortWorkspaces(
     }
     return String(av).localeCompare(String(bv), 'en', { sensitivity: 'base' }) * mult;
   });
-  return arr;
+  return values;
 }
 
 function pickSortValue(ws: WorkspaceCredit, key: SortKey): number | string {
@@ -186,10 +186,10 @@ const COLUMNS: ReadonlyArray<{ key: SortKey; label: string; align: 'left' | 'rig
 ];
 
 /** Pure: move element at `from` to `to`, returning a new array. (Step 10) */
-export function reorderArray<T>(arr: ReadonlyArray<T>, from: number, to: number): ReadonlyArray<T> {
-  if (from === to) return arr.slice();
-  if (from < 0 || from >= arr.length || to < 0 || to >= arr.length) return arr.slice();
-  const next = arr.slice();
+export function reorderArray<T>(values: ReadonlyArray<T>, from: number, to: number): ReadonlyArray<T> {
+  if (from === to) return values.slice();
+  if (from < 0 || from >= values.length || to < 0 || to >= values.length) return values.slice();
+  const next = values.slice();
   const [moved] = next.splice(from, 1);
   next.splice(to, 0, moved);
   return next;
