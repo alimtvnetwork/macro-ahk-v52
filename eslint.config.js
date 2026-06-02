@@ -118,6 +118,39 @@ export default tseslint.config(
       "react-refresh/only-export-components": "off",
     },
   },
+  // ── Logger allowlist (Batch C step 24) ──────────────────────────────
+  // These files are legitimate `console.error` consumers (logger impls,
+  // recursion guards, generated, tests, runtime-emitted stubs, Monaco
+  // user-snippets, React error boundary, injection visibility renderer).
+  // The matching audit allowlist lives in scripts/audit-logger-compliance.mjs.
+  {
+    files: [
+      "src/background/bg-logger.ts",
+      "src/lib/lib-logger.ts",
+      "src/components/options/options-logger.ts",
+      "src/components/recorder/recorder-logger.ts",
+      "src/content-scripts/prompt-injector-logger.ts",
+      "src/hooks/popup-logger.ts",
+      "src/hooks/hook-logger.ts",
+      "src/background/session-log-writer.ts",
+      "src/background/db-manager.ts",
+      "src/background/handlers/injection-namespace-bootstrap.ts",
+      "src/components/ErrorBoundary.tsx",
+      "src/lib/developer-guide-data.generated.ts",
+      "src/background/builtin-script-guard.ts",
+      "src/background/manifest-seeder.ts",
+      "src/background/project-namespace-builder.ts",
+      "src/background/handlers/injection-wrapper.ts",
+      "src/components/options/monaco-js-intellisense.ts",
+      "src/background/schema-migration.ts",
+      "src/background/recorder/failure-logger.ts",
+      "src/background/injection-diagnostics.ts",
+      "src/background/context-menu-handler.ts",
+    ],
+    rules: {
+      "no-restricted-syntax": "off",
+    },
+  },
   // --- Build configs & generated files — disable function size ---
   {
     files: ["vite.config*.ts", "chrome-extension/vite.config.ts", "src/test/snapshots/**/*.{ts,tsx}"],
