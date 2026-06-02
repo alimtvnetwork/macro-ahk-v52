@@ -390,10 +390,10 @@ Draft types: `standalone-scripts/types/instruction/` (one type per file, awaitin
 | **0.4** — Migrate `xpath/src/instruction.ts` | Same as 0.3; introduce `XPathRegistry` for the script's own selectors. | Blocked on 0.1 |
 | **0.5** — Migrate `marco-sdk/src/instruction.ts` | Same as 0.3; shared `ProjectInstruction` re-export removed. | Blocked on 0.1 |
 | **0.6** — Migrate `macro-controller/src/instruction.ts` | Add `MacroControllerSettings` type next to controller; pass to `ProjectInstruction<MacroControllerSettings>`. | Blocked on 0.1 |
-| **0.7** — Logger `unknown` cleanup | Replace `unknown` in `riseup-namespace.d.ts` with `CaughtError` / `ReadonlyArray<JsonValue>`. | Independent |
-| **0.8** — ESLint `id-denylist` rule | Ban `fn`, `cb`, `el`, `msg`, `cfg`, `ctx`, `obj`, `arr`, `str`, `num`, `tmp`, `val` repo-wide. | Independent |
-| **0.9** — ESLint `consistent-type-definitions` | Scope `["error", "type"]` to `standalone-scripts/types/instruction/` first; widen later. | Independent |
-| **0.10** — `.d.ts` `unknown` lint coverage | Extend the no-`unknown` ESLint rule to `.d.ts` files under `standalone-scripts/types/`. | Independent |
+| **0.7** — Logger `unknown` cleanup | ✅ Closed 2026-06-02: `standalone-scripts/types/riseup-namespace.d.ts` verified — only the permitted `CaughtError = unknown` leaf remains; `RiseupAsiaLogArg` already a designed union. | ✅ Done |
+| **0.8** — ESLint `id-denylist` rule | Partially done: `eslint.config.js` denies `tmp`, `temp`, `baz`, `qux`, `foobar`, `cfg`. Full list (`fn`, `cb`, `el`, `msg`, `ctx`, `obj`, `arr`, `str`, `num`, `val`) deferred — repo-wide audit shows ~1700 callsites that would need refactor; track as separate migration. | Partial |
+| **0.9** — ESLint `consistent-type-definitions` | ✅ Closed 2026-06-02: `eslint.config.js` lines 152–160 scope `["error","type"]` to `standalone-scripts/types/instruction/**` and `standalone-scripts/*/src/instruction.ts`. | ✅ Done |
+| **0.10** — `.d.ts` `unknown` lint coverage | ✅ Closed 2026-06-02: `scripts/check-no-unknown-in-dts.mjs` enforces it (HARD_PINNED + BASELINE tiers); wired in `package.json` (`check:no-unknown-in-dts`) and `.github/workflows/ci.yml` lines 103/106. | ✅ Done |
 | **0.11** — `PaymentBannerHider` class refactor | External CSS file, no `!important`, no error swallowing, single-class entry; consume `XPathRegistry` from migrated instruction. | Blocked on 0.3 |
 | **0.12** — Standalone-script scaffolder CLI | `pnpm new:standalone <name>` generates `instruction.ts`, vite/tsconfig, dist gitignore, CI build/e2e jobs, registry entries — using the new types. | Blocked on 0.1 |
 | **0.13** — Banner-hider RCA follow-up | RCA at `spec/03-error-manage/01-error-resolution/03-retrospectives/2026-04-24-payment-banner-hider-rca.md`. 7 new memory standards (`pre-write-check`, `no-css-important`, `no-error-swallowing`, `no-type-casting`, `class-based-standalone-scripts`, `standalone-scripts-css-in-own-file`, `blank-line-before-return`) — registered in `mem://index`. | Memory updated; lint rules pending in 0.8 |
@@ -462,15 +462,12 @@ Memory: `.lovable/memory/features/release-installer.md`
 | # | Task | Effort | Impact | Blocker |
 |---|------|--------|--------|---------|
 | 1 | **Priority 0.1** — Review Q1–Q5 | Medium | High — unblocks standalone-script type migration | Awaiting reviewer |
-| 2 | **Priority 0.7** — Logger `unknown` cleanup | Low | Medium — improves type-safety compliance | None |
-| 3 | **Priority 0.8** — ESLint `id-denylist` rule | Medium | Medium — prevents naming regressions | None |
-| 4 | **Priority 0.9** — Scoped `consistent-type-definitions` | Low | Medium — enforces type alias convention | None |
-| 5 | **Priority 0.10** — `.d.ts` `unknown` lint coverage | Low | Medium — closes declaration-file gap | None |
-| 6 | **Task 1.2** — E2E Chrome verification | Low | High — validates real-world usage | Manual Chrome required |
-| 7 | **Cross-Project Sync** — Shared asset library | High | High — new feature | Spec ready |
-| 8 | **P Store** — Project marketplace | High | High — new feature | Owner spec pending |
+| 2 | **Priority 0.8** — id-denylist expansion | High | Medium — ~1700 callsites; needs staged migration | Effort budget |
+| 3 | **Task 1.2** — E2E Chrome verification | Low | High — validates real-world usage | Manual Chrome required |
+| 4 | **Cross-Project Sync** — Shared asset library | High | High — new feature | Spec ready |
+| 5 | **P Store** — Project marketplace | High | High — new feature (deferred per memory) | Owner spec pending |
 
-**Recommended next**: Priority 0.7 (Logger `unknown` cleanup) — no blocker, small surface, supports the active type-safety contract.
+**Recommended next**: Priority 0.1 — answer Q1–Q5 in `.lovable/question-and-ambiguity/` to unblock the standalone-script type migration chain (0.2–0.6, 0.11–0.16). Priorities 0.7, 0.9, 0.10 are verified closed; 0.8 expansion is a multi-day refactor needing user go-ahead.
 
 ---
 
