@@ -133,7 +133,8 @@ export function parseHotkeyPayload(json: string | null): HotkeyPayload {
 
 export interface HotkeyDispatchEnv {
     readonly document: Pick<Document, "querySelector" | "dispatchEvent">;
-    readonly setTimeout: (cb: () => void, ms: number) => unknown;
+    readonly setTimeout: (cb: () => void, ms: number) => ReturnType<typeof setTimeout>;
+    readonly clearTimeout: (timerId: ReturnType<typeof setTimeout>) => void;
 }
 
 /** Dispatch one parsed chord as a keydown+keyup pair. */
@@ -155,6 +156,20 @@ export function dispatchChord(env: HotkeyDispatchEnv, chord: ParsedChord, target
     sink.dispatchEvent(up);
 }
 
+function waitForHotkeyDelay(env: HotkeyDispatchEnv, ms: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+        let timerId: ReturnType<typeof setTimeout> | null = null;
+        const finish = (): void => {
+            if (timerId !== null) {
+                env.clearTimeout(timerId);
+                timerId = null;
+            }
+            resolve();
+        };
+        timerId = env.setTimeout(finish, ms);
+    });
+}
+
 /**
  * Execute a Hotkey step end-to-end. Each chord is dispatched with a
  * 16ms gap; the final WaitMs (default 0) gates the promise so the
@@ -168,6 +183,7 @@ export async function executeHotkeyStep(
     const dispatchEnv: HotkeyDispatchEnv = {
         document: env?.document ?? (typeof document === "undefined" ? null as unknown as Document : document),
         setTimeout: env?.setTimeout ?? ((cb, ms) => setTimeout(cb, ms)),
+        clearTimeout: env?.clearTimeout ?? ((timerId) => clearTimeout(timerId)),
     };
     if (dispatchEnv.document === null) {
         throw new Error("executeHotkeyStep: no document available — cannot dispatch keyboard events");
@@ -182,11 +198,11 @@ export async function executeHotkeyStep(
         const chord = parseChord(payload.Keys[i]);
         dispatchChord(dispatchEnv, chord, target);
         if (i < payload.Keys.length - 1) {
-            await new Promise<void>((resolve) => dispatchEnv.setTimeout(resolve, 16));
+            await waitForHotkeyDelay(dispatchEnv, 16);
         }
     }
     const wait = payload.WaitMs ?? 0;
     if (wait > 0) {
-        await new Promise<void>((resolve) => dispatchEnv.setTimeout(resolve, wait));
+        await waitForHotkeyDelay(dispatchEnv, wait);
     }
 }
