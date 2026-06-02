@@ -170,11 +170,11 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 23. [x] Write `spec/21-app/05-prompts/macro-prompts/01-naming-and-numbering.md` — 3-digit zero-padded sequence, kebab-case slug.
 24. [x] Write `spec/21-app/05-prompts/macro-prompts/02-info-json-schema.md` — PascalCase keys, Variables[], categories, version, isFavorite.
 25. [x] Write `spec/21-app/05-prompts/macro-prompts/03-aggregation-pipeline.md` — extend `scripts/aggregate-prompts.mjs` to emit `chrome-extension/macro-prompts/macro-prompts.json`.
-26. [ ] Write `spec/21-app/05-prompts/macro-prompts/04-resolution-order.md` — macro-prompts searched first, fail-fast on duplicate slug across both folders.
-27. [ ] Write `spec/21-app/05-prompts/macro-prompts/05-seed-bundle.md` — bundle into SQLite via existing `LoadBundledDefaultPrompts` flow.
-28. [ ] Write `spec/21-app/05-prompts/macro-prompts/06-versioning.md` — version hash format `Count-Hash36`, reseed trigger rules.
-29. [ ] Write `spec/21-app/05-prompts/macro-prompts/07-starter-pack.md` — list of 5 starter macro-prompts to bundle (audit-spec, fix-from-audit, final-score, gap-analysis, score-extract).
-30. [ ] Update `standalone-scripts/macro-controller/diagrams/prompts-pipeline.mmd` — add second Source branch for `macro-prompts/`.
+26. [x] Write `spec/21-app/05-prompts/macro-prompts/04-resolution-order.md` — macro-prompts searched first, fail-fast on duplicate slug across both folders.
+27. [x] Write `spec/21-app/05-prompts/macro-prompts/05-seed-bundle.md` — bundle into SQLite via existing `LoadBundledDefaultPrompts` flow.
+28. [x] Write `spec/21-app/05-prompts/macro-prompts/06-versioning.md` — version hash format `Count-Hash36`, reseed trigger rules.
+29. [x] Write `spec/21-app/05-prompts/macro-prompts/07-starter-pack.md` — list of 5 starter macro-prompts to bundle (audit-spec, fix-from-audit, final-score, gap-analysis, score-extract).
+30. [x] Update `standalone-scripts/macro-controller/diagrams/prompts-pipeline.mmd` — add second Source branch for `macro-prompts/`.
 
 ### Block 4 — Macro Definitions Folder & Schemas (Tasks 31–40)
 31. [ ] Write `spec/21-app/05-prompts/macros/folder-layout/00-overview.md` — `standalone-scripts/macros/<NNN-slug>.macro.json` convention.
