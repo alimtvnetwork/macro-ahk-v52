@@ -855,20 +855,40 @@ A monorepo with three primary trees: **runtime code** (extension + standalone sc
 ## For AI Agents — What To Read First
 
 > Onboarding map for any AI session (including the next instance of yourself).
-> The authoritative, always-updated copy lives at
-> [`.lovable/memory/what-to-read.md`](./.lovable/memory/what-to-read.md) — read
-> it on every fresh session before touching code.
+> Two synchronized copies exist for discoverability:
+>
+> - **Top-level (find me first):** [`.lovable/what-to-read.md`](./.lovable/what-to-read.md)
+> - **Canonical / memory-indexed:** [`.lovable/memory/what-to-read.md`](./.lovable/memory/what-to-read.md)
+>
+> Either one covers folder structure, JSON contracts, and the full workflows
+> for adding a prompt, config key, standalone script, unit test, feature, or spec.
 
 **Minimum reading order on a fresh session:**
 
-1. `.lovable/memory/what-to-read.md` — this onboarding map (start here)
+1. `.lovable/what-to-read.md` — this onboarding map (start here)
 2. `.lovable/memory/index.md` — always-loaded core rules + memory index
 3. `.lovable/strictly-avoid.md` — hard prohibitions
-4. `.lovable/coding-guidelines.md` — engineering rules
+4. `.lovable/coding-guidelines.md` — engineering rules (function size, naming, error handling)
 5. `.lovable/plan.md` — active prioritized backlog
 6. `spec/00-overview.md` — spec-tree master index
 7. `spec/26-macro-controller/` — Macro Controller architecture + JSON contracts
 8. `readme.md` § Project Structure (above) — folder layout
+
+**What the onboarding map covers (so you don't have to re-derive it):**
+
+- §1 — Project orientation reading order
+- §2 — Canonical JSON contracts (config, prompts, theme, instruction, templates) + their generators and CI guards
+- §3 — Adding a new prompt (slug folder + `info.json` + aggregator)
+- §4 — Adding a new config key (validator + seeded JSON + test + version bump)
+- §5 — Adding a new standalone script (scaffold + injection + spec + memory)
+- §6 — Where tests live + how to add them next to a new feature/fix
+- §6.1 — Unit test template (Vitest, RTL, chrome-API mocking)
+- §6.2 — End-to-end feature workflow (spec → plan → code → test → memory → version)
+- §6.3 — Adding a new spec (slot picker + authoring-guide template + CI guard)
+- §7 — Folder cheat-sheet
+- §8 — Hard rules when touching JSON / generated files
+
+
 
 ### Canonical JSON contracts (Macro Controller)
 
