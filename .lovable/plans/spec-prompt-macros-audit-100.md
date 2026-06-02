@@ -47,8 +47,8 @@
 ## Phase 3 — Deep dive: content correctness — Tasks 26–45
 
 26-35. [x] One file per engine doc (`engine/00`–`09`): verify against onboarding prompt rubric; produce `26-engine-00-architecture.md` … `35-engine-09-event-stream.md` audit notes.
-36–40. [ ] One per `examples/` doc (`36`–`40`).
-41–45. [ ] One per `guards/` doc (`41`–`45`).
+36–40. [x] One per `examples/` doc (`36`–`40`).
+41–45. [x] One per `guards/` doc (`41`–`45`).
 
 ## Phase 4 — Deep dive: testing & observability — Tasks 46–55
 
