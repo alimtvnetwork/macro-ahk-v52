@@ -189,11 +189,11 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 40. [x] Author `standalone-scripts/macros/001-spec-tighten-cycle.macro.json` as the reference example matching Part A.5.
 
 ### Block 5 — Prompts Button UX & Panel Detail (Tasks 41–50)
-41. [ ] Write `spec/21-app/05-prompts/ui/00-prompts-button.md` — trigger, anchor, hover/focus states, ARIA combobox, dark-theme tokens (HSL).
-42. [ ] Write `spec/21-app/05-prompts/ui/01-panel-layout.md` — ASCII wireframe of search · chips · favorites · list · footer · Macros tab.
-43. [ ] Write `spec/21-app/05-prompts/ui/02-filter-and-search.md` — substring + slug + category match, deterministic (no fuzzy), empty-state copy.
-44. [ ] Write `spec/21-app/05-prompts/ui/03-categories.md` — category CRUD, ordering, HSL color tokens (dark-only).
-45. [ ] Write `spec/21-app/05-prompts/ui/04-favorites.md` — pin-to-top, persistence, cross-tab sync via `marco-prompts-sync` channel.
+41. [x] Write `spec/21-app/05-prompts/ui/00-prompts-button.md` — trigger, anchor, hover/focus states, ARIA combobox, dark-theme tokens (HSL).
+42. [x] Write `spec/21-app/05-prompts/ui/01-panel-layout.md` — ASCII wireframe of search · chips · favorites · list · footer · Macros tab.
+43. [x] Write `spec/21-app/05-prompts/ui/02-filter-and-search.md` — substring + slug + category match, deterministic (no fuzzy), empty-state copy.
+44. [x] Write `spec/21-app/05-prompts/ui/03-categories.md` — category CRUD, ordering, HSL color tokens (dark-only).
+45. [x] Write `spec/21-app/05-prompts/ui/04-favorites.md` — pin-to-top, persistence, cross-tab sync via `marco-prompts-sync` channel.
 46. [ ] Write `spec/21-app/05-prompts/ui/05-macros-tab.md` — rows + Run/Pause/Stop/Edit/Duplicate/Export/Delete buttons + running banner anatomy.
 47. [ ] Write `spec/21-app/05-prompts/ui/06-macro-builder.md` — step-card editor (add/remove/reorder), per-kind form fields, validation.
 48. [ ] Write `spec/21-app/05-prompts/ui/07-run-banner.md` — sticky banner spec: runId, step X/N, loop M/MaxLoops, last score, ⏸/⏹, error pill.
