@@ -35,6 +35,20 @@ jobs:
           git diff --exit-code spec/21-app/05-prompts/INDEX.json \
             || (echo "INDEX.json out of date — run scripts/spec/build-index.mjs" && exit 1)
 
+  runbook-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Top-15 reason codes have runbooks
+        run: node scripts/spec/runbook-smoke.mjs
+
+  tooltip-dict-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tooltip dict in sync
+        run: node scripts/spec/tooltip-dict-gate.mjs
+
   smoke-rescore:
     runs-on: ubuntu-latest
     steps:
