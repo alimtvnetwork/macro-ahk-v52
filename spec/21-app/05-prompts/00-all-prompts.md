@@ -20,3 +20,21 @@
 | 15 | Read Memory | onboarding | read-memory |
 | 16 | Write Memory | onboarding | write-memory |
 | 20 | Conversation Log | memory | conversation-log |
+
+---
+
+## Sub-sections
+
+The Prompts subsystem now spans three concept areas. Detailed specs live in
+sibling folders:
+
+| Folder | Purpose | Index |
+|--------|---------|-------|
+| [`macros/`](./macros/) | Chained, multi-step prompt automation with audit loops | [`macros/README.md`](./macros/README.md) |
+| [`macro-prompts/`](./macro-prompts/) | Template-heavy prompts invoked only by macros | (Block 3) |
+| [`variables/`](./variables/) | `{{ Variable }}` templating shared by prompts + macros | (Block 2) |
+| [`ui/`](./ui/) | Prompts button + panel + Macros tab UX | (Block 5) |
+| [`json/`](./json/) | Save / Export / Import / Replace JSON contracts | (Block 6) |
+
+See `.lovable/plans/prompt-macros-50-step.md` for the authoring plan
+(100 tasks, 10 blocks of 10).

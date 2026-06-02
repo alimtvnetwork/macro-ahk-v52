@@ -146,11 +146,11 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 3. [x] Write `spec/21-app/05-prompts/macros/01-step-kinds.md` — full table per kind: inputs, outputs, error modes, examples.
 4. [x] Write `spec/21-app/05-prompts/macros/02-run-model.md` — runId format, Mermaid state diagram, SW-restart resume contract.
 5. [x] Write `spec/21-app/05-prompts/macros/03-audit-artifacts.md` — exact files under `spec/audit/<runId>/` with schemas.
-6. [ ] Write `spec/21-app/05-prompts/macros/04-loop-and-score.md` — score parsing, `TargetScore` gating, `MaxLoops` safety, infinite-loop guard.
-7. [ ] Write `spec/21-app/05-prompts/macros/05-failure-modes.md` — every error path with mandatory failure-log shape (Reason + ReasonDetail + SelectorAttempts + VariableContext).
-8. [ ] Write `spec/21-app/05-prompts/macros/06-storage-contract.md` — chrome.storage.local keys, identity-only mapping (no PascalCase migration).
-9. [ ] Write `spec/21-app/05-prompts/macros/07-permissions-and-scope.md` — host_permissions, write-only-to `spec/audit/`, forbidden paths.
-10. [ ] Update `spec/21-app/05-prompts/00-all-prompts.md` to list `macros/`, `macro-prompts/`, and `variables/` subsections.
+6. [x] Write `spec/21-app/05-prompts/macros/04-loop-and-score.md` — score parsing, `TargetScore` gating, `MaxLoops` safety, infinite-loop guard.
+7. [x] Write `spec/21-app/05-prompts/macros/05-failure-modes.md` — every error path with mandatory failure-log shape (Reason + ReasonDetail + SelectorAttempts + VariableContext).
+8. [x] Write `spec/21-app/05-prompts/macros/06-storage-contract.md` — chrome.storage.local keys, identity-only mapping (no PascalCase migration).
+9. [x] Write `spec/21-app/05-prompts/macros/07-permissions-and-scope.md` — host_permissions, write-only-to `spec/audit/`, forbidden paths.
+10. [x] Update `spec/21-app/05-prompts/00-all-prompts.md` to list `macros/`, `macro-prompts/`, and `variables/` subsections.
 
 ### Block 2 — Variables & Templating Spec (Tasks 11–20)
 11. [ ] Create `spec/21-app/05-prompts/variables/` with `README.md`.
