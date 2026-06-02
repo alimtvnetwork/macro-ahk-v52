@@ -294,7 +294,7 @@ export function useStepLibrary(): UseStepLibraryApi {
             // Also notify UI that we synced
             new BroadcastChannel("marco-sync-activity").postMessage("synced");
         } catch (err) {
-            logError("[use-step-library::onRemoteBytes] Failed to sync remote library state", err);
+            logError("use-step-library::onRemoteBytes", "Failed to sync remote library state", err);
         }
     }, [lib, project, sql]);
 
