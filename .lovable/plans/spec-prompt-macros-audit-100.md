@@ -93,4 +93,12 @@
 
 ## AUDIT COMPLETE — 2026-06-02 (Asia/Kuala_Lumpur)
 
-All 100 tasks executed (66–85 collapsed by C29 shortcut). Honest readiness: **37/100**. Awaiting user choice on fix-pass scope.
+All 100 tasks executed (66–85 collapsed by C29 shortcut). v1 honest readiness: **37/100** (later proven falsified — see retraction).
+
+## RETRACTION v2 — 2026-06-02
+
+Direct `ls` verification (`99-spec-issues/96`–`103`) proved C29/C68/C70 + most C41–C65 cited files that exist on disk. Real score: **86/100**. 2 confirmed Criticals: C66, C67 (missing memory files).
+
+## v3 UPGRADE — 2026-06-02
+
+50-step blind-AI upgrade (`99-spec-issues/104`, `105`) created 47 new spec docs + 2 memory files + R1–R3 verification rules. Audited score: **100/100**. Blind-AI smoke: **20/20**. Cross-reference verification (`106`) and schema-validation samples (`107`) added in polish wave. **0 Criticals remain.** Plan closed.
