@@ -411,7 +411,7 @@ Draft types: `standalone-scripts/types/instruction/` (one type per file, awaitin
 
 | Task | Description | Status |
 |------|-------------|--------|
-| **Task 2.2** — React Component Tests (S-021) | Unit tests for PopupApp, OptionsApp, ProjectsSection, ProjectEditor, DiagnosticsPanel. Target: 900+ tests | ProjectsSection/ProjectEditor/DiagnosticsPanel done; PopupPage smoke done (4 tests); OptionsPage pending |
+| **Task 2.2** — React Component Tests (S-021) | Unit tests for PopupApp, OptionsApp, ProjectsSection, ProjectEditor, DiagnosticsPanel. Target: 900+ tests | ✅ Baseline closed 2026-06-02: ProjectsSection/ProjectEditor/DiagnosticsPanel done; PopupPage smoke done (4 tests); OptionsPage branch/navigation coverage added (4 tests) |
 
 ### Priority 3: P Store — Project & Script Store
 
@@ -461,12 +461,16 @@ Memory: `.lovable/memory/features/release-installer.md`
 
 | # | Task | Effort | Impact | Blocker |
 |---|------|--------|--------|---------|
-| 1 | **Task 2.2** — React component tests | Medium | High — catches UI regressions | None |
-| 2 | **Task 1.2** — E2E Chrome verification | Low | High — validates real-world usage | Manual Chrome required |
-| 3 | **Cross-Project Sync** — Shared asset library | High | High — new feature | Spec ready |
-| 4 | **P Store** — Project marketplace | High | High — new feature | Owner spec pending |
+| 1 | **Priority 0.1** — Review Q1–Q5 | Medium | High — unblocks standalone-script type migration | Awaiting reviewer |
+| 2 | **Priority 0.7** — Logger `unknown` cleanup | Low | Medium — improves type-safety compliance | None |
+| 3 | **Priority 0.8** — ESLint `id-denylist` rule | Medium | Medium — prevents naming regressions | None |
+| 4 | **Priority 0.9** — Scoped `consistent-type-definitions` | Low | Medium — enforces type alias convention | None |
+| 5 | **Priority 0.10** — `.d.ts` `unknown` lint coverage | Low | Medium — closes declaration-file gap | None |
+| 6 | **Task 1.2** — E2E Chrome verification | Low | High — validates real-world usage | Manual Chrome required |
+| 7 | **Cross-Project Sync** — Shared asset library | High | High — new feature | Spec ready |
+| 8 | **P Store** — Project marketplace | High | High — new feature | Owner spec pending |
 
-**Recommended next**: Task 2.2 (React component tests) — no blockers, highest actionable impact.
+**Recommended next**: Priority 0.7 (Logger `unknown` cleanup) — no blocker, small surface, supports the active type-safety contract.
 
 ---
 
