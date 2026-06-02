@@ -361,7 +361,16 @@ export type WaitOutcome =
     };
 
 const defaultSleep = (ms: number): Promise<void> =>
-    new Promise<void>((resolve) => { setTimeout(resolve, ms); });
+    new Promise<void>((resolve) => {
+        let timeoutId: ReturnType<typeof setTimeout> | null = null;
+        timeoutId = setTimeout(() => {
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            resolve();
+        }, ms);
+    });
 
 /**
  * Polls until the configured condition is satisfied or the timeout
