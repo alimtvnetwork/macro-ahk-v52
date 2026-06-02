@@ -341,7 +341,16 @@ export async function waitForCondition(
 }
 
 function defaultSleep(ms: number): Promise<void> {
-    return new Promise((r) => setTimeout(r, ms));
+    return new Promise((resolve) => {
+        let timeoutId: ReturnType<typeof setTimeout> | null = null;
+        timeoutId = setTimeout(() => {
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            resolve();
+        }, ms);
+    });
 }
 
 function defaultNow(): number {
