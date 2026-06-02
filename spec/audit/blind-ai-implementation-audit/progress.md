@@ -45,3 +45,25 @@ Executed first 10 steps of `remediation-plan.md`:
 - Spec navigation: ~50% → 85% (new entry doc + corrected drift)
 
 Remaining: Batches B (steps 11–20), C (21–30), D (31–40), E (41–50).
+
+---
+
+## Batch B (Remediation Steps 11–20) — Completed 2026-06-02
+
+| # | Action | Artifact |
+|---|---|---|
+| 11 | Inventoried 195 source guideline files | `spec/audit/blind-ai-implementation-audit/coverage/source-files.txt` |
+| 12 | Inventoried `.lovable/coding-guidelines.md` (150 lines, 5 sections + 15 rules) | same coverage dir |
+| 13 | Computed gap matrix (~23% pre-batch coverage of 22 critical rules) | `coverage/coverage-gap.md` |
+| 14 | Added CQ14/CQ15/defensive-access rules to summary | `.lovable/coding-guidelines.md` Part 1 |
+| 15 | Added error-handling contract (CaughtError, Logger.error, CODE RED, failure-log shape) | Part 2 |
+| 16 | Added type-safety rules (`unknown`, `declare global`) | Part 3 |
+| 17 | Added naming rules (SCREAMING_SNAKE_CASE, short-name ban) | Part 4 |
+| 18 | Added storage/auth rules (no Supabase, no PascalCase migration, getBearerToken, no-retry) | Part 5 |
+| 19 | Added testing + runtime guards (test-with-features, dark-only, framer-motion ban, readme.txt SP-1..7, new-tab guard, timer teardown) | Parts 6+7 |
+| 20 | Built CI gate `scripts/check-coding-guidelines-coverage.mjs` — passes 19/19 (100%) | new script |
+
+**Verification:** `node scripts/check-coding-guidelines-coverage.mjs` → exit 0, 19/19 required tokens present (100%).
+
+**Coverage delta:** 23% → 100% of HIGH-severity critical rules in the summary.
+**Subsystem ceiling lift:** spec navigation 85% → 92%; logging awareness 5% → 30% (sweep still owed in Batch C).
