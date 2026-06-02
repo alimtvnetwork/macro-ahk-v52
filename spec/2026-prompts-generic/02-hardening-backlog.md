@@ -11,5 +11,5 @@ spec is complete; this is the follow-on punch-list.
 - [x] H6 — Combined spec bundle generator (`scripts/build-spec-prompts-pdf.mjs`) → `/mnt/documents/2026-prompts-spec.md`.
 - [x] H7 — Cross-link audit (`scripts/check-spec-prompts-xrefs.mjs`).
 - [x] H8 — Acceptance-bullet extractor (`scripts/extract-prompts-acceptance.mjs`) → `/mnt/documents/2026-prompts-acceptance.md`.
-- [ ] H9 — Reference-snippet typecheck harness (deferred — needs isolated tsconfig).
+- [x] H9 — Reference-snippet typecheck harness (`scripts/typecheck-spec-snippets.mjs`, extracts `\`\`\`ts` blocks + shimmed tsc --noEmit).
 - [ ] H10 — Port `PromptStore` + queue engine into a host wiring PoC (deferred — host TBD).

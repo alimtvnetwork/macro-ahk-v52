@@ -101,6 +101,7 @@
     "check:spec-banlist": "node scripts/lint-spec-banlist.mjs",
     "check:prompts-info-json": "node scripts/check-prompts-info-json.mjs",
     "check:spec-mermaid": "node scripts/lint-spec-mermaid.mjs",
+    "check:spec-snippets": "node scripts/typecheck-spec-snippets.mjs",
     "check:spec-prompts-xrefs": "node scripts/check-spec-prompts-xrefs.mjs",
     "spec:prompts:acceptance": "node scripts/extract-prompts-acceptance.mjs",
     "spec:prompts:pdf": "node scripts/build-spec-prompts-pdf.mjs",
