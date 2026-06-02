@@ -211,7 +211,7 @@ Each completed follow-up task increments a checkbox here:
 - [x] T86–T90  Plan mode  *(2026-06-02)*
 - [x] T91–T95  Settings  *(2026-06-02)*
 - [x] T96–T100 Observability  *(2026-06-02)*
-- [ ] T101–T105 Onboarding
-- [ ] T106–T110 Test plan
+- [x] T101–T105 Onboarding  *(2026-06-02)*
+- [x] T106–T110 Test plan  *(2026-06-02)*
 - [ ] T111–T115 Reference snippets
 - [ ] T116–T120 Adoption checklist
