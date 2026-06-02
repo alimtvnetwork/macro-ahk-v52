@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>2026-prompts-generic — Host-wiring PoC (H10)</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 20px; }
+    h1 { font-size: 18px; margin: 0 0 4px; }
+    .sub { color: #94a3b8; font-size: 12px; margin-bottom: 16px; }
+    .grid { display: grid; grid-template-columns: 320px 1fr; gap: 16px; }
+    fieldset { border: 1px solid #334155; border-radius: 6px; padding: 12px; }
+    legend { padding: 0 6px; color: #94a3b8; font-size: 12px; }
+    button { background: #1e293b; color: #e2e8f0; border: 1px solid #475569; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 12px; margin: 2px; }
+    button:hover { background: #334155; }
+    button[disabled] { opacity: 0.4; cursor: not-allowed; }
+    textarea, input { width: 100%; box-sizing: border-box; background: #020617; color: #e2e8f0; border: 1px solid #475569; border-radius: 4px; padding: 6px; font-family: inherit; font-size: 13px; }
+    textarea { min-height: 80px; resize: vertical; }
+    ul.queue { list-style: none; padding: 0; margin: 0; max-height: 240px; overflow: auto; font-size: 12px; }
+    ul.queue li { padding: 4px 8px; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; gap: 8px; }
+    .status-pending    { color: #94a3b8; }
+    .status-processing { color: #fbbf24; }
+    .status-completed  { color: #34d399; }
+    .status-failed     { color: #f87171; }
+    pre.log { background: #020617; border: 1px solid #1e293b; border-radius: 4px; padding: 8px; font-size: 11px; max-height: 240px; overflow: auto; margin: 0; }
+    .row { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
+    label { font-size: 12px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <h1>2026-prompts-generic — host-wiring PoC</h1>
+  <div class="sub">H10 — vanilla HTML harness wiring PromptStore + queue engine + textarea adapter + next-loop orchestrator.</div>
+
+  <div class="grid">
+    <div>
+      <fieldset>
+        <legend>Prompt store</legend>
+        <div class="row"><input id="promptTitle" placeholder="prompt title" value="ping" /></div>
+        <textarea id="promptBody">hello world #${i}</textarea>
+        <div class="row">
+          <label>repeat:</label>
+          <input id="repeatCount" type="number" value="5" min="1" max="999" style="width:80px" />
+          <button id="enqueueBtn">Enqueue</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Engine controls</legend>
+        <button id="startBtn">Start</button>
+        <button id="pauseBtn">Pause</button>
+        <button id="resumeBtn">Resume</button>
+        <button id="cancelBtn">Cancel</button>
+        <div class="row"><label><input id="authToggle" type="checkbox" checked /> isAuthenticated</label></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Mock chat host</legend>
+        <label>Chat box (textarea):</label>
+        <textarea id="chatBox" placeholder="(prompts paste here)"></textarea>
+        <button id="submitBtn">Submit</button>
+      </fieldset>
+    </div>
+
+    <div>
+      <fieldset>
+        <legend>Queue</legend>
+        <ul id="queueList" class="queue"></ul>
+      </fieldset>
+      <fieldset>
+        <legend>Run log</legend>
+        <pre id="runLog" class="log"></pre>
+      </fieldset>
+    </div>
+  </div>
+
+  <script type="module">
+    // ---------- shared types are runtime-erased; this is the wiring PoC ----------
+    const log = (msg) => {
+      const el = document.getElementById("runLog");
+      const t = new Date().toISOString().slice(11, 23);
+      el.textContent += `[${t}] ${msg}\n`;
+      el.scrollTop = el.scrollHeight;
+    };
+
+    // ---------- 01 — In-memory PromptStore ----------
+    function createInMemoryPromptStore(seed = []) {
+      const byId = new Map(seed.map((p) => [p.id, p]));
+      return {
+        async list()       { return [...byId.values()].sort((a, b) => a.order - b.order); },
+        async get(id)      { return byId.get(id) ?? null; },
+        async save(p) {
+          const now = new Date().toISOString();
+          const next = { ...p, updatedAt: now, createdAt: byId.get(p.id)?.createdAt ?? now };
+          byId.set(next.id, next); return next;
+        },
+        async delete(id)   { byId.delete(id); },
+        async import(b)    { for (const p of b) byId.set(p.id, p); },
+        async export()     { return [...byId.values()]; },
+      };
+    }
+
+    // ---------- in-memory QueueStore ----------
+    function createInMemoryQueueStore(onChange) {
+      const all = new Map(); // id -> task
+      const order = [];
+      const notify = () => onChange([...order.map((id) => all.get(id))]);
+      return {
+        async enqueue(t)     { all.set(t.id, t); order.push(t.id); notify(); },
+        async enqueueBulk(ts){ for (const t of ts) { all.set(t.id, t); order.push(t.id); } notify(); },
+        async nextPending() {
+          for (const id of order) {
+            const t = all.get(id);
+            if (t && t.status === "pending") return t;
+          }
+          return null;
+        },
+        async markProcessing(id){ const t = all.get(id); if (t) { t.status = "processing"; notify(); } },
+        async markCompleted(id) { const t = all.get(id); if (t) { t.status = "completed"; notify(); } },
+        async markFailed(id, reason, detail) {
+          const t = all.get(id);
+          if (t) { t.status = "failed"; t.reason = reason; t.reasonDetail = detail; notify(); }
+        },
+        async clearPending() {
+          for (const id of [...order]) {
+            const t = all.get(id);
+            if (t && t.status === "pending") { all.delete(id); order.splice(order.indexOf(id), 1); }
+          }
+          notify();
+        },
+        async requeue(id) { const t = all.get(id); if (t) { t.status = "pending"; notify(); } },
+      };
+    }
+
+    // ---------- 02 — Queue engine ----------
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    async function sleepInterruptible(ms, abort) {
+      const step = 100;
+      for (let elapsed = 0; elapsed < ms; elapsed += step) {
+        if (abort()) return;
+        await wait(step);
+      }
+    }
+    function createQueueEngine(opts) {
+      let paused = false, stopRequested = false, running = false, firstTick = true;
+      async function tick() {
+        if (running) return;
+        running = true;
+        try {
+          while (!stopRequested) {
+            if (paused) { await wait(150); continue; }
+            const task = await opts.store.nextPending();
+            if (!task) return;
+            if (!(await opts.isAuthenticated())) {
+              await opts.store.markFailed(task.id, "LoggedOut", "auth probe failed");
+              return;
+            }
+            if (!firstTick || !opts.skipFirstDelay) {
+              await sleepInterruptible(opts.delayMs(), () => paused || stopRequested);
+            }
+            firstTick = false;
+            await opts.store.markProcessing(task.id);
+            try {
+              await Promise.race([opts.runTask(task), opts.watchInterruption()]);
+              await opts.store.markCompleted(task.id);
+            } catch (err) {
+              await opts.store.markFailed(task.id, "RunThrew", String(err));
+              return;
+            }
+          }
+        } finally { running = false; }
+      }
+      return {
+        enqueue:     (t)  => opts.store.enqueue(t),
+        enqueueBulk: (ts) => opts.store.enqueueBulk(ts),
+        start:  () => { stopRequested = false; firstTick = true; void tick(); },
+        pause:  () => { paused = true; },
+        resume: () => { paused = false; void tick(); },
+        cancel: async () => { stopRequested = true; await opts.store.clearPending(); },
+        requeue: (id) => opts.store.requeue(id),
+      };
+    }
+
+    // ---------- 03 — Textarea adapter ----------
+    const textareaAdapter = {
+      kind: "textarea",
+      match(el) { return el instanceof HTMLTextAreaElement || (el instanceof HTMLInputElement && el.type === "text"); },
+      async paste(el, text, mode = "replace") {
+        const target = el;
+        const next = mode === "append" ? target.value + text : text;
+        const proto = Object.getPrototypeOf(target);
+        const setter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
+        setter?.call(target, next);
+        target.dispatchEvent(new Event("input",  { bubbles: true }));
+        target.dispatchEvent(new Event("change", { bubbles: true }));
+        return target.value.includes(text);
+      },
+    };
+
+    // ---------- 05 — Next-loop orchestrator ----------
+    function createNextLoop(host, store) {
+      const engine = createQueueEngine({
+        store,
+        isAuthenticated: host.isAuthenticated,
+        watchInterruption: host.detectInterruption,
+        delayMs: () => 1000 + Math.floor(Math.random() * 1000), // shortened for demo
+        skipFirstDelay: true,
+        runTask: async (t) => {
+          const box = host.resolveChatBox();
+          if (!box) throw new Error("ChatBoxMissing");
+          const adapter = host.adapters.find((a) => a.match(box));
+          if (!adapter) throw new Error("NoAdapter");
+          const ok = await adapter.paste(box, t.body, "replace");
+          if (!ok) throw new Error("PasteRejected");
+          const btn = host.resolveSubmitButton();
+          if (!btn || btn.disabled) throw new Error("SubmitMissing");
+          btn.click();
+          log(`task ${t.id} → submitted: ${JSON.stringify(t.body).slice(0,60)}`);
+        },
+      });
+      return {
+        enqueueRepeat: (prompt, count) =>
+          engine.enqueueBulk(
+            Array.from({ length: Math.min(count, 999) }, (_, i) => ({
+              id: `${prompt.id}-${Date.now()}-${i}`,
+              kind: "next",
+              body: prompt.body.replace("${i}", String(i + 1)),
+              status: "pending",
+              retryCount: 0,
+              createdAt: new Date().toISOString(),
+            })),
+          ),
+        start: engine.start, pause: engine.pause, resume: engine.resume, cancel: engine.cancel,
+      };
+    }
+
+    // ---------- wire up ----------
+    const queueList = document.getElementById("queueList");
+    const renderQueue = (tasks) => {
+      queueList.innerHTML = tasks.map((t) =>
+        `<li><span>${t.id}</span><span class="status-${t.status}">${t.status}${t.reason ? ` (${t.reason})` : ""}</span></li>`
+      ).join("");
+    };
+
+    const promptStore = createInMemoryPromptStore();
+    const queueStore  = createInMemoryQueueStore(renderQueue);
+
+    const host = {
+      resolveChatBox:      () => document.getElementById("chatBox"),
+      resolveSubmitButton: () => document.getElementById("submitBtn"),
+      detectInterruption:  () => new Promise(() => {}), // never resolves in PoC
+      isAuthenticated:     async () => document.getElementById("authToggle").checked,
+      adapters: [textareaAdapter],
+    };
+    const loop = createNextLoop(host, queueStore);
+
+    document.getElementById("submitBtn").addEventListener("click", () => {
+      log(`submit clicked: "${document.getElementById("chatBox").value.slice(0,60)}"`);
+    });
+
+    document.getElementById("enqueueBtn").addEventListener("click", async () => {
+      const id = "p-" + Date.now();
+      const prompt = await promptStore.save({
+        id, slug: "ping", title: document.getElementById("promptTitle").value,
+        body: document.getElementById("promptBody").value, version: "1.0.0",
+        author: "poc", categories: [], isDefault: false, order: 0,
+        createdAt: "", updatedAt: "",
+      });
+      const n = Number(document.getElementById("repeatCount").value) || 1;
+      await loop.enqueueRepeat(prompt, n);
+      log(`enqueued ${Math.min(n,999)} tasks for prompt ${id}`);
+    });
+
+    document.getElementById("startBtn").addEventListener("click",  () => { log("start");  loop.start();  });
+    document.getElementById("pauseBtn").addEventListener("click",  () => { log("pause");  loop.pause();  });
+    document.getElementById("resumeBtn").addEventListener("click", () => { log("resume"); loop.resume(); });
+    document.getElementById("cancelBtn").addEventListener("click", async () => { log("cancel"); await loop.cancel(); });
+
+    log("PoC ready. Click Enqueue → Start.");
+  </script>
+</body>
+</html>
