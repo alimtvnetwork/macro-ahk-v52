@@ -1,5 +1,5 @@
 # Memory: index.md
-Updated: just now
+Updated: 2026-06-02 (Asia/Kuala_Lumpur)
 
 # Project Memory
 
@@ -7,9 +7,9 @@ Updated: just now
 - **Timezone**: Asia/Kuala_Lumpur (Malaysia) for time-sensitive data.
 - **Read-only folders**: Never modify `skipped/` or `.release/` folders.
 - **No Supabase**: Supabase is strictly forbidden (auth, tokens, SDKs, localStorage).
+- **No Storage PascalCase Migration**: Phase 2c-storage v2 is strictly forbidden. Rewriting `StoredProject` keys in `chrome.storage.local` would break ~50+ consumers.
 - **Versioning**: Ensure unified version across manifest, constants.ts, and scripts.
 - **Suggestions & Planning**: Roadmap tracked in `plan.md`. Suggestions in `.lovable/memory/suggestions/`.
-- **Next Commands Backlog**: Persistent task list at `mem://workflow/13-next-commands` — read at end of every session and surface remaining `[ ]` items in closing summary. Tick `[x]` on completion, append new requests.
 - **Linting**: Zero ESLint warnings/errors; modular architecture.
 - **Code Red Logging**: All file/path errors MUST include exact path, missing item, and reasoning.
 - **Namespace Logging**: Use `RiseupAsiaMacroExt.Logger.error()`, never bare `log()` for errors.
@@ -18,48 +18,37 @@ Updated: just now
 - **No-Retry Policy**: Bans unauthorized recursive retry or exponential backoff. Use sequential fail-fast.
 - **No Explicit Unknown**: No `unknown` except in `CaughtError`. Function params must use designed types.
 - **Error Handling**: Defensive property access (`?.`, `??`) required. CQ14 (braces), CQ15 (newlines).
-- **No Silent Failures**: Anything broken MUST be logged. Default to ERROR for obvious failure conditions (missing script/file/config, URL match without resolution, etc.). Downgrade later if proven benign — never silence by default. See `mem://standards/no-silent-failures`.
-- **Auto-attach gated on `autoStart`**: Auto-attaching library scripts to a project happens ONLY when `project.autoStart === true`. Before injecting, check `document.body[data-marco-injected]` CSV for the scriptId; skip if present, stamp after success. See `mem://features/auto-attach-policy`.
-- **HTTP fail-fast**: On ANY 4xx/5xx (esp. 404/405) from scripted/automated calls, STOP the loop immediately. No retry, no fanout, no heavy follow-up. Emit `HTTP <status> on <METHOD> <url>` + reason + `Loop halted. Awaiting user instruction.` then wait. See `mem://constraints/http-error-fail-fast`.
 - **Auth Contract**: Use single-path `getBearerToken()` contract. No legacy auth methods.
-- **Installer Contract**: All install scripts MUST conform to `spec/14-update/01-generic-installer-behavior.md` — strict on `--version`/release-URL, latest→main fallback otherwise, opt-in parallel sibling-repo discovery.
-- **CI/CD Issues**: Logged in `.lovable/cicd-issues/XX-name.md` and indexed in `.lovable/cicd-index.md`. Stay in folder after resolution (set `## Status ✅ Resolved`); do NOT move to `solved-issues/`.
-- **Release Assets Contract**: A GitHub Release is invalid until `release.yml` uploads built ZIPs, installers, checksums, changelog, and release notes; source archives/tags alone do not count.
-- **Write-Memory Protocol**: Current = `.lovable/prompts/03-write-memory.md` (v3.0). Adds CI/CD folder + verbatim-spec capture.
-- **Pre-Write Check**: Read `mem://standards/pre-write-check` and the relevant standards index entries before creating/rewriting any file under `standalone-scripts/`, `src/`, `chrome-extension/`, or `scripts/`.
-- **PascalCase Instruction Keys**: Every key in `instruction.ts`, `instruction.json`, `seed-manifest.json`, and runtime reads of those files MUST be PascalCase. Case-only rename — values, string-literal unions, and Chrome API contracts are unchanged. Boundary exemptions: Chrome APIs, `ProjectManifest` user-export schema, `StoredScript`/`StoredProject` storage rows. Enforced by `scripts/check-pascalcase-instruction-migration.mjs` (preflight CI job + `build-extension` `needs:`). Full mapping in `mem://standards/pascalcase-json-keys`.
-- **⛔ readme.txt (SP-1..SP-9)**: STRICTLY PROHIBITED to suggest, format, auto-write, or include ANY time/clock/timestamp/AM-PM/git-commit-time/last-update/build-time value in `readme.txt` — in body, comments, scripts, or chat. Honor only explicit one-shot user writes; never propose follow-ups, formatters, hooks, CI, or "remember to update". On read of `mem://constraints/readme-txt-prohibitions`, commit SP-1..SP-9 to working memory and never re-suggest. Mirror copies: `.lovable/strictly-avoid.md` + `spec/01-spec-authoring-guide/09-exceptions.md`.
+- **Deferred Workstreams**: ONLY P Store is deferred (discuss-later — never list/recommend). Manual Chrome E2E and React component test bans LIFTED 2026-05-25.
+- **Test-with-features**: Every new feature/fix ships with matching tests (unit, component, or E2E). See `mem://preferences/test-with-features`.
+- **readme.txt**: STRICTLY PROHIBITED to suggest, format, auto-write, or include ANY time/clock/timestamp/git-update value. Honor only explicit one-shot user writes; never propose follow-ups, formatters, or hooks. See SP-1..SP-7 in `mem://constraints/readme-txt-prohibitions`.
+- **Verbose logging gate**: Per-project `Project.VerboseLogging` (default OFF). Full HTML + untruncated Text saved ONLY when ON; otherwise keep current 120/240-char truncation.
+- **Failure logs (mandatory shape)**: Every failure MUST log `Reason` (short code) + `ReasonDetail`, full `SelectorAttempts[]` (id/strategy/expression/matched/matchCount/reason) for selector misses, and full `VariableContext[]` (name/source/row/column/resolvedValue/type/reason) for variable or data failures. Never omit; log `null` + reason if unknown.
+- **No-Questions Mode (active)**: 40-task window opened 2026-04-26. Never call `ask_questions`. Log every ambiguity to `.lovable/question-and-ambiguity/xx-brief-title.md` with options + pros/cons + recommendation, then append a bullet to `.lovable/question-and-ambiguity/README.md`. Exits when user says "ask question if any understanding issues".
+- **Question-asking style (when questions ARE asked)**: NEVER ask bare/context-free questions. Include full prompt inline (small) or enough context for a layman (large). Plain language, no jargon. When choices are offered, MUST include: recommended option + why + pros + cons + brief alternatives. Applies to both `ask_questions` calls AND ambiguity logs. See `mem://preferences/question-asking-style`.
+- **New-tab guard**: Auto-injector + project-matcher MUST refuse to run on new-tab / blank / no-URL navigations (`about:blank`, `chrome://newtab/`, `chrome://new-tab-page/`, `chrome-search://local-ntp*`, `edge://newtab/`, `brave://newtab/`, `opera://startpage/`, empty string). Use single helper `isNewTabOrBlankUrl()` from `src/shared/url-utils.ts`. See `mem://features/new-tab-no-url-guard`.
+- **`next` command**: Always DO the next task in the same turn (never just announce/stage). End every `next` reply with a flat numbered remaining-tasks list using simple sequential integers (`1. 2. 3. 4.`) — no `Step 7`, no decimals, no sub-bullets in the primary sequence. Keep numbering stable across turns. If all done, recall prior chat/memory for leftovers. See `mem://preferences/next-command-convention`.
+- **CI push trigger unfiltered**: `.github/workflows/ci.yml` MUST use bare `on: push:` (no `branches`/`paths` filters). Filters silently skip Lovable branch commits — regression has recurred 3x. Canary: `.github/workflows/ping.yml`. Test: `scripts/__tests__/ci-workflow-trigger-policy.test.mjs`. See `mem://constraints/ci-push-trigger-unfiltered`.
 
 ## Memories
-- [⛔ readme.txt prohibitions (SP-1..SP-9)](mem://constraints/readme-txt-prohibitions) — Sequenced hard ban; honor one-shot explicit writes only; mirrors strictly-avoid.md and spec/01-spec-authoring-guide/09-exceptions.md
-- [Auto-attach policy](mem://features/auto-attach-policy) — Auto-attach only when `project.autoStart === true`; body `data-marco-injected` CSV marker for already-injected detection
-- [Chrome-extension dist path](mem://constraints/chrome-extension-dist-path) — Extension build output is `chrome-extension/` itself (NOT `chrome-extension/dist/`); release/CI must never reference legacy `/dist` subpath. RCA for v2.242.0 missing-asset regression.
-- [Release assets publish contract](mem://constraints/release-assets-publish-contract) — GitHub Release must contain built ZIPs/installers/checksums/notes; tag/source archives alone are invalid; workflow_dispatch must check out requested tag and notes must exclude current tag from previous-tag range.
-- [URL trigger + sentinel cache](mem://architecture/url-trigger-sentinel-cache) — v2.244.0: only 3 URL re-eval triggers (load/refresh/activate), per-tab `tabDecisionCache` fingerprint gate, `__marco_sentinel__` DOM marker; no polling, no retry, never throw from listener.
 - [Timezone](mem://localization/timezone) — Asia/Kuala_Lumpur for local timezone formatting
 - [Versioning policy](mem://workflow/versioning-policy) — Unified versioning across manifest, constants.ts, scripts
 - [Planning roadmap](mem://workflow/planning-roadmap) — plan.md as authoritative prioritized backlog
-- [Next commands backlog](mem://workflow/13-next-commands) — Persistent prioritized task list, queryable via "what's next"/"remaining tasks", auto-surfaced in session closing summary
-- [Injection pipeline split session](mem://workflow/14-injection-pipeline-split-session) — 10-step plan log; steps 1-8 done (pipeline split + PERF-R6 batch + tests + TS sweep + changelog rename), 9-10 (E2E specs) pending
 - [Suggestions convention](mem://workflow/suggestions-convention) — Single file tracking in .lovable/memory/suggestions/
 - [File naming convention](mem://workflow/file-naming-convention) — Numeric naming for workflow memory files
+- [Release watcher self-heals missing tag](mem://cicd/release-watcher-self-heal-tag) — Auto-creates v* tag from .gitmap descriptor when external tagger missing (repo/branch rename safe)
 - [Spec organization](mem://architecture/spec-organization) — Numeric hierarchy for specs (00 to 08)
 - [Task execution pattern](mem://workflow/task-execution-pattern) — Root Cause Analysis -> prioritized task list -> explicit 'next'
 - [Extension startup UX](mem://features/extension-startup-ux) — Toast implemented as standalone DOM element with zero external dependencies
-- [Workspace members panel](mem://features/macro-controller/workspace-members-panel) — Right-click "Show Members" floating panel, top-20 sorted by credits used, all 8 fields, 5min cache
-- [Project remix dropdown](mem://features/macro-controller/project-remix-dropdown) — Header split-button + right-click "Remix"/"Remix Next" with auto-V-suffix, collision pre-check, configurable defaults
-- [Settings modal](mem://features/macro-controller/settings-modal) — ⚙️ cog in panel header; edits expiryGracePeriodDays + refillWarningThresholdDays; chrome.storage.local override layered over JSON config
 - [Prompt management](mem://features/prompt-management) — Dual-cache (JsonCopy/HtmlCopy) in IndexedDB, manual-load
 - [Readiness reports](mem://workflow/readiness-reports) — Reliability and Failure-Chance Report before implementation
 - [Linting policy](mem://architecture/linting-policy) — Zero ESLint warnings/errors, strict No Explicit Unknown
-- [PascalCase JSON keys](mem://standards/pascalcase-json-keys) — Full Phase 1+2 PascalCase contract for instruction tree end-to-end; canonical mapping table per type (`ProjectInstruction`, `SeedBlock`, `AssetBundle`, `CookieSpec`, `TargetUrl`, `SeedManifest`); third-party boundary exemptions; CI guard wired
 - [Constant naming](mem://architecture/constant-naming-convention) — SCREAMING_SNAKE_CASE prefixes (ID_, SEL_, ATTR_, CSS_)
 - [UI framework selection](mem://architecture/ui-framework-selection) — React rejected; modular UIManager architecture used
 - [Diagram visual standards](mem://style/diagram-visual-standards) — PascalCase, dark XMind aesthetic, top-down
 - [Script injection lifecycle](mem://architecture/script-injection-lifecycle) — 7-stage lifecycle via background service worker MAIN world
 - [Data storage layers](mem://architecture/data-storage-layers) — 4-tier storage (SQLite, IndexedDB, localStorage, chrome.storage.local)
 - [Auth bridge service](mem://architecture/auth-bridge-service) — Bearer token TTL-aware management via localStorage
-- [Generic installer contract](mem://constraints/generic-installer-contract) — Repo-agnostic installer behavior; strict mode vs discovery mode vs sibling-repo probing — share spec/14-update/01-generic-installer-behavior.md with any AI
 - [Credit monitoring](mem://architecture/credit-monitoring-system) — retry-once-on-refresh consolidated policy
 - [Dynamic script loading](mem://architecture/dynamic-script-loading) — RiseupAsiaMacroExt.require API, audited via SQLite
 - [Extension lifecycle](mem://architecture/extension-lifecycle) — 6 phases from Install to User Interaction, audited via SQLite
@@ -70,7 +59,7 @@ Updated: just now
 - [Platform adapter pattern](mem://architecture/platform-adapter-pattern) — Abstract environment-specific APIs
 - [Documentation standards](mem://workflow/documentation-standards) — readme.md, CHANGELOG.md, CONTRIBUTING.md
 - [Instruction-driven seeding](mem://architecture/instruction-driven-seeding) — declarative manifest source via instruction.ts
-- [Instruction dual-emit (Phase 2b → 2c)](mem://architecture/instruction-dual-emit-phase-2b) — compile-instruction emits PascalCase canonical + camelCase compat snapshot; CI enforces; Phase 2c migrates the vite copy plugin and removes the compat emit
+- [Instruction dual-emit (Phase 2b)](mem://architecture/instruction-dual-emit-phase-2b) — compile-instruction emits PascalCase canonical + camelCase compat snapshot
 - [Extension error management](mem://architecture/extension-error-management) — Multi-layered UI error reporting, BootFailureBanner
 - [Real-time error sync](mem://architecture/real-time-error-synchronization) — ERROR_COUNT_CHANGED message broadcast across contexts
 - [Injection cache](mem://architecture/injection-cache-management) — build-aware cache invalidation and canonical script prioritization
@@ -94,14 +83,6 @@ Updated: just now
 - [No CI notifications](mem://constraints/no-ci-notifications) — Never send emails/notifications for CI build events
 - [Namespace database creation](mem://features/namespace-database-creation) — Dot-separated namespaces, max 25, System.* reserved
 - [Error logging via namespace logger](mem://standards/error-logging-via-namespace-logger.md) — Use Logger.error(), no swallowed errors
-- [No silent failures](mem://standards/no-silent-failures) — Log first, classify later; missing script when URL matches = ERROR (not warn)
-- [Pre-write standards check](mem://standards/pre-write-check) — Read standards + sibling file before writing any new code
-- [No CSS !important](mem://standards/no-css-important) — Forbidden in CSS, LESS, and CSS-in-string-literal
-- [No error swallowing](mem://standards/no-error-swallowing) — Catch must Logger.error() and rethrow / Result.err — never silent return
-- [No type casting](mem://standards/no-type-casting) — `as T`, `as unknown as T` forbidden in standalone-scripts; fix upstream type
-- [Class-based standalone scripts](mem://standards/class-based-standalone-scripts) — Single default class entry; sub-responsibilities injected via constructor
-- [Standalone scripts CSS in own file](mem://standards/standalone-scripts-css-in-own-file) — External .css file referenced from instruction.assets.css
-- [Blank line before return](mem://standards/blank-line-before-return) — Visual separation for every non-trivial return
 - [Unknown usage policy](mem://standards/unknown-usage-policy) — Restrictions on `unknown`, fully typed functions
 - [Formatting and logic](mem://standards/formatting-and-logic) — CQ14 braces, boolean extraction, defensive property access
 - [Config defaults extraction](mem://architecture/config-defaults-extraction) — Extract default configurations into named constants
@@ -111,25 +92,33 @@ Updated: just now
 - [Token readiness gate](mem://auth/token-readiness-gate) — Unified 10s budget, sync fast pre-seed phase
 - [Author identity](mem://branding/author-identity) — Riseup Asia LLC, specific Stack Overflow URL
 - [No-retry policy](mem://constraints/no-retry-policy) — Sequential fail-fast, bans recursive retry and exponential backoff
-- [HTTP error fail-fast](mem://constraints/http-error-fail-fast) — Hard stop on 4xx/5xx; no retry/fanout; mandatory failure report shape
 - [Unified auth contract](mem://auth/unified-auth-contract) — getBearerToken() used exclusively; legacy functions removed
 - [No Supabase](mem://constraints/no-supabase) — Supabase entirely forbidden in codebase
-- [Workspace status pill + hover card](mem://features/macro-controller/workspace-status-pill-and-hovercard) — Lifecycle pill, rich floating panel, canceled-credit override chokepoint (v2.214.0)
-- [Screen-scoped variables rule](mem://architecture/screen-scoped-variables-rule) — Per-screen XPath/selector configs must never collide; HomepageDashboardVariables is the first instance
-- [Deferred workstreams](mem://preferences/deferred-workstreams) — React tests, manual Chrome testing, P Store, cross-project sync — DO NOT auto-recommend
-- [Session 2026-04-23 — TS Migration V2 cleared](mem://workflow/14-session-2026-04-23-ts-migration-v2-cleared) — v2.225.0; Phases 02/03/04/05 complete; suite 445/445 passing
-- [Session 2026-04-24 — Installer contract + AC-2 + Banner-hider RCA](mem://workflow/15-session-2026-04-24-installer-contract-and-banner-hider-rca) — v2.228.0; shared installer contract; AC-2 main-branch fallback; SHA-256 checksums; Issue 98 RCA documented (refactor pending)
-- [Payment-banner-hider violations RCA (2026-04-24)](mem://rca/01-2026-04-24-payment-banner-hider-violations) — Why 8 standards were violated at once; fix is procedural (always run pre-write-check)
-- [No unjustified requestAnimationFrame](mem://standards/no-unjustified-raf) — `requestAnimationFrame` is default-deny without a justifying comment
-- [No CSS !important](mem://standards/no-css-important) — Never use `!important`; use scoping for specificity
-- [No error swallowing](mem://standards/no-error-swallowing) — `catch` may not silently `return null/undefined`; rethrow or log via `Logger.error()`
-- [Class-based standalone scripts](mem://standards/class-based-standalone-scripts) — Every `standalone-scripts/*/src/index.ts` exports a single default class
-- [Pre-write check](mem://standards/pre-write-check) — Mandatory standards review + sibling-file scan before writing/rewriting
-- [Contract generators need CI](mem://standards/contract-generators-need-ci) — Drift checker for any single-source-of-truth generator must be wired into CI in the same PR
-- [Idle-loop audit Round 2 (2026-04-25)](mem://performance/idle-loop-audit-2026-04-25) — PERF-1..12 closed; PERF-13 fixed 2026-04-27 (startup-persistence observer now yields via requestIdleCallback). PERF-14/15 documented as Low/no-action.
-- [Macro recorder phase progress](mem://project/macro-recorder-phase-progress) — 12-phase plan tracker; Phase 01 complete (spec/31-macro-recorder + spec/32-app-performance scaffolded); read on every `next` to resume from the right phase
-- [Macro Controller `pro_0` credit balance — TO-DO](mem://features/macro-controller/pro-zero-credit-balance) — When `WorkspacePlan === PRO_ZERO`, GET `/workspaces/{WorkspaceId}/credit-balance`; map `total_granted`/`total_remaining`/`total_billing_period_used` into `MacroCreditSummary`; IndexedDB cache (≥10 min, Settings-configurable) + async SQLite `Workspaces` upsert; right-click copies `{ Workspace, CreditBalance }` JSON; hard-fail with typed error on failure; all Enums/types/constants in their own files. Spec: `spec/22-app-issues/110-macro-controller-pro-zero-credit-balance.md`. **Awaiting `next` to implement.**
-- [Open Lovable Tabs → workspace mapping](mem://features/macro-controller/open-tabs-workspace-mapping) — Macro Controller panel lists open Lovable tabs; per-tab workspace resolved via injection map or single-attempt parallel probe (600ms timeout, no retry); shared `LOVABLE_TAB_PATTERNS`; classified `Reason`+`ReasonDetail` logging (v2.249.0)
-- [README badges — HTML-comment-leading line](mem://constraints/readme-badge-html-comment-leading) — RECURRING regression: when a hero badge line inside `<div align="center">` starts with `<!--`, GFM enters HTML-block-type-2 mode and emits every `[![alt](src)](url)` as raw text. FIX: prefix every badge line with `&#x200B;` (U+200B). Spec: `spec/22-app-issues/112-readme-badges-html-comment-leading.md`. Compliance checker passes 18/18 with the prefix.
-- [pro_1 / non-pro_0 Credit Totals](mem://features/macro-controller/pro-one-credit-totals) — v3.32.0 Issue 120 fix: `aggregateCreditTotals()` uses billing-period fields ONLY for non-`pro_0`, non-FREE plans (`pro_1`, `pro_3`, `lite`, `ktlo`). Five-pool sum (granted+daily+billing+topup+rollover) is FORBIDDEN for the modal — it inflated `Total` for every paid pro_1 workspace.
-- [AI onboarding map](.lovable/memory/what-to-read.md) — What-to-read map: folder structure, canonical JSON contracts (config/prompts/theme/instruction/templates), generators, and step-by-step "add a new prompt / config / standalone script" recipes. Mirrored in root `readme.md` § "For AI Agents — What To Read First".
+- [No Storage PascalCase Migration](mem://constraints/no-storage-pascalcase-migration) — Ban on Phase 2c-storage v2 key rewrite; identity-only framework allowed
+- [Deferred workstreams](mem://preferences/deferred-workstreams) — ONLY P Store deferred; React tests + manual Chrome bans lifted 2026-05-25
+- [Test-with-features](mem://preferences/test-with-features) — Ship tests alongside features (unit/component/E2E)
+- [Idle loop perf audit (2026-04-25)](mem://performance/idle-loop-audit-2026-04-25) — 8 issues; PERF-1 hot-reload runs in prod is critical; full RCA in plan.md "Performance Audit" section
+- [Verbose logging & failure diagnostics](mem://standards/verbose-logging-and-failure-diagnostics) — Per-project verbose toggle gates full HTML/Text; mandatory failure-log schema (SelectorAttempts, VariableContext, Reason+ReasonDetail) for recorder/replay/JS steps/data sources
+- [Form snapshot capture](mem://features/form-snapshot-capture) — Recorder auto-captures form/input data on Submit, Type, Select; failure logs always include field names+types; values gated by verbose toggle; sensitive fields auto-masked
+- [Verbose logging toggle](mem://features/verbose-logging-toggle) — Settings → Debugging Switch persists `verboseLogging` and hydrates the recorder verbose-logging store on every GET/SAVE_SETTINGS
+- [JS-step diagnostics](mem://features/js-step-diagnostics) — JsInline (StepKindId 4) failures via buildJsStepFailureReport: Reason='JsThrew', Vars+Row+JsLog as Variables, sensitive masking, verbose gates only log truncation
+- [No-Questions Mode](mem://workflow/no-questions-mode) — 40-task window: log ambiguities to .lovable/question-and-ambiguity/xx-name.md instead of asking; exits on "ask question if any understanding issues"
+- [Webhook fail-fast](mem://constraints/webhook-fail-fast.md) — Result webhook is single-attempt; no retry queue, no exponential backoff, no scheduled redelivery (confirmed 2026-04-27)
+- [Recorder keyboard shortcuts](mem://features/recorder-keyboard-shortcuts) — Ctrl+Alt+P / ; / . map to Resume/Pause/Stop; only active while a session exists; ignored in editable fields
+- [⛔ readme.txt prohibitions (SP-1..SP-7)](mem://constraints/readme-txt-prohibitions) — Sequenced hard ban on time/clock/auto-update/git-stamp; honor one-shot explicit writes only; mirrors strictly-avoid.md and spec/01-spec-authoring-guide/09-exceptions.md
+- [Error-swallow audit generator](mem://features/error-swallow-audit-generator) — `node scripts/audit-error-swallow.mjs` wraps the CI checker, classifies P0/P1/P2 by path, writes `public/error-swallow-audit.json` for the Options audit panel
+- [Webhook result schema versioning](mem://features/webhook-result-schema-version) — `WEBHOOK_RESULT_SCHEMA_VERSION = 2` on every WebhookDeliveryResult; `migrateWebhookDeliveryResult` upgrades legacy v1 blobs (no field) on read; validator rejects unknown versions
+- [Build lock sentinel](mem://features/build-lock-sentinel) — `.lovable/build.lock` gates `prebuild-clean-and-verify.mjs`; sequential 60s deadline (no retry/backoff), writers acquire/release via `scripts/lib/build-lock.mjs`
+- [Timer & observer teardown](mem://standards/timer-and-observer-teardown) — Every setInterval/setTimeout/MutationObserver/listener needs paired teardown + pagehide; tick UIs pause on document.hidden; reinstall loops bounded with finite backoff (v2.243.0 audit L-1…L-5)
+- [Question-asking style](mem://preferences/question-asking-style) — Full context inline, layman language, mandatory recommendation + pros/cons + alternatives for any choice question
+- [Root readme authoring order](mem://workflow/root-readme-authoring-order) — Title → badges → hero image → Install (Windows PowerShell first, then macOS/Linux Bash) → About/why
+- [New-tab no-URL guard](mem://features/new-tab-no-url-guard) — `isNewTabOrBlankUrl()` gates auto-injector + project-matcher; v2.249.5
+- [Refill priority filter](mem://features/refill-priority-filter) — v3.10.0 sort: score=max(0,K-daysToRefill)*available; K=10; "R Nd" badge
+- [Workspace GitHub repo open](mem://features/workspace-github-repo-open) — v3.10.0 right-click → gitsync API + SQLite cache; negative results memoized (never refetch)
+- [pro_0 credit balance](mem://features/macro-controller/pro-zero-credit-balance) — v3.11.1: Total=total_granted, Available=total_remaining, TotalUsed=total_billing_period_used. Sub-buckets from grant_type_balances. Never derive from workspace *_limit for pro_0.
+- [Workspace badge display](mem://features/macro-controller/workspace-badge-display) — v3.12.0: Unified Cancel/Expire/Expired/Refill labels; single classifier+tone resolver; 10-char max; muted gray for canceled (never red); Refill-soon filter chip.
+- [Workspace tooltip + Members popup](mem://features/macro-controller/workspace-tooltip-members-popup) — Issue 113: singleton hover card, native title= stripped, Settings gear removed, Members promoted to popup with Add/Remove/Promote mutations.
+- [Open Lovable Tabs / Per-Tab Workspace Mapping](mem://features/macro-controller/open-tabs-workspace-mapping) — Issue 111: background probe via message bus, MAIN-world responder snapshot, panel renders injection (green), probe (amber), or error (gray) per row.
+- [`next` command convention](mem://preferences/next-command-convention) — Always execute a task per `next`; end with flat `1. 2. 3. 4.` remaining-tasks list; stable numbering across turns
+- [Credit Totals — exclude FREE tier](mem://features/macro-controller/credit-totals-exclude-free) — v3.31.0: aggregateCreditTotals() skips tier='FREE'/plan='free' from Used/Remaining/Total grant; FREE credits only via Free Daily panel
+- [Post-move credit sync (v3.40.0)](mem://features/macro-controller/post-move-credit-sync) — moveToWorkspace MUST await fetchAndPersist(target,force) THEN fetchAsync() — never fire-and-forget; Copy JSON wraps pro_0 AND pro_1 with /credit-balance; `🛈 Show Tooltip` pins hover card open
