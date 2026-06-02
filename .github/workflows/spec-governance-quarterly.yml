@@ -1,0 +1,36 @@
+name: spec-governance-quarterly
+
+# Quarterly automated governance review. Per memory rules:
+# - CI push trigger unfiltered: this is a cron, not a push trigger
+# - No CI notifications: writes report artifact only; no email/Slack
+# - No-retry: single run; failure surfaces in workflow status
+
+on:
+  schedule:
+    # 09:00 Asia/Kuala_Lumpur (UTC+8) on the 1st of Jan/Apr/Jul/Oct
+    - cron: '0 1 1 1,4,7,10 *'
+  workflow_dispatch:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Smoke rescore
+        run: node scripts/spec/smoke-rescore.mjs
+      - name: Cross-ref lint
+        run: node scripts/spec/lint-cross-refs.mjs
+      - name: Perf budget
+        run: node scripts/spec/check-perf-budget.mjs
+      - name: Rebuild INDEX.json
+        run: node scripts/spec/build-index.mjs
+      - name: Generate review report
+        run: node scripts/spec/governance-report.mjs > governance-report.md
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spec-governance-report
+          path: governance-report.md
+          retention-days: 365

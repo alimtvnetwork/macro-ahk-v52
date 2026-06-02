@@ -1,0 +1,25 @@
+{
+  "id": "r01-stop-during-dispatch",
+  "spec": "spec/21-app/05-prompts/macros/testing/15-race-fixture-pack.md#R-01",
+  "macro": {
+    "id": "m-r01",
+    "steps": [
+      { "id": "s1", "stepKindId": 1, "selector": "[data-test='a']" },
+      { "id": "s2", "stepKindId": 1, "selector": "[data-test='b']" },
+      { "id": "s3", "stepKindId": 2, "selector": "[data-test='slow']", "awaitMs": 5000 },
+      { "id": "s4", "stepKindId": 1, "selector": "[data-test='c']" },
+      { "id": "s5", "stepKindId": 1, "selector": "[data-test='d']" }
+    ]
+  },
+  "actions": [
+    { "atStepStart": "s3", "do": "USER_CLICK_STOP" }
+  ],
+  "expect": {
+    "state": "Stopped",
+    "outcome": "stopped",
+    "stepsExecuted": ["s1", "s2", "s3"],
+    "stepsSkipped": ["s4", "s5"],
+    "reasonCode": null,
+    "auditFinalized": true
+  }
+}

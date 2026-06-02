@@ -1,0 +1,24 @@
+{
+  "id": "r02-nav-interrupt",
+  "spec": "spec/21-app/05-prompts/macros/testing/15-race-fixture-pack.md#R-02",
+  "macro": {
+    "id": "m-r02",
+    "steps": [
+      { "id": "s1", "stepKindId": 1, "selector": "[data-test='a']" },
+      { "id": "s2", "stepKindId": 1, "selector": "[data-test='b']" },
+      { "id": "s3", "stepKindId": 1, "selector": "[data-test='c']" },
+      { "id": "s4", "stepKindId": 5, "navigate": "https://example.test/next" },
+      { "id": "s5", "stepKindId": 1, "selector": "[data-test='d']" }
+    ]
+  },
+  "actions": [
+    { "atStepEnd": "s4", "do": "EMIT_PAGEHIDE" }
+  ],
+  "expect": {
+    "state": "Stopped",
+    "outcome": "failed",
+    "reasonCode": "F_NAV_INTERRUPT",
+    "runnerRemovedFromMap": true,
+    "auditFinalized": true
+  }
+}

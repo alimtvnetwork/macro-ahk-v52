@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-02T20:42:40.265Z",
+  "generatedAt": "2026-06-02T20:45:22.018Z",
   "root": "spec/21-app/05-prompts",
-  "fileCount": 238,
+  "fileCount": 248,
   "files": [
     {
       "path": "spec/21-app/05-prompts/00-all-prompts.md",
@@ -219,6 +219,13 @@
       "status": "Closed",
       "version": null,
       "bytes": 2647
+    },
+    {
+      "path": "spec/21-app/05-prompts/99-spec-issues/111-hardening-wave-v6.md",
+      "title": "Hardening Wave v6 — Close-out",
+      "status": "Closed",
+      "version": null,
+      "bytes": 3033
     },
     {
       "path": "spec/21-app/05-prompts/99-spec-issues/12-orphan-files.md",
@@ -667,6 +674,13 @@
       "status": null,
       "version": null,
       "bytes": 2304
+    },
+    {
+      "path": "spec/21-app/05-prompts/CONTRIBUTING.md",
+      "title": "Spec Contributor Guide",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 2374
     },
     {
       "path": "spec/21-app/05-prompts/folder-structure.md",
@@ -1299,6 +1313,13 @@
       "bytes": 2793
     },
     {
+      "path": "spec/21-app/05-prompts/macros/observability/16-perf-dump-handler.md",
+      "title": "MACRO_PERF_DUMP — Message Handler Spec",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 1629
+    },
+    {
       "path": "spec/21-app/05-prompts/macros/performance/10-budgets.md",
       "title": "Performance Budgets — Prompt Macros",
       "status": "Normative",
@@ -1423,6 +1444,41 @@
       "status": "Normative",
       "version": "1.0.0",
       "bytes": 1766
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/fixtures/race/r01-stop-during-dispatch.json",
+      "title": null,
+      "status": null,
+      "version": null,
+      "bytes": 814
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/fixtures/race/r02-nav-interrupt.json",
+      "title": null,
+      "status": null,
+      "version": null,
+      "bytes": 764
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/fixtures/race/r03-busy-reject.json",
+      "title": null,
+      "status": null,
+      "version": null,
+      "bytes": 459
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/fixtures/race/r04-watchdog-cancel.json",
+      "title": null,
+      "status": null,
+      "version": null,
+      "bytes": 480
+    },
+    {
+      "path": "spec/21-app/05-prompts/macros/testing/fixtures/race/r05-storage-snapshot.json",
+      "title": null,
+      "status": null,
+      "version": null,
+      "bytes": 606
     },
     {
       "path": "spec/21-app/05-prompts/OWNERSHIP.md",
@@ -1556,6 +1612,20 @@
       "status": null,
       "version": null,
       "bytes": 957
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/16-storage-pressure-toast-e12.md",
+      "title": "Storage Pressure Toast — E-12",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 1682
+    },
+    {
+      "path": "spec/21-app/05-prompts/ui/17-in-product-tooltips.md",
+      "title": "In-Product Tooltip Generation from GLOSSARY / ACRONYMS",
+      "status": "Normative",
+      "version": "1.0.0",
+      "bytes": 1466
     },
     {
       "path": "spec/21-app/05-prompts/variables/00-overview.md",

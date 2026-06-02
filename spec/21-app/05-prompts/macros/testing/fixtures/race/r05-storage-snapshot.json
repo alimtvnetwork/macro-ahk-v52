@@ -1,0 +1,19 @@
+{
+  "id": "r05-storage-snapshot",
+  "spec": "spec/21-app/05-prompts/macros/testing/15-race-fixture-pack.md#R-05",
+  "setup": {
+    "storageKey": "Project:proj-r05",
+    "initialValue": { "version": 1, "name": "before" }
+  },
+  "actions": [
+    { "do": "READ_SNAPSHOT", "by": "macro" },
+    { "do": "WRITE", "by": "ui", "value": { "version": 2, "name": "after" } },
+    { "do": "READ_SNAPSHOT_AGAIN", "by": "macro" }
+  ],
+  "expect": {
+    "firstRead": { "version": 1, "name": "before" },
+    "writeQueuedVia": "SafeWriter",
+    "secondRead": { "version": 2, "name": "after" },
+    "tornState": false
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "r04-watchdog-cancel",
+  "spec": "spec/21-app/05-prompts/macros/testing/15-race-fixture-pack.md#R-04",
+  "macro": {
+    "id": "m-r04",
+    "watchdog": { "timeoutMs": 2000 },
+    "steps": [
+      { "id": "s1", "stepKindId": 4, "jsInline": "while(true){ if(globalThis.__cancelRequested) break; }" }
+    ]
+  },
+  "expect": {
+    "cancelRequestedAtMs": 2000,
+    "stepExitWithinMs": 100,
+    "reasonCode": "F_WATCHDOG",
+    "state": "Stopped",
+    "outcome": "failed"
+  }
+}

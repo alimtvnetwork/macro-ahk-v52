@@ -1,0 +1,16 @@
+{
+  "id": "r03-busy-reject",
+  "spec": "spec/21-app/05-prompts/macros/testing/15-race-fixture-pack.md#R-03",
+  "setup": {
+    "tabId": 42,
+    "runnerActive": { "macroId": "m-a", "state": "Running" }
+  },
+  "actions": [
+    { "do": "SEND_RUN_MACRO", "tabId": 42, "macroId": "m-b" }
+  ],
+  "expect": {
+    "secondRun": { "rejected": true, "reasonCode": "F_BUSY" },
+    "ui": { "toast": "E-09" },
+    "firstRun": { "state": "Running", "untouched": true }
+  }
+}
