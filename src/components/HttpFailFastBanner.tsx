@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { AlertOctagon, Copy, Check, X } from "lucide-react";
 import { HTTP_FAIL_FAST_EVENT, type HttpFailFastEventDetail } from "@/shared/http-fail-fast";
 
@@ -20,6 +20,7 @@ import { HTTP_FAIL_FAST_EVENT, type HttpFailFastEventDetail } from "@/shared/htt
 export function HttpFailFastBanner() {
     const [detail, setDetail] = useState<HttpFailFastEventDetail | null>(null);
     const [copied, setCopied] = useState(false);
+    const copyTimerRef = useRef<number | null>(null);
 
     useEffect(() => {
         const onEvent = (evt: Event): void => {
@@ -32,12 +33,17 @@ export function HttpFailFastBanner() {
         return () => window.removeEventListener(HTTP_FAIL_FAST_EVENT, onEvent);
     }, []);
 
+    useEffect(() => () => {
+        if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+    }, []);
+
     const handleCopy = useCallback(async () => {
         if (detail === null) return;
         try {
             await navigator.clipboard.writeText(detail.report);
             setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
+            if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+            copyTimerRef.current = window.setTimeout(() => setCopied(false), 2000);
         // allow-swallow: clipboard denied; user can select text manually
         } catch { /* intentionally empty */ }
     }, [detail]);

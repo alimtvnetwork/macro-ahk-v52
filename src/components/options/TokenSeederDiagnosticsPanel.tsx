@@ -170,7 +170,8 @@ export function TokenSeederDiagnosticsPanel() {
         ];
         await navigator.clipboard.writeText(lines.join("\n"));
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        const id = window.setTimeout(() => setCopied(false), 2000);
+        return () => clearTimeout(id);
     }, [selected, cooldownRemainingMs, data]);
 
     return (

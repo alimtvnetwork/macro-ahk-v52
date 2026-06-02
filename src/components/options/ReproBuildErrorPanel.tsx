@@ -11,7 +11,7 @@
  * runs `vite build --mode development` and prints the resolved path.
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -23,12 +23,18 @@ const RESULT_WEBHOOK_REL_PATH =
 
 export function ReproBuildErrorPanel() {
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (timerRef.current !== null) clearTimeout(timerRef.current);
+  }, []);
 
   const handleClick = async () => {
     try {
       await navigator.clipboard.writeText(REPRO_COMMAND);
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
+      timerRef.current = window.setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
     }

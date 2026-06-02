@@ -243,7 +243,7 @@ async function executeInMainWorld(code: string): Promise<string> {
 
     // eslint-disable-next-line max-lines-per-function
     await new Promise<void>((resolve, reject) => {
-        let timeoutId: ReturnType<typeof window.setTimeout> | null = null;
+        let timeoutId: number | null = null;
         const cleanup = (): void => {
             if (timeoutId !== null) {
                 window.clearTimeout(timeoutId);
@@ -543,7 +543,7 @@ async function executeBlobInjection(code: string): Promise<string> {
 
     // eslint-disable-next-line max-lines-per-function
     await new Promise<void>((resolve, reject) => {
-        let timeoutId: ReturnType<typeof window.setTimeout> | null = null;
+        let timeoutId: number | null = null;
         const cleanup = (): void => {
             if (timeoutId !== null) {
                 window.clearTimeout(timeoutId);

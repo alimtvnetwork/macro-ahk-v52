@@ -21,7 +21,7 @@
  * stale build is still loaded) is immediately obvious.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -229,6 +229,11 @@ export function WasmStatusBanner() {
     const [cspProbe, setCspProbe] = useState<CspProbeResult | null>(null);
     const [probing, setProbing] = useState(false);
     const [copied, setCopied] = useState(false);
+    const copyTimerRef = useRef<number | null>(null);
+
+    useEffect(() => () => {
+        if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+    }, []);
 
     const declaredCsp = useMemo(readDeclaredCsp, []);
 
@@ -263,7 +268,8 @@ export function WasmStatusBanner() {
             await navigator.clipboard.writeText(report);
             setCopied(true);
             toast({ title: "Report copied", description: "WASM/CSP diagnostics report copied to clipboard." });
-            setTimeout(() => setCopied(false), 2000);
+            if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+            copyTimerRef.current = window.setTimeout(() => setCopied(false), 2000);
         } catch (clipboardError) {
             const message = clipboardError instanceof Error ? clipboardError.message : String(clipboardError);
             toast({ title: "Copy failed", description: message, variant: "destructive" });

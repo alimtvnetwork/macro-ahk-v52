@@ -147,3 +147,11 @@ Remaining: Batches B (steps 11–20), C (21–30), D (31–40), E (41–50).
 **Batch I (post-50): Final 5 READMEs + Timer-teardown triage** — fleshed out `30-import-export`, `32-app-performance`, `99-archive`, `audit`, `validation-reports`. **All 25 stubs are now substantive (25/25).** Triaged 71 timer-teardown findings (63 unique files) into `timer-teardown-backlog.md` with P0/P1/P2/T classes and a top-15 attack order — P0 batch A (5 background files) is recommended next.
 
 **Batch J (post-50): Timer teardown next-10 remediation** — remediated 10 P0 timer/listener findings in `injection-toast.ts`, `csp-fallback.ts`, `network-reporter.ts`, `first-attach-toast.ts`, `hotkey-executor.ts`, `condition-evaluator.ts`, recorder `condition-evaluator.ts`, `live-dom-replay.ts`, `step-wait.ts`, and `session-log-writer.ts`. Added paired cleanup patterns (`clearTimeout`, listener removal, `pagehide` teardown) and locked the batch with `scripts/__tests__/audit-timer-teardown.test.mjs`. Audit count moved **71 → 60** findings; no remediated file remains flagged.
+
+## Batch J — Timer-teardown component fixes (2026-06-02, ~12 min)
+Fixed 10 components (HttpFailFastBanner, AuthHealthPanel, ErrorSwallowAuditView,
+OpfsSessionBrowserPanel, RecoveryIndicator, ReproBuildErrorPanel,
+TokenSeederDiagnosticsPanel, WasmStatusBanner, WebhookSettingsDialog,
+CopyLogButton) with useRef<number> + cleanup useEffect + clearTimeout-on-retrigger.
+Also corrected pre-existing TS2322 in src/background/csp-fallback.ts (timeoutId
+typed as `number`). Audit: 60 → 50 findings.

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,11 @@ async function writeToClipboard(text: string): Promise<boolean> {
  */
 export function CopyLogButton({ entry, className, size = "sm" }: CopyLogButtonProps) {
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (timerRef.current !== null) clearTimeout(timerRef.current);
+  }, []);
 
   const handleCopy = useCallback(async () => {
     const text = formatWebhookDeliveryLog(entry);
@@ -54,7 +59,8 @@ export function CopyLogButton({ entry, className, size = "sm" }: CopyLogButtonPr
     if (ok) {
       setCopied(true);
       toast.success("Webhook log copied");
-      window.setTimeout(() => setCopied(false), 2000);
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
+      timerRef.current = window.setTimeout(() => setCopied(false), 2000);
     } else {
       toast.error("Failed to copy log to clipboard");
     }

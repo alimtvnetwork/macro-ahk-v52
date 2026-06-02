@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { History, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -7,15 +7,20 @@ import { cn } from "@/lib/utils";
  */
 export function RecoveryIndicator() {
   const [status, setStatus] = useState<"synced" | "syncing" | "error">("synced");
+  const timerRef = useRef<number | null>(null);
 
   // Mock sync activity
   useEffect(() => {
     const channel = new BroadcastChannel("marco-sync-activity");
     channel.onmessage = () => {
       setStatus("syncing");
-      setTimeout(() => setStatus("synced"), 800);
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
+      timerRef.current = window.setTimeout(() => setStatus("synced"), 800);
     };
-    return () => channel.close();
+    return () => {
+      channel.close();
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
+    };
   }, []);
 
   return (

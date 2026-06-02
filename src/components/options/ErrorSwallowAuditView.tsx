@@ -33,7 +33,7 @@
  * state explaining how to generate it — never silently shows zero.
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertOctagon, AlertTriangle, FileWarning, RefreshCw, Info, ExternalLink, Play, Terminal, Copy, Check } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -424,11 +424,17 @@ function computeTopRules(items: ReadonlyArray<AuditItem>, limit: number): Array<
 // eslint-disable-next-line max-lines-per-function
 function AuditSummaryPanel({ state, onReload }: { state: LoadState; onReload: () => void }) {
     const [copied, setCopied] = useState(false);
+    const copyTimerRef = useRef<number | null>(null);
+
+    useEffect(() => () => {
+        if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+    }, []);
 
     const handleCopy = useCallback(() => {
         void navigator.clipboard.writeText(AUDIT_CLI_COMMAND).then(() => {
             setCopied(true);
-            window.setTimeout(() => setCopied(false), 1500);
+            if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+            copyTimerRef.current = window.setTimeout(() => setCopied(false), 1500);
         });
     }, []);
 

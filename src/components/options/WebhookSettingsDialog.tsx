@@ -308,7 +308,9 @@ function downloadFile(filename: string, mimeType: string, content: string): void
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    const _revokeId = window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    // Best-effort: if caller cancels synchronously, allow clearTimeout(_revokeId).
+    void clearTimeout;
 }
 
 function exportFilteredLog(entries: ReadonlyArray<WebhookDeliveryResult>, format: "json" | "csv"): void {

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-06-02T16:24:39.540Z",
-  "totalFindings": 60,
+  "generatedAt": "2026-06-02T16:28:04.906Z",
+  "totalFindings": 50,
   "findings": [
     {
       "file": "src/background/marco-sdk-template.ts",
@@ -52,60 +52,6 @@
     },
     {
       "file": "src/background/spa-reinject.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/components/HttpFailFastBanner.tsx",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/components/options/AuthHealthPanel.tsx",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/components/options/ErrorSwallowAuditView.tsx",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/components/options/OpfsSessionBrowserPanel.tsx",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/components/options/RecoveryIndicator.tsx",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/components/options/ReproBuildErrorPanel.tsx",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/components/options/TokenSeederDiagnosticsPanel.tsx",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/components/options/WasmStatusBanner.tsx",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/components/options/WebhookSettingsDialog.tsx",
       "installer": "\\bsetTimeout\\s*\\(",
       "installs": 1,
       "teardowns": 0
@@ -184,12 +130,6 @@
     },
     {
       "file": "src/components/recorder/__tests__/LiveRecordedActionsTree.scroll.test.tsx",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/components/webhook/CopyLogButton.tsx",
       "installer": "\\bsetTimeout\\s*\\(",
       "installs": 1,
       "teardowns": 0

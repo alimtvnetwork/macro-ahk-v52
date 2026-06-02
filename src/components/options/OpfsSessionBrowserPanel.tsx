@@ -5,7 +5,7 @@
  * @see spec/05-chrome-extension/06-logging-architecture.md
  */
 
-import { useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -143,6 +143,11 @@ export function OpfsSessionBrowserPanel() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
+    const copyTimerRef = useRef<number | null>(null);
+
+    useEffect(() => () => {
+        if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+    }, []);
 
     const refresh = useCallback(async () => {
         setLoading(true);
@@ -186,7 +191,8 @@ export function OpfsSessionBrowserPanel() {
         navigator.clipboard.writeText(lines.join("\n")).then(() => {
             setCopied(true);
             toast.success("OPFS session tree copied to clipboard");
-            setTimeout(() => setCopied(false), 2000);
+            if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+            copyTimerRef.current = window.setTimeout(() => setCopied(false), 2000);
         }).catch(() => toast.error("Copy failed"));
     }, [data]);
 

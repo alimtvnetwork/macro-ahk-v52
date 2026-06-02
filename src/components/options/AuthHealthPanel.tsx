@@ -5,7 +5,7 @@
  * timing bars, overall status, and diagnostics copy.
  */
 
-import { useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -40,6 +40,11 @@ export function AuthHealthPanel() {
     const [data, setData] = useState<AuthHealthData | null>(null);
     const [loading, setLoading] = useState(false);
     const [copied, setCopied] = useState(false);
+    const copyTimerRef = useRef<number | null>(null);
+
+    useEffect(() => () => {
+        if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+    }, []);
 
     const runCheck = useCallback(async () => {
         setLoading(true);
@@ -69,7 +74,8 @@ export function AuthHealthPanel() {
         ];
         await navigator.clipboard.writeText(lines.join("\n"));
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+        copyTimerRef.current = window.setTimeout(() => setCopied(false), 2000);
     }, [data]);
 
     const statusConfig = data ? STATUS_CONFIG[data.status] ?? STATUS_CONFIG.unauthenticated : null;
