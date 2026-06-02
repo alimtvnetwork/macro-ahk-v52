@@ -1,13 +1,7 @@
 {
-  "generatedAt": "2026-06-02T16:22:50.569Z",
-  "totalFindings": 65,
+  "generatedAt": "2026-06-02T16:24:39.540Z",
+  "totalFindings": 60,
   "findings": [
-    {
-      "file": "src/background/condition-evaluator.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
     {
       "file": "src/background/marco-sdk-template.ts",
       "installer": "\\.addEventListener\\s*\\(",
@@ -51,32 +45,8 @@
       "teardowns": 0
     },
     {
-      "file": "src/background/recorder/condition-evaluator.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/recorder/live-dom-replay.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
       "file": "src/background/recorder/step-library/__tests__/replay-bridge.test.ts",
       "installer": "\\.addEventListener\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/recorder/step-library/step-wait.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/session-log-writer.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
       "installs": 1,
       "teardowns": 0
     },
