@@ -18,7 +18,8 @@ function walk(dir) {
   return out;
 }
 
-const SPEC_RE = /\b(spec\/[\w./-]+\.(?:md|json))\b/g;
+// Require spec/ at start of token (not embedded in longer path like ".../audit-spec/...")
+const SPEC_RE = /(?<![\w./-])(spec\/[\w./-]+\.(?:md|json))\b/g;
 const MEM_RE = /\bmem:\/\/([\w./-]+)/g;
 
 const hardFail = []; // spec/... paths must exist (hard fail)
