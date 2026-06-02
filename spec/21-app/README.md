@@ -13,5 +13,5 @@ End-to-end specification for the **Macro Controller** Chrome extension app — t
 - [`02-features/`](./02-features/) — feature-level specs (macro-controller, prompts, etc.)
 - [`03-data-and-api/`](./03-data-and-api/) — data contracts + REST shapes
 - [`04-design-diagrams/`](./04-design-diagrams/) — Mermaid + XMind diagrams
-- [`05-prompts/`](./05-prompts/) — prompt library + cache
+- [`05-prompts/`](./05-prompts/) — prompt library + cache, **Macros**, **Variables** (5-tier resolution), **MacroPrompts** (aggregated from `standalone-scripts/macro-prompts/`)
 - [`06-tasks/`](./06-tasks/) — master task breakdown + seeding
