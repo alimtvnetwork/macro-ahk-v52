@@ -201,11 +201,11 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 50. [x] Write `spec/21-app/05-prompts/ui/09-variable-input-dialog.md` — inline form rendered when step has unfilled required vars; per-Type widgets; submit/cancel; ESC behavior.
 
 ### Block 6 — JSON Save/Export/Import/Replace (Tasks 51–60)
-51. [ ] Write `spec/21-app/05-prompts/json/00-overview.md` — when to use each op, file-naming conventions.
-52. [ ] Write `spec/21-app/05-prompts/json/01-save-single.md` — Save flow (download + clipboard), payload shape, validation.
-53. [ ] Write `spec/21-app/05-prompts/json/02-export-all.md` — full-bundle export including MacroPrompts + Macros + Categories, ordering, redaction.
-54. [ ] Write `spec/21-app/05-prompts/json/03-import-merge.md` — merge-by-Slug algorithm, conflict UI (Keep / Use theirs / Rename), dry-run preview.
-55. [ ] Write `spec/21-app/05-prompts/json/04-replace-atomic.md` — confirm dialog, auto-backup to chrome.storage.local, rollback path.
+51. [x] Write `spec/21-app/05-prompts/json/00-overview.md` — when to use each op, file-naming conventions.
+52. [x] Write `spec/21-app/05-prompts/json/01-save-single.md` — Save flow (download + clipboard), payload shape, validation.
+53. [x] Write `spec/21-app/05-prompts/json/02-export-all.md` — full-bundle export including MacroPrompts + Macros + Categories, ordering, redaction.
+54. [x] Write `spec/21-app/05-prompts/json/03-import-merge.md` — merge-by-Slug algorithm, conflict UI (Keep / Use theirs / Rename), dry-run preview.
+55. [x] Write `spec/21-app/05-prompts/json/04-replace-atomic.md` — confirm dialog, auto-backup to chrome.storage.local, rollback path.
 56. [ ] Write `spec/21-app/05-prompts/json/05-validation-and-errors.md` — Ajv usage, error-surface copy, mandatory failure-log shape.
 57. [ ] Write `spec/21-app/05-prompts/json/06-versioning-and-migration.md` — `Version` semantics, forward/backward compat, migrators registry.
 58. [ ] Write `spec/21-app/05-prompts/json/07-clipboard-format.md` — single-prompt copy uses same schema as save; round-trip safe.
