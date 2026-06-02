@@ -50,3 +50,6 @@ Mirrors the T120 handoff. If you only have 30 minutes, stop at step 8.
 ## Extending the spec
 
 Add a new top-level folder with a `NNN-` prefix continuing the numbering, then append a row to `01-plan-tasks-1-20.md`'s tracking table. Re-run the four commands above.
+
+## Files
+- See [`00-overview.md`](./00-overview.md) and the numbered subdirectories listed in **Read order** above.
