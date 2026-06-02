@@ -13,3 +13,35 @@
 | 9     | 81–90  | done    | 🔴 **High** S81 (3+ plan locations: `plan.md` 561L, `.lovable/plan.md` 20L, `.lovable/plan-26-…`, `.lovable/plans/` — SOT ambiguity), S88 (read-only `skipped/`+`.release/` is prose-only, no `.gitattributes`/CI guard — blind LLM will violate), S90 (recurring S5: coding-guidelines only ~20% of spec). 🟡 **Med** S82 (suggestions split across 3 paths), S83 (duplicate `01-`/`02-` prefixes in question-and-ambiguity + no README.md despite Core rule requiring one), S85 (readiness reports unenforced), S86 (no README structure check), S89 (index missing `what-to-read` pointer — repeat S5/S6). ✅ **Strong**: S87 (readme.txt SP-1..SP-7 with 3 mirrors + dedicated test). 🟢 **Low** S84. |
 | 10    | 91–100 | done    | ✅ **AUDIT COMPLETE.** 🔴 **High** S95, S96, S97, S99. 🟡 **Med** S91, S93, S94. 🟢 **Low** S92, S98. **Verdict: ~60 % blind-LLM ceiling; top-7 fixes raise it to 80–85 %.** |
 | 11    | 101–110 | done   | **Verification + drift corrections.** Verified: S13 (24 vs 3 Logger = 11 % compliance, not 0 %), S27 (OPFS = labels/stubs only, no `getDirectory()` call), S77 (clean now, no guard), **S96 PERF-1 already fixed** (downgrade), S97 (27 dirs, range 00–32 not 00–08), S88 (4 workflows consume `.release/`, none guard), S60 (no audit script). Final remediation order: S13 · S88 · S77 · S60 · S81 · S95 · S27. Memory corrections needed: PERF-1 status, spec range (00→32), OPFS claim. |
+
+---
+
+## Batch A (Remediation Steps 1–10) — Completed 2026-06-02
+
+Executed first 10 steps of `remediation-plan.md`:
+
+| # | Finding | Action | Artifact |
+|---|---|---|---|
+| 1 | S81 plan SOT | `.lovable/plan.md` → pointer; v3.50.0 roadmap merged into `plan.md` | `.lovable/plan.md`, `plan.md` (+22 lines) |
+| 2 | S97 spec range drift | Memory updated 00–08 → 00–32 + audit script | `mem://architecture/spec-organization`, `scripts/audit-spec-range.mjs` |
+| 3 | S96 PERF-1 stale | Memory marks PERF-1 RESOLVED | `mem://performance/idle-loop-audit-2026-04-25` |
+| 4 | S27 OPFS claim | Memory corrected: SQLite-only, OPFS not implemented | `mem://architecture/session-logging-system` |
+| 5 | S98 deferred bans | Memory: only P Store deferred; React+manual-Chrome bans LIFTED | `mem://preferences/deferred-workstreams` |
+| 6 | S93 Phase 2b/2c | Canonical label fixed to "Phase 2b" | `mem://architecture/instruction-dual-emit-phase-2b` |
+| 7 | S5/S6/S89 entry point | Created blind-AI reading order doc | `spec/00-what-to-read-first.md` |
+| 8 | S82 suggestions split | Canonical path enforced in memory | `mem://workflow/suggestions-convention` |
+| 9 | S83 Q&A folder | README + dup-prefix register | `.lovable/question-and-ambiguity/README.md` |
+| 10 | Wrap | This summary | `progress.md` |
+
+**Verification:**
+- `.lovable/plan.md` now 11 lines (pointer only); `plan.md` grew to ~583 lines.
+- `node scripts/audit-spec-range.mjs` reports `00–32 (27 dirs)`.
+- 4 memory files updated reflecting reality, not aspiration.
+- Blind LLM starting at `spec/00-what-to-read-first.md` now has an unambiguous path through the spec.
+
+**Subsystem ceiling delta (estimated):**
+- Workflow/meta: 45% → 65% (+20)
+- Logging: 5% → 5% (S13 not yet executed; Batch C target)
+- Spec navigation: ~50% → 85% (new entry doc + corrected drift)
+
+Remaining: Batches B (steps 11–20), C (21–30), D (31–40), E (41–50).
