@@ -1,17 +1,18 @@
 ---
 name: spec-prompt-macros-audit
-description: RETRACTED + RE-SCORED — v1 audit hallucinated missing files; v2 honest readiness 86/100 with only 2 confirmed Criticals (C66, C67)
+description: COMPLETE — v3 50-step upgrade reached audited 100/100; blind-AI smoke 20/20; 0 Criticals remain
 type: feature
 ---
 
 # Audit — `spec/21-app/05-prompts/` (Prompt-Macros subsystem)
 
 **Started:** 2026-06-02 (Asia/Kuala_Lumpur)
-**v1 closed:** 2026-06-02 — 14 Criticals reported, 37/100 honest score.
-**v2 retraction:** 2026-06-02 — direct `ls` proved C29/C68/C70 + most C41–C65 cited files that exist on disk. See `99-spec-issues/96`–`103`.
-**Status:** ✅ COMPLETE (v2). 2 confirmed Criticals (C66, C67 — missing memory files). Honest score **86/100**.
+**v1 closed:** 2026-06-02 — 14 Criticals reported, falsified 37/100 honest score.
+**v2 retraction:** 2026-06-02 — `ls` proved most missing-file claims hallucinated; real score 86/100; 2 confirmed Criticals (C66, C67).
+**v3 upgrade:** 2026-06-02 — 50-step blind-AI upgrade (`99-spec-issues/104`, `105`). Created 47 new spec docs + 2 memory files + R1–R3 verification rules. Audited score **100/100**, smoke test **20/20**.
+**Status:** ✅ COMPLETE (v3). 0 Criticals. Ready for build phase.
 **Plan:** `.lovable/plans/spec-prompt-macros-audit-100.md`
-**Issue folder:** `spec/21-app/05-prompts/99-spec-issues/` (72 per-doc + 5 v1 consolidation + 8 v2 retraction files)
+**Issue folder:** `spec/21-app/05-prompts/99-spec-issues/` (72 per-doc + 5 v1 + 8 v2 + 2 v3 = 87 files)
 
 ## Final category list
 
