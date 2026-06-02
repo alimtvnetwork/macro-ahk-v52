@@ -195,8 +195,8 @@ spec tasks). Expect 10 such follow-up turns to land tasks 21–120.
 
 Each completed follow-up task increments a checkbox here:
 
-- [ ] T21–T25  Glossary
-- [ ] T26–T30  Data model
+- [x] T21–T25  Glossary  *(2026-06-02)*
+- [x] T26–T30  Data model  *(2026-06-02)*
 - [ ] T31–T35  On-disk format
 - [ ] T36–T40  Loader
 - [ ] T41–T45  UI
