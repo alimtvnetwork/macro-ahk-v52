@@ -64,6 +64,7 @@ let sessionInitPromise: Promise<void> | null = null;
 const fileHandleCache = new Map<string, FileSystemFileHandle>();
 const pendingWrites = new Map<string, string[]>();
 let flushScheduled = false;
+let flushTimerId: ReturnType<typeof setTimeout> | null = null;
 
 /* ------------------------------------------------------------------ */
 /*  Initialization                                                     */
@@ -165,12 +166,19 @@ async function appendToFile(filename: string, text: string): Promise<void> {
     if (!flushScheduled) {
         flushScheduled = true;
         // Microtask-batch: flush after current call stack clears
-        setTimeout(() => void flushPending(), 100);
+        flushTimerId = setTimeout(() => {
+            flushTimerId = null;
+            void flushPending();
+        }, 100);
     }
 }
 
 /** Flushes all pending writes to OPFS files. */
 async function flushPending(): Promise<void> {
+    if (flushTimerId !== null) {
+        clearTimeout(flushTimerId);
+        flushTimerId = null;
+    }
     flushScheduled = false;
     const dir = await ensureSessionDir();
     if (!dir) return;
