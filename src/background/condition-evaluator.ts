@@ -151,5 +151,14 @@ async function checkOnlineCondition(): Promise<boolean> {
 
 /** Applies a millisecond delay before injection. */
 function applyDelay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise((resolve) => {
+        let timeoutId: ReturnType<typeof setTimeout> | null = null;
+        timeoutId = setTimeout(() => {
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            resolve();
+        }, ms);
+    });
 }
