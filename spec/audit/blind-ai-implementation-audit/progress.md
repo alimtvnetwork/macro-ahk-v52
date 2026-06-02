@@ -141,3 +141,5 @@ Remaining: Batches B (steps 11–20), C (21–30), D (31–40), E (41–50).
 10. Added **Preflight · Blind-AI Audit Guards** job in `.github/workflows/ci.yml` running: coding-guidelines coverage, swallow-baseline monotonic, spec README structure (strict), forbidden anim libs, timer-teardown audit (advisory). Preserves the unfiltered `on: push:` trigger contract.
 
 **Batch G (post-50): Top-10 README flesh-out** — replaced auto-generated stubs with real Overview prose + memory anchors in: `17-consolidated-guidelines`, `21-app`, `31-macro-recorder`, `02-architecture`, `02-coding-guidelines`, `03-error-manage`, `04-database-conventions`, `07-design-system`, `12-cicd-pipeline-workflows`, `22-app-issues`. Structure gate still passes 0 issues.
+
+**Batch H (post-50): Next-10 README flesh-out** — fleshed out: `01-spec-authoring-guide`, `05-split-db-architecture`, `06-seedable-config-architecture`, `08-docs-viewer-ui`, `09-code-block-system`, `10-research`, `11-powershell-integration`, `14-update`, `23-database`, `26-chrome-extension-generic`. 20/25 stubs now substantive; structure gate still passes 0 issues.

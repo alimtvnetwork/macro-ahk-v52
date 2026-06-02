@@ -1,9 +1,9 @@
 # Research
 
 ## Overview
-Spec section for **Research**. See `spec/00-what-to-read-first.md` for global reading order, and `spec/03-decision-tree.md` for how this section fits into request routing.
+
+Exploratory research notes that have not (yet) been promoted into a formal feature spec. Use this folder as a holding area; once a research note has acceptance criteria + tests, move it under the appropriate numeric `spec/NN-…/` folder. Items here MUST NOT be referenced from production code paths.
 
 ## Files
 - [`00-overview.md`](./00-overview.md)
 - [`99-consistency-report.md`](./99-consistency-report.md)
-

@@ -1,8 +1,8 @@
-# Docs Viewer Ui
+# Docs Viewer UI
 
 ## Overview
-Spec section for **Docs Viewer Ui**. See `spec/00-what-to-read-first.md` for global reading order, and `spec/03-decision-tree.md` for how this section fits into request routing.
+
+In-app documentation viewer spec — the UI shell that renders spec markdown for end-users and contributors inside the extension. Honors the dark-only theme (`mem://preferences/dark-only-theme`) and the namespace-logger error contract.
 
 ## Files
-- [`00-overview.md`](./00-overview.md)
-
+- [`00-overview.md`](./00-overview.md) — viewer contract + layout
