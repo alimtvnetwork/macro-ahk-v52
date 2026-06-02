@@ -165,9 +165,9 @@ function buildPreview(
     for (const g of allGroups) {
         if (targetIds.has(g.StepGroupId)) continue;
         const key = g.ParentStepGroupId ?? null;
-        const arr = externalSiblingsByParent.get(key) ?? [];
-        arr.push(g.Name);
-        externalSiblingsByParent.set(key, arr);
+        const entries = externalSiblingsByParent.get(key) ?? [];
+        entries.push(g.Name);
+        externalSiblingsByParent.set(key, entries);
     }
 
     // Track new names *within* the batch per parent — clashes inside

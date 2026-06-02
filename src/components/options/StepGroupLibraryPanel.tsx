@@ -149,9 +149,9 @@ function buildTree(groups: ReadonlyArray<StepGroupRow>): TreeNode[] {
     const byParent = new Map<number | null, StepGroupRow[]>();
     for (const g of groups) {
         const key = g.ParentStepGroupId ?? null;
-        const arr = byParent.get(key) ?? [];
-        arr.push(g);
-        byParent.set(key, arr);
+        const entries = byParent.get(key) ?? [];
+        entries.push(g);
+        byParent.set(key, entries);
     }
     const visit = (parentId: number | null): TreeNode[] => {
         const kids = byParent.get(parentId) ?? [];
