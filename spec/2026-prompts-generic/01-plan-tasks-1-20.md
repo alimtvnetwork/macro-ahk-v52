@@ -207,8 +207,8 @@ Each completed follow-up task increments a checkbox here:
 - [x] T66–T70  Queue model  *(2026-06-02)*
 - [x] T71–T75  Queue lifecycle  *(2026-06-02)*
 - [x] T76–T80  Delay engine  *(2026-06-02)*
-- [ ] T81–T85  Failure handling
-- [ ] T86–T90  Plan mode
+- [x] T81–T85  Failure handling  *(2026-06-02)*
+- [x] T86–T90  Plan mode  *(2026-06-02)*
 - [ ] T91–T95  Settings
 - [ ] T96–T100 Observability
 - [ ] T101–T105 Onboarding
