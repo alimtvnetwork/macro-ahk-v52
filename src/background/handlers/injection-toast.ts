@@ -330,11 +330,22 @@ export async function showInjectionLoadingToast(tabId: number, scriptCount: numb
                     toast.style.transform = "translateY(0) scale(1)";
                 });
 
-                setTimeout(() => {
+                let dismissTimer: ReturnType<typeof setTimeout> | null = null;
+                let removeTimer: ReturnType<typeof setTimeout> | null = null;
+                const cleanup = () => {
+                    if (dismissTimer !== null) { clearTimeout(dismissTimer); dismissTimer = null; }
+                    if (removeTimer !== null) { clearTimeout(removeTimer); removeTimer = null; }
+                    window.removeEventListener("pagehide", cleanup);
+                    toast.remove();
+                };
+
+                window.addEventListener("pagehide", cleanup, { once: true });
+                dismissTimer = setTimeout(() => {
+                    dismissTimer = null;
                     if (toast.parentNode) {
                         toast.style.opacity = "0";
                         toast.style.transform = "translateY(8px) scale(0.96)";
-                        setTimeout(() => toast.remove(), 350);
+                        removeTimer = setTimeout(cleanup, 350);
                     }
                 }, 10000);
             },
