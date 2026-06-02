@@ -187,10 +187,10 @@ function formatTimestamp(iso: string): string {
   }
 }
 
-function tryFormatJson(str: string): string {
+function tryFormatJson(raw: string): string {
   try {
-    return JSON.stringify(JSON.parse(str), null, 2);
+    return JSON.stringify(JSON.parse(raw), null, 2);
   } catch {
-    return str;
+    return raw;
   }
 }

@@ -40,12 +40,12 @@ export function parseName(name: string): ParsedName {
     return { base: trimmed, separator: '', vLetter: '', current: 1 };
   }
   const [, base, separator, vLetter, numStr] = match;
-  const num = Number(numStr);
+  const count = Number(numStr);
   return {
     base,
     separator,
     vLetter,
-    current: Number.isFinite(num) && num > 0 ? num : 1,
+    current: Number.isFinite(count) && count > 0 ? count : 1,
   };
 }
 

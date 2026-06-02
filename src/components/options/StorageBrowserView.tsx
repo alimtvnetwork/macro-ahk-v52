@@ -916,11 +916,11 @@ function CellValue({ value }: { value: SqlValue }) {
   if (typeof value === "number") {
     return <span className="text-primary">{value}</span>;
   }
-  const str = String(value);
-  if (str.length > 80) {
-    return <span title={str}>{str.slice(0, 80)}…</span>;
+  const raw = String(value);
+  if (raw.length > 80) {
+    return <span title={raw}>{raw.slice(0, 80)}…</span>;
   }
-  return <span>{str}</span>;
+  return <span>{raw}</span>;
 }
 
 /* ------------------------------------------------------------------ */

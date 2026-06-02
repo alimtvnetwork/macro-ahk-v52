@@ -68,7 +68,7 @@ export interface CreditTotals {
 }
 
 /** Safe number-or-zero coercion. */
-function num(value: number | undefined | null): number {
+function n(value: number | undefined | null): number {
   if (typeof value !== 'number') return 0;
   if (!Number.isFinite(value)) return 0;
   return value;
@@ -94,18 +94,18 @@ function readCreditTriple(ws: WorkspaceCredit): CreditTriple {
   if (isProZeroPlan(ws)) {
     // Enriched by pro-zero-enrichment.applySummaryToRow().
     return {
-      used: num(ws.totalCreditsUsed),
-      remaining: num(ws.available),
-      granted: num(ws.totalCredits),
+      used: n(ws.totalCreditsUsed),
+      remaining: n(ws.available),
+      granted: n(ws.totalCredits),
     };
   }
   // Issue 120 fix: paid non-pro_0 plans (pro_1, pro_3, lite, ktlo) use the
   // billing-period fields ONLY. Do NOT add daily / granted / topup / rollover
   // into the Total — that double-counts and inflates the user's plan grant.
   return {
-    used: num(ws.used),
-    remaining: num(ws.billingAvailable),
-    granted: num(ws.limit),
+    used: n(ws.used),
+    remaining: n(ws.billingAvailable),
+    granted: n(ws.limit),
   };
 }
 
@@ -163,7 +163,7 @@ export function aggregateCreditTotals(
   for (const ws of workspaces) {
     // dailyFree is per-account; sample it on every row (incl. FREE) so the
     // free-daily card populates even when the user only has FREE workspaces.
-    const dailyFree = num(ws.dailyFree);
+    const dailyFree = n(ws.dailyFree);
     if (dailyFree > freeDailyRemaining) freeDailyRemaining = dailyFree;
 
     if (isFreeTierWorkspace(ws)) continue;

@@ -121,11 +121,11 @@ export function formatErrorForClipboard(error: ErrorModel): string {
 }
 
 /** Pretty-print JSON if valid, otherwise return raw string */
-function tryPrettyJson(str: string): string {
+function tryPrettyJson(value: string): string {
   try {
-    return JSON.stringify(JSON.parse(str), null, 2);
+    return JSON.stringify(JSON.parse(value), null, 2);
   } catch {
-    return str;
+    return value;
   }
 }
 

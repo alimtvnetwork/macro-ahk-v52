@@ -967,8 +967,8 @@ export function ScriptsList({ scripts, configs, loading, onSave, onDelete, onSav
 /*  Utilities                                                          */
 /* ------------------------------------------------------------------ */
 
-function validateJson(str: string): boolean {
-  try { JSON.parse(str); return true; } catch { return false; }
+function validateJson(raw: string): boolean {
+  try { JSON.parse(raw); return true; } catch { return false; }
 }
 
 function formatJson(input: JsonValue): string {

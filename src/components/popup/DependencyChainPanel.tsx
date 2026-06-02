@@ -102,7 +102,7 @@ export function DependencyChainPanel() {
     ];
     for (let i = 0; i < snap.chain.length; i++) {
       const e = snap.chain[i];
-      const num = String(i + 1).padStart(2);
+      const count = String(i + 1).padStart(2);
       const name = e.scriptName.padEnd(20);
       const role = (ROLE_LABELS[e.role] ?? e.role).padEnd(13);
       const r = flag(e.resolved);
@@ -110,7 +110,7 @@ export function DependencyChainPanel() {
       const x = flag(e.executed);
       const ms = e.executeMs !== null ? `${e.executeMs}ms`.padEnd(6) : "  —   ";
       const src = e.codeSource ?? "";
-      lines.push(`  ${num} ${name} ${role} ${r}  ${f}  ${x}  ${ms} ${src}`);
+      lines.push(`  ${count} ${name} ${role} ${r}  ${f}  ${x}  ${ms} ${src}`);
       if (e.error) {
         lines.push(`     ⚠ ${e.error}`);
       }

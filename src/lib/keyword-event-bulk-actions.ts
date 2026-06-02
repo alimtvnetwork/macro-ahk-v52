@@ -38,12 +38,12 @@ export function formatSequenceNumber(n: number, padding: number): string {
 }
 
 export function renderSequenceName(input: SequenceRenameInput, index: number): string {
-    const num = formatSequenceNumber(input.Start + index, input.Padding);
+    const count = formatSequenceNumber(input.Start + index, input.Padding);
     if (input.Base.includes("{n}")) {
-        return input.Base.split("{n}").join(num);
+        return input.Base.split("{n}").join(count);
     }
     const base = input.Base.trim();
-    return base.length === 0 ? num : `${base}${input.Separator}${num}`;
+    return base.length === 0 ? count : `${base}${input.Separator}${count}`;
 }
 
 /* ------------------------------------------------------------------ */

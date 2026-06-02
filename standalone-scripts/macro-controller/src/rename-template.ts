@@ -42,31 +42,31 @@ function normalizeStartNumbers(startNums: number | Record<string, number>): Vari
     };
   }
 
-  const num = (startNums as number) || 1;
-  return { dollar: num, hash: num, star: num };
+  const n = (startNums as number) || 1;
+  return { dollar: n, hash: n, star: n };
 }
 
-function applyVars(str: string, starts: VariableStartNumbers, index: number): string {
-  const isEmpty = !str;
-  if (isEmpty) return str;
+function applyVars(text: string, starts: VariableStartNumbers, index: number): string {
+  const isEmpty = !text;
+  if (isEmpty) return text;
 
-  str = str.replace(/(\$+)/, function (m: string) {
+  text = text.replace(/(\$+)/, function (m: string) {
     return zeroPad((starts.dollar || 1) + index, m.length);
   });
 
-  str = str.replace(/(#+)/, function (m: string) {
+  text = text.replace(/(#+)/, function (m: string) {
     return zeroPad((starts.hash || 1) + index, m.length);
   });
 
-  str = str.replace(/(\*{2,})/, function (m: string) {
+  text = text.replace(/(\*{2,})/, function (m: string) {
     return zeroPad((starts.star || 1) + index, m.length);
   });
 
-  return str;
+  return text;
 }
 
-function zeroPad(num: number, minLength: number): string {
-  let s = String(num);
+function zeroPad(n: number, minLength: number): string {
+  let s = String(n);
   while (s.length < minLength) s = '0' + s;
   return s;
 }

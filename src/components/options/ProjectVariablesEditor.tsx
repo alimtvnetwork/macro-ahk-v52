@@ -76,9 +76,9 @@ function RawJsonEditor({ variables, onChange }: RawJsonEditorProps) {
 }
 
 /** Checks if a string is invalid JSON. */
-function isInvalidJson(str: string): boolean {
+function isInvalidJson(input: string): boolean {
   try {
-    JSON.parse(str);
+    JSON.parse(input);
     return false;
   } catch (jsonParseError: unknown) {
     return true;
