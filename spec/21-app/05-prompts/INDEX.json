@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-02T20:45:22.018Z",
+  "generatedAt": "2026-06-02T20:47:36.268Z",
   "root": "spec/21-app/05-prompts",
-  "fileCount": 248,
+  "fileCount": 250,
   "files": [
     {
       "path": "spec/21-app/05-prompts/00-all-prompts.md",
@@ -662,6 +662,13 @@
       "bytes": 1177
     },
     {
+      "path": "spec/21-app/05-prompts/99-spec-issues/README.md",
+      "title": "99-spec-issues — Index",
+      "status": "Reference",
+      "version": "1.0.0",
+      "bytes": 1363
+    },
+    {
       "path": "spec/21-app/05-prompts/ACRONYMS.md",
       "title": "Acronyms & Terms",
       "status": "Normative",
@@ -897,7 +904,7 @@
       "title": "Prompt Macros — CHANGELOG",
       "status": null,
       "version": null,
-      "bytes": 3404
+      "bytes": 5539
     },
     {
       "path": "spec/21-app/05-prompts/macros/EDGE-CASES.md",
@@ -1500,6 +1507,13 @@
       "status": "Normative",
       "version": "1.0.0",
       "bytes": 1331
+    },
+    {
+      "path": "spec/21-app/05-prompts/SPEC-GATES-BADGE.md",
+      "title": "Spec-Gates Badge — README snippet",
+      "status": "Reference",
+      "version": "1.0.0",
+      "bytes": 1175
     },
     {
       "path": "spec/21-app/05-prompts/ui/00-prompts-button.md",
