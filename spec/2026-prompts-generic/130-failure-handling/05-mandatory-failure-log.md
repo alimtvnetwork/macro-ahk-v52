@@ -43,7 +43,7 @@ If a category truly has nothing to report, the field MUST still appear with an e
 
 ## Logging path
 
-Written via `RiseupAsiaMacroExt.Logger.error()` (Core memory: Namespace Logging). Never bare `console.error`.
+Written via the host-supplied namespace logger (e.g. `host.logger.error(record)`). Never bare `console.error`.
 
 ## Verbose gate
 

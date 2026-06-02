@@ -17,8 +17,13 @@ const BANNED = [
   /\bMarco SDK\b/,
 ];
 const ALLOW_FILES = new Set([
-  // Banlist file itself documents the forbidden words.
+  // Meta-docs that document the banlist by quoting the forbidden terms.
+  "00-overview.md",
+  "01-plan-tasks-1-20.md",
   "10-glossary/04-vocabulary-banlist.md",
+  "200-adoption-checklist/03-go-live-checklist.md",
+  "200-adoption-checklist/04-worked-example.md",
+  "200-adoption-checklist/05-handoff.md",
 ]);
 
 function walk(dir) {
