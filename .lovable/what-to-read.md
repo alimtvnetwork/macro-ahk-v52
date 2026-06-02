@@ -162,7 +162,37 @@ TypeScript / Markdown sources. Edit the **source**, not the JSON.
 
 Run a single file: `bunx vitest run <path>`.
 
+### 6.1 How to add a unit test alongside a new feature/fix
+
+Per `mem://preferences/test-with-features`, **every feature or fix ships with a matching test**:
+
+1. Place the test next to the code: `<feature>.ts` → `__tests__/<feature>.test.ts`.
+2. Use Vitest's `describe` / `it` / `expect`; mock chrome APIs via `vi.stubGlobal`.
+3. React components → React Testing Library + `@testing-library/jest-dom` (see `src/pages/__tests__/Options.test.tsx` as a reference).
+4. Standalone-script logic → pure-TS test under `standalone-scripts/<name>/src/__tests__/`.
+5. Run `bunx vitest run <new-test-path>` to confirm it passes before committing.
+6. CI runs the full suite automatically — no extra wiring needed.
+
+### 6.2 How to add a new feature end-to-end
+
+1. **Spec first** — draft / update the relevant spec under `spec/21-app/` or `spec/26-macro-controller/`. See §7 below for spec folder slots.
+2. **Plan entry** — add a row in `.lovable/plan.md` (status `⏳ Pending`).
+3. **Code** — follow `.lovable/coding-guidelines.md` (function size ≤ 25 lines, no `any`/`unknown`, named constants, defensive `?.`/`??`).
+4. **Test** — per §6.1 above. No PR without a matching test.
+5. **Memory** — if the feature introduces a new convention/contract/gotcha, write a memory file under `.lovable/memory/<topic>/` and add an index entry in `.lovable/memory/index.md`.
+6. **Changelog + version bump** — see §3 step 6–7 for the five pinning points.
+
+### 6.3 How to add a new spec
+
+1. Pick the correct slot: `01–20` = foundations, `21+` = app tier. See `spec/00-overview.md`.
+2. Use the next free numeric prefix (`spec/26-macro-controller/27-<name>.md` etc.).
+3. Follow `spec/01-spec-authoring-guide/` (v3.5.0) — sections: Goal, Non-goals, Contracts, Acceptance, References.
+4. Link the spec from `spec/00-overview.md` and from `.lovable/plan.md` if it tracks an active workstream.
+5. CI guard `scripts/check-spec-prompts-xrefs.mjs` validates cross-references.
+
 ---
+
+
 
 ## 7. Folder Cheat-Sheet
 
