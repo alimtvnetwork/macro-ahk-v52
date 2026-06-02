@@ -1,58 +1,70 @@
 # Spec Issues — Prompt-Macros Subsystem Audit
 
-**Version:** 0.1.0
-**Updated:** 2026-06-02
+**Version:** 1.0.0 (audit COMPLETE)
+**Updated:** 2026-06-02 (Asia/Kuala_Lumpur)
 **Auditor:** Lovable agent (self-audit of own last spec)
 **Scope:** every file under `spec/21-app/05-prompts/` (95 markdown files)
-**Reference:** `spec/01-spec-authoring-guide/` (especially `02-naming-conventions.md`, `03-required-files.md`)
+**Reference:** `spec/01-spec-authoring-guide/`
 
 ---
 
 ## Headline finding
 
-> If you hand this folder to a blind AI today, it **will fail before reading a single line of content**, because the folder violates the spec authoring guide's structural rules. The earlier self-issued "Readiness 100/100" score in `macros/READINESS-SCORE.md` is **invalid** — it audited content quality only and ignored structural conformance.
-
-Revised readiness: **≈ 35 / 100** (content is solid, but a blind AI walking the spec by the project's own onboarding rules will be unable to enumerate the tree).
+> Self-issued "Readiness 100/100" in `macros/READINESS-SCORE.md` is **invalid**. Honest score: **37 / 100** (see `94-revised-readiness-score.md`). A blind AI handed this folder today fails **7 of 7** representative tasks at the spec layer (see `93-blind-ai-failure-modes.md`).
 
 ---
 
-## Issue categories (Phase 0 — broad-stroke)
+## Final tallies
 
-Each item is a *category*. Phase 1+ will split each into atomic findings.
+- **Files audited:** 95 spec docs + 4 top-level (`README`, `CHANGELOG`, `MIGRATION`, `READINESS-SCORE`) + 3 memory references.
+- **Per-doc audit files written:** 72 (`01-…md` through `72-…md`).
+- **Consolidation files:** 5 (`90-master-issue-list.md`, `91-severity-matrix.md`, `92-fix-effort-estimate.md`, `93-blind-ai-failure-modes.md`, `94-revised-readiness-score.md`).
+- **Distinct issue categories:** **33** (C1–C29 + C66–C72).
 
-| ID  | Category                                | Severity | Files affected | Fix file (later) |
-|-----|-----------------------------------------|---------:|---------------:|------------------|
-| C1  | Missing mandatory metadata header       | Critical | **95 / 95**    | `01-…`           |
-| C2  | Filename violates kebab-case / NN-prefix| Critical | 6              | `02-…`           |
-| C3  | Folder missing `00-overview.md`         | Critical | 9              | `03-…`           |
-| C4  | Root missing `99-consistency-report.md` | High     | 1              | `04-…`           |
-| C5  | Reserved-prefix files in wrong slot     | High     | 3              | `05-…`           |
-| C6  | `97-acceptance-criteria.md` missing     | High     | 9              | `06-…`           |
-| C7  | snake_case identifiers in body content  | Medium   | 1+ (metrics)   | `07-…`           |
-| C8  | Cross-reference rot (links to `mem://`) | Medium   | TBD            | `08-…`           |
-| C9  | Plan-doc lives in `.lovable/plans/` but spec links to it as authoritative | Medium | 2 | `09-…` |
-| C10 | Two parallel concepts (`macros/00-concept.md` vs `engine/00-architecture.md`) — no "supersedes" chain | Medium | 2 | `10-…` |
+## Severity counts
 
-Total atomic findings expected after Phase 1–9 expansion: **80–100**.
+| Severity | Count |
+|---|---:|
+| **CRITICAL** | 14 |
+| High | 17 |
+| Medium | 8 |
+| Low/clean | 8 |
+
+## Top 5 critical defects (must fix first)
+
+1. **C29** — Planned subfolders `json/`, `ui/`, `macro-prompts/`, `variables/` DO NOT EXIST (~30 missing docs).
+2. **C70** — READINESS-SCORE 100/100 is falsified; honest ≈37.
+3. **C66 + C67** — 2 of 3 advertised `mem://features/prompt-*` files are missing.
+4. **C72** — CHANGELOG cites thresholds + test counts that don't appear in any spec doc.
+5. **C62 + C63** — De-facto canonical failure-mode and storage-contract docs don't cite their Core-memory anchors.
+
+## Fix-effort summary
+- ~14 agent batches → realistic 85/100 (see `92-fix-effort-estimate.md`).
+- ~20 batches → genuine 100/100 (includes writing the 30 missing docs at production quality).
 
 ---
 
-## How this audit is sequenced
+## Index of issue files
 
-100 atomic tasks. Each `next` = one task = one of:
-
-- Write/expand one issue file `NN-<slug>.md` under this folder.
-- Update this overview's counts.
-- Update `mem://audits/spec-prompt-macros` with the new finding.
-
-**No file in `spec/21-app/05-prompts/` outside `99-spec-issues/` will be modified** until the audit is complete and the user explicitly approves a fix pass.
-
-The full 100-step plan lives in [`.lovable/plans/spec-prompt-macros-audit-100.md`](../../../../.lovable/plans/spec-prompt-macros-audit-100.md).
+- `01`–`25` Structural sweep (metadata, naming, overviews, reserved prefixes, hygiene)
+- `26` Engine folder batch audit (10 docs)
+- `36`–`40` `examples/` per-doc
+- `41`–`45` `guards/` per-doc
+- `46`–`50` `testing/` per-doc
+- `51`–`55` `observability/` per-doc
+- `56` **C29 missing subfolders** (subsumes 66–85 from plan)
+- `57`–`64` Top-level concept docs (`00-concept` … `07-permissions-and-scope`)
+- `65` `folder-layout/` batch audit
+- `66`–`69` Memory cross-checks (`mem://features/prompt-macros`, `prompt-variables`, `macro-prompts-folder`, `index.md`)
+- `70`–`72` Top-level docs (`READINESS-SCORE`, `MIGRATION`, `CHANGELOG`)
+- `90`–`94` Consolidation
 
 ---
 
 ## What is NOT in scope of this audit
+- Content correctness of macros engine itself.
+- Code under `src/`.
+- Other spec folders (`02-features/`, `03-…`).
 
-- Content correctness of macros engine, variables, guards — those were authored deliberately and are not being re-litigated here.
-- Code under `src/` — pure spec audit.
-- Other spec folders (`02-features/`, `03-...`) — separate audit if requested.
+## Next step
+Audit is **closed**. To proceed, request a **fix-pass plan** (separate document, ~14 batches). Per Core memory, the user must approve the fix scope before any spec file outside `99-spec-issues/` is modified.
