@@ -12,4 +12,4 @@ spec is complete; this is the follow-on punch-list.
 - [x] H7 — Cross-link audit (`scripts/check-spec-prompts-xrefs.mjs`).
 - [x] H8 — Acceptance-bullet extractor (`scripts/extract-prompts-acceptance.mjs`) → `/mnt/documents/2026-prompts-acceptance.md`.
 - [x] H9 — Reference-snippet typecheck harness (`scripts/typecheck-spec-snippets.mjs`, extracts `\`\`\`ts` blocks + shimmed tsc --noEmit).
-- [ ] H10 — Port `PromptStore` + queue engine into a host wiring PoC (deferred — host TBD).
+- [x] H10 — Vanilla-HTML host-wiring PoC (`poc/2026-prompts-generic/index.html`) — wires snippets 01/02/03/05 + in-memory QueueStore against a mock chat host.
