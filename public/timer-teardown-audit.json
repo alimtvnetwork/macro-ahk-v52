@@ -1,35 +1,11 @@
 {
-  "generatedAt": "2026-06-02T16:20:01.376Z",
-  "totalFindings": 71,
+  "generatedAt": "2026-06-02T16:22:50.569Z",
+  "totalFindings": 65,
   "findings": [
     {
       "file": "src/background/condition-evaluator.ts",
       "installer": "\\bsetTimeout\\s*\\(",
       "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/csp-fallback.ts",
-      "installer": "\\.addEventListener\\s*\\(",
-      "installs": 4,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/first-attach-toast.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/first-attach-toast.ts",
-      "installer": "\\.addEventListener\\s*\\(",
-      "installs": 2,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/handlers/injection-toast.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 8,
       "teardowns": 0
     },
     {
@@ -90,12 +66,6 @@
       "file": "src/background/recorder/step-library/__tests__/replay-bridge.test.ts",
       "installer": "\\.addEventListener\\s*\\(",
       "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/background/recorder/step-library/hotkey-executor.ts",
-      "installer": "\\bsetTimeout\\s*\\(",
-      "installs": 3,
       "teardowns": 0
     },
     {
@@ -258,12 +228,6 @@
       "file": "src/content-scripts/message-relay.ts",
       "installer": "\\bsetTimeout\\s*\\(",
       "installs": 1,
-      "teardowns": 0
-    },
-    {
-      "file": "src/content-scripts/network-reporter.ts",
-      "installer": "\\.addEventListener\\s*\\(",
-      "installs": 4,
       "teardowns": 0
     },
     {
