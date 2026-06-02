@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riseup.asia/schemas/run-state#v1",
+  "title": "RunState",
+  "type": "object",
+  "required": ["RunId", "Slug", "Status", "StepIndex", "StartedAt"],
+  "properties": {
+    "RunId": { "type": "string", "format": "uuid" },
+    "Slug": { "type": "string" },
+    "Status": { "type": "string", "enum": ["Idle", "Running", "Paused", "Completed", "Aborted"] },
+    "StepIndex": { "type": "integer", "minimum": 0 },
+    "LastCompletedStepIndex": { "type": "integer", "minimum": -1, "default": -1 },
+    "LoopIteration": { "type": "integer", "minimum": 0, "default": 0 },
+    "TabId": { "type": "integer" },
+    "WorkspaceId": { "type": "string" },
+    "Variables": { "type": "object", "additionalProperties": true },
+    "Score": { "type": ["integer", "null"], "minimum": 0, "maximum": 100 },
+    "Reason": { "type": ["string", "null"] },
+    "ReasonDetail": { "type": ["string", "null"] },
+    "StartedAt": { "type": "string", "format": "date-time" },
+    "UpdatedAt": { "type": "string", "format": "date-time" },
+    "SchemaVersion": { "type": "integer", "const": 1 }
+  },
+  "additionalProperties": false
+}

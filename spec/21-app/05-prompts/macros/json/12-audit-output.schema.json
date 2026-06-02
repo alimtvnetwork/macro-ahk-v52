@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riseup.asia/schemas/audit-output#v1",
+  "title": "AuditOutput",
+  "type": "object",
+  "required": ["RunId", "GeneratedAt", "Findings", "Score"],
+  "properties": {
+    "RunId": { "type": "string", "format": "uuid" },
+    "GeneratedAt": { "type": "string", "format": "date-time" },
+    "Score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "TargetScore": { "type": "integer", "minimum": 1, "maximum": 100 },
+    "Findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["Id", "Severity", "Title", "Path"],
+        "properties": {
+          "Id": { "type": "string" },
+          "Severity": { "type": "string", "enum": ["Critical", "High", "Medium", "Low"] },
+          "Title": { "type": "string" },
+          "Path": { "type": "string" },
+          "LineFrom": { "type": "integer", "minimum": 1 },
+          "LineTo": { "type": "integer", "minimum": 1 },
+          "Rationale": { "type": "string" },
+          "SuggestedFix": { "type": "string" }
+        }
+      }
+    },
+    "SchemaVersion": { "type": "integer", "const": 1 }
+  }
+}
