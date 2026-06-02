@@ -47,5 +47,46 @@ Dates in **Asia/Kuala_Lumpur**. Format: [Keep a Changelog](https://keepachangelo
 
 ### Verification rules (R1–R3)
 
-- Added to `mem://workflow/readiness-reports` to prevent future hallucinated audits.
+
+## [2.1.0] — 2026-06-02 (hardening wave v4)
+
+### Added (operational documentation)
+- `security/10-threat-model.md` — STRIDE T-01..T-07
+- `performance/10-budgets.md` — soft/hard ceilings + perf marks
+- `governance/10-versioning-deprecation.md` — SemVer + deprecation lifecycle
+- `observability/13-telemetry-privacy.md` — what is / never collected
+- `observability/14-error-taxonomy-quickref.md` — top-15 reason codes
+- `engine/17-concurrency-model.md` — R-01..R-05 race scenarios
+- `storage/10-quota-and-eviction.md` — per-layer caps and eviction
+- Root `ACRONYMS.md`, `OWNERSHIP.md`, `RELEASE-CHECKLIST.md`
+
+## [2.2.0] — 2026-06-02 (hardening wave v5)
+
+### Added (CI enforcement)
+- `.github/workflows/spec-gates.yml` (4 jobs: perf-budget, xref-lint, index-drift, smoke-rescore)
+- `scripts/spec/{check-perf-budget,lint-cross-refs,build-index,smoke-rescore}.mjs` — all fail-fast, no retry
+- `.github/CODEOWNERS` derived from `OWNERSHIP.md`
+- `macros/testing/15-race-fixture-pack.md` — R-01..R-05 fixture spec
+- `macros/MIGRATION-TEMPLATE.md` — reusable MAJOR migration scaffold
+
+## [2.3.0] — 2026-06-02 (hardening wave v6)
+
+### Added (real artifacts)
+- `ui/16-storage-pressure-toast-e12.md` — E-12 toast + blocking modal
+- `ui/17-in-product-tooltips.md` + `scripts/spec/build-tooltip-dict.mjs` (→ `public/spec-tooltips.json`, 38 terms)
+- `macros/testing/fixtures/race/r01..r05.json` — deterministic race fixtures
+- `macros/observability/16-perf-dump-handler.md` — MACRO_PERF_DUMP contract
+- `.github/workflows/spec-governance-quarterly.yml` + `scripts/spec/governance-report.mjs` — cron, artifact-only
+- `CONTRIBUTING.md` — single-entry contributor guide
+
+## [2.4.0] — 2026-06-02 (hardening wave v7)
+
+### Added (drift gates + glue)
+- `scripts/spec/runbook-smoke.mjs` — every top-15 reason code must have a runbook section
+- `scripts/spec/tooltip-dict-gate.mjs` — `public/spec-tooltips.json` must match latest GLOSSARY/ACRONYMS
+- Two new spec-gates CI jobs: `runbook-smoke`, `tooltip-dict-gate`
+- `99-spec-issues/README.md` — issue tracker map
+- `SPEC-GATES-BADGE.md` — README badge integration snippet
+- `mem://workflow/spec-hardening-waves` — cross-wave summary memory
+
 
