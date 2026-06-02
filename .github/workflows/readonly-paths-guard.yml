@@ -1,0 +1,14 @@
+name: readonly-paths-guard
+on:
+  pull_request:
+    paths:
+      - 'skipped/**'
+      - '.release/**'
+jobs:
+  block:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail — skipped/ and .release/ are read-only
+        run: |
+          echo "::error::Modifications under skipped/ or .release/ are forbidden (Core rule)."
+          exit 1
