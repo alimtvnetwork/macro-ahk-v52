@@ -1,0 +1,2 @@
+skipped/**          linguist-vendored linguist-generated -diff
+.release/**         linguist-vendored linguist-generated -diff

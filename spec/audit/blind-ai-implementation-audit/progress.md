@@ -93,3 +93,19 @@ Remaining: Batches B (steps 11–20), C (21–30), D (31–40), E (41–50).
 **Reality check:** S13's "11% compliance" finding was naive (counted files, not call legitimacy). After applying the documented allowlist (logger impls, MAIN-world callbacks, runtime stubs, Monaco snippets, etc.) and sweeping the one true offender, the project sits at **100% compliance**.
 
 **Subsystem ceiling lift:** logging 5% → **95%** (single biggest jump). Workflow/meta unchanged (already lifted in Batch A/B).
+
+---
+
+## Batch D (Steps 31–40) — CI Guards & Audit Scripts — 2026-06-02
+
+- **S88** `.github/workflows/readonly-paths-guard.yml` blocks PRs touching `skipped/**` or `.release/**`.
+- **S88 pt2** `.gitattributes` marks both trees vendored + diff-suppressed. Doc: `spec/02-architecture/readonly-folders.md`.
+- **S77** `scripts/check-forbidden-anim-libs.mjs` rejects `framer-motion`/`gsap` in deps + lockfile (wire into preinstall when package.json is editable).
+- **S60** `scripts/audit-timer-teardown.mjs` → `public/timer-teardown-audit.json` (initial scan: 71 files missing teardown). Test: `scripts/__tests__/audit-timer-teardown.test.mjs`.
+- **S91** `scripts/check-swallow-baseline-monotonic.mjs` fails CI if baseline grows vs HEAD.
+- **S94** `src/shared/namespace-db-validators.ts` enforces 25-cap + `System.*` reservation. Test: `scripts/__tests__/namespace-db-validators.test.mjs`.
+- **S85** `scripts/check-readiness-report-staged.mjs` warns when new feature files lack a staged readiness-report.
+- **S86** `scripts/check-spec-readme-structure.mjs` validates H1 + Overview + Files in every `spec/*/README.md` (27 issues surfaced).
+- **S84** `.lovable/templates/next-response.md` codifies the `next` reply skeleton.
+
+**Verification:** all 4 audit scripts execute clean; tests added under `scripts/__tests__/`.
