@@ -1,10 +1,13 @@
 # Archive
 
 ## Overview
-Spec section for **Archive**. See `spec/00-what-to-read-first.md` for global reading order, and `spec/03-decision-tree.md` for how this section fits into request routing.
+
+Historical / superseded spec material kept for context but **not part of the live spec surface**. Anything here may contradict current rules — when in doubt, the live `spec/NN-…/` folder and `mem://index.md` Core win. Includes legacy overviews, duplicates (de-duplicated copies), governance history, imported sections from earlier repo layouts (error-management, PowerShell, WordPress), and miscellaneous imports.
+
+Do not link to `99-archive/` from active spec files unless explicitly documenting historical context.
 
 ## Files
-- [`readme.md`](./readme.md)
+- [`readme.md`](./readme.md) — historical entry point (lowercase preserved)
 
 ## Subdirectories
 - [`01-overview-legacy/`](./01-overview-legacy/)
