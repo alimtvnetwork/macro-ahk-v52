@@ -153,11 +153,11 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 10. [x] Update `spec/21-app/05-prompts/00-all-prompts.md` to list `macros/`, `macro-prompts/`, and `variables/` subsections.
 
 ### Block 2 — Variables & Templating Spec (Tasks 11–20)
-11. [ ] Create `spec/21-app/05-prompts/variables/` with `README.md`.
-12. [ ] Write `spec/21-app/05-prompts/variables/00-overview.md` — why variables exist, when to use them, examples.
-13. [ ] Write `spec/21-app/05-prompts/variables/01-syntax.md` — `{{ VarName }}` Mustache-lite, escaping, whitespace rules, forbidden constructs (no logic).
-14. [ ] Write `spec/21-app/05-prompts/variables/02-declaration.md` — `info.json` `Variables[]` schema (Name, Type, Default, Description, Required).
-15. [ ] Write `spec/21-app/05-prompts/variables/03-resolution-order.md` — 5-tier waterfall (Step → Macro → Run-Context → Default → fail-fast).
+11. [x] Create `spec/21-app/05-prompts/variables/` with `README.md`.
+12. [x] Write `spec/21-app/05-prompts/variables/00-overview.md` — why variables exist, when to use them, examples.
+13. [x] Write `spec/21-app/05-prompts/variables/01-syntax.md` — `{{ VarName }}` Mustache-lite, escaping, whitespace rules, forbidden constructs (no logic).
+14. [x] Write `spec/21-app/05-prompts/variables/02-declaration.md` — `info.json` `Variables[]` schema (Name, Type, Default, Description, Required).
+15. [x] Write `spec/21-app/05-prompts/variables/03-resolution-order.md` — 5-tier waterfall (Step → Macro → Run-Context → Default → fail-fast).
 16. [ ] Write `spec/21-app/05-prompts/variables/04-types.md` — supported types: string, integer, number, boolean, enum, path; coercion rules.
 17. [ ] Write `spec/21-app/05-prompts/variables/05-built-in-context.md` — `RunId`, `Now`, `LoopCount`, `LastScore`, `SpecRoot`, `MacroSlug`.
 18. [ ] Write `spec/21-app/05-prompts/variables/06-validation.md` — Ajv schema + failure-log shape on missing/invalid (`Reason="MissingVariable"`, full `VariableContext[]`).
