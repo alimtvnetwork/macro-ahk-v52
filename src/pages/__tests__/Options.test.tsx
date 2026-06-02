@@ -113,6 +113,12 @@ vi.mock("@/components/options/RecoveryIndicator", () => ({
   RecoveryIndicator: () => <div data-testid="recovery-indicator" />,
 }));
 
+vi.mock("@/components/options/ErrorDrawer", () => ({
+  ErrorDrawer: ({ open }: { open: boolean }) => (
+    <aside data-open={String(open)} data-testid="error-drawer" />
+  ),
+}));
+
 vi.mock("@/components/overlay/DraggableOverlay", () => ({
   DraggableOverlay: ({ children }: { children: React.ReactNode }) => (
     <section data-testid="draggable-overlay">{children}</section>
