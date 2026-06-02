@@ -2,7 +2,7 @@
 
 | Batch | Steps | Status | Summary |
 |-------|-------|--------|---------|
-| 1     | 1–10   | pending | — |
+| 1     | 1–10   | done    | Foundations OK; **High**: `.lovable/coding-guidelines.md` is only ~20% of spec. **Med**: `mem://index.md` missing `what-to-read` + numbering rule; `17-consolidated` misleading; audit JSON has no freshness gate; SP-1..SP-7 parity untested. **Low**: dup `04-` prefix, missing cross-links. |
 | 2     | 11–20  | pending | — |
 | 3     | 21–30  | pending | — |
 | 4     | 31–40  | pending | — |
