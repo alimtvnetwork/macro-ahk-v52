@@ -18,6 +18,7 @@ const BANNED = [
 ];
 const ALLOW_FILES = new Set([
   // Meta-docs that document the banlist by quoting the forbidden terms.
+  "README.md",
   "00-overview.md",
   "01-plan-tasks-1-20.md",
   "10-glossary/04-vocabulary-banlist.md",
