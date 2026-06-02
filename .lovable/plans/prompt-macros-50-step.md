@@ -254,14 +254,36 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 93. [x] Update `.lovable/memory/index.md` — add Core line: "Prompt Macros write audits ONLY under `spec/audit/<runId>/`; never to `skipped/` or `.release/`. Variables resolve Step → Macro → RunContext → Default → fail-fast." (preserve all existing content).
 94. [x] Create `mem://features/prompt-macros` documenting engine contract + variable resolution order.
 95. [x] Create `mem://features/prompt-variables` documenting `{{ VarName }}` syntax + 5-tier resolution.
-96. [ ] Create `mem://architecture/macro-prompts-folder` documenting `standalone-scripts/macro-prompts/` + aggregation.
-97. [ ] Write `spec/21-app/05-prompts/macros/CHANGELOG.md` — append "v1.0.0 — initial Prompt Macros + Variables + Macro-Prompts folder spec".
-98. [ ] Write `spec/21-app/05-prompts/macros/MIGRATION.md` — how existing prompts opt-in to becoming macro-prompts (add `Variables[]`, move file, rebuild aggregator).
-99. [ ] Write `spec/21-app/05-prompts/macros/READINESS-SCORE.md` — re-run blind-AI readiness rubric specifically for this subsystem; target 100/100.
-100. [ ] Update `.lovable/plans/prompt-macros-50-step.md` (this file) — mark plan complete, link to all generated artifacts, append final summary table.
+96. [x] Create `mem://architecture/macro-prompts-folder` documenting `standalone-scripts/macro-prompts/` + aggregation.
+97. [x] Write `spec/21-app/05-prompts/macros/CHANGELOG.md` — append "v1.0.0 — initial Prompt Macros + Variables + Macro-Prompts folder spec".
+98. [x] Write `spec/21-app/05-prompts/macros/MIGRATION.md` — how existing prompts opt-in to becoming macro-prompts (add `Variables[]`, move file, rebuild aggregator).
+99. [x] Write `spec/21-app/05-prompts/macros/READINESS-SCORE.md` — re-run blind-AI readiness rubric specifically for this subsystem; target 100/100.
+100. [x] Update `.lovable/plans/prompt-macros-50-step.md` (this file) — mark plan complete, link to all generated artifacts, append final summary table.
+
+---
+
+## Status: COMPLETE — 100/100 (2026-06-02, Asia/Kuala_Lumpur)
+
+### Final artifact summary
+
+| Block | Files | Location |
+|------:|------:|----------|
+| 1 — Concept / plan | 1 | `.lovable/plans/prompt-macros-50-step.md` |
+| 2 — UI specs | 10 | `spec/21-app/05-prompts/ui/00–09` |
+| 3 — JSON contracts | 10 | `spec/21-app/05-prompts/json/00–09` |
+| 4 — Engine | 10 | `spec/21-app/05-prompts/macros/engine/00–09` |
+| 5 — Examples | 5 | `spec/21-app/05-prompts/macros/examples/00–04` |
+| 6 — Testing | 5 | `spec/21-app/05-prompts/macros/testing/00–04` |
+| 7 — Guards | 5 | `spec/21-app/05-prompts/macros/guards/00–04` |
+| 8 — Observability | 5 | `spec/21-app/05-prompts/macros/observability/00–04` |
+| 9 — Memory | 3 | `mem://features/prompt-macros`, `mem://features/prompt-variables`, `mem://architecture/macro-prompts-folder` |
+| 10 — Closeout | 3 | `CHANGELOG.md`, `MIGRATION.md`, `READINESS-SCORE.md` |
+
+**Readiness:** 100/100. Subsystem ready for blind-AI implementation.
 
 ---
 
 ## Execution rule
 
 Say **`next 10`** and I execute the next un-checked block in one turn, then list remaining items as a flat `1. 2. 3. …` sequence.
+
