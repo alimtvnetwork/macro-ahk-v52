@@ -33,16 +33,16 @@
 13. [x] `13-duplicate-headings.md` — repeated H2 across siblings (signals overlap).
 14. [x] `14-trailing-whitespace-tabs.md` — lint-style spec hygiene.
 15. [x] `15-bare-code-fences.md` — fences missing language hint.
-16. [ ] `16-mermaid-vs-ascii-diagrams.md` — guide says ASCII; check compliance.
-17. [ ] `17-empty-sections.md` — `## Heading` followed by no content.
-18. [ ] `18-todo-fixme-markers.md` — accidental dev markers.
-19. [ ] `19-link-anchor-rot.md` — `#section` anchors that don't exist.
-20. [ ] `20-image-asset-rot.md` — image refs without assets.
-21. [ ] `21-relative-vs-absolute-paths.md` — guide expects spec-relative.
-22. [ ] `22-mixed-date-formats.md` — ISO vs other.
-23. [ ] `23-mixed-tz-mentions.md` — confirm Asia/Kuala_Lumpur usage.
-24. [ ] `24-version-bump-policy.md` — none of the new docs declare semver intent.
-25. [ ] `25-changelog-coverage.md` — `98-changelog.md` (after rename) coverage gaps.
+16. [x] `16-mermaid-vs-ascii-diagrams.md` — guide says ASCII; check compliance.
+17. [x] `17-empty-sections.md` — `## Heading` followed by no content.
+18. [x] `18-todo-fixme-markers.md` — accidental dev markers.
+19. [x] `19-link-anchor-rot.md` — `#section` anchors that don't exist.
+20. [x] `20-image-asset-rot.md` — image refs without assets.
+21. [x] `21-relative-vs-absolute-paths.md` — guide expects spec-relative.
+22. [x] `22-mixed-date-formats.md` — ISO vs other.
+23. [x] `23-mixed-tz-mentions.md` — confirm Asia/Kuala_Lumpur usage.
+24. [x] `24-version-bump-policy.md` — none of the new docs declare semver intent.
+25. [x] `25-changelog-coverage.md` — `98-changelog.md` (after rename) coverage gaps.
 
 ## Phase 3 — Deep dive: content correctness — Tasks 26–45
 
