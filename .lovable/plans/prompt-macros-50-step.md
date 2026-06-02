@@ -158,11 +158,11 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 13. [x] Write `spec/21-app/05-prompts/variables/01-syntax.md` — `{{ VarName }}` Mustache-lite, escaping, whitespace rules, forbidden constructs (no logic).
 14. [x] Write `spec/21-app/05-prompts/variables/02-declaration.md` — `info.json` `Variables[]` schema (Name, Type, Default, Description, Required).
 15. [x] Write `spec/21-app/05-prompts/variables/03-resolution-order.md` — 5-tier waterfall (Step → Macro → Run-Context → Default → fail-fast).
-16. [ ] Write `spec/21-app/05-prompts/variables/04-types.md` — supported types: string, integer, number, boolean, enum, path; coercion rules.
-17. [ ] Write `spec/21-app/05-prompts/variables/05-built-in-context.md` — `RunId`, `Now`, `LoopCount`, `LastScore`, `SpecRoot`, `MacroSlug`.
-18. [ ] Write `spec/21-app/05-prompts/variables/06-validation.md` — Ajv schema + failure-log shape on missing/invalid (`Reason="MissingVariable"`, full `VariableContext[]`).
-19. [ ] Write `spec/21-app/05-prompts/variables/07-sensitive-masking.md` — variables flagged `Sensitive: true` are masked in logs.
-20. [ ] Write `spec/21-app/05-prompts/variables/08-ui-prompting.md` — inline form dialog spec when required variables are unfilled at run-time.
+16. [x] Write `spec/21-app/05-prompts/variables/04-types.md` — supported types: string, integer, number, boolean, enum, path; coercion rules.
+17. [x] Write `spec/21-app/05-prompts/variables/05-built-in-context.md` — `RunId`, `Now`, `LoopCount`, `LastScore`, `SpecRoot`, `MacroSlug`.
+18. [x] Write `spec/21-app/05-prompts/variables/06-validation.md` — Ajv schema + failure-log shape on missing/invalid (`Reason="MissingVariable"`, full `VariableContext[]`).
+19. [x] Write `spec/21-app/05-prompts/variables/07-sensitive-masking.md` — variables flagged `Sensitive: true` are masked in logs.
+20. [x] Write `spec/21-app/05-prompts/variables/08-ui-prompting.md` — inline form dialog spec when required variables are unfilled at run-time.
 
 ### Block 3 — Macro-Prompts Folder Layout & Build (Tasks 21–30)
 21. [ ] Write `spec/21-app/05-prompts/macro-prompts/README.md` — separation rationale, when to add a prompt here vs `prompts/`.
