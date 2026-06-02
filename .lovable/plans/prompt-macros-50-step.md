@@ -165,11 +165,11 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 20. [x] Write `spec/21-app/05-prompts/variables/08-ui-prompting.md` — inline form dialog spec when required variables are unfilled at run-time.
 
 ### Block 3 — Macro-Prompts Folder Layout & Build (Tasks 21–30)
-21. [ ] Write `spec/21-app/05-prompts/macro-prompts/README.md` — separation rationale, when to add a prompt here vs `prompts/`.
-22. [ ] Write `spec/21-app/05-prompts/macro-prompts/00-folder-structure.md` — `standalone-scripts/macro-prompts/<NNN-slug>/{info.json, prompt.md}` convention.
-23. [ ] Write `spec/21-app/05-prompts/macro-prompts/01-naming-and-numbering.md` — 3-digit zero-padded sequence, kebab-case slug.
-24. [ ] Write `spec/21-app/05-prompts/macro-prompts/02-info-json-schema.md` — PascalCase keys, Variables[], categories, version, isFavorite.
-25. [ ] Write `spec/21-app/05-prompts/macro-prompts/03-aggregation-pipeline.md` — extend `scripts/aggregate-prompts.mjs` to emit `chrome-extension/macro-prompts/macro-prompts.json`.
+21. [x] Write `spec/21-app/05-prompts/macro-prompts/README.md` — separation rationale, when to add a prompt here vs `prompts/`.
+22. [x] Write `spec/21-app/05-prompts/macro-prompts/00-folder-structure.md` — `standalone-scripts/macro-prompts/<NNN-slug>/{info.json, prompt.md}` convention.
+23. [x] Write `spec/21-app/05-prompts/macro-prompts/01-naming-and-numbering.md` — 3-digit zero-padded sequence, kebab-case slug.
+24. [x] Write `spec/21-app/05-prompts/macro-prompts/02-info-json-schema.md` — PascalCase keys, Variables[], categories, version, isFavorite.
+25. [x] Write `spec/21-app/05-prompts/macro-prompts/03-aggregation-pipeline.md` — extend `scripts/aggregate-prompts.mjs` to emit `chrome-extension/macro-prompts/macro-prompts.json`.
 26. [ ] Write `spec/21-app/05-prompts/macro-prompts/04-resolution-order.md` — macro-prompts searched first, fail-fast on duplicate slug across both folders.
 27. [ ] Write `spec/21-app/05-prompts/macro-prompts/05-seed-bundle.md` — bundle into SQLite via existing `LoadBundledDefaultPrompts` flow.
 28. [ ] Write `spec/21-app/05-prompts/macro-prompts/06-versioning.md` — version hash format `Count-Hash36`, reseed trigger rules.
