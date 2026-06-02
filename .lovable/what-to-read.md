@@ -1,12 +1,19 @@
-# What To Read — AI Onboarding Map
+# What To Read — AI Onboarding Map (top-level pointer)
 
 > **Purpose:** Tell the next AI exactly which files to open to understand the
 > project's folder structure, the canonical JSON shapes, and how to add a new
-> prompt / instruction / config entry without guessing.
+> prompt / instruction / config entry / unit test / spec / feature without guessing.
 >
 > Read this file first on every fresh session, then the targeted files below.
+>
+> **Note:** This is the top-level discovery copy. The authoritative canonical
+> version lives at [`.lovable/memory/what-to-read.md`](./memory/what-to-read.md)
+> and is mirrored here so a fresh AI session that lists `.lovable/` finds it
+> immediately. Keep the two in sync when editing.
 
 ---
+
+
 
 ## 1. Project Orientation (read in order)
 
