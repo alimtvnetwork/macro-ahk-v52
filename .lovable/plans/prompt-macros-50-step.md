@@ -177,11 +177,11 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 30. [x] Update `standalone-scripts/macro-controller/diagrams/prompts-pipeline.mmd` — add second Source branch for `macro-prompts/`.
 
 ### Block 4 — Macro Definitions Folder & Schemas (Tasks 31–40)
-31. [ ] Write `spec/21-app/05-prompts/macros/folder-layout/00-overview.md` — `standalone-scripts/macros/<NNN-slug>.macro.json` convention.
-32. [ ] Write `spec/21-app/05-prompts/macros/folder-layout/01-naming.md` — numbering, slug rules, file extension `.macro.json`.
-33. [ ] Create `schemas/prompt.schema.json` — JSON-Schema draft-07 for a single prompt with `Variables[]`.
-34. [ ] Create `schemas/macro.schema.json` — JSON-Schema for a macro: top-level fields + `Steps[]` discriminated union by `Kind`.
-35. [ ] Create `schemas/prompts-bundle.schema.json` — wrapper `{ Version, Prompts, MacroPrompts, Macros, Categories }`.
+31. [x] Write `spec/21-app/05-prompts/macros/folder-layout/00-overview.md` — `standalone-scripts/macros/<NNN-slug>.macro.json` convention.
+32. [x] Write `spec/21-app/05-prompts/macros/folder-layout/01-naming.md` — numbering, slug rules, file extension `.macro.json`.
+33. [x] Create `schemas/prompt.schema.json` — JSON-Schema draft-07 for a single prompt with `Variables[]`.
+34. [x] Create `schemas/macro.schema.json` — JSON-Schema for a macro: top-level fields + `Steps[]` discriminated union by `Kind`.
+35. [x] Create `schemas/prompts-bundle.schema.json` — wrapper `{ Version, Prompts, MacroPrompts, Macros, Categories }`.
 36. [ ] Create `schemas/variable.schema.json` — variable declaration shape (reused by prompt + macro schemas).
 37. [ ] Write `spec/21-app/05-prompts/macros/folder-layout/02-schema-reference.md` — link the 4 schemas with worked examples.
 38. [ ] Write `spec/21-app/05-prompts/macros/folder-layout/03-aggregation.md` — extend aggregator to emit `chrome-extension/macros/macros.json`.

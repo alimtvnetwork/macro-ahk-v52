@@ -1,0 +1,160 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://riseup.asia/schemas/macro.schema.json",
+  "title": "Macro",
+  "description": "Macro chain definition (.macro.json). PascalCase keys, additionalProperties:false. Steps[] is a discriminated union keyed by Kind.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["Slug", "Title", "Description", "Version", "Steps"],
+  "properties": {
+    "Slug": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "maxLength": 48
+    },
+    "Title": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "Description": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "Category": { "type": "string", "maxLength": 40 },
+    "Version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "IsFavorite": { "type": "boolean", "default": false },
+    "IsExperimental": { "type": "boolean", "default": false },
+    "IsUserAuthored": { "type": "boolean", "default": false },
+    "TargetScore": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "loop-if exits when LastScore >= TargetScore."
+    },
+    "MaxLoops": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "default": 3,
+      "description": "Hard cap on loop-if iterations. See macros/04-loop-and-score.md."
+    },
+    "Variables": {
+      "type": "array",
+      "description": "Macro-scoped variables (resolution tier 2).",
+      "items": { "$ref": "variable.schema.json" }
+    },
+    "Steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/Step" }
+    }
+  },
+  "definitions": {
+    "VariableValues": {
+      "type": "object",
+      "description": "Name -> value map (PascalCase Name).",
+      "patternProperties": {
+        "^[A-Z][A-Za-z0-9]*$": {
+          "type": ["string", "integer", "number", "boolean"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Step": {
+      "type": "object",
+      "required": ["Kind"],
+      "oneOf": [
+        { "$ref": "#/definitions/StepPrompt" },
+        { "$ref": "#/definitions/StepNextLoop" },
+        { "$ref": "#/definitions/StepAudit" },
+        { "$ref": "#/definitions/StepFixFromAudit" },
+        { "$ref": "#/definitions/StepFinalAudit" },
+        { "$ref": "#/definitions/StepLoopIf" },
+        { "$ref": "#/definitions/StepSetVar" },
+        { "$ref": "#/definitions/StepNotify" }
+      ]
+    },
+    "StepPrompt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Kind", "Slug"],
+      "properties": {
+        "Kind": { "const": "prompt" },
+        "Slug": { "type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$" },
+        "Variables": { "$ref": "#/definitions/VariableValues" }
+      }
+    },
+    "StepNextLoop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Kind", "Count"],
+      "properties": {
+        "Kind": { "const": "next-loop" },
+        "Count": { "type": "integer", "minimum": 1, "maximum": 50 },
+        "Condition": {
+          "type": "string",
+          "description": "Optional early-exit condition. Mustache-lite name reference only."
+        }
+      }
+    },
+    "StepAudit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Kind", "Slug"],
+      "properties": {
+        "Kind": { "const": "audit" },
+        "Slug": { "type": "string" },
+        "Variables": { "$ref": "#/definitions/VariableValues" },
+        "WriteTo": {
+          "type": "string",
+          "description": "Defaults to spec/audit/{{ RunId }}/01-gap-analysis.md."
+        }
+      }
+    },
+    "StepFixFromAudit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Kind"],
+      "properties": {
+        "Kind": { "const": "fix-from-audit" },
+        "Slug": { "type": "string", "default": "fix-from-audit" },
+        "Variables": { "$ref": "#/definitions/VariableValues" }
+      }
+    },
+    "StepFinalAudit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Kind"],
+      "properties": {
+        "Kind": { "const": "final-audit" },
+        "Slug": { "type": "string", "default": "final-score" },
+        "Variables": { "$ref": "#/definitions/VariableValues" },
+        "WriteTo": { "type": "string", "default": "spec/audit/{{ RunId }}/99-final-report.md" }
+      }
+    },
+    "StepLoopIf": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Kind", "GotoStep"],
+      "properties": {
+        "Kind": { "const": "loop-if" },
+        "GotoStep": { "type": "integer", "minimum": 0 },
+        "ScoreLessThan": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "StepSetVar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Kind", "Name", "Value"],
+      "properties": {
+        "Kind": { "const": "set-var" },
+        "Name": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" },
+        "Value": { "type": ["string", "integer", "number", "boolean"] }
+      }
+    },
+    "StepNotify": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Kind", "Message"],
+      "properties": {
+        "Kind": { "const": "notify" },
+        "Message": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "Level": { "enum": ["info", "warn", "error"], "default": "info" }
+      }
+    }
+  }
+}
