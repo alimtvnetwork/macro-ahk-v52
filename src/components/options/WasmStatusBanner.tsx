@@ -263,8 +263,8 @@ export function WasmStatusBanner() {
             await navigator.clipboard.writeText(report);
             setCopied(true);
             toast({ title: "Report copied", description: "WASM/CSP diagnostics report copied to clipboard." });
-            const id = window.setTimeout(() => setCopied(false), 2000);
-            return () => clearTimeout(id);
+            if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+            copyTimerRef.current = window.setTimeout(() => setCopied(false), 2000);
         } catch (clipboardError) {
             const message = clipboardError instanceof Error ? clipboardError.message : String(clipboardError);
             toast({ title: "Copy failed", description: message, variant: "destructive" });
