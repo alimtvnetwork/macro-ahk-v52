@@ -218,18 +218,18 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 63. [x] Write `spec/21-app/05-prompts/macros/engine/02-resume-after-sw-restart.md` — persisted keys, rehydration, max-stale window.
 64. [x] Write `spec/21-app/05-prompts/macros/engine/03-score-extraction.md` — regex(es) for `score: NN/100`, fail-fast fallback.
 65. [x] Write `spec/21-app/05-prompts/macros/engine/04-audit-folder-writer.md` — exact paths, naming, idempotency, collision handling.
-66. [ ] Write `spec/21-app/05-prompts/macros/engine/05-variable-interpolator.md` — template engine spec, escaping, error surface.
-67. [ ] Write `spec/21-app/05-prompts/macros/engine/06-message-contract.md` — panel ↔ background ↔ injector message shapes (typed, no `unknown`).
-68. [ ] Write `spec/21-app/05-prompts/macros/engine/07-concurrency.md` — single-run-per-tab rule, queueing policy, abort semantics.
-69. [ ] Write `spec/21-app/05-prompts/macros/engine/08-watchdog.md` — per-step timeout, total-run timeout, infinite-loop watchdog.
-70. [ ] Write `spec/21-app/05-prompts/macros/engine/09-event-stream.md` — `MacroEvent` union: StepStarted, StepCompleted, ScoreParsed, LoopEntered, RunFinished, RunFailed.
+66. [x] Write `spec/21-app/05-prompts/macros/engine/05-variable-interpolator.md` — template engine spec, escaping, error surface.
+67. [x] Write `spec/21-app/05-prompts/macros/engine/06-message-contract.md` — panel ↔ background ↔ injector message shapes (typed, no `unknown`).
+68. [x] Write `spec/21-app/05-prompts/macros/engine/07-concurrency.md` — single-run-per-tab rule, queueing policy, abort semantics.
+69. [x] Write `spec/21-app/05-prompts/macros/engine/08-watchdog.md` — per-step timeout, total-run timeout, infinite-loop watchdog.
+70. [x] Write `spec/21-app/05-prompts/macros/engine/09-event-stream.md` — `MacroEvent` union: StepStarted, StepCompleted, ScoreParsed, LoopEntered, RunFinished, RunFailed.
 
 ### Block 8 — Worked Examples & Tests (Tasks 71–80)
-71. [ ] Write `spec/21-app/05-prompts/macros/examples/00-spec-tighten-cycle.md` — full worked example matching Part A.5 + expected artifacts list.
-72. [ ] Write `spec/21-app/05-prompts/macros/examples/01-review-and-fix-loop.md` — 3-loop cycle with `TargetScore=95`.
-73. [ ] Write `spec/21-app/05-prompts/macros/examples/02-export-import-roundtrip.md` — export bundle → import on fresh profile → assertion checklist.
-74. [ ] Write `spec/21-app/05-prompts/macros/examples/03-variable-driven-audit.md` — same macro reused for `spec/21-app` and `spec/30-import-export` via Variables.
-75. [ ] Write `spec/21-app/05-prompts/macros/examples/04-macro-prompt-authoring.md` — step-by-step: author new macro-prompt with 3 variables, wire into macro.
+71. [x] Write `spec/21-app/05-prompts/macros/examples/00-spec-tighten-cycle.md` — full worked example matching Part A.5 + expected artifacts list.
+72. [x] Write `spec/21-app/05-prompts/macros/examples/01-review-and-fix-loop.md` — 3-loop cycle with `TargetScore=95`.
+73. [x] Write `spec/21-app/05-prompts/macros/examples/02-export-import-roundtrip.md` — export bundle → import on fresh profile → assertion checklist.
+74. [x] Write `spec/21-app/05-prompts/macros/examples/03-variable-driven-audit.md` — same macro reused for `spec/21-app` and `spec/30-import-export` via Variables.
+75. [x] Write `spec/21-app/05-prompts/macros/examples/04-macro-prompt-authoring.md` — step-by-step: author new macro-prompt with 3 variables, wire into macro.
 76. [ ] Write `spec/21-app/05-prompts/macros/testing/00-unit-tests.md` — engine state-machine, score parser, variable interpolator, schema validators.
 77. [ ] Write `spec/21-app/05-prompts/macros/testing/01-component-tests.md` — React component tests for builder, run banner, variable dialog (bans lifted 2026-05-25).
 78. [ ] Write `spec/21-app/05-prompts/macros/testing/02-e2e-tests.md` — Playwright: run macro, pause/resume, SW-restart resume, loop-if branch, replace-via-JSON, variable dialog.
