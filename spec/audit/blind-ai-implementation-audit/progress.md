@@ -4,7 +4,7 @@
 |-------|-------|--------|---------|
 | 1     | 1–10   | done    | Foundations OK; **High**: `.lovable/coding-guidelines.md` is only ~20% of spec. **Med**: `mem://index.md` missing `what-to-read` + numbering rule; `17-consolidated` misleading; audit JSON has no freshness gate; SP-1..SP-7 parity untested. **Low**: dup `04-` prefix, missing cross-links. |
 | 2     | 11–20  | done    | 🔴 **Critical** S13: 24 files use `console.error`, 0 use namespace `Logger.error` — rule has ~0% compliance. **High** S12 (CODE RED unenforced), S19 (no-retry unenforced). **Med** S14/17/20 (no schema/contract tests). **Low** S11/15/16/18. |
-| 3     | 21–30  | pending | — |
+| 3     | 21–30  | done    | 🔴 **High** S27: OPFS module **not found** in `src/` despite memory claim — drift. **Med** S22 (legacy/current acceptance ambiguity), S24 (63 direct `chrome.storage.local` consumers, no facade), S28 (no central key registry). **Low** S21/23/25/26/29/30 — tests/snapshots missing but contracts holding. Supabase mentions are false-positives (scanning Lovable storage). |
 | 4     | 31–40  | pending | — |
 | 5     | 41–50  | pending | — |
 | 6     | 51–60  | pending | — |
