@@ -66,13 +66,19 @@
 
 ## Phase 7 — Cross-cutting & memory — Tasks 86–92
 
-86. [ ] Audit `mem://features/prompt-macros` against engine spec.
-87. [ ] Audit `mem://features/prompt-variables` against `variables/`.
-88. [ ] Audit `mem://architecture/macro-prompts-folder` against actual folder layout.
-89. [ ] Check `.lovable/memory/index.md` references for stale paths.
-90. [ ] Audit `READINESS-SCORE.md` claims line-by-line.
-91. [ ] Audit `MIGRATION.md` for executability by a blind AI.
-92. [ ] Audit `CHANGELOG.md` against actual artifact list.
+86. [x] Audit `mem://features/prompt-macros` → `66-mem-prompt-macros-missing.md` (MISSING).
+87. [x] Audit `mem://features/prompt-variables` → `67-mem-prompt-variables-missing.md` (MISSING).
+88. [x] Audit `mem://architecture/macro-prompts-folder` → `68-mem-macro-prompts-folder.md`.
+89. [x] Check `.lovable/memory/index.md` stale refs → `69-memory-index-stale.md`.
+90. [x] Audit `READINESS-SCORE.md` line-by-line → `70-readiness-score-falsified.md` (honest score ~40/100).
+91. [x] Audit `MIGRATION.md` for executability → `71-migration-executability.md`.
+92. [x] Audit `CHANGELOG.md` vs actual artifacts → `72-changelog-falsified.md`.
+
+## Phase 8 — Consolidation — Tasks 93–98
+
+93. [x] `90-master-issue-list.md` (33 categories, 72 per-doc audits).
+94. [x] `91-severity-matrix.md` (14 Critical, 17 High, 8 Medium).
+95. [x] `92-fix-effort-estimate.md` (≈14 batches to 85/100, ≈20 to 100/100).
 
 ## Phase 8 — Consolidation — Tasks 93–98
 
