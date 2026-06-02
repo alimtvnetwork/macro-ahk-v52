@@ -1,0 +1,31 @@
+# CODEOWNERS — derived from spec/21-app/05-prompts/OWNERSHIP.md
+# Format: <path>  <@team-or-user> ...
+
+# Engine + runtime
+spec/21-app/05-prompts/macros/engine/**            @macro-runtime
+spec/21-app/05-prompts/macros/json/**              @macro-runtime @qa
+spec/21-app/05-prompts/macros/guards/**            @security @macro-runtime
+spec/21-app/05-prompts/macros/observability/**     @platform @qa
+spec/21-app/05-prompts/macros/testing/**           @qa @macro-runtime
+spec/21-app/05-prompts/macros/performance/**       @platform
+spec/21-app/05-prompts/macros/security/**          @security
+spec/21-app/05-prompts/macros/storage/**           @macro-runtime
+spec/21-app/05-prompts/macros/governance/**        @platform
+
+# Variables subsystem
+spec/21-app/05-prompts/variables/**                @macro-runtime
+spec/21-app/05-prompts/variables/13-sensitive-patterns.md  @security @macro-runtime
+
+# UI surface
+spec/21-app/05-prompts/ui/**                       @frontend @ux
+
+# Cross-cutting docs
+spec/21-app/05-prompts/README.md                   @platform
+spec/21-app/05-prompts/GLOSSARY.md                 @platform
+spec/21-app/05-prompts/ACRONYMS.md                 @platform
+spec/21-app/05-prompts/OWNERSHIP.md                @platform
+spec/21-app/05-prompts/RELEASE-CHECKLIST.md        @platform
+spec/21-app/05-prompts/INDEX.json                  @platform
+
+# Spec issue tracker — open to all
+spec/21-app/05-prompts/99-spec-issues/**           @platform

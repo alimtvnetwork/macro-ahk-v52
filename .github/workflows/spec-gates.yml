@@ -1,0 +1,43 @@
+name: spec-gates
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  perf-budget:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Install
+        run: npm ci || npm install
+      - name: Perf budget check
+        run: node scripts/spec/check-perf-budget.mjs
+        continue-on-error: false
+
+  spec-xref:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cross-reference linter
+        run: node scripts/spec/lint-cross-refs.mjs
+
+  spec-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate INDEX.json
+        run: node scripts/spec/build-index.mjs
+      - name: Verify INDEX.json committed and current
+        run: |
+          git diff --exit-code spec/21-app/05-prompts/INDEX.json \
+            || (echo "INDEX.json out of date — run scripts/spec/build-index.mjs" && exit 1)
+
+  smoke-rescore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Blind-AI smoke rescore
+        run: node scripts/spec/smoke-rescore.mjs
