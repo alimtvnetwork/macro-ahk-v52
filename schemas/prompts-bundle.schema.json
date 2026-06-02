@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://riseup.asia/schemas/prompts-bundle.schema.json",
+  "title": "PromptsBundle",
+  "description": "Wrapper for build-time bundles emitted by aggregate-prompts.mjs. Used by prompts.json, macro-prompts.json, and macros.json. PascalCase keys, additionalProperties:false.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["Version", "BuildHash", "GeneratedAt", "Source", "Count"],
+  "properties": {
+    "Version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Wrapper schema version (independent of extension manifest version)."
+    },
+    "BuildHash": {
+      "type": "string",
+      "pattern": "^\\d{5}-[0-9A-Z]{6}$",
+      "description": "Format: <Count zero-padded 5>-<6-char base36 SHA-256 prefix, uppercase>. See macro-prompts/06-versioning.md."
+    },
+    "GeneratedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 with Asia/Kuala_Lumpur offset."
+    },
+    "Source": {
+      "enum": ["prompts", "macro-prompts", "macros"],
+      "description": "Which source folder produced this bundle."
+    },
+    "Count": { "type": "integer", "minimum": 0 },
+    "MajorBumpedSlugs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "Sidecar: slugs whose Version MAJOR bumped since the previous build. Drives reseed trigger 3."
+    },
+    "Categories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["Slug", "Title"],
+        "properties": {
+          "Slug": { "type": "string" },
+          "Title": { "type": "string" },
+          "ColorHsl": { "type": "string" }
+        }
+      }
+    },
+    "Prompts": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          { "$ref": "prompt.schema.json" },
+          {
+            "type": "object",
+            "properties": {
+              "Body": {
+                "type": "string",
+                "description": "Prompt body (Markdown). Only present in bundles, not on-disk info.json."
+              }
+            },
+            "required": ["Body"]
+          }
+        ]
+      }
+    },
+    "Macros": {
+      "type": "array",
+      "items": { "$ref": "macro.schema.json" },
+      "description": "Only present when Source == 'macros'."
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "Source": { "const": "macros" } } },
+      "then": { "required": ["Macros"] },
+      "else": { "required": ["Prompts"] }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://riseup.asia/schemas/prompt.schema.json",
+  "title": "Prompt",
+  "description": "On-disk prompt definition (info.json) for both standalone-scripts/prompts/ and standalone-scripts/macro-prompts/. PascalCase keys, additionalProperties:false.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["Slug", "Title", "Description", "Category", "Version", "Variables"],
+  "properties": {
+    "Slug": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "maxLength": 48,
+      "description": "Globally unique slug. Equals the directory slug segment after the NNN- numeric prefix."
+    },
+    "Title": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "Description": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "Category": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "Version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "SemVer."
+    },
+    "IsFavorite": { "type": "boolean", "default": false },
+    "IsExperimental": { "type": "boolean", "default": false },
+    "EmitsScore": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, prompt body must produce a `Score: N/100` line parsable by the canonical regex."
+    },
+    "WritesTo": {
+      "type": "array",
+      "description": "Path globs the engine permits this prompt to write to. Globs may contain {{ Variable }} placeholders.",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "Variables": {
+      "type": "array",
+      "description": "Declared variables. Empty array is valid; key must never be omitted.",
+      "items": { "$ref": "variable.schema.json" }
+    }
+  }
+}
