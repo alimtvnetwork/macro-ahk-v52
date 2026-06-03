@@ -117,3 +117,20 @@ Phase C (steps 21–40): rename 20 child folders from `10..200` to `01..20`.
 | 60 | Phase D closeout declaration | ✅ **Phase D COMPLETE** — intra-spec relative links fully rewritten, inventory stable, linter green, no stale refs |
 
 **Phase D summary:** rewriter authored + applied, 139 edits across 43 files, 1 banlist-literal fix, 0 external stale refs, 106 files preserved, linter green.
+
+## Phase E part 1 (steps 61–70) — 2026-06-03
+
+| # | Action | Time | Result |
+|---|--------|------|--------|
+| 61 | Scan `.lovable/` for `spec/2026-spec` refs | 3 s | 10 hits — 2 active Q&A + 4 audit snapshots (historical, keep) + 1 plan + 3 ambiguity logs |
+| 62 | Scan `scripts/` | 3 s | **8 scripts** with broken ROOT paths (lint-banlist, lint-mermaid, build-pdf, xrefs, info-json, extract-acceptance, typecheck-snippets, audit-genericization) |
+| 63 | Scan `.github/`, `package.json`, `vite.config.*` | 2 s | ✅ 0 hits |
+| 64 | Scan repo-root `*.md` | 2 s | ✅ 0 hits |
+| 65 | Scan `PoC/` | 2 s | ✅ N/A (no PoC dir) |
+| 66 | Repo-wide stale-ref baseline | 2 s | ✅ confirms scripts are the only critical hits |
+| 67 | Pull script contexts for surgical fix | 3 s | Identified `ROOT="spec/2026-spec"` + 1 deep `/190-reference-snippets` + 1 deep `/30-prompt-source-format` + 1 escaped regex `spec[\\/]2026-spec` |
+| 68 | sed rewrite ROOT across 8 scripts (string + escaped-regex variant; excluded `apply-rename-map.mjs` which legitimately retains the mapping pair) | 5 s | ✅ all rewritten |
+| 69 | Renumbered subpath fixes: `190-reference-snippets` → `19-reference-snippets`; `30-prompt-source-format` → `03-prompt-source-format` | 3 s | ✅ done |
+| 70 | Smoke-run 4 touched scripts against new tree | 10 s | ✅ `lint-spec-mermaid` clean (2 diagrams), `check-spec-prompts-xrefs` clean (100 tasks, 102 refs), `check-prompts-info-json` clean (1 example), `lint-spec-banlist` runs (pre-existing banlist hits in handoff.md unrelated to renumber) |
+
+**Phase E part 1 summary:** 8 scripts repaired with 2 layers of fix (ROOT + escaped-regex + 2 deep subpaths), 4 smoke tests green against the renamed tree, scripts now fully operational.

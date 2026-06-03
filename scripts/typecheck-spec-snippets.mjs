@@ -9,7 +9,7 @@ import { readdirSync, readFileSync, writeFileSync, mkdirSync, rmSync } from "nod
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
-const SRC = "spec/2026-spec/190-reference-snippets";
+const SRC = "spec/01-prompt-spec-2026/19-reference-snippets";
 const OUT = "/tmp/spec-snippets";
 
 rmSync(OUT, { recursive: true, force: true });
