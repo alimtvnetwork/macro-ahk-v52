@@ -2,7 +2,26 @@
 
 **Date:** 2026-06-03 (Asia/Kuala_Lumpur)
 **Plan:** `.lovable/plans/prompt-spec-2026-renumber-100.md`
-**Status:** Phase A (1–10) ✅ · Phase B (11–20) ✅ · Phase C (21–40) pending
+**Status:** Phase A (1–10) ✅ · Phase B (11–20) ✅ · Phase C steps 21–30 ✅ · Phase C steps 31–40 pending
+
+## Phase C partial (steps 21–30) — first 10 child folders renamed
+
+| Old | New |
+|---|---|
+| `10-glossary` | `01-glossary` |
+| `20-data-model` | `02-data-model` |
+| `30-prompt-source-format` | `03-prompt-source-format` |
+| `40-loader-contract` | `04-loader-contract` |
+| `50-ui-contract` | `05-ui-contract` |
+| `60-injection-contract` | `06-injection-contract` |
+| `70-editor-adapters` | `07-editor-adapters` |
+| `80-save-create-edit` | `08-save-create-edit` |
+| `90-next-overview` | `09-next-overview` |
+| `100-queue-model` | `10-queue-model` |
+
+Linter: `[lint-cross-refs] OK — all spec/ paths resolve` (exit 0).
+Inventory: 106 files (stable). Intra-spec relative links (`../NN-name/`) NOT yet rewritten — that's Phase D scope.
+
 
 ## Phase B deliverables
 
