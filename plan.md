@@ -371,6 +371,8 @@ These rules apply to **every** future feature that emits a failure log, captures
 [ ] `bunx vitest run src/background/recorder/__tests__/failure-report-fixtures.test.ts` passes
 ```
 
+> ✅ **Status 2026-06-03**: `node scripts/check-failure-log-schema.mjs` is green (613 files scanned, FailureReport + BuildFailureReportInput schemas intact, every `logFailure()` / `buildFailureReport()` call carries `SourceFile + Phase + Error`). The checklist remains in force for every new failure-log surface.
+
 > **Enforcement**: PRs touching failure-log surfaces MUST paste the checklist into the description with each box ticked. Reviewers reject the PR if any box is unticked without a written waiver linked from `.lovable/memory/suggestions/`.
 
 ---
@@ -396,7 +398,7 @@ Draft types: `standalone-scripts/types/instruction/` (one type per file, awaitin
 | **0.10** — `.d.ts` `unknown` lint coverage | ✅ Closed 2026-06-02: `scripts/check-no-unknown-in-dts.mjs` enforces it (HARD_PINNED + BASELINE tiers); wired in `package.json` (`check:no-unknown-in-dts`) and `.github/workflows/ci.yml` lines 103/106. | ✅ Done |
 | **0.11** — `PaymentBannerHider` class refactor | External CSS file, no `!important`, no error swallowing, single-class entry; consume `XPathRegistry` from migrated instruction. | Blocked on 0.3 |
 | **0.12** — Standalone-script scaffolder CLI | `pnpm new:standalone <name>` generates `instruction.ts`, vite/tsconfig, dist gitignore, CI build/e2e jobs, registry entries — using the new types. | Blocked on 0.1 |
-| **0.13** — Banner-hider RCA follow-up | RCA at `spec/03-error-manage/01-error-resolution/03-retrospectives/2026-04-24-payment-banner-hider-rca.md`. 7 new memory standards (`pre-write-check`, `no-css-important`, `no-error-swallowing`, `no-type-casting`, `class-based-standalone-scripts`, `standalone-scripts-css-in-own-file`, `blank-line-before-return`) — registered in `mem://index`. | Memory updated; lint rules pending in 0.8 |
+| **0.13** — Banner-hider RCA follow-up | ✅ Closed 2026-06-03: 7 standards registered in `mem://index`; reference implementation in `standalone-scripts/payment-banner-hider/` audited compliant (`mem://features/payment-banner-hider` compliance table — all 8 rows ✓). Residual lint enforcement tracked under 0.8. | ✅ Done |
 | **0.14** — Banner-hider runtime enums | Add `BannerLifecyclePhase` and `BannerEventName` to `standalone-scripts/types/runtime/enums/`. Replace every magic string in the rewritten `index.ts`. | Blocked on 0.11 |
 | **0.15** — Typed DOM helpers in SDK | Add `RiseupAsiaMacroExt.Dom.queryHtmlElement(selector): HTMLElement \| undefined` and `queryAllHtmlElements(...)` so callsites never need `as HTMLElement`. | Blocked on 0.7 |
 | **0.16** — `RiseupAsiaMessage<TPayload>` discriminated type | Replace every `as unknown as Message` cast with a typed dispatcher keyed on `kind: BannerEventName`-style enums. | Blocked on 0.15 |
@@ -498,7 +500,7 @@ Memory: `.lovable/memory/features/release-installer.md`
 
 | # | File:line | Issue | Root cause |
 |---|---|---|---|
-| **PERF-6** | `src/components/popup/InjectionCopyButton.tsx:206` | 15 s `chrome.runtime.sendMessage({ type: "GET_ACTIVE_ERRORS" })` poll while popup is open. Popup is short-lived so this is bounded, but it duplicates `use-error-count.ts` which already pushes via `ERROR_COUNT_CHANGED` broadcast. Net effect: SW gets 2 wake-ups per error change instead of 1. | Component was added before the broadcast existed and never refactored to subscribe. |
+| **PERF-6** ✅ | `src/components/popup/InjectionCopyButton.tsx:189–261` | **Closed 2026-06-03.** Now subscribes to the `ERROR_COUNT_CHANGED` broadcast (same channel as `use-error-count.ts`); the poll is kept as a 60 s fallback (15 s only if the runtime listener fails to attach) and is paused while `document.hidden`. Listener + interval are cleared in the effect cleanup. | — |
 | **PERF-7** | `src/popup/hooks/usePopupData.ts:123` | 30 s poll fans out 4 `sendMessage` calls (`GET_STATUS`, `GET_HEALTH_STATUS`, `GET_ACTIVE_PROJECT`, `GET_ACTIVE_ERRORS`) **even when the popup tab is hidden** (popup can be detached into a window). No `document.hidden` guard like `DiagnosticsPanel.tsx` has (line 103). | Hook predates the visibility-pause pattern adopted in `DiagnosticsPanel`. |
 | **PERF-8** | `standalone-scripts/macro-controller/src/toast.ts:211` (`queueDrainTimer`) | Drain timer self-stops only when queue empties **and** the SDK has loaded. If `getNotify()` keeps returning `null` (SDK never injects on a non-target tab), the interval ticks forever at `TOAST_QUEUE_POLL_MS` doing nothing useful. | `drainQueue()` early-returns when `notify === null` without arming a kill-switch or backoff. |
 
@@ -549,16 +551,14 @@ build a scanner that emits the documented JSON contract (see the page's
 empty-state). Suggested location: `scripts/audit-error-swallow.mjs`,
 classifying findings into P0/P1/P2 per `mem://standards/error-logging-requirements.md`.
 
-### Follow-up: shrink the swallowed-errors baseline (177 entries)
+### Follow-up: shrink the swallowed-errors baseline ✅ DONE (2026-05-26)
 
-`scripts/check-no-swallowed-errors.baseline.json` allow-lists 177
-pre-existing empty-catch / promise-noop sites so the new
-`check:no-swallowed-errors` guard can run green in CI from day 1.
-Each entry has a `"reason": "TODO: ..."` placeholder. Sweep these
-in priority order (P0/P1 from the error-swallowing audit page,
-once the scanner from the previous follow-up lands) and remove
-entries from the baseline as fixes ship. Final goal: empty
-`entries: []` array and pass `npm run check:no-swallowed-errors:strict`.
+`scripts/check-no-swallowed-errors.baseline.json` now contains
+`"entries": []` (verified 2026-06-03). The original 177 TODO
+placeholders have all been swept, every remaining intentional
+swallow carries an inline `// allow-swallow:` justification, and
+`npm run check:no-swallowed-errors:strict` is green. Nothing
+further to do here.
 
 ---
 
