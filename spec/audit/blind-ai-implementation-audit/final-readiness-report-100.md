@@ -25,7 +25,7 @@ A blind LLM reading `spec/04-failure-modes.md` now sees both the rule **and** a 
 Codified the genericization policy that was implicit in `spec/audit/blind-ai-implementation-audit/genericization-targets.md`:
 
 - **Abstract / cross-project spec** (`spec/00–17`, `spec/26-chrome-extension-generic`, `spec/30-import-export`, `spec/32-app-performance`, validation reports, `spec/01-spec-authoring-guide`) MUST use the `<NAMESPACE>` placeholder. These are the files a blind LLM consults to build _any_ app.
-- **App-specific spec** (`spec/21-app/**`, `spec/22-app-issues/**`, `spec/2026-spec/**`, `spec/31-macro-recorder/**`, `spec/audit/**`, `spec/99-archive/**`) documents this exact app's runtime behavior and is correctly allowed to reference the real identifier.
+- **App-specific spec** (`spec/21-app/**`, `spec/22-app-issues/**`, `spec/2026-spec/01-prompt-spec/**`, `spec/31-macro-recorder/**`, `spec/audit/**`, `spec/99-archive/**`) documents this exact app's runtime behavior and is correctly allowed to reference the real identifier.
 - `spec/00-glossary.md` is the single canonical mapping site.
 
 New CI guard: `scripts/audit-spec-genericization.mjs` — fails if any raw `RiseupAsiaMacroExt` token leaks into the abstract spec.

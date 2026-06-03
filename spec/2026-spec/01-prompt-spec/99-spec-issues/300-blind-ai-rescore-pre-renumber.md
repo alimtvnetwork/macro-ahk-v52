@@ -1,4 +1,4 @@
-# Blind-AI Implementation Score — `spec/2026-spec/` (pre-renumber, 2026-06-03)
+# Blind-AI Implementation Score — `spec/2026-spec/01-prompt-spec/` (pre-renumber, 2026-06-03)
 
 **Question asked:** *"If a general blind AI implements the prompt spec as it stands today, what is the success score out of 100 — and is it confirmed?"*
 
@@ -9,7 +9,7 @@
 | **Blind-AI success score** | **88 / 100** |
 | **Confirmed?** | ✅ Yes — verifiable via `scripts/spec/smoke-rescore.mjs` against `BLIND-AI-SMOKE-TEST.md` (20/20 checklist pass) + cross-ref linter (0 hard-fails) |
 | Prior score (v3 closeout, 2026-06-02) | 100 / 100 (audited, narrow `spec/21-app/05-prompts/` scope) |
-| Why current is 88, not 100 | Structural defects in **folder numbering** of `spec/2026-spec/` — not content gaps |
+| Why current is 88, not 100 | Structural defects in **folder numbering** of `spec/2026-spec/01-prompt-spec/` — not content gaps |
 
 ## Score breakdown (100-pt rubric)
 

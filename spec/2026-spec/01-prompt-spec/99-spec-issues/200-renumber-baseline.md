@@ -94,7 +94,7 @@ Inventory: 106 files (stable). Intra-spec relative links (`../NN-name/`) NOT yet
 
 ## Redirect stub
 
-`spec/2026-spec/README.md` now contains a one-screen redirect pointer.
+`spec/2026-spec/01-prompt-spec/README.md` now contains a one-screen redirect pointer.
 No other files live at the old path.
 
 ## Next
@@ -158,7 +158,7 @@ Phase C (steps 21–40): rename 20 child folders from `10..200` to `01..20`.
 |---|--------|------|--------|
 | 81 | Inventory `.lovable/memory/` + locate `spec-organization.md` + check `plan.md` | 5 s | spec-organization is 1 sentence; plan.md has roadmap structure |
 | 82 | Author **new** memory `mem://architecture/prompt-spec-2026-layout` | 30 s | ✅ full layout, history, old→new map, rewrite tool, scripts repaired, gates, audit trail |
-| 83 | Update **existing** memory `mem://architecture/spec-organization` to list top-level roots incl. renamed `spec/2026-spec/` + universal NN-name rule | 15 s | ✅ promoted to multi-tree index |
+| 83 | Update **existing** memory `mem://architecture/spec-organization` to list top-level roots incl. renamed `spec/2026-spec/01-prompt-spec/` + universal NN-name rule | 15 s | ✅ promoted to multi-tree index |
 | 84 | Update `mem://index.md` — append new memory bullet | 5 s | ⏭ deferred to step 90 (single batched write) |
 | 85 | Check `INDEX.json` requirement for renamed tree | 5 s | ✅ N/A — only `spec/21-app/05-prompts/INDEX.json` exists; renamed tree never had one and Phase D linter passes without it |
 | 86 | Tooltips/UI surfaces referencing `2026-spec` | 3 s | ✅ none (already covered in Phase E step 76: 0 hits in root README, package.json, vite, CI workflows) |
@@ -196,7 +196,7 @@ Phase C (steps 21–40): rename 20 child folders from `10..200` to `01..20`.
 - **Blind-AI score:** 88 → **100** (+12)
 - **Memory updates:** 1 new (`prompt-spec-2026-layout`) + 1 upgraded (`spec-organization`) + index appended
 
-Live spec path: **`spec/2026-spec/`**
+Live spec path: **`spec/2026-spec/01-prompt-spec/`**
 
 ## Follow-up H (steps 101–110) — 2026-06-03 — snippet gate repair
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Spec banlist linter — enforces vocabulary banlist (T24) across
-// spec/2026-spec/. Fails fast (No-Retry policy).
+// spec/2026-spec/01-prompt-spec/. Fails fast (No-Retry policy).
 //
 // Usage: node scripts/lint-spec-banlist.mjs
 // Exit 0 = clean, 1 = violations found.
@@ -8,7 +8,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
-const ROOT = "spec/2026-spec";
+const ROOT = "spec/2026-spec/01-prompt-spec";
 const BANNED = [
   /\bMacroController\b/,
   /\bRiseupAsia[A-Za-z]*/,

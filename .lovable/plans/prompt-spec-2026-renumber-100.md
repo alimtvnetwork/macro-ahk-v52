@@ -1,6 +1,6 @@
-> **STATUS (2026-06-03):** ✅ EXECUTED ✅ EXECUTED CONFIRMED 100/100. Old `spec/2026-spec/` path references below describe the pre-rename state. Live path is `spec/2026-spec/`. See changelog at `spec/2026-spec/99-spec-issues/200-renumber-baseline.md`.
+> **STATUS (2026-06-03):** ✅ EXECUTED ✅ EXECUTED CONFIRMED 100/100. Old `spec/2026-spec/01-prompt-spec/` path references below describe the pre-rename state. Live path is `spec/2026-spec/01-prompt-spec/`. See changelog at `spec/2026-spec/01-prompt-spec/99-spec-issues/200-renumber-baseline.md`.
 
-# Plan — Rename `spec/2026-spec/` → `spec/2026-spec/` and renumber children to dense `01..NN`
+# Plan — Rename `spec/2026-spec/01-prompt-spec/` → `spec/2026-spec/01-prompt-spec/` and renumber children to dense `01..NN`
 
 **Created:** 2026-06-03 (Asia/Kuala_Lumpur)
 **Owner:** Lovable agent
@@ -12,7 +12,7 @@
 ## Target structure
 
 ```
-spec/2026-spec/
+spec/2026-spec/01-prompt-spec/
 ├── 00-overview.md
 ├── 01-plan-tasks-1-20.md
 ├── 02-hardening-backlog.md
@@ -46,10 +46,10 @@ Inner-file numbering inside each child folder stays as-authored (already `00`–
 ## 100 sequential steps
 
 ### Phase A — Discovery & freeze (1–10)
-1. Snapshot every file path under `spec/2026-spec/**` → `.lovable/audits/2026-06-03-renumber/inventory-before.txt`.
+1. Snapshot every file path under `spec/2026-spec/01-prompt-spec/**` → `.lovable/audits/2026-06-03-renumber/inventory-before.txt`.
 2. `grep -rIn '2026-spec\|spec/2026-spec' .` → `…/refs-before.txt` (exclude `node_modules`, `.release/`, `skipped/`).
 3. Classify references by file type (md / json / ts / html / yml / shell) → `…/refs-classified.csv`.
-4. Tag references that point to deep paths (`spec/2026-spec/100-queue-model/...`) vs root-only.
+4. Tag references that point to deep paths (`spec/2026-spec/01-prompt-spec/100-queue-model/...`) vs root-only.
 5. Identify scripts that hard-code the dir (`scripts/spec/*.mjs`, `package.json scripts:check:*`).
 6. Identify PoC links (`poc/2026-spec/index.html`, `poc/2026-spec/README.md`).
 7. Identify audit/back-refs (`spec/audit/blind-ai-implementation-audit/**`).
@@ -60,7 +60,7 @@ Inner-file numbering inside each child folder stays as-authored (already `00`–
 ### Phase B — Root rename (11–20)
 11. `git mv spec/2026-spec spec/2026-spec` (single atomic move).
 12. Verify no orphaned siblings (`ls spec/2026-spec` returns ENOENT).
-13. Update `spec/2026-spec/README.md` heading + intro paragraph to new path.
+13. Update `spec/2026-spec/01-prompt-spec/README.md` heading + intro paragraph to new path.
 14. Update `00-overview.md` self-references.
 15. Update `02-hardening-backlog.md` self-references.
 16. Update `01-plan-tasks-1-20.md` task IDs that embed the path.
@@ -97,7 +97,7 @@ Inner-file numbering inside each child folder stays as-authored (already `00`–
 43. Apply rewrite for `*.md` files.
 44. Apply rewrite for `*.json` schema/index files.
 45. Apply rewrite for HTML reference snippets (`19-reference-snippets/`).
-46. Rebuild `spec/2026-spec/INDEX.json` (if present) via `scripts/spec/build-index.mjs --root spec/2026-spec`.
+46. Rebuild `spec/2026-spec/01-prompt-spec/INDEX.json` (if present) via `scripts/spec/build-index.mjs --root spec/2026-spec`.
 47. Rerun `lint-cross-refs.mjs` against new root — must reach 0 hard-fails.
 48. Re-run `runbook-smoke.mjs` (unaffected sanity).
 49. Update `BLIND-AI-SMOKE-TEST.md` paths.
@@ -136,7 +136,7 @@ Inner-file numbering inside each child folder stays as-authored (already `00`–
 80. Update `scripts/spec/tooltip-dict-gate.mjs` paths.
 
 ### Phase F — Memory, indexes, and tracker hygiene (81–90)
-81. Update `mem://architecture/spec-organization` to mention the renumber convention (dense `01..NN`, no gap-10s in `spec/2026-spec/`).
+81. Update `mem://architecture/spec-organization` to mention the renumber convention (dense `01..NN`, no gap-10s in `spec/2026-spec/01-prompt-spec/`).
 82. Update `mem://workflow/file-naming-convention` with worked example.
 83. Append a new memory `mem://workflow/prompt-spec-2026-layout` describing canonical layout.
 84. Update `mem://index.md` Core line referencing the new root.
@@ -165,8 +165,8 @@ Inner-file numbering inside each child folder stays as-authored (already `00`–
 
 | ID | Risk | Mitigation |
 |----|------|------------|
-| R1 | Regex rewrite collapses `100` digits unrelated to folder names | Constrain rewrite to anchored path prefixes `spec/2026-spec/<NN>-` |
-| R2 | Broken external bookmark | Leave a stub `spec/2026-spec/README.md` redirecting (created in Phase B) |
+| R1 | Regex rewrite collapses `100` digits unrelated to folder names | Constrain rewrite to anchored path prefixes `spec/2026-spec/01-prompt-spec/<NN>-` |
+| R2 | Broken external bookmark | Leave a stub `spec/2026-spec/01-prompt-spec/README.md` redirecting (created in Phase B) |
 | R3 | CI scripts hard-code root | Phase E touches every script |
 | R4 | PoC folder still named `2026-spec` | Step 70 defers; can land in v2 |
 | R5 | Memory drift | Phase F refreshes 4 memory files |

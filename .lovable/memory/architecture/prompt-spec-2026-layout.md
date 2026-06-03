@@ -1,17 +1,17 @@
 ---
 name: Prompt Spec 2026 — folder layout
-description: Renamed from spec/2026-spec/ to spec/2026-spec/ with dense 01..20 child numbering; layout, history, and rewrite tool
+description: Renamed from spec/2026-spec/01-prompt-spec/ to spec/2026-spec/01-prompt-spec/ with dense 01..20 child numbering; layout, history, and rewrite tool
 type: feature
 ---
 
-# `spec/2026-spec/` layout (renumbered 2026-06-03)
+# `spec/2026-spec/01-prompt-spec/` layout (renumbered 2026-06-03)
 
-**History:** Originally `spec/2026-spec/` with sparse child numbering (`10..200` in steps of 10). Renamed atomically to `spec/2026-spec/` and renumbered to dense sequential `01..20` per user directive (no gaps, predictable navigation).
+**History:** Originally `spec/2026-spec/01-prompt-spec/` with sparse child numbering (`10..200` in steps of 10). Renamed atomically to `spec/2026-spec/01-prompt-spec/` and renumbered to dense sequential `01..20` per user directive (no gaps, predictable navigation).
 
 ## Live structure
 
 ```
-spec/2026-spec/
+spec/2026-spec/01-prompt-spec/
 ├── 00-overview.md
 ├── 01-glossary/
 ├── 01-plan-tasks-1-20.md
@@ -95,5 +95,5 @@ These 8 scripts had hard-coded `spec/2026-spec` ROOT paths; all rewritten to `sp
 
 - Plan: `.lovable/plans/prompt-spec-2026-renumber-100.md` (STATUS banner: EXECUTED)
 - Snapshots: `.lovable/audits/2026-06-03-renumber/` (path-map.json, inventory-before/after-*, refs-*)
-- Changelog: `spec/2026-spec/99-spec-issues/200-renumber-baseline.md`
-- Blind-AI rescore: `spec/2026-spec/99-spec-issues/300-blind-ai-rescore-pre-renumber.md`
+- Changelog: `spec/2026-spec/01-prompt-spec/99-spec-issues/200-renumber-baseline.md`
+- Blind-AI rescore: `spec/2026-spec/01-prompt-spec/99-spec-issues/300-blind-ai-rescore-pre-renumber.md`

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// H6 — Concatenate every spec/2026-spec/*.md into a single
+// H6 — Concatenate every spec/2026-spec/01-prompt-spec/*.md into a single
 // printable markdown bundle. Avoids extra deps; markdown is browser-printable
 // and the user can convert to PDF via any tool.
 //
@@ -8,7 +8,7 @@
 import { readdirSync, readFileSync, statSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
-const ROOT = "spec/2026-spec";
+const ROOT = "spec/2026-spec/01-prompt-spec";
 const OUT  = "/mnt/documents/2026-prompts-spec.md";
 
 function walk(dir) {

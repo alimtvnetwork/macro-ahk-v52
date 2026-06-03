@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Apply spec rename map — rewrites stale folder references after the
-// 2026-06-03 renumber of `spec/2026-spec/` → `spec/2026-spec/` and
+// 2026-06-03 renumber of `spec/2026-spec/01-prompt-spec/` → `spec/2026-spec/01-prompt-spec/` and
 // children `10..200` → `01..20`.
 //
 // Strategy: pair-based substitution keyed on full `NN-name` to disambiguate
@@ -41,7 +41,7 @@ const FOLDER_PAIRS = [
   ['10-glossary',            '01-glossary'],
 ];
 
-const ROOT_PAIR = ['spec/2026-spec/', 'spec/2026-spec/'];
+const ROOT_PAIR = ['spec/2026-spec/01-prompt-spec/', 'spec/2026-spec/01-prompt-spec/'];
 
 const TARGET_ROOTS = [
   'spec/2026-spec',

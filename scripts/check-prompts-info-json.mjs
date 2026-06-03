@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // H4 — Validate every fenced ```json block in
-// spec/2026-spec/03-prompt-source-format/02-info-json.md
+// spec/2026-spec/01-prompt-spec/03-prompt-source-format/02-info-json.md
 // against the info.json contract defined there. Zero-dep validator.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const ROOT = "spec/2026-spec/03-prompt-source-format";
+const ROOT = "spec/2026-spec/01-prompt-spec/03-prompt-source-format";
 const REQUIRED = [
   ["id",         "string"],
   ["slug",       "string"],

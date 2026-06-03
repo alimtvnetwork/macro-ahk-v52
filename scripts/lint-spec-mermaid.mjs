@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// H5 — Zero-dep Mermaid lint for spec/2026-spec/*.mmd.
+// H5 — Zero-dep Mermaid lint for spec/2026-spec/01-prompt-spec/*.mmd.
 // Verifies each diagram has a known directive header and balanced
 // brackets/parens/braces. Skips full render (would need mermaid-cli +
 // headless Chromium); this catches the breakages that matter.
@@ -7,7 +7,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const ROOT = "spec/2026-spec";
+const ROOT = "spec/2026-spec/01-prompt-spec";
 const DIRECTIVES = [
   "graph", "flowchart", "sequenceDiagram", "classDiagram", "stateDiagram",
   "stateDiagram-v2", "erDiagram", "journey", "gantt", "pie", "mindmap",

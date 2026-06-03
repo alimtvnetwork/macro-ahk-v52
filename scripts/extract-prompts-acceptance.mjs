@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// H8 — Extract every "- [ ]" / "- [x]" bullet from spec/2026-spec/
+// H8 — Extract every "- [ ]" / "- [x]" bullet from spec/2026-spec/01-prompt-spec/
 // into one master acceptance checklist.
 //
 // Writes: /mnt/documents/2026-prompts-acceptance.md
@@ -7,7 +7,7 @@
 import { readdirSync, readFileSync, statSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
-const ROOT = "spec/2026-spec";
+const ROOT = "spec/2026-spec/01-prompt-spec";
 const OUT  = "/mnt/documents/2026-prompts-acceptance.md";
 const BULLET_RE = /^\s*-\s\[( |x|X)\]\s+(.+?)\s*$/;
 

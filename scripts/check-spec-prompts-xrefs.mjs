@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// H7 — Cross-reference audit for spec/2026-spec/.
+// H7 — Cross-reference audit for spec/2026-spec/01-prompt-spec/.
 // Verifies every "T###" mentioned in the spec falls in T21..T120 and that
 // the planning ledger lists T21..T120 exactly once each.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const ROOT = "spec/2026-spec";
+const ROOT = "spec/2026-spec/01-prompt-spec";
 const PLAN = `${ROOT}/01-plan-tasks-1-20.md`;
 const TASK_RE = /\bT(\d{1,3})\b/g;
 

@@ -1,4 +1,4 @@
-# Blind-AI Implementation Scorecard — `spec/2026-spec/` (POST-renumber, 2026-06-03)
+# Blind-AI Implementation Scorecard — `spec/2026-spec/01-prompt-spec/` (POST-renumber, 2026-06-03)
 
 **Question:** *"After the 100-step renumber plan executes, what is the new Blind-AI success score out of 100 — confirmed?"*
 

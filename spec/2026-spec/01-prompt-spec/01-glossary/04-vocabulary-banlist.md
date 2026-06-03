@@ -4,7 +4,7 @@
 
 To keep this spec genuinely generic, certain product / project / vendor
 identifiers from the source codebase MUST NOT appear in any file under
-`spec/2026-spec/`. A spec reviewer (human or AI) should grep
+`spec/2026-spec/01-prompt-spec/`. A spec reviewer (human or AI) should grep
 the folder for any of the forbidden tokens below and reject the change
 if hits are found outside this exact file.
 
