@@ -16,6 +16,7 @@
 
 import "./globals.d";
 import { BannerLocator } from "./banner-locator";
+import { BannerLogFn } from "../../types/runtime/enums/banner";
 import {
     BannerState,
     OBSERVER_DEBOUNCE_MS,
@@ -68,7 +69,7 @@ export class PaymentBannerHider implements PaymentBannerHiderApi {
 
             this.hide(target);
         } catch (caught) {
-            this.logError("PaymentBannerHider.check", "Detection pass failed", caught);
+            this.logError(BannerLogFn.Check, "Detection pass failed", caught);
 
             throw caught;
         }
