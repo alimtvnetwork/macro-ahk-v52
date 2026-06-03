@@ -1,0 +1,9 @@
+.lovable/audits/2026-06-03-renumber/inventory-before.txt
+.lovable/audits/2026-06-03-renumber/refs-before.txt
+.lovable/audits/2026-06-03-renumber/refs-classified.csv
+.lovable/audits/2026-06-03-renumber/audit-backrefs.txt
+.lovable/plans/prompt-spec-2026-renumber-100.md
+.lovable/question-and-ambiguity/58-2026-spec-scope-placeholders.md
+.lovable/question-and-ambiguity/59-2026-spec-folder-name.md
+.lovable/question-and-ambiguity/readme.md
+.lovable/question-and-ambiguity/task-counter.md

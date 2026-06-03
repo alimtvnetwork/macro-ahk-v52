@@ -1,0 +1,60 @@
+./.lovable/plans/prompt-spec-2026-renumber-100.md:1:# Plan — Rename `spec/2026-spec/` → `spec/01-prompt-spec-2026/` and renumber children to dense `01..NN`
+./.lovable/plans/prompt-spec-2026-renumber-100.md:50:4. Tag references that point to deep paths (`spec/2026-spec/100-queue-model/...`) vs root-only.
+./.lovable/plans/prompt-spec-2026-renumber-100.md:52:6. Identify PoC links (`poc/2026-spec/index.html`, `poc/2026-spec/README.md`).
+./.lovable/plans/prompt-spec-2026-renumber-100.md:59:11. `git mv spec/2026-spec spec/01-prompt-spec-2026` (single atomic move).
+./.lovable/plans/prompt-spec-2026-renumber-100.md:60:12. Verify no orphaned siblings (`ls spec/2026-spec` returns ENOENT).
+./.lovable/plans/prompt-spec-2026-renumber-100.md:115:61. Update `.lovable/question-and-ambiguity/58-2026-spec-scope-placeholders.md` with redirect note.
+./.lovable/plans/prompt-spec-2026-renumber-100.md:116:62. Update `.lovable/question-and-ambiguity/59-2026-spec-folder-name.md` (mark superseded; new decision = Option B executed).
+./.lovable/plans/prompt-spec-2026-renumber-100.md:122:68. Update `poc/2026-spec/README.md` paths (PoC folder name itself stays — it's code, not spec).
+./.lovable/plans/prompt-spec-2026-renumber-100.md:123:69. Update `poc/2026-spec/index.html` comment headers.
+./.lovable/plans/prompt-spec-2026-renumber-100.md:124:70. Optional: rename `poc/2026-spec` → `poc/01-prompt-spec-2026` only if user confirms (defer; log decision).
+./.lovable/plans/prompt-spec-2026-renumber-100.md:166:| R1 | Regex rewrite collapses `100` digits unrelated to folder names | Constrain rewrite to anchored path prefixes `spec/2026-spec/<NN>-` |
+./.lovable/plans/prompt-spec-2026-renumber-100.md:167:| R2 | Broken external bookmark | Leave a stub `spec/2026-spec/README.md` redirecting (created in Phase B) |
+./.lovable/plans/prompt-spec-2026-renumber-100.md:169:| R4 | PoC folder still named `2026-spec` | Step 70 defers; can land in v2 |
+./.lovable/plans/prompt-spec-2026-renumber-100.md:177:- Renaming `poc/2026-spec/` (separate decision, step 70).
+./.lovable/question-and-ambiguity/58-2026-spec-scope-placeholders.md:14:| A1 | Spec folder name | `spec/2026-…` / `spec/27-prompts-generic` / `spec/2026-spec` | **`spec/2026-spec`** | Matches user's literal "2026 spec" phrasing; avoids colliding with numeric series (26 is taken by `26-chrome-extension-generic`). Reversible via a folder move. |
+./.lovable/question-and-ambiguity/59-2026-spec-folder-name.md:1:# 59 — `2026-spec/` folder name finalization
+./.lovable/question-and-ambiguity/59-2026-spec-folder-name.md:8:asked for the folder to be named `spec/2026-spec/`. The deliverable from
+./.lovable/question-and-ambiguity/59-2026-spec-folder-name.md:17:Create `spec/2026-spec/README.md` that redirects to the already-complete
+./.lovable/question-and-ambiguity/59-2026-spec-folder-name.md:24:Move the complete spec into `spec/2026-spec` and update every internal
+./.lovable/question-and-ambiguity/59-2026-spec-folder-name.md:33:Copy all ~35 files into `spec/2026-spec/`.
+./.lovable/question-and-ambiguity/59-2026-spec-folder-name.md:50:now lives at `spec/2026-spec/`, and the PoC lives at `poc/2026-spec/`.
+./.lovable/question-and-ambiguity/readme.md:14:- [58 — 2026 Spec — scope & placeholders](./58-2026-spec-scope-placeholders.md) — Created `spec/2026-spec/` with 00-overview + 01-plan-tasks-1-20; all host XPaths left as `???`; cadence: 10 spec tasks per `next ten steps` turn (10 turns to cover T21–T120).
+./.lovable/question-and-ambiguity/readme.md:15:- [59 — 2026-spec folder name finalization](./59-2026-spec-folder-name.md) — Finalized the requested folder name: completed spec lives at `spec/2026-spec/`, PoC lives at `poc/2026-spec/`, and scripts/docs point there.
+./.lovable/question-and-ambiguity/task-counter.md:35:| 18 | 2026-06-02 | Initially created a thin `spec/2026-spec/README.md` pointer, then finalized the requested rename: completed spec now lives at `spec/2026-spec/`, PoC at `poc/2026-spec/`, with scripts/docs updated. | [59 — 2026-spec folder name](./59-2026-spec-folder-name.md) |
+./poc/2026-spec/README.md:1:# H10 — Host-wiring PoC (2026-spec)
+./poc/2026-spec/README.md:7:snippets from `spec/2026-spec/190-reference-snippets/`:
+./poc/2026-spec/README.md:22:npx serve poc/2026-spec
+./poc/2026-spec/README.md:24:python3 -m http.server -d poc/2026-spec 8080
+./poc/2026-spec/index.html:6:  <title>2026-spec — Host-wiring PoC (H10)</title>
+./poc/2026-spec/index.html:32:  <h1>2026-spec — host-wiring PoC</h1>
+./scripts/audit-spec-genericization.mjs:11: *   - spec/21-app/**, spec/22-app-issues/**, spec/2026-spec/**
+./scripts/audit-spec-genericization.mjs:26:    /^spec[\\/]2026-spec[\\/]/,
+./scripts/build-spec-prompts-pdf.mjs:2:// H6 — Concatenate every spec/2026-spec/*.md into a single
+./scripts/build-spec-prompts-pdf.mjs:11:const ROOT = "spec/2026-spec";
+./scripts/check-prompts-info-json.mjs:3:// spec/2026-spec/30-prompt-source-format/02-info-json.md
+./scripts/check-prompts-info-json.mjs:9:const ROOT = "spec/2026-spec/30-prompt-source-format";
+./scripts/check-spec-prompts-xrefs.mjs:2:// H7 — Cross-reference audit for spec/2026-spec/.
+./scripts/check-spec-prompts-xrefs.mjs:9:const ROOT = "spec/2026-spec";
+./scripts/extract-prompts-acceptance.mjs:2:// H8 — Extract every "- [ ]" / "- [x]" bullet from spec/2026-spec/
+./scripts/extract-prompts-acceptance.mjs:10:const ROOT = "spec/2026-spec";
+./scripts/extract-prompts-acceptance.mjs:43:  "# 2026-spec — Master acceptance checklist",
+./scripts/lint-spec-banlist.mjs:3:// spec/2026-spec/. Fails fast (No-Retry policy).
+./scripts/lint-spec-banlist.mjs:11:const ROOT = "spec/2026-spec";
+./scripts/lint-spec-mermaid.mjs:2:// H5 — Zero-dep Mermaid lint for spec/2026-spec/*.mmd.
+./scripts/lint-spec-mermaid.mjs:10:const ROOT = "spec/2026-spec";
+./scripts/typecheck-spec-snippets.mjs:12:const SRC = "spec/2026-spec/190-reference-snippets";
+./spec/2026-spec/00-overview.md:56:spec/2026-spec/
+./spec/2026-spec/02-hardening-backlog.md:3:Opened 2026-06-02 (Asia/Kuala_Lumpur). The 120-task `2026-spec`
+./spec/2026-spec/02-hardening-backlog.md:8:- [x] H3 — Top-level `spec/2026-spec/README.md` mirroring the T120 read-order.
+./spec/2026-spec/02-hardening-backlog.md:15:- [x] H10 — Vanilla-HTML host-wiring PoC (`poc/2026-spec/index.html`) — wires snippets 01/02/03/05 + in-memory QueueStore against a mock chat host.
+./spec/2026-spec/10-glossary/04-vocabulary-banlist.md:7:`spec/2026-spec/`. A spec reviewer (human or AI) should grep
+./spec/2026-spec/10-glossary/04-vocabulary-banlist.md:36:  spec/2026-spec \
+./spec/2026-spec/180-test-plan/05-fixtures-and-mocks.md:18:`spec/2026-spec/fixtures/` (created later alongside implementation):
+./spec/2026-spec/99-spec-issues/300-blind-ai-rescore-pre-renumber.md:1:# Blind-AI Implementation Score — `spec/2026-spec/` (pre-renumber, 2026-06-03)
+./spec/2026-spec/99-spec-issues/300-blind-ai-rescore-pre-renumber.md:12:| Why current is 88, not 100 | Structural defects in **folder numbering** of `spec/2026-spec/` — not content gaps |
+./spec/2026-spec/99-spec-issues/300-blind-ai-rescore-pre-renumber.md:20:| **Root naming** | -2 | -2 | Root `2026-spec/` lacks the `NN-` numeric prefix used everywhere else in `spec/` |
+./spec/2026-spec/99-spec-issues/300-blind-ai-rescore-pre-renumber.md:26:**Confirmation method:** Same harness as `99-spec-issues/105-final-100-scorecard.md` — replayed for the broader 2026-spec root.
+./spec/audit/blind-ai-implementation-audit/final-readiness-report-100.md:28:- **App-specific spec** (`spec/21-app/**`, `spec/22-app-issues/**`, `spec/2026-spec/**`, `spec/31-macro-recorder/**`, `spec/audit/**`, `spec/99-archive/**`) documents this exact app's runtime behavior and is correctly allowed to reference the real identifier.
+./spec/audit/blind-ai-implementation-audit/progress.md:139:1–9. Generated 25 stub READMEs via `/tmp/gen-readmes.mjs` for: `01-spec-authoring-guide`, `02-architecture`, `02-coding-guidelines`, `03-error-manage`, `04-database-conventions`, `05-split-db-architecture`, `06-seedable-config-architecture`, `07-design-system`, `08-docs-viewer-ui`, `09-code-block-system`, `10-research`, `11-powershell-integration`, `12-cicd-pipeline-workflows`, `14-update`, `17-consolidated-guidelines`, `21-app`, `22-app-issues`, `23-database`, `26-chrome-extension-generic`, `30-import-export`, `31-macro-recorder`, `32-app-performance`, `99-archive`, `audit`, `validation-reports`. Repaired `spec/2026-spec/README.md` (Overview + Files sections). **`check-spec-readme-structure.mjs --strict` now passes 0 issues.**
+./spec/audit/blind-ai-implementation-audit/steps/step-097.md:7:- 🔴 **Drift**: spec/ contains `00`, `01`, `02`, `04`, `05`, `06`, `07`, `08`, `09`, `10`, `11`, `12`, `14`, `17`, `21`, `22`, `23`, `26`, `30`, `31`, `32`, `99`, plus `2026-spec`, `audit`, `validation-reports`. Numbering exceeds 00–08 by far. Memory is stale.
