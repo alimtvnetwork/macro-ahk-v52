@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // H9 — Typecheck the spec's reference snippets in isolation.
-//   1. Extract every ```ts fenced block from 190-reference-snippets/*.md
+//   1. Extract every ```ts fenced block from 19-reference-snippets/*.md
 //   2. Drop into /tmp/spec-snippets/ with a shared shim .d.ts
 //   3. Run `tsc --noEmit` against an isolated tsconfig.
 // Zero new deps — uses the project's existing typescript install.
@@ -16,10 +16,10 @@ rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 
 // --- shared shims --------------------------------------------------
-// The snippets import from "../20-data-model", "../70-editor-adapters",
-// "../100-queue-model". Those paths are spec docs, not TS modules; stub them.
+// The snippets import from "../02-data-model", "../07-editor-adapters",
+// "../10-queue-model". Those paths are spec docs, not TS modules; stub them.
 const shims = {
-  "20-data-model.ts": `
+  "02-data-model.ts": `
 export interface Prompt {
   id: string; slug: string; title: string; version: string; author: string;
   categories: string[]; body: string; isDefault: boolean; order: number;
@@ -35,7 +35,7 @@ export interface PromptStore {
   export(): Promise<Prompt[]>;
 }
 `,
-  "70-editor-adapters.ts": `
+  "07-editor-adapters.ts": `
 export type PasteMode = "replace" | "append" | "at-cursor";
 export interface EditorAdapter {
   kind: string;
@@ -43,7 +43,7 @@ export interface EditorAdapter {
   paste(el: Element, text: string, mode?: PasteMode): Promise<boolean>;
 }
 `,
-  "100-queue-model.ts": `
+  "10-queue-model.ts": `
 export type TaskStatus = "pending" | "processing" | "hold" | "completed" | "failed";
 export interface QueuedTask {
   id: string; kind: string; body: string; status: TaskStatus;
@@ -67,9 +67,9 @@ for (const [name, body] of Object.entries(shims)) writeFileSync(join(OUT, name),
 const TS_RE = /```ts\s*\n([\s\S]*?)```/g;
 function rewriteImports(src) {
   return src
-    .replaceAll('from "../20-data-model"',      'from "./20-data-model"')
-    .replaceAll('from "../70-editor-adapters"', 'from "./70-editor-adapters"')
-    .replaceAll('from "../100-queue-model"',    'from "./100-queue-model"')
+    .replaceAll('from "../02-data-model"',      'from "./02-data-model"')
+    .replaceAll('from "../07-editor-adapters"', 'from "./07-editor-adapters"')
+    .replaceAll('from "../10-queue-model"',     'from "./10-queue-model"')
     .replaceAll('from "./02-queue-engine"',     'from "./02-queue-engine.snippet-1"');
 }
 let extracted = 0;
