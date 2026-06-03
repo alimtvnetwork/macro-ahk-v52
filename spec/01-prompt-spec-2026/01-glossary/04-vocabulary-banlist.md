@@ -33,7 +33,7 @@ if hits are found outside this exact file.
 ```bash
 rg -n -i \
   -e 'MacroController|marco-sdk|RiseupAsiaMacroExt|chrome\.(runtime|storage|tabs|scripting)|lovable\.(app|dev)' \
-  spec/2026-spec \
+  spec/01-prompt-spec-2026 \
   | rg -v '04-vocabulary-banlist\.md|00-overview\.md'
 ```
 
