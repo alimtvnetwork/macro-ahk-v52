@@ -8,7 +8,7 @@
  *
  * App-specific directories document this exact app's runtime and are
  * allowed to use the real identifier:
- *   - spec/21-app/**, spec/22-app-issues/**, spec/2026-spec/**
+ *   - spec/21-app/**, spec/22-app-issues/**, spec/01-prompt-spec-2026/**
  *   - spec/31-macro-recorder/**, spec/audit/**, spec/99-archive/**
  *   - spec/00-glossary.md (canonical mapping)
  */
