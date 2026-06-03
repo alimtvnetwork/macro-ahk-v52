@@ -2,7 +2,26 @@
 
 **Date:** 2026-06-03 (Asia/Kuala_Lumpur)
 **Plan:** `.lovable/plans/prompt-spec-2026-renumber-100.md`
-**Status:** Phase A (1–10) ✅ · Phase B (11–20) ✅ · Phase C steps 21–30 ✅ · Phase C steps 31–40 pending
+**Status:** Phase A (1–10) ✅ · Phase B (11–20) ✅ · Phase C (21–40) ✅ · Phase D (41–60) pending
+
+## Phase C complete (steps 31–40) — second 10 child folders renamed
+
+| Old | New |
+|---|---|
+| `110-queue-lifecycle` | `11-queue-lifecycle` |
+| `120-delay-engine` | `12-delay-engine` |
+| `130-failure-handling` | `13-failure-handling` |
+| `140-plan-mode` | `14-plan-mode` |
+| `150-settings` | `15-settings` |
+| `160-observability` | `16-observability` |
+| `170-onboarding` | `17-onboarding` |
+| `180-test-plan` | `18-test-plan` |
+| `190-reference-snippets` | `19-reference-snippets` |
+| `200-adoption-checklist` | `20-adoption-checklist` |
+
+All 20 child folders now follow dense `01..20` numbering. Linter exit 0.
+Inventory: 106 files (stable). Intra-spec relative links rewritten in Phase D.
+
 
 ## Phase C partial (steps 21–30) — first 10 child folders renamed
 
