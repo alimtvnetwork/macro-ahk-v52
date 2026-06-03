@@ -197,3 +197,18 @@ Phase C (steps 21–40): rename 20 child folders from `10..200` to `01..20`.
 - **Memory updates:** 1 new (`prompt-spec-2026-layout`) + 1 upgraded (`spec-organization`) + index appended
 
 Live spec path: **`spec/01-prompt-spec-2026/`**
+
+## Follow-up H (steps 101–110) — 2026-06-03 — snippet gate repair
+
+| # | Action | Time | Result |
+|---|--------|------|--------|
+| 101 | Re-ran `typecheck-spec-snippets.mjs` to capture exact failures | 15 s | ❌ shim import rewrites still used pre-renumber names (`20-data-model`, `70-editor-adapters`, `100-queue-model`) |
+| 102 | Inspected affected reference snippets `01..05` | 10 s | ✅ snippets already import dense post-renumber paths (`02`, `07`, `10`) |
+| 103 | Inspected typecheck harness | 10 s | ✅ root path was fixed earlier; internal shim names/import rewrites were stale |
+| 104 | Updated harness comments for `19-reference-snippets` | 2 s | ✅ docstring matches live tree |
+| 105 | Renamed shim module `20-data-model.ts` → `02-data-model.ts` | 3 s | ✅ matches snippet imports |
+| 106 | Renamed shim module `70-editor-adapters.ts` → `07-editor-adapters.ts` | 3 s | ✅ matches snippet imports |
+| 107 | Renamed shim module `100-queue-model.ts` → `10-queue-model.ts` | 3 s | ✅ matches snippet imports |
+| 108 | Updated `rewriteImports()` to rewrite dense imports | 5 s | ✅ `../02`, `../07`, `../10` now resolve to local shims |
+| 109 | Preserved `./02-queue-engine` snippet rewrite | 1 s | ✅ orchestrator can still import the extracted queue-engine snippet |
+| 110 | Prepared verification pass | 1 s | ⏳ run gate next |
