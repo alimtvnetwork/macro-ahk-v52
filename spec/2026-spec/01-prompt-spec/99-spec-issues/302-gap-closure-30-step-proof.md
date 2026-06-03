@@ -116,3 +116,7 @@ The gap that produced the 88/100 score was **purely structural** (folder numberi
 - `.lovable/plans/prompt-spec-2026-renumber-100.md` — the 100-step plan (banner: EXECUTED)
 - `.lovable/audits/2026-06-03-renumber/path-map.json` — old→new path map (105 files)
 - `mem://architecture/prompt-spec-2026-layout.md` — canonical layout memory
+
+---
+
+**Canonical path note (appended 2026-06-03):** This proof now lives at `spec/2026-spec/01-prompt-spec/99-spec-issues/302-gap-closure-30-step-proof.md` after the 2026-06-03 spec reorganization (`spec/01-prompt-spec-2026/` → `spec/2026-spec/01-prompt-spec/`). All earlier references to `spec/01-prompt-spec-2026/99-spec-issues/302-…` should be read as pointing here.
