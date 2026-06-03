@@ -13,7 +13,7 @@
  * runtime — usually masked by `?? defaults` / `?? []` and only surfaced
  * weeks later as a missing script, missing CSS, or empty config injection.
  *
- * This script enforces THREE things, all in one pass, with zero deps:
+ * This script enforces FOUR things, all in one pass, with zero deps:
  *
  *   CHECK A — every `standalone-scripts/<name>/src/instruction.ts`
  *             contains ONLY PascalCase object-literal keys (or
@@ -40,6 +40,10 @@
  *             StoredProject rows), so we ONLY flag occurrences that
  *             coexist with an `instruction.json` reference, which is
  *             the strong signal of an instruction-tree access.
+ *
+ *   CHECK D — every authoring-time `instruction.ts` manifest uses the
+ *             shared enum members for closed string sets (`World`,
+ *             `RunAt`, `MatchType`, `Inject`) instead of raw strings.
  *
  * Exit codes:
  *   0 — all three checks passed
@@ -476,12 +480,14 @@ function main() {
     const b = runCheckB(sourceFiles);
     const c = runCheckC(sourceFiles);
 
-    const failed = a + b + c;
+    const d = runCheckD();
+
+    const failed = a + b + c + d;
     if (failed === 0) {
         console.log(`\n✅ All PascalCase instruction migration checks passed.`);
         process.exit(0);
     }
-    process.stderr.write(`\n❌ ${failed} of 3 PascalCase instruction migration check(s) failed. See annotations above.\n`);
+    process.stderr.write(`\n❌ ${failed} of 4 PascalCase instruction migration check(s) failed. See annotations above.\n`);
     process.exit(1);
 }
 
