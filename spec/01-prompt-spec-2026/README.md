@@ -1,4 +1,7 @@
-# 2026 Prompts (generic) — Spec
+# 01 — Prompt Spec 2026 (generic, host-agnostic)
+
+> **Canonical root:** `spec/01-prompt-spec-2026/` (renamed 2026-06-03 from `spec/2026-spec/`).
+> Inner folders renumbered `10..200` → `01..20` (dense). Mapping: `.lovable/audits/2026-06-03-renumber/path-map.json`.
 
 ## Overview
 
