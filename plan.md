@@ -479,32 +479,22 @@ Memory: `.lovable/memory/features/release-installer.md`
 > **Scope swept**: `src/`, `standalone-scripts/`, `chrome-extension/` for `setInterval`, `requestAnimationFrame`, `while(true)`, `for(;;)`, zero-delay `setTimeout`. 43 hits triaged.
 > **Verdict**: 1 critical, 4 high, 3 medium leaks/wastes. Several "looks scary" hits are actually correctly bounded — listed under ✅ for completeness.
 
-### 🔴 CRITICAL — fix first
+### ✅ All PERF-1..PERF-8 closed (verified in source 2026-06-03)
 
-> **RCA files written 2026-06-03** (per `mem://workflow/task-execution-pattern`): PERF-1 → `spec/22-app-issues/10-perf-1-hot-reload-prod-poll.md`, PERF-2 → `…/11-…`, PERF-3 → `…/12-…`, PERF-4 → `…/13-…`, PERF-5 → `…/14-…`, PERF-7 → `…/15-…`, PERF-8 → `…/16-…`. Awaiting user greenlight to land code fixes.
+> Code-audit on 2026-06-03 confirms every PERF-* fix is already landed. RCA files written the same day: `spec/22-app-issues/10-perf-1-hot-reload-prod-poll.md` (and `…/11…16-*.md`). What follows is the closed status for the historical record.
 
-| # | File | Issue | Why it harms perf | Root cause |
-|---|---|---|---|---|
-| **PERF-1** | `src/background/hot-reload.ts:34` + `vite.config.extension.ts:516` | **Hot-reload polls `build-meta.json` every 1 second forever — in PRODUCTION builds too.** Wakes the MV3 service worker every second, defeats Chrome's SW idle suspension, runs a `fetch()` + `JSON.parse()` per tick, fights the keepalive heuristics, and on shared/laptop machines visibly drains battery. | SW never sleeps → constant CPU/IO + extra "Marco extension was reloaded" logs. Also disables the very SW lifecycle the rest of the code (e.g. `keepalive`) tiptoes around. | `generateBuildMeta()` is wired unconditionally inside `defineConfig(({ mode }) => …)` — `isDev` is computed but never gates the plugin. So `dist/build-meta.json` ships in release ZIPs, and `startHotReload()` (called from `service-worker-main.ts:131`) sees the file present and starts the 1 s loop. The polling is also unkillable — no `clearInterval` and no stop API. |
-
-**Fix sketch**: gate `generateBuildMeta()` behind `isDev` in `vite.config.extension.ts`, *and* in `hot-reload.ts` short-circuit if `chrome.runtime.getManifest().version_name?.includes('dev')` is false (defense in depth), *and* capture the interval ID + expose `stopHotReload()` for unit cleanliness.
-
-### 🟠 HIGH — leaked / unbounded intervals
-
-| # | File:line | Issue | Root cause |
+| # | File | Status | Verification |
 |---|---|---|---|
-| **PERF-2** | `standalone-scripts/macro-controller/src/ui/panel-controls.ts:393` | `setInterval(…, 5000)` to refresh the error-badge count is **fire-and-forget** — the returned ID is discarded. Every panel re-bootstrap (SPA nav, redock, theme swap) layers another 5 s timer on top, all writing to the same DOM badge. After N navigations on a long Lovable session this is N concurrent intervals. | Closure-style helper `function buildErrorBadge()` returns the button but never the timer handle; no `WeakRef`/teardown hook tied to panel lifecycle. |
-| **PERF-3** | `standalone-scripts/macro-controller/src/ui/section-auth-diag.ts:179` | Same pattern — `setInterval(…, 10_000)` for the auth-diag refresh, ID discarded. Re-mounting the diagnostics section stacks duplicates. The visibility guard inside the callback prevents UI work but **does not stop the timer or the closure-held DOM refs** (memory leak when old panels are GC-orphaned). | Builder function `buildAuthDiagSection()` has no return-side teardown contract. |
-| **PERF-4** | `standalone-scripts/macro-controller/src/ui/redock-observer.ts:24,39` | `RedockState.pollTimer` field + setter exist but **no code path ever assigns to it**. The actual polling is delegated to `pollUntil(...)` (lines 72-81) whose timer is internal and **cannot be cancelled** by `resetRedockState()`. So calling `resetRedockState()` during teardown leaves an orphan interval running until its `timeoutMs` (`pollMs * maxAttempts`) elapses — could be many minutes per re-bootstrap. | Refactor to `pollUntil` left the cancellation API stranded. Dead `pollTimer` accessor is the smell. |
-| **PERF-5** | `src/content-scripts/network-reporter.ts:300,305` | `setInterval(flushBuffer, FLUSH_INTERVAL_MS)` runs **on every page** — content_scripts match `<all_urls>`. The interval has no clearInterval anywhere, no visibility-guard, no idle backoff. On a tab the user opened and forgot, this keeps ticking + serializing buffered network events forever. Multiplied by N background tabs = real CPU. | `initNetworkReporter()` is called at module top-level (line 305) with no lifecycle hook. Designed as "fire once at document_start" without considering long-lived tabs. |
+| **PERF-1** ✅ | `src/background/hot-reload.ts:37-72` + `vite.config.extension.ts` | Closed | `isDevBuild()` gate at startup + captured interval ID + exported `stopHotReload()`; `build-meta.json` only emitted in dev builds |
+| **PERF-2** ✅ | `standalone-scripts/macro-controller/src/ui/panel-controls.ts:537-553` | Closed | `data-error-badge-poll` guard prevents stacking; `trackedSetInterval` + self-clear via `!badge.isConnected` |
+| **PERF-3** ✅ | `standalone-scripts/macro-controller/src/ui/section-auth-diag.ts:180-194` | Closed | `data-auth-diag-poll` guard + self-clear via `!diagBody.isConnected` + in-callback visibility check |
+| **PERF-4** ✅ | `standalone-scripts/macro-controller/src/ui/redock-observer.ts:23-91, 136-140` | Closed | Generation-token cancellation — `resetRedockState()` bumps generation, in-flight `pollUntil` bails on next tick |
+| **PERF-5** ✅ | `src/content-scripts/network-reporter.ts:302-342` | Closed | Re-injection guard (`flushTimerId !== null`) + `pagehide` teardown + idempotent `stopNetworkReporter()` |
+| **PERF-6** ✅ | `src/components/popup/InjectionCopyButton.tsx:189-261` | Closed (2026-06-03) | Subscribes to `ERROR_COUNT_CHANGED`; 60 s fallback poll, visibility-paused, full cleanup |
+| **PERF-7** ✅ | `src/popup/hooks/usePopupData.ts:121-153` | Closed | `visibilitychange` listener stops the 30 s interval while hidden; refreshes immediately on resume |
+| **PERF-8** ✅ | `standalone-scripts/macro-controller/src/toast.ts:218-233` | Closed | After 30 consecutive `getNotify() === null` ticks, `stopQueueDrain()` is called; re-enqueue restarts it |
 
-### 🟡 MEDIUM — wasteful but bounded
 
-| # | File:line | Issue | Root cause |
-|---|---|---|---|
-| **PERF-6** ✅ | `src/components/popup/InjectionCopyButton.tsx:189–261` | **Closed 2026-06-03.** Now subscribes to the `ERROR_COUNT_CHANGED` broadcast (same channel as `use-error-count.ts`); the poll is kept as a 60 s fallback (15 s only if the runtime listener fails to attach) and is paused while `document.hidden`. Listener + interval are cleared in the effect cleanup. | — |
-| **PERF-7** | `src/popup/hooks/usePopupData.ts:123` | 30 s poll fans out 4 `sendMessage` calls (`GET_STATUS`, `GET_HEALTH_STATUS`, `GET_ACTIVE_PROJECT`, `GET_ACTIVE_ERRORS`) **even when the popup tab is hidden** (popup can be detached into a window). No `document.hidden` guard like `DiagnosticsPanel.tsx` has (line 103). | Hook predates the visibility-pause pattern adopted in `DiagnosticsPanel`. |
-| **PERF-8** | `standalone-scripts/macro-controller/src/toast.ts:211` (`queueDrainTimer`) | Drain timer self-stops only when queue empties **and** the SDK has loaded. If `getNotify()` keeps returning `null` (SDK never injects on a non-target tab), the interval ticks forever at `TOAST_QUEUE_POLL_MS` doing nothing useful. | `drainQueue()` early-returns when `notify === null` without arming a kill-switch or backoff. |
 
 ### ✅ Verified safe (no action — documenting so we don't re-flag them)
 
