@@ -1,3 +1,5 @@
+> **STATUS (2026-06-03):** ✅ EXECUTED. Old `spec/2026-spec/` path references below describe the pre-rename state. Live path is `spec/01-prompt-spec-2026/`. See changelog at `spec/01-prompt-spec-2026/99-spec-issues/200-renumber-baseline.md`.
+
 # Plan — Rename `spec/2026-spec/` → `spec/01-prompt-spec-2026/` and renumber children to dense `01..NN`
 
 **Created:** 2026-06-03 (Asia/Kuala_Lumpur)
