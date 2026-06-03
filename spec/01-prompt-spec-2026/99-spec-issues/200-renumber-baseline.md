@@ -211,4 +211,4 @@ Live spec path: **`spec/01-prompt-spec-2026/`**
 | 107 | Renamed shim module `100-queue-model.ts` → `10-queue-model.ts` | 3 s | ✅ matches snippet imports |
 | 108 | Updated `rewriteImports()` to rewrite dense imports | 5 s | ✅ `../02`, `../07`, `../10` now resolve to local shims |
 | 109 | Preserved `./02-queue-engine` snippet rewrite | 1 s | ✅ orchestrator can still import the extracted queue-engine snippet |
-| 110 | Prepared verification pass | 1 s | ⏳ run gate next |
+| 110 | Re-ran `typecheck-spec-snippets.mjs` | 15 s | ✅ clean — 5 snippets typecheck |
