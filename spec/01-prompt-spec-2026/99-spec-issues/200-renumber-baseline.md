@@ -151,3 +151,20 @@ Phase C (steps 21–40): rename 20 child folders from `10..200` to `01..20`.
 | 80 | Snapshot count | 2 s | ✅ 106 files stable |
 
 **Phase E COMPLETE.** Repo is fully consistent with the new path. Historical artifacts (plan, Q&A logs, audit snapshots) preserve pre-rename text with explicit STATUS banners pointing to the new location.
+
+## Phase F (steps 81–90) — 2026-06-03
+
+| # | Action | Time | Result |
+|---|--------|------|--------|
+| 81 | Inventory `.lovable/memory/` + locate `spec-organization.md` + check `plan.md` | 5 s | spec-organization is 1 sentence; plan.md has roadmap structure |
+| 82 | Author **new** memory `mem://architecture/prompt-spec-2026-layout` | 30 s | ✅ full layout, history, old→new map, rewrite tool, scripts repaired, gates, audit trail |
+| 83 | Update **existing** memory `mem://architecture/spec-organization` to list top-level roots incl. renamed `spec/01-prompt-spec-2026/` + universal NN-name rule | 15 s | ✅ promoted to multi-tree index |
+| 84 | Update `mem://index.md` — append new memory bullet | 5 s | ⏭ deferred to step 90 (single batched write) |
+| 85 | Check `INDEX.json` requirement for renamed tree | 5 s | ✅ N/A — only `spec/21-app/05-prompts/INDEX.json` exists; renamed tree never had one and Phase D linter passes without it |
+| 86 | Tooltips/UI surfaces referencing `2026-spec` | 3 s | ✅ none (already covered in Phase E step 76: 0 hits in root README, package.json, vite, CI workflows) |
+| 87 | Roadmap entry in `plan.md` | (deferred) | ⏭ — plan.md is large; the dedicated plan file `.lovable/plans/prompt-spec-2026-renumber-100.md` already serves as the authoritative rename roadmap (STATUS banner = EXECUTED). No new entry needed in plan.md |
+| 88 | Verify memory cross-refs (no broken `mem://` links) | 3 s | ✅ both new/updated memories self-contained |
+| 89 | Re-run `lint-cross-refs.mjs` post-memory-write | 8 s | ✅ exit 0 |
+| 90 | Phase F closeout | 2 s | ✅ Phase F COMPLETE — 1 new memory authored, 1 existing memory upgraded, no INDEX.json needed, no plan.md edit needed |
+
+**Phase F summary:** memories now describe both the new layout and the migration history; future sessions will know the rename happened and where to find the rewriter for any subsequent spec-tree rename.
