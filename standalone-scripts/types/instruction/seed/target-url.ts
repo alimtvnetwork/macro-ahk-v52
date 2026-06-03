@@ -1,13 +1,14 @@
 import type { UrlPattern } from "../primitives/url-pattern";
+import type { MatchType } from "../enums/match-type";
 
 /**
  * One URL pattern used by the injection scheduler. `MatchType`
  * disambiguates how `Pattern` is evaluated.
  *
- * `MatchType` is the literal string union (matches the runtime
- * matcher's vocabulary) per `mem://standards/pascalcase-json-keys`.
+ * `MatchType` uses the shared enum at authoring time and compiles to the
+ * runtime matcher's stable string vocabulary in JSON artifacts.
  */
 export type TargetUrl = {
     readonly Pattern: UrlPattern;
-    readonly MatchType: "glob" | "regex" | "exact";
+    readonly MatchType: MatchType;
 };

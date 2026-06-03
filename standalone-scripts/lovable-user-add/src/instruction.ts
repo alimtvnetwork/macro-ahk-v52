@@ -14,6 +14,9 @@
  */
 
 import type { ProjectInstruction } from "../../types/instruction/project-instruction";
+import { InjectionWorld } from "../../types/instruction/enums/injection-world";
+import { InjectionRunAt } from "../../types/instruction/enums/injection-run-at";
+import { MatchType } from "../../types/instruction/enums/match-type";
 import type { EmptySettings } from "../../types/instruction/seed/empty-settings";
 
 const instruction: ProjectInstruction<EmptySettings> = {
@@ -22,7 +25,7 @@ const instruction: ProjectInstruction<EmptySettings> = {
     DisplayName: "Lovable User Add",
     Version: "3.49.0",
     Description: "Bulk-add Lovable workspace members from a CSV; promotes Owner rows via shared promoteToOwner.",
-    World: "MAIN",
+    World: InjectionWorld.Main,
     IsGlobal: false,
     Dependencies: ["lovable-common"],
     LoadOrder: 61,
@@ -31,8 +34,8 @@ const instruction: ProjectInstruction<EmptySettings> = {
         SeedOnInstall: true,
         IsRemovable: false,
         AutoInject: true,
-        RunAt: "document_idle",
-        TargetUrls: [{ Pattern: "https://lovable.dev/*", MatchType: "glob" }],
+        RunAt: InjectionRunAt.DocumentIdle,
+        TargetUrls: [{ Pattern: "https://lovable.dev/*", MatchType: MatchType.Glob }],
         Cookies: [],
         Settings: {},
     },

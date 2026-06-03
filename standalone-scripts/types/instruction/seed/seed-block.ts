@@ -2,6 +2,7 @@ import type { Identifier } from "../primitives/identifier";
 import type { CookieBinding } from "./cookie-binding";
 import type { CookieSpec } from "./cookie-spec";
 import type { TargetUrl } from "./target-url";
+import type { InjectionRunAt } from "../enums/injection-run-at";
 
 /**
  * Declarative seed metadata that controls how the runtime registers,
@@ -12,16 +13,15 @@ import type { TargetUrl } from "./target-url";
  * project type file — never inlined here.
  *
  * All keys are PascalCase per `mem://standards/pascalcase-json-keys`.
- * `RunAt` is the literal string union (matches Chrome's `chrome.scripting`
- * vocabulary) so the JSON stays stable; consumers may map it to an enum
- * at the boundary if exhaustive switches are needed.
+ * `RunAt` uses the shared enum at authoring time and compiles to Chrome's
+ * stable `chrome.scripting` string vocabulary in JSON artifacts.
  */
 export type SeedBlock<TSettings extends object> = {
     readonly Id: Identifier;
     readonly SeedOnInstall: boolean;
     readonly IsRemovable: boolean;
     readonly AutoInject: boolean;
-    readonly RunAt?: "document_start" | "document_end" | "document_idle";
+    readonly RunAt?: InjectionRunAt;
     readonly CookieBinding?: CookieBinding;
     readonly TargetUrls: ReadonlyArray<TargetUrl>;
     readonly Cookies: ReadonlyArray<CookieSpec>;

@@ -386,18 +386,18 @@ Draft types: `standalone-scripts/types/instruction/` (one type per file, awaitin
 
 | Task | Description | Status |
 |------|-------------|--------|
-| **0.1** — Review Q1–Q5 | Decide enum-vs-`as const`, optional-vs-required `xpaths`, `EmptySettings` naming, field renames, runtime base class. | Awaiting reviewer |
-| **0.2** — Wire `compile-instruction.mjs` | Emit legacy keys (`world`, `isIife`, `inject`) for one release while runtime migrates. | Blocked on 0.1 |
-| **0.3** — Migrate `payment-banner-hider/src/instruction.ts` | Import `ProjectInstruction<EmptySettings>`; delete local interface. | Blocked on 0.1 |
-| **0.4** — Migrate `xpath/src/instruction.ts` | Same as 0.3; introduce `XPathRegistry` for the script's own selectors. | Blocked on 0.1 |
-| **0.5** — Migrate `marco-sdk/src/instruction.ts` | Same as 0.3; shared `ProjectInstruction` re-export removed. | Blocked on 0.1 |
-| **0.6** — Migrate `macro-controller/src/instruction.ts` | Add `MacroControllerSettings` type next to controller; pass to `ProjectInstruction<MacroControllerSettings>`. | Blocked on 0.1 |
+| **0.1** — Review Q1–Q5 | ✅ Closed 2026-06-03 08:05 KL: Q1 const enums, Q2 optional `XPaths`, Q3 `EmptySettings`, Q4 PascalCase keys + enum-authored values, Q5 no base class until two compliant class implementations exist. | ✅ Done |
+| **0.2** — Wire `compile-instruction.mjs` | ✅ Closed 2026-06-03 08:05 KL: compiler now resolves shared enum member values while keeping canonical PascalCase + compat camelCase artifacts schema-valid. | ✅ Done |
+| **0.3** — Migrate `payment-banner-hider/src/instruction.ts` | ✅ Closed 2026-06-03 08:05 KL: uses `ProjectInstruction<EmptySettings>` plus `InjectionWorld`, `InjectionRunAt`, `MatchType`, `AssetInjectTarget`. | ✅ Done |
+| **0.4** — Migrate `xpath/src/instruction.ts` | ✅ Closed 2026-06-03 08:05 KL: uses shared instruction type and enum-authored `World`, target URL match types, and IIFE script asset. `XPaths` remains optional. | ✅ Done |
+| **0.5** — Migrate `marco-sdk/src/instruction.ts` | ✅ Closed 2026-06-03 08:05 KL: uses shared instruction type, enum-authored closed sets, and keeps the downstream `EmptySettings` type re-export for compatibility. | ✅ Done |
+| **0.6** — Migrate `macro-controller/src/instruction.ts` | ✅ Closed 2026-06-03 08:05 KL: `MacroControllerSettings` remains local and `ProjectInstruction<MacroControllerSettings>` now uses enum-authored closed sets. | ✅ Done |
 | **0.7** — Logger `unknown` cleanup | ✅ Closed 2026-06-02: `standalone-scripts/types/riseup-namespace.d.ts` verified — only the permitted `CaughtError = unknown` leaf remains; `RiseupAsiaLogArg` already a designed union. | ✅ Done |
 | **0.8** — ESLint `id-denylist` rule | Mostly done 2026-06-02: denies `tmp`, `temp`, `baz`, `qux`, `foobar`, `cfg`, `arr`, `str`, `num` (added 99 renames across 26 files; tsc clean). Remaining: `fn`, `cb`, `el`, `msg`, `ctx`, `obj`, `val` (val alone = 136 sites / 30 files; defer to dedicated session). | Mostly done |
 | **0.9** — ESLint `consistent-type-definitions` | ✅ Closed 2026-06-02: `eslint.config.js` lines 152–160 scope `["error","type"]` to `standalone-scripts/types/instruction/**` and `standalone-scripts/*/src/instruction.ts`. | ✅ Done |
 | **0.10** — `.d.ts` `unknown` lint coverage | ✅ Closed 2026-06-02: `scripts/check-no-unknown-in-dts.mjs` enforces it (HARD_PINNED + BASELINE tiers); wired in `package.json` (`check:no-unknown-in-dts`) and `.github/workflows/ci.yml` lines 103/106. | ✅ Done |
 | **0.11** — `PaymentBannerHider` class refactor | External CSS file, no `!important`, no error swallowing, single-class entry; consume `XPathRegistry` from migrated instruction. | Blocked on 0.3 |
-| **0.12** — Standalone-script scaffolder CLI | `pnpm new:standalone <name>` generates `instruction.ts`, vite/tsconfig, dist gitignore, CI build/e2e jobs, registry entries — using the new types. | Blocked on 0.1 |
+| **0.12** — Standalone-script scaffolder CLI | `pnpm new:standalone <name>` generates `instruction.ts`, vite/tsconfig, dist gitignore, CI build/e2e jobs, registry entries — using the new enum-authored types. | Ready |
 | **0.13** — Banner-hider RCA follow-up | ✅ Closed 2026-06-03: 7 standards registered in `mem://index`; reference implementation in `standalone-scripts/payment-banner-hider/` audited compliant (`mem://features/payment-banner-hider` compliance table — all 8 rows ✓). Residual lint enforcement tracked under 0.8. | ✅ Done |
 | **0.14** — Banner-hider runtime enums | Add `BannerLifecyclePhase` and `BannerEventName` to `standalone-scripts/types/runtime/enums/`. Replace every magic string in the rewritten `index.ts`. | Blocked on 0.11 |
 | **0.15** — Typed DOM helpers in SDK | Add `RiseupAsiaMacroExt.Dom.queryHtmlElement(selector): HTMLElement \| undefined` and `queryAllHtmlElements(...)` so callsites never need `as HTMLElement`. | Blocked on 0.7 |
@@ -463,13 +463,13 @@ Memory: `.lovable/memory/features/release-installer.md`
 
 | # | Task | Effort | Impact | Blocker |
 |---|------|--------|--------|---------|
-| 1 | **Priority 0.1** — Review Q1–Q5 | Medium | High — unblocks standalone-script type migration | Awaiting reviewer |
-| 2 | **Priority 0.8** — id-denylist expansion | High | Medium — ~1700 callsites; needs staged migration | Effort budget |
-| 3 | **Task 1.2** — E2E Chrome verification | Low | High — validates real-world usage | Manual Chrome required |
-| 4 | **Cross-Project Sync** — Shared asset library | High | High — new feature | Spec ready |
-| 5 | **P Store** — Project marketplace | High | High — new feature (deferred per memory) | Owner spec pending |
+| 1 | **Priority 0.11** — PaymentBannerHider class refactor | Medium | High — unlocks 0.14 runtime enums | 0.3 now closed |
+| 2 | **Priority 0.12** — Standalone-script scaffolder CLI | Medium | High — prevents future manifest drift | 0.1 now closed |
+| 3 | **Priority 0.15** — Typed DOM helpers in SDK | Medium | High — removes standalone DOM casts | 0.7 closed |
+| 4 | **Priority 0.8** — id-denylist expansion | High | Medium — ~1700 callsites; needs staged migration | Effort budget |
+| 5 | **Task 1.2** — E2E Chrome verification | Low | High — validates real-world usage | Manual Chrome required |
 
-**Recommended next**: Priority 0.1 — answer Q1–Q5 in `.lovable/question-and-ambiguity/` to unblock the standalone-script type migration chain (0.2–0.6, 0.11–0.16). Priorities 0.7, 0.9, 0.10 are verified closed; 0.8 expansion is a multi-day refactor needing user go-ahead.
+**Recommended next**: Priority 0.11 — refactor `payment-banner-hider` into the standardized class shape, because 0.1–0.6 are now closed and 0.11 directly unlocks 0.14 runtime enums. Priority 0.12 is next-best if the goal is scaffolding prevention rather than runtime cleanup.
 
 ---
 

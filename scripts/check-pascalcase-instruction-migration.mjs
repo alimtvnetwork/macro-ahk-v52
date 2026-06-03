@@ -13,7 +13,7 @@
  * runtime — usually masked by `?? defaults` / `?? []` and only surfaced
  * weeks later as a missing script, missing CSS, or empty config injection.
  *
- * This script enforces THREE things, all in one pass, with zero deps:
+ * This script enforces FOUR things, all in one pass, with zero deps:
  *
  *   CHECK A — every `standalone-scripts/<name>/src/instruction.ts`
  *             contains ONLY PascalCase object-literal keys (or
@@ -41,8 +41,12 @@
  *             coexist with an `instruction.json` reference, which is
  *             the strong signal of an instruction-tree access.
  *
+ *   CHECK D — every authoring-time `instruction.ts` manifest uses the
+ *             shared enum members for closed string sets (`World`,
+ *             `RunAt`, `MatchType`, `Inject`) instead of raw strings.
+ *
  * Exit codes:
- *   0 — all three checks passed
+ *   0 — all four checks passed
  *   1 — one or more violations (full report printed; emits GitHub
  *       Actions `::error file=…,line=…::` annotations on every
  *       offending line so PR reviewers see them inline)
@@ -294,11 +298,7 @@ function runCheckA() {
 
     const projects = readdirSync(STANDALONE_DIR).filter((name) => {
         const full = join(STANDALONE_DIR, name);
-        try {
-            return statSync(full).isDirectory();
-        } catch {
-            return false;
-        }
+        return existsSync(full) && statSync(full).isDirectory();
     });
 
     for (const proj of projects) {
@@ -459,6 +459,52 @@ function runCheckC(sourceFiles) {
 }
 
 /* ----------------------------------------------------------------- */
+/*  CHECK D — instruction.ts closed string sets use shared enums.     */
+/* ----------------------------------------------------------------- */
+function runCheckD() {
+    const violations = [];
+    const CLOSED_STRING_KEY_RE = /\b(World|RunAt|MatchType|Inject)\s*:\s*["'](MAIN|ISOLATED|document_start|document_end|document_idle|glob|regex|exact|head)["']/g;
+    const projects = readdirSync(STANDALONE_DIR).filter((name) => {
+        const full = join(STANDALONE_DIR, name);
+        return existsSync(full) && statSync(full).isDirectory();
+    });
+
+    for (const proj of projects) {
+        const tsPath = join(STANDALONE_DIR, proj, "src", "instruction.ts");
+        if (!existsSync(tsPath)) continue;
+        const raw = readFileSync(tsPath, "utf-8");
+        const srcLines = stripComments(raw).split("\n");
+        const rawLines = raw.split("\n");
+        for (let lineIndex = 0; lineIndex < srcLines.length; lineIndex++) {
+            CLOSED_STRING_KEY_RE.lastIndex = 0;
+            let match;
+            while ((match = CLOSED_STRING_KEY_RE.exec(srcLines[lineIndex])) !== null) {
+                violations.push({
+                    file: rel(tsPath),
+                    line: lineIndex + 1,
+                    key: match[1],
+                    value: match[2],
+                    snippet: rawLines[lineIndex].trim(),
+                });
+            }
+        }
+    }
+
+    if (violations.length === 0) {
+        console.log(`✓ CHECK D — instruction.ts closed string sets use shared enum members`);
+        return 0;
+    }
+
+    process.stderr.write(`\n✗ CHECK D — ${violations.length} raw closed-string instruction value(s) found:\n\n`);
+    for (const v of violations) {
+        process.stderr.write(`  ${v.file}:${v.line}  →  ${v.key}: "${v.value}"\n    ${v.snippet}\n`);
+        annotate(v.file, v.line, `Instruction ${v.key} must use the shared enum member, not raw string "${v.value}".`);
+    }
+    process.stderr.write(`\n  Fix: import InjectionWorld, InjectionRunAt, MatchType, or AssetInjectTarget and assign the matching enum member.\n\n`);
+    return 1;
+}
+
+/* ----------------------------------------------------------------- */
 /*  Main                                                              */
 /* ----------------------------------------------------------------- */
 function main() {
@@ -476,12 +522,14 @@ function main() {
     const b = runCheckB(sourceFiles);
     const c = runCheckC(sourceFiles);
 
-    const failed = a + b + c;
+    const d = runCheckD();
+
+    const failed = a + b + c + d;
     if (failed === 0) {
         console.log(`\n✅ All PascalCase instruction migration checks passed.`);
         process.exit(0);
     }
-    process.stderr.write(`\n❌ ${failed} of 3 PascalCase instruction migration check(s) failed. See annotations above.\n`);
+    process.stderr.write(`\n❌ ${failed} of 4 PascalCase instruction migration check(s) failed. See annotations above.\n`);
     process.exit(1);
 }
 

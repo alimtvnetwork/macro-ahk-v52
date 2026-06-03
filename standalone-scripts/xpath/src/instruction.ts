@@ -8,6 +8,9 @@
  */
 
 import type { ProjectInstruction } from "../../types/instruction/project-instruction";
+import { InjectionWorld } from "../../types/instruction/enums/injection-world";
+import { InjectionRunAt } from "../../types/instruction/enums/injection-run-at";
+import { MatchType } from "../../types/instruction/enums/match-type";
 import type { EmptySettings } from "../../types/instruction/seed/empty-settings";
 
 const instruction: ProjectInstruction<EmptySettings> = {
@@ -16,7 +19,7 @@ const instruction: ProjectInstruction<EmptySettings> = {
     DisplayName: "XPath Utilities",
     Version: "3.49.0",
     Description: "Global XPath utility library (getByXPath, findElement, reactClick)",
-    World: "MAIN",
+    World: InjectionWorld.Main,
     IsGlobal: true,
     Dependencies: [],
     LoadOrder: 1,
@@ -26,9 +29,9 @@ const instruction: ProjectInstruction<EmptySettings> = {
         IsRemovable: false,
         AutoInject: true,
         TargetUrls: [
-            { Pattern: "https://lovable.dev/projects/*", MatchType: "glob" },
-            { Pattern: "https://*.lovable.app/*", MatchType: "glob" },
-            { Pattern: "https://*.lovableproject.com/*", MatchType: "glob" },
+            { Pattern: "https://lovable.dev/projects/*", MatchType: MatchType.Glob },
+            { Pattern: "https://*.lovable.app/*", MatchType: MatchType.Glob },
+            { Pattern: "https://*.lovableproject.com/*", MatchType: MatchType.Glob },
         ],
         Cookies: [],
         Settings: {},

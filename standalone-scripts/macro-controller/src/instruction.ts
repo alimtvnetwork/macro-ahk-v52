@@ -10,6 +10,10 @@
  */
 
 import type { ProjectInstruction } from "../../types/instruction/project-instruction";
+import { InjectionWorld } from "../../types/instruction/enums/injection-world";
+import { InjectionRunAt } from "../../types/instruction/enums/injection-run-at";
+import { MatchType } from "../../types/instruction/enums/match-type";
+import { AssetInjectTarget } from "../../types/instruction/enums/asset-inject-target";
 
 type MacroControllerSettings = {
     IsolateScripts: boolean;
@@ -23,7 +27,7 @@ const instruction: ProjectInstruction<MacroControllerSettings> = {
     DisplayName: "Macro Controller",
     Version: "3.49.0",
     Description: "Macro Controller for workspace and credit management",
-    World: "MAIN",
+    World: InjectionWorld.Main,
     Dependencies: ["marco-sdk", "xpath"],
     LoadOrder: 2,
     Seed: {
@@ -31,12 +35,12 @@ const instruction: ProjectInstruction<MacroControllerSettings> = {
         SeedOnInstall: true,
         IsRemovable: false,
         AutoInject: true,
-        RunAt: "document_idle",
+        RunAt: InjectionRunAt.DocumentIdle,
         CookieBinding: "lovable-session-id.id",
         TargetUrls: [
-            { Pattern: "https://lovable.dev/projects/*", MatchType: "glob" },
-            { Pattern: "https://*.lovable.app/*", MatchType: "glob" },
-            { Pattern: "https://*.lovableproject.com/*", MatchType: "glob" },
+            { Pattern: "https://lovable.dev/projects/*", MatchType: MatchType.Glob },
+            { Pattern: "https://*.lovable.app/*", MatchType: MatchType.Glob },
+            { Pattern: "https://*.lovableproject.com/*", MatchType: MatchType.Glob },
         ],
         Cookies: [
             { CookieName: "lovable-session-id.id", Url: "https://lovable.dev", Role: "session", Description: "Session ID — primary bearer token" },
@@ -54,7 +58,7 @@ const instruction: ProjectInstruction<MacroControllerSettings> = {
     },
     Assets: {
         Css: [
-            { File: "macro-looping.css", Inject: "head" },
+            { File: "macro-looping.css", Inject: AssetInjectTarget.Head },
         ],
         Configs: [
             { File: "macro-looping-config.json", Key: "config", InjectAs: "__MARCO_CONFIG__" },

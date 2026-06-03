@@ -1,6 +1,6 @@
 # Standalone Scripts — Global Instruction Types
 
-**Status**: 🟢 Locked for Q1–Q4 (2026-04-24). Q5 still open — does not block the 19-file build-out.
+**Status**: 🟢 Locked for Q1–Q5; enum-authoring hardening landed 2026-06-03 08:05 KL.
 **Owner**: Riseup Asia LLC
 **Source folder**: `standalone-scripts/types/instruction/`
 **Driving conversation**: 2026-04-24 chat with reviewer (logged here in full so nothing is lost).
@@ -91,9 +91,9 @@ See `standalone-scripts/types/instruction/00-readme.md` for the full tree. Highl
 
 `scripts/compile-instruction.mjs` reads `instruction.ts` via `tsx` and writes `instruction.json`. The JSON shape on disk must stay byte-identical post-migration so the runtime loader and `check-standalone-dist.mjs` keep passing. Field-rename mapping (`world` → `injectionWorld`, `isIife` → `isImmediatelyInvokedFunction`, `inject` → `injectInto`) is opt-in: `compile-instruction.mjs` will emit the legacy keys for one release cycle so the runtime can be migrated independently.
 
-## 5. Decisions (Q1–Q4 locked 2026-04-24)
+## 5. Decisions (Q1–Q5 locked; updated 2026-06-03 08:05 KL)
 
-These answers are binding for the 19-file build-out. Q5 is the only item still open and does **not** block migration.
+These answers are binding for the instruction-type migration. Closed string values are enum-authored in `instruction.ts` and compile to the same stable JSON strings.
 
 ### Q1 — `const enum` (✅ chosen) over `as const` literal unions
 
@@ -127,20 +127,19 @@ These answers are binding for the 19-file build-out. Q5 is the only item still o
 3. Self-documenting at the call site: `SeedBlock<EmptySettings>` reads as "this script intentionally has no settings", whereas `SeedBlock<Record<string, never>>` reads as a TypeScript trick.
 4. Cost is one file, one line — already authored.
 
-### Q4 — Rename `world` → `injectionWorld`, `runAt` → `injectionRunAt`, `isIife` → `isImmediatelyInvokedFunction`, `inject` → `injectInto` (✅)
+### Q4 — Keep PascalCase JSON keys; enforce enum-authored values (✅ updated)
 
-**Decision**: All four renames go in. The new global types use the long names. Per-script `instruction.ts` files map the old names through during migration via a thin adapter (`scripts/compile-instruction.mjs`, plan item 0.2) so existing seed IDs do not change.
+**Decision**: Keep `World`, `RunAt`, `IsIife`, and `Inject` as PascalCase JSON keys for runtime/storage compatibility. Remove magic strings at source by assigning enum members such as `InjectionWorld.Main`, `InjectionRunAt.DocumentIdle`, `MatchType.Glob`, and `AssetInjectTarget.Head`.
 
 **Why**:
-1. Reviewer's hard rule: "Do not name things like FN. If it is function name, write the full form." `isIife` is the textbook violation.
-2. `world` is ambiguous in a Chrome-extension codebase — there is also "execution context", "isolation boundary", "page context". `injectionWorld` is unambiguous and grep-stable.
-3. `runAt` collides with Chrome's own `chrome.scripting.RegisteredContentScript.runAt` field — keeping the short name forces every reader to disambiguate "ours" vs. "Chrome's". `injectionRunAt` is ours.
-4. `inject: "head"` is a verb where a noun is expected. `injectInto: AssetInjectTarget.Head` reads as "inject into HEAD" and the enum gives extensibility (`Body`, `BeforeBodyClose`).
-5. Migration is mechanical (string replace) and gated by ESLint `id-denylist` for the old names once the migration completes (plan item 0.10).
+1. The repo already completed the PascalCase storage/runtime migration; renaming keys again would create churn without user-visible benefit.
+2. The actual defect was raw closed-set strings in manifests, now removed by shared enum member assignments.
+3. `scripts/compile-instruction.mjs` resolves enum members without running TypeScript, preserving the same `instruction.json` and `instruction.compat.json` values.
+4. `scripts/check-pascalcase-instruction-migration.mjs` now blocks future raw `World`, `RunAt`, `MatchType`, and `Inject` string regressions.
 
-### Q5 — Runtime `StandaloneScript` base class (🟡 still open)
+### Q5 — Runtime `StandaloneScript` base class (✅ closed: no base class now)
 
-**Status**: Deferred. Not required for the 19-file types build-out. Will be answered after the `PaymentBannerHider` class rewrite (plan item 0.11) gives us a concrete reference implementation to extract a base from. Tracked in `plan.md` as a separate item; do not block on it.
+**Decision**: Do not add a shared runtime base class in this slice. Standardize the entry-class shape and dependency injection contract first; extract a base class only after at least two standalone scripts have compliant, tested class implementations.
 
 ## 6. Out of scope for this spec
 

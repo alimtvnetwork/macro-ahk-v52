@@ -181,7 +181,13 @@ function evaluateInstructionSource(source, tsPath) {
         }
     }
 
-    const evalCode = preambleLines.join("\n") + "\nreturn (" + match[1] + ")";
+    const enumBindings = [
+        `const InjectionWorld = { Main: "MAIN", Isolated: "ISOLATED" };`,
+        `const InjectionRunAt = { DocumentStart: "document_start", DocumentEnd: "document_end", DocumentIdle: "document_idle" };`,
+        `const MatchType = { Glob: "glob", Regex: "regex", Exact: "exact" };`,
+        `const AssetInjectTarget = { Head: "head" };`,
+    ];
+    const evalCode = enumBindings.concat(preambleLines).join("\n") + "\nreturn (" + match[1] + ")";
     return new Function(evalCode)();
 }
 

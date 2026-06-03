@@ -1,6 +1,6 @@
 # Global Instruction Types — Phase 1 (PascalCase) Landed
 
-**Status**: 🟢 Phase 1 complete (2026-04-25). Every standalone-script `instruction.ts` now imports `ProjectInstruction<TSettings>` from `./project-instruction.ts` and uses **PascalCase keys everywhere**. The Q4 long-camelCase draft (`injectionWorld`, `injectionRunAt`, `isImmediatelyInvokedFunction`, `injectInto`) is **withdrawn** — superseded by `mem://standards/pascalcase-json-keys`.
+**Status**: 🟢 Phase 1 complete (2026-04-25); enum-authoring hardening complete (2026-06-03). Every standalone-script `instruction.ts` now imports `ProjectInstruction<TSettings>` from `./project-instruction.ts`, uses **PascalCase keys everywhere**, and assigns closed string sets through shared enum members. The Q4 long-camelCase draft (`injectionWorld`, `injectionRunAt`, `isImmediatelyInvokedFunction`, `injectInto`) is **withdrawn** — superseded by `mem://standards/pascalcase-json-keys`.
 
 `scripts/compile-instruction.mjs` runs in **dual-emit mode** during the transition: every PascalCase key (`Name`, `World`, `RunAt`, `IsIife`, …) is mirrored as a camelCase alias (`name`, `world`, `runAt`, `isIife`, …) on every nested object. The 47 legacy consumers in `src/background/`, `src/components/options/`, `src/options/`, `src/popup/`, `src/lib/`, and `scripts/generate-seed-manifest.mjs` therefore keep working unchanged.
 
@@ -15,7 +15,7 @@
 2. **`type` only** — never `interface` (project preference: stick to one keyword).
 3. **No `unknown`, no `any`** — every leaf is either a concrete type, an enum, or `T` generic.
 4. **No in-place definitions** — array element types, function parameter shapes, and union members all live in their own files and are imported by name.
-5. **Full names, no abbreviations** — `cookieName` not `ckName`, `injectionWorld` not `world`, `compileFunction` not `compileFn`.
+5. **Full names, no abbreviations** — `CookieName` not `ckName`, enum/member names stay explicit (`InjectionWorld.Main`, `InjectionRunAt.DocumentIdle`). JSON keys remain PascalCase for compatibility.
 6. **Enums for closed string unions** — `InjectionWorld`, `InjectionRunAt`, `XPathKind`, `MatchType`, `AssetInjectTarget`. (See `enums/`.)
 
 ## File layout
@@ -64,8 +64,8 @@ standalone-scripts/types/instruction/
 | Q1 | `enum` vs. `as const` | **`export const enum`** with explicit string members | Zero runtime cost, no magic strings at call sites, matches files already shipped in `enums/` |
 | Q2 | `xpaths` optional or required | **Optional** (`xpaths?: XPathRegistry`) | `marco-sdk` and `payment-banner-hider` have zero XPaths; sentinel value would violate "no in-place definitions" |
 | Q3 | `EmptySettings` alias or inline | **Named alias** in `seed/empty-settings.ts` | Reviewer rule "no in-place definitions"; one grep target lists every settings-less script |
-| Q4 | Long names everywhere | **Yes** — `injectionWorld`, `injectionRunAt`, `isImmediatelyInvokedFunction`, `injectInto` | Reviewer rule "no FN-style abbreviations"; avoids collision with Chrome's own `runAt`; ESLint `id-denylist` will block the old names after migration |
-| Q5 | Runtime `StandaloneScript` base class | 🟡 **Deferred** — does not block this build-out | Will be designed after `PaymentBannerHider` class rewrite (plan 0.11) provides a reference implementation |
+| Q4 | Field renames vs. PascalCase compatibility | **PascalCase compatibility wins** — keep `World`, `RunAt`, `IsIife`, `Inject`; enforce enum member values instead | Prevents storage/runtime key churn while still removing magic strings from source manifests |
+| Q5 | Runtime `StandaloneScript` base class | **No base class now** | Current scripts need different lifecycles; class shape is standardized by entry-class conventions, and extraction can be revisited only after two compliant implementations exist |
 
 The 19-file build-out is now unblocked. Migration order is tracked in `plan.md` Priority 0 (items 0.2–0.6).
 
@@ -94,11 +94,11 @@ Run **in order**. Do not skip steps — each step's grep target is the gate for 
    - `"direct" | "relative"` → `XPathKind`
    - asset target literals → `AssetInjectTarget`
 
-4. **Adopt long field names** (Q4):
-   - `world` → `injectionWorld`
-   - `runAt` → `injectionRunAt`
-   - `iife` → `isImmediatelyInvokedFunction`
-   - `target` (on assets) → `injectInto`
+4. **Keep PascalCase keys and use enum values** (Q4):
+   - `World: InjectionWorld.Main`
+   - `RunAt: InjectionRunAt.DocumentIdle`
+   - `MatchType: MatchType.Glob`
+   - `Inject: AssetInjectTarget.Head`
 
 5. **Apply `EmptySettings` (Q3)** wherever a script has no user-tunable settings:
    ```ts

@@ -12,6 +12,9 @@
  */
 
 import type { ProjectInstruction } from "../../types/instruction/project-instruction";
+import { InjectionWorld } from "../../types/instruction/enums/injection-world";
+import { InjectionRunAt } from "../../types/instruction/enums/injection-run-at";
+import { MatchType } from "../../types/instruction/enums/match-type";
 import type { EmptySettings } from "../../types/instruction/seed/empty-settings";
 
 const instruction: ProjectInstruction<EmptySettings> = {
@@ -20,7 +23,7 @@ const instruction: ProjectInstruction<EmptySettings> = {
     DisplayName: "Lovable Common (XPath + API)",
     Version: "3.49.0",
     Description: "Shared XPaths, default delays, and (future) LovableApiClient consumed by Lovable Owner Switch and Lovable User Add.",
-    World: "MAIN",
+    World: InjectionWorld.Main,
     IsGlobal: false,
     Dependencies: [],
     LoadOrder: 5,
@@ -29,7 +32,7 @@ const instruction: ProjectInstruction<EmptySettings> = {
         SeedOnInstall: true,
         IsRemovable: false,
         AutoInject: false,
-        RunAt: "document_idle",
+        RunAt: InjectionRunAt.DocumentIdle,
         TargetUrls: [],
         Cookies: [],
         Settings: {},
