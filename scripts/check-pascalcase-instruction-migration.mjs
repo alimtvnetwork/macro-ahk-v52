@@ -298,11 +298,7 @@ function runCheckA() {
 
     const projects = readdirSync(STANDALONE_DIR).filter((name) => {
         const full = join(STANDALONE_DIR, name);
-        try {
-            return statSync(full).isDirectory();
-        } catch {
-            return false;
-        }
+        return existsSync(full) && statSync(full).isDirectory();
     });
 
     for (const proj of projects) {
