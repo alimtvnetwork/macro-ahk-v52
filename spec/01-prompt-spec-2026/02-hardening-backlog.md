@@ -1,6 +1,6 @@
 # Spec-hardening backlog (post-T120)
 
-Opened 2026-06-02 (Asia/Kuala_Lumpur). The 120-task `2026-spec`
+Opened 2026-06-02 (Asia/Kuala_Lumpur). The 120-task `01-prompt-spec-2026`
 spec is complete; this is the follow-on punch-list.
 
 - [x] H1 — Banlist linter (`scripts/lint-spec-banlist.mjs`) — enforces T24 vocabulary ban.

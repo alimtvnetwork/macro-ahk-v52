@@ -1,7 +1,8 @@
-# 2026 Prompts Feature — Generic Spec
+# 01 — Prompt Spec 2026 — Overview
 
 **Status:** DRAFT (Step 0 of 120)
 **Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Renamed:** 2026-06-03 (root was `spec/2026-spec/`, now `spec/01-prompt-spec-2026/`)
 **Owner:** Riseup Asia LLC
 **Source feature:** `standalone-scripts/macro-controller/src/ui/prompt-*.ts` + `standalone-scripts/prompts/**`
 
