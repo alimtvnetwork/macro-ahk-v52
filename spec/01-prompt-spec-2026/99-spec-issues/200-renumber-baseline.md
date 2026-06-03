@@ -2,7 +2,24 @@
 
 **Date:** 2026-06-03 (Asia/Kuala_Lumpur)
 **Plan:** `.lovable/plans/prompt-spec-2026-renumber-100.md`
-**Status:** Phase A (1–10) ✅ · Phase B (11–20) ✅ · Phase C (21–40) ✅ · Phase D (41–60) pending
+**Status:** Phase A ✅ · Phase B ✅ · Phase C ✅ · Phase D steps 41–50 ✅ · Phase D steps 51–60 pending
+
+## Phase D part 1 (steps 41–50) — intra-spec link repair
+
+| Step | Action | Result |
+|---:|---|---|
+| 41 | Authored `scripts/spec/apply-rename-map.mjs` (pair-based, 3-digit-first to avoid collisions) | ✅ |
+| 42 | Dry-run | 139 edits across 43 files; manually scanned — no false positives |
+| 43–45 | Apply (md + json + html unified pass via single rewriter, ext-gated by regex) | ✅ 139 edits applied |
+| 46 | INDEX.json rebuild | N/A — this tree never had INDEX.json (different from `spec/21-app/05-prompts/`); will author fresh in Phase F |
+| 47 | `lint-cross-refs.mjs` | ✅ exit 0 |
+| 48 | `runbook-smoke.mjs` | ✅ 15 reason codes intact |
+| 49 | BLIND-AI-SMOKE-TEST.md update | N/A — file lives only under `spec/21-app/05-prompts/`; defer to Phase F if needed |
+| 50 | IMPLEMENTATION-CHECKLIST.md update | N/A — same reason |
+| +  | Residual stale-ref scan + banlist enforcement-recipe path fix | ✅ 1 manual edit in `01-glossary/04-vocabulary-banlist.md` |
+
+The changelog file itself (`99-spec-issues/200-renumber-baseline.md`) intentionally retains old folder names in the mapping tables.
+
 
 ## Phase C complete (steps 31–40) — second 10 child folders renamed
 
