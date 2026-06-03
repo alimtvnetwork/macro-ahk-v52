@@ -39,6 +39,7 @@
     "check:no-unknown-in-dts:update-baseline": "node scripts/check-no-unknown-in-dts.mjs --update-baseline",
     "test:check-no-unknown-in-dts": "node --test scripts/__tests__/check-no-unknown-in-dts.test.mjs",
     "lint:run-summary-types": "eslint --max-warnings=0 standalone-scripts/lovable-common/src/report/run-summary-types.ts",
+    "new:standalone": "node scripts/new-standalone.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:e2e": "playwright test",
