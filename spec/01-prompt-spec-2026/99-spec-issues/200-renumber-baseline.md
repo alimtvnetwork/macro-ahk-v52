@@ -1,44 +1,47 @@
-# Renumber Baseline — Phase A complete
+# Renumber Baseline — Phase A + B complete
 
 **Date:** 2026-06-03 (Asia/Kuala_Lumpur)
 **Plan:** `.lovable/plans/prompt-spec-2026-renumber-100.md`
-**Status:** Phase A (steps 1–10) ✅ complete · Phase B not started
+**Status:** Phase A (1–10) ✅ · Phase B (11–20) ✅ · Phase C (21–40) pending
 
-## Discovery metrics
+## Phase B deliverables
 
-| Metric | Value | Source |
-|---|---:|---|
-| Files under `spec/2026-spec/` | **105** | `inventory-before.txt` |
-| Repo-wide reference hits | **60** | `refs-before.txt` |
-| References by kind | memory 24 · script 16 · spec 14 · poc 6 | `refs-classified.csv` |
-| References by ext | md 42 · mjs 16 · html 2 | `refs-classified.csv` |
-| Deep-path references | **5** (need anchored rewrite) | `refs-classified.csv` |
-| Hard-coded paths in `scripts/spec/*.mjs` | **0** | `scripts-hardcoded.txt` |
-| `package.json` scripts mentioning path | **0** | `pkg-scripts.txt` |
-| PoC refs (`poc/2026-spec/**`) | **6** lines across 2 files | `poc/2026-spec/{README.md,index.html}` |
-| Audit back-refs | **3** files | `audit-backrefs.txt` |
-| Memory / Q&A refs | **4** files | `memory-refs.txt` |
-| Path-map entries | **105** | `path-map.json` |
+| Step | Action | Result |
+|---:|---|---|
+| 11 | `mv spec/2026-spec spec/01-prompt-spec-2026` | ✅ 105 files relocated atomically |
+| 12 | Verify old root gone, new root present | ✅ both `ls` checks pass; old path replaced with redirect stub dir |
+| 13 | Update new `README.md` heading + path banner | ✅ now reads `01 — Prompt Spec 2026 (generic, host-agnostic)` |
+| 14 | Update `00-overview.md` title + `Renamed:` line | ✅ |
+| 15 | Update `02-hardening-backlog.md` self-ref | ✅ `2026-spec` → `01-prompt-spec-2026` |
+| 16 | Update `01-plan-tasks-1-20.md` self-refs | ⚪ no path-embedded task IDs found; nothing to change |
+| 17 | Run `scripts/spec/lint-cross-refs.mjs` | ✅ exit 0 — all `spec/` paths resolve; 76 `mem://` warns (pre-existing, opaque) |
+| 18 | Update changelog | ✅ (this file) |
+| 19 | Re-snapshot inventory | ✅ `inventory-after-phase-b.txt` — 106 files (105 originals + 1 redirect stub) |
+| 20 | Diff filename-sets | ✅ identical filename set — only root path differs |
 
-## Key findings
+## Discovery metrics (carried forward from Phase A)
 
-1. **No script or `package.json` entry hard-codes `spec/2026-spec/`** — Phase E shrinks substantially (steps 73–80 become no-ops; verify-only).
-2. The only "deep" references (5 total) target `190-reference-snippets/` from the PoC; trivial to rewrite.
-3. CI workflows (`spec-gates.yml`, `spec-governance-quarterly.yml`) operate on `spec/21-app/05-prompts/` — **not touched** by this rename.
-4. Audit back-refs (`spec/audit/blind-ai-implementation-audit/**`) cite the old root in historical narrative; will get a single-line addendum rather than rewrites (preserve audit lineage).
-5. PoC folder `poc/2026-spec/` itself is **deferred** (step 70).
+| Metric | Value |
+|---|---:|
+| Files under spec root | 105 → 106 (incl. redirect stub) |
+| Repo-wide reference hits to fix | 60 |
+| References by kind | memory 24 · script 16 · spec 14 · poc 6 |
+| Deep-path references | 5 (PoC → `19-reference-snippets/`) |
+| Scripts hard-coding the path | 0 |
 
-## Artifacts (under `.lovable/audits/2026-06-03-renumber/`)
+## Artifacts (`.lovable/audits/2026-06-03-renumber/`)
 
-- `inventory-before.txt`
-- `refs-before.txt`
-- `refs-classified.csv`
-- `scripts-hardcoded.txt`
-- `pkg-scripts.txt`
-- `audit-backrefs.txt`
-- `memory-refs.txt`
-- `path-map.json`
+- `inventory-before.txt`, `inventory-after-phase-b.txt`
+- `refs-before.txt`, `refs-classified.csv`
+- `scripts-hardcoded.txt`, `pkg-scripts.txt`
+- `audit-backrefs.txt`, `memory-refs.txt`
+- `path-map.json` (105 oldPath→newPath entries)
+
+## Redirect stub
+
+`spec/2026-spec/README.md` now contains a one-screen redirect pointer.
+No other files live at the old path.
 
 ## Next
 
-Phase B (steps 11–20): atomic root rename `spec/2026-spec` → `spec/01-prompt-spec-2026`, leave redirect stub, rerun linter.
+Phase C (steps 21–40): rename 20 child folders from `10..200` to `01..20`.
