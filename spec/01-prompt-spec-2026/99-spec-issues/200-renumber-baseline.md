@@ -212,3 +212,18 @@ Live spec path: **`spec/01-prompt-spec-2026/`**
 | 108 | Updated `rewriteImports()` to rewrite dense imports | 5 s | ✅ `../02`, `../07`, `../10` now resolve to local shims |
 | 109 | Preserved `./02-queue-engine` snippet rewrite | 1 s | ✅ orchestrator can still import the extracted queue-engine snippet |
 | 110 | Re-ran `typecheck-spec-snippets.mjs` | 15 s | ✅ clean — 5 snippets typecheck |
+
+## Phase I (steps 111–120) — gate hardening (2026-06-03 14:20 MYT)
+
+| Step | Action | Time | Result |
+|------|--------|------|--------|
+| 111 | Re-ran all 8 gates fresh | 25 s | ✅ 7 green; ✗ banlist 14 false-positives; cross-refs script path stale |
+| 112 | Diagnosed banlist 14 hits | 5 s | All 14 are meta-references inside files documenting the banlist itself |
+| 113 | Diagnosed `spec/lint-cross-refs.mjs` MODULE_NOT_FOUND | 3 s | Real path is `scripts/spec/lint-cross-refs.mjs` (subdir) |
+| 114 | Re-ran correct cross-refs linter | 2 s | ✅ all spec/ paths resolve (76 mem:// refs informational) |
+| 115 | Inspected `scripts/lint-spec-banlist.mjs` ALLOW_FILES | 5 s | Found stale pre-renumber paths: `10-glossary/`, `200-adoption-checklist/` |
+| 116 | Patched ALLOW_FILES to post-renumber dense paths | 10 s | `01-glossary/`, `20-adoption-checklist/` (3 files) |
+| 117 | Re-ran banlist linter | 3 s | ✅ clean (spec/01-prompt-spec-2026) |
+| 118 | Final gate matrix re-confirm | — | ✅ banlist, ✅ mermaid, ✅ xrefs, ✅ info.json, ✅ snippets, ✅ cross-refs — **8/8 green** |
+| 119 | Updated Phase I ledger | 5 s | This block |
+| 120 | Phase I closeout | — | ✅ COMPLETE — Phase G's 8/8 claim now actually true |
