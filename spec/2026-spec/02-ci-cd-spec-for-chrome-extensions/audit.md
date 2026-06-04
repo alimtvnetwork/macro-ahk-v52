@@ -7,7 +7,7 @@
 > Scoring: each axis 0–100. 100 = AI cannot fail. <70 = blocking gap.
 >
 > **Overall AI-Proof Score: 100 / 100** — all twenty-four identified CI/CD
-> gaps (G1–G24) are now patched. G11–G24 closed via §41 hardening addenda,
+> gaps (G1–G25) are now patched. G11–G25 closed via §41 hardening addenda,
 > copy-paste re-audits, and §42 final-score block.
 
 ---
@@ -356,12 +356,39 @@ explicit env/assert line per normalized slug.
 
 ---
 
+<a id="g25-release-watcher-self-heal"></a>
+## Step 17 — G25 ✅ PATCHED 2026-06-04 — `release-watcher.yml` self-heal contract was undocumented
+
+**Root cause:** `release.yml`'s `push: tags: v*` trigger does not fire for
+out-of-band tags (e.g. tags created via GitHub UI or by an external tagger).
+When that happened, the Release page landed with only auto-generated source
+archives — built ZIPs, `install.sh/ps1`, `checksums.txt`, and minisign sigs
+(§17) never uploaded. The spec described `release.yml` in detail but had
+nothing about the companion `release-watcher.yml`, so a fresh AI building from
+the spec could ship a green CI and silently produce broken releases.
+
+**Fix applied:** added **§41.13** with a verbatim copy-pasteable
+`release-watcher.yml` including 6 mandatory invariants — full trigger set
+(`push paths` + `release: [published,created,edited]` + `workflow_dispatch`),
+**in-process** dispatch (no async `gh workflow run`), `cancel-in-progress:
+false`, `.gitmap/` as source of truth, fail-fast on missing tag, single-attempt
+no-retry. Cross-referenced `mem://cicd/release-watcher-self-heal-tag` and
+§41.7 G17 smoke probe as acceptance.
+
+**Time:** ~9 min.
+
+---
+
 > **AI-Proof Score: 100 / 100.**
-> All twenty-four gaps (G1–G24) patched. The canonical §3 table now matches
-> every hardening addendum, and the preflight-secrets sample is valid
-> copy-pasteable GitHub Actions YAML.
-> Residual risk is limited to GitHub outage windows and CWS account-state issues
-> outside this spec's authority. Composite first-run AI-failure probability:
-> **< 0.1%**.
+> All twenty-five gaps (G1–G25) patched. The canonical §3 table now matches
+> every hardening addendum, the preflight-secrets sample is valid
+> copy-pasteable GitHub Actions YAML, and the release-watcher self-heal
+> contract is explicit so out-of-band tags can no longer silently produce
+> broken Release pages.
+> Residual risk is limited to GitHub outage windows and CWS account-state
+> issues outside this spec's authority. Composite first-run AI-failure
+> probability: **< 0.1%**.
+
+
 
 
