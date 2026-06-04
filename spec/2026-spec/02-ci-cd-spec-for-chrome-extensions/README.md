@@ -551,6 +551,49 @@ jobs:
           prerelease: ${{ contains(needs.setup.outputs.version, '-') }}
 ```
 
+## §22a. SHA-pin all third-party actions (supply-chain hard rule)
+
+Floating tags like `@v2`, `@v4`, or `@main` are mutable — the action publisher
+(or an attacker who compromises their account) can retag a poisoned commit and
+silently inject malicious code into every subsequent run. **Every `uses:` entry
+in `.github/workflows/**` MUST pin to a full 40-char commit SHA, with the
+human-readable version as a trailing comment.**
+
+Scope: pin **every** `uses:` step, including first-party `actions/*`. GitHub's
+own actions have shipped breaking changes within a major tag before; the SHA
+is the only immutable reference.
+
+Required form:
+
+```yaml
+- uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+- uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+- uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+- uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+- uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87 # v2.0.5
+```
+
+Resolve a SHA with: `gh api repos/<owner>/<repo>/commits/<tag> --jq .sha` or
+`git ls-remote https://github.com/<owner>/<repo> refs/tags/<tag>`.
+
+CI gate (add to `ci.yml`):
+
+```yaml
+- name: Ban floating action refs
+  run: |
+    if grep -RnE 'uses:\s+[^@]+@(v?[0-9]+(\.[0-9]+)*|main|master|latest)\b' \
+         .github/workflows; then
+      echo "::error::All actions must be SHA-pinned (§22a)"; exit 1
+    fi
+```
+
+Upgrade workflow: enable Dependabot (`.github/dependabot.yml` with
+`package-ecosystem: github-actions`); it opens PRs that bump both the SHA and
+the trailing `# vX.Y.Z` comment together, preserving auditability.
+
+The §22 YAML uses floating tags for readability only; **production workflows
+MUST be SHA-pinned** per this section.
+
 ## §23. Matrix-build across multiple extensions
 
 The `strategy.matrix.ext` in §22 already auto-discovers every Manifest V3 folder
