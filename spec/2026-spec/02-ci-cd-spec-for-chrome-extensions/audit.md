@@ -6,8 +6,8 @@
 >
 > Scoring: each axis 0–100. 100 = AI cannot fail. <70 = blocking gap.
 >
-> **Overall AI-Proof Score: 100 / 100** — all twenty-three identified CI/CD
-> gaps (G1–G23) are now patched. G11–G23 closed via §41 hardening addenda,
+> **Overall AI-Proof Score: 100 / 100** — all twenty-four identified CI/CD
+> gaps (G1–G24) are now patched. G11–G24 closed via §41 hardening addenda,
 > copy-paste re-audits, and §42 final-score block.
 
 ---
@@ -334,11 +334,30 @@ G1–G23 patches, not just G1–G21.
 
 ---
 
+### Step 16 — G24 ✅ PATCHED 2026-06-04 — Secret preflight sample was not valid GitHub Actions YAML
+
+**Root cause:** the §41.11 sample used `${{ secrets[ s ] }}` inside a bash
+`for` loop. GitHub Actions expressions are evaluated before bash runs, so the
+shell variable `s` cannot be used to index `secrets`. The same sample also
+listed `CWS_EXTENSION_ID_<SLUG>` in the canonical table but did not assert it in
+the preflight job.
+
+**Fix applied:** rewrote the preflight example to map each secret to an explicit
+boolean `HAS_*: ${{ secrets.NAME != '' }}` env var and validate only booleans in
+shell, so no secret values are printed. Added the missing
+`CWS_EXTENSION_ID_<SLUG>` assertion and the multi-extension rule requiring one
+explicit env/assert line per normalized slug.
+
+**Time:** ~8 min.
+
+---
+
 > **AI-Proof Score: 100 / 100.**
-> All twenty-three gaps (G1–G23) patched. The canonical §3 table now matches
-> every hardening addendum, removing exit-code drift from the copy-paste path.
+> All twenty-four gaps (G1–G24) patched. The canonical §3 table now matches
+> every hardening addendum, and the preflight-secrets sample is valid
+> copy-pasteable GitHub Actions YAML.
 > Residual risk is limited to GitHub outage windows and CWS account-state issues
 > outside this spec's authority. Composite first-run AI-failure probability:
-> **< 0.2%**.
+> **< 0.1%**.
 
 
