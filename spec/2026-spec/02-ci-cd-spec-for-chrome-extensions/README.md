@@ -442,7 +442,91 @@ echo "Load it via chrome://extensions → Developer mode → Load unpacked."
 ```
 
 
-## §20. Probing feature (full example)
+## §19a. PowerShell installer (full example, Windows-native)
+
+`install.ps1` is the Windows counterpart to §19. It MUST behave identically:
+same exit codes (§3), same SHA-256 gate (§17a), same owner/repo waterfall
+(§2a). Save as `scripts/install.ps1` and ship it alongside `install.sh` in
+every release (§22 `publish` job copies both into `release-assets/`).
+
+```powershell
+#!/usr/bin/env pwsh
+# install.ps1 — unified Windows installer (URL-pinned or latest).
+[CmdletBinding()]
+param(
+  [string]$Version = '',          # '', 'latest', or 'vX.Y.Z'
+  [string]$Ext     = $env:EXT     # extension folder name, required
+)
+$ErrorActionPreference = 'Stop'
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+. (Join-Path $PSScriptRoot 'lib/Resolve-Repo.ps1')    # §2a → $Owner,$Repo
+. (Join-Path $PSScriptRoot 'lib/Verify-Sha256.ps1')   # §17a → Verify-Sha256
+Resolve-OwnerRepo                                     # exit 3 on miss
+
+if (-not $Ext) { Write-Error 'EXT not set'; exit 3 }
+
+function Resolve-Version {
+  param([string]$Override, [string]$SelfUrl)
+  switch -Regex ($Override) {
+    '^$'         { }
+    '^latest$'   { $Override = '' }
+    '^v\d+\.\d+\.\d+' { return $Override }
+    default      { Write-Error "bad -Version: $Override"; exit 3 }
+  }
+  if ($SelfUrl -match '/releases/download/(v[0-9.]+[^/]*)/') {
+    return $Matches[1]
+  }
+  try {
+    $r = Invoke-RestMethod "https://api.github.com/repos/$Owner/$Repo/releases/latest"
+    return $r.tag_name
+  } catch { Write-Error "latest lookup failed: $_"; exit 5 }
+}
+
+$selfUrl = $MyInvocation.MyCommand.Path
+$ver     = Resolve-Version -Override $Version -SelfUrl $selfUrl
+$tmp     = New-Item -ItemType Directory -Path (Join-Path $env:TEMP "ext-$([guid]::NewGuid())")
+try {
+  $base = "https://github.com/$Owner/$Repo/releases/download/$ver"
+  $zip  = "$Ext-$($ver.TrimStart('v')).zip"
+  try {
+    Invoke-WebRequest "$base/$zip"          -OutFile (Join-Path $tmp $zip)
+    Invoke-WebRequest "$base/checksums.txt" -OutFile (Join-Path $tmp 'checksums.txt')
+  } catch {
+    Write-Error "download failed: $_"; exit 4
+  }
+
+  Verify-Sha256 -File (Join-Path $tmp $zip) -Checksums (Join-Path $tmp 'checksums.txt')  # exit 6 on mismatch
+
+  $dest = Join-Path $env:LOCALAPPDATA "$Ext\$ver"
+  if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
+  New-Item -ItemType Directory -Path $dest -Force | Out-Null
+  Expand-Archive -Path (Join-Path $tmp $zip) -DestinationPath $dest -Force
+  Write-Host "Installed $Ext $ver → $dest (sha256 verified)"
+  Write-Host "Load it via chrome://extensions → Developer mode → Load unpacked."
+} finally {
+  Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+}
+```
+
+Required helpers (mirror the bash ones):
+
+- `scripts/lib/Resolve-Repo.ps1` — implements §2a waterfall: `-Owner/-Repo`
+  flags → `$env:GITHUB_REPOSITORY` → `git remote get-url origin` regex →
+  `exit 3`. Exposes `$script:Owner`, `$script:Repo`.
+- `scripts/lib/Verify-Sha256.ps1` — implements §17a: reads `checksums.txt`,
+  compares `Get-FileHash -Algorithm SHA256`, `exit 6` on mismatch or missing
+  entry.
+
+Exit-code parity (§3): 3=bad input, 4=asset 404, 5=network/API,
+6=integrity/extract. **Never** swallow errors with `-ErrorAction
+SilentlyContinue` outside `finally` cleanup — fail fast per §-no-retry policy.
+
+Self-test in CI: `pwsh -File scripts/install.ps1 -Version v0.0.0-test -Ext demo`
+in a `windows-latest` matrix leg of `ci.yml` to catch parser/TLS regressions.
+
+
+
 
 ```bash
 # probe-siblings.sh — find the highest-numbered sibling repo (project-v2, -v3 …)
