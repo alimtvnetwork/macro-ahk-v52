@@ -15,6 +15,7 @@
  * suppressed" suffix on the final allowed call).
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import type { Mock } from "vitest";
 import {
     logBgWarnSampled,
     logCaughtError,
@@ -54,14 +55,14 @@ describe("logBgWarnSampled — dedup contract", () => {
         for (let i = 0; i < 10; i += 1) {
             logBgWarnSampled(BgLogTag.SCRIPT_RESOLVER, "k1", `attempt ${i}`);
         }
-        expect((console.warn as ReturnType<typeof vi.fn>).mock.calls.length).toBe(3);
+        expect((console.warn as Mock).mock.calls.length).toBe(3);
     });
 
     it("suffixes the final allowed call with the suppression notice", () => {
         logBgWarnSampled(BgLogTag.SCRIPT_RESOLVER, "k2", "msg");
         logBgWarnSampled(BgLogTag.SCRIPT_RESOLVER, "k2", "msg");
         logBgWarnSampled(BgLogTag.SCRIPT_RESOLVER, "k2", "msg");
-        const calls = (console.warn as ReturnType<typeof vi.fn>).mock.calls;
+        const calls = (console.warn as Mock).mock.calls;
         expect(calls[2][0]).toContain("(further occurrences suppressed)");
     });
 
@@ -71,7 +72,7 @@ describe("logBgWarnSampled — dedup contract", () => {
             logBgWarnSampled(BgLogTag.SCRIPT_RESOLVER, "key-B", "b");
         }
         // 3 emissions per key = 6 total
-        expect((console.warn as ReturnType<typeof vi.fn>).mock.calls.length).toBe(6);
+        expect((console.warn as Mock).mock.calls.length).toBe(6);
     });
 });
 
@@ -108,7 +109,7 @@ describe("injection-wrapper buildSdkPreamble — no chrome.runtime", () => {
             expect(out).toContain("script-" + (i % 2));
         }
         // Single shared key "manifest-unavailable" → budget of 3, regardless of call count.
-        const warnCalls = (console.warn as ReturnType<typeof vi.fn>).mock.calls;
+        const warnCalls = (console.warn as Mock).mock.calls;
         expect(warnCalls.length).toBe(3);
         expect(warnCalls[0][0]).toContain("[injection]");
         expect(warnCalls[0][0]).toContain("chrome.runtime.getManifest unavailable");
@@ -142,7 +143,7 @@ describe("logging-handler handleGetLogStats — Sessions schema missing", () => 
             const stats = await mod.handleGetLogStats();
             expect(stats.sessionCount).toBe(0);
         }
-        const warnCalls = (console.warn as ReturnType<typeof vi.fn>).mock.calls;
+        const warnCalls = (console.warn as Mock).mock.calls;
         expect(warnCalls.length).toBe(3);
         expect(warnCalls[0][0]).toContain("[logging-handler]");
         expect(warnCalls[0][0]).toContain("schema not ready");
@@ -173,7 +174,7 @@ describe("script-resolver cache lookup — chrome.storage unavailable", () => {
         for (let i = 0; i < 5; i += 1) {
             throttle(Tags.SCRIPT_RESOLVER, `cache-lookup:${filePath}`, "Cache lookup failed", new Error("x"));
         }
-        const warnCalls = (console.warn as ReturnType<typeof vi.fn>).mock.calls;
+        const warnCalls = (console.warn as Mock).mock.calls;
         expect(warnCalls.length).toBe(3);
         expect(warnCalls[0][0]).toContain("[script-resolver]");
         expect(warnCalls[0][0]).toContain("Cache lookup failed");
@@ -207,8 +208,8 @@ describe("service-worker-main chrome.action fallback", () => {
             );
         }).not.toThrow();
 
-        expect((console.error as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThanOrEqual(1);
-        const firstCall = (console.error as ReturnType<typeof vi.fn>).mock.calls[0];
+        expect((console.error as Mock).mock.calls.length).toBeGreaterThanOrEqual(1);
+        const firstCall = (console.error as Mock).mock.calls[0];
         expect(String(firstCall[0])).toContain("[Marco]");
         expect(String(firstCall[0])).toContain("chrome.action.setTitle failed");
     });
