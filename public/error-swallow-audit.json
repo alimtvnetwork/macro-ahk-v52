@@ -1,4 +1,59 @@
 {
-  "GeneratedAt": "2026-05-27T16:09:43.756Z",
-  "Items": []
+  "GeneratedAt": "2026-06-04T04:11:40.632Z",
+  "Items": [
+    {
+      "Id": "9ce78a370955",
+      "Severity": "P1",
+      "File": "standalone-scripts/macro-controller/src/queue-control/index.ts",
+      "Line": 36,
+      "Rule": "no-empty-catch",
+      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
+      "Snippet": "catch {"
+    },
+    {
+      "Id": "70bc75b08a07",
+      "Severity": "P1",
+      "File": "standalone-scripts/macro-controller/src/selected-workspaces-store.ts",
+      "Line": 18,
+      "Rule": "no-empty-catch",
+      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
+      "Snippet": "catch (_e: unknown) {"
+    },
+    {
+      "Id": "6c5aa9d68faf",
+      "Severity": "P1",
+      "File": "standalone-scripts/macro-controller/src/startup.ts",
+      "Line": 359,
+      "Rule": "no-empty-catch",
+      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
+      "Snippet": "catch (_e: unknown) {"
+    },
+    {
+      "Id": "37694ed5090c",
+      "Severity": "P1",
+      "File": "standalone-scripts/macro-controller/src/ui/prompt-dropdown.ts",
+      "Line": 157,
+      "Rule": "no-empty-catch",
+      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
+      "Snippet": "catch(function() {"
+    },
+    {
+      "Id": "b10f5432b34e",
+      "Severity": "P1",
+      "File": "standalone-scripts/macro-controller/src/visible-workspaces-store.ts",
+      "Line": 26,
+      "Rule": "no-empty-catch",
+      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
+      "Snippet": "catch (_e: unknown) {"
+    },
+    {
+      "Id": "5a60a7aaa74b",
+      "Severity": "P1",
+      "File": "standalone-scripts/macro-controller/src/visible-workspaces-store.ts",
+      "Line": 37,
+      "Rule": "no-empty-catch",
+      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
+      "Snippet": "catch (_e: unknown) {"
+    }
+  ]
 }
