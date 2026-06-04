@@ -320,33 +320,90 @@ Always upload, in addition to the ZIPs:
 - `CHANGELOG.md` (verbatim copy)
 - `RELEASE_NOTES.md` (auto-generated)
 
+## §17a. SHA-256 verification contract (MANDATORY)
+
+Every downloader and installer MUST verify each downloaded asset against the
+release's `checksums.txt` before extracting or executing it. Skipping this
+check is a CI-blocking violation — silent acceptance of a tampered ZIP is the
+single worst failure mode of a release pipeline.
+
+- **Source of truth**: `checksums.txt` generated at publish time via
+  `( cd release-assets && sha256sum * > checksums.txt )` and uploaded with
+  the release (see §17).
+- **Format**: GNU coreutils `sha256sum` lines — `<64-hex>  <filename>`. The
+  filename is the basename only (no path).
+- **Failure**: exit code `6` (broadened from "extraction failed" to
+  "integrity failed"), printing `sha256 mismatch: expected <hex> got <hex>`
+  with the asset name. Never retry.
+- **Tooling**: `sha256sum` (Linux), `shasum -a 256` (macOS),
+  `Get-FileHash -Algorithm SHA256` (PowerShell). Always normalize to
+  lowercase hex before compare.
+
+Reference bash helper (`scripts/lib/verify-sha256.sh`):
+
+```bash
+verify_sha256() {                       # $1=file, $2=checksums.txt
+  local file=$1 sums=$2 base expected actual
+  base=$(basename "$file")
+  expected=$(awk -v f="$base" '$2==f {print tolower($1)}' "$sums" | head -1)
+  [[ -z "$expected" ]] && { echo "no checksum entry for $base in $sums" >&2; exit 6; }
+  actual=$(sha256sum "$file" 2>/dev/null | awk '{print tolower($1)}')
+  [[ -z "$actual" ]] && actual=$(shasum -a 256 "$file" | awk '{print tolower($1)}')
+  [[ "$expected" != "$actual" ]] && { echo "sha256 mismatch: expected $expected got $actual ($base)" >&2; exit 6; }
+}
+```
+
+PowerShell mirror (`scripts/lib/Verify-Sha256.ps1`):
+
+```powershell
+function Verify-Sha256 {                # -File <path> -Sums <path>
+  param([string]$File, [string]$Sums)
+  $base = Split-Path $File -Leaf
+  $expected = (Get-Content $Sums | ForEach-Object {
+    $p = $_ -split '\s+', 2; if ($p[1] -eq $base) { $p[0].ToLower() }
+  } | Select-Object -First 1)
+  if (-not $expected) { Write-Error "no checksum entry for $base in $Sums"; exit 6 }
+  $actual = (Get-FileHash -Algorithm SHA256 -Path $File).Hash.ToLower()
+  if ($expected -ne $actual) { Write-Error "sha256 mismatch: expected $expected got $actual ($base)"; exit 6 }
+}
+```
+
 ## §18. Download script (full example)
 
 ```bash
 #!/usr/bin/env bash
 # download-extension.sh — fetch one extension ZIP from a GitHub Release.
 set -euo pipefail
-EXT=""; VER="latest"; OUT="./downloads"; OWNER="${OWNER:?}"; REPO="${REPO:?}"
+. "$(dirname "$0")/lib/resolve-repo.sh"   # §2a
+. "$(dirname "$0")/lib/verify-sha256.sh"  # §17a
+EXT=""; VER="latest"; OUT="./downloads"
 while [[ $# -gt 0 ]]; do case "$1" in
   --extension) EXT=$2; shift 2;;
   --version)   VER=$2; shift 2;;
   --out)       OUT=$2; shift 2;;
+  --owner)     OWNER=$2; shift 2;;
+  --repo)      REPO=$2; shift 2;;
   *) echo "unknown arg: $1" >&2; exit 3;;
 esac; done
 [[ -z "$EXT" ]] && { echo "missing --extension" >&2; exit 3; }
+resolve_owner_repo
 mkdir -p "$OUT"
 if [[ "$VER" == "latest" ]]; then
   VER=$(curl -fsSL "https://api.github.com/repos/$OWNER/$REPO/releases/latest" \
         | jq -r .tag_name) || exit 5
 fi
-URL="https://github.com/$OWNER/$REPO/releases/download/$VER/${EXT}-${VER#v}.zip"
-curl -fIsSL "$URL" >/dev/null || { echo "missing asset: $URL" >&2; exit 4; }
-curl -fL --output "$OUT/${EXT}-${VER#v}.zip" "$URL" || exit 5
-echo "Saved $OUT/${EXT}-${VER#v}.zip"
+BASE="https://github.com/$OWNER/$REPO/releases/download/$VER"
+ZIP="${EXT}-${VER#v}.zip"
+curl -fIsSL "$BASE/$ZIP" >/dev/null || { echo "missing asset: $BASE/$ZIP" >&2; exit 4; }
+curl -fL --output "$OUT/$ZIP"           "$BASE/$ZIP"           || exit 5
+curl -fL --output "$OUT/checksums.txt"  "$BASE/checksums.txt"  || exit 5
+verify_sha256 "$OUT/$ZIP" "$OUT/checksums.txt"   # exit 6 on mismatch
+echo "Saved $OUT/$ZIP (sha256 verified)"
 ```
 
-PowerShell mirror uses `Invoke-RestMethod` + `Invoke-WebRequest` with the same
-flags and the same exit codes.
+PowerShell mirror (`download-extension.ps1`) MUST source `Resolve-Repo.ps1`
+and `Verify-Sha256.ps1`, download both the asset and `checksums.txt`, then
+call `Verify-Sha256` before declaring success. Same exit codes.
 
 ## §19. Install script (full example)
 
@@ -354,8 +411,11 @@ flags and the same exit codes.
 #!/usr/bin/env bash
 # install.sh — unified installer (URL-pinned or latest).
 set -euo pipefail
+. "$(dirname "$0")/lib/resolve-repo.sh"   # §2a
+. "$(dirname "$0")/lib/verify-sha256.sh"  # §17a
 self_url="${BASH_SOURCE[0]:-$0}"
 override="${1:-}"
+resolve_owner_repo
 resolve_version() {
   case "${override:-}" in
     "")        ;;
@@ -371,12 +431,16 @@ resolve_version() {
 }
 VER=$(resolve_version)
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
-URL="https://github.com/$OWNER/$REPO/releases/download/$VER/${EXT}-${VER#v}.zip"
-curl -fL --output "$TMP/ext.zip" "$URL" || { echo "asset 404: $URL" >&2; exit 4; }
-unzip -q "$TMP/ext.zip" -d "$HOME/.local/share/$EXT/$VER" || exit 6
-echo "Installed $EXT $VER → $HOME/.local/share/$EXT/$VER"
+BASE="https://github.com/$OWNER/$REPO/releases/download/$VER"
+ZIP="${EXT}-${VER#v}.zip"
+curl -fL --output "$TMP/$ZIP"          "$BASE/$ZIP"          || { echo "asset 404: $BASE/$ZIP" >&2; exit 4; }
+curl -fL --output "$TMP/checksums.txt" "$BASE/checksums.txt" || exit 5
+verify_sha256 "$TMP/$ZIP" "$TMP/checksums.txt"    # exit 6 on mismatch
+unzip -q "$TMP/$ZIP" -d "$HOME/.local/share/$EXT/$VER" || exit 6
+echo "Installed $EXT $VER → $HOME/.local/share/$EXT/$VER (sha256 verified)"
 echo "Load it via chrome://extensions → Developer mode → Load unpacked."
 ```
+
 
 ## §20. Probing feature (full example)
 
