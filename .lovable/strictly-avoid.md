@@ -6,6 +6,11 @@
 
 - **Supabase (any form):** No SDK, no auth, no tokens, no client storage keys. Storage stack is sql.js + OPFS + chrome.storage.local only. See: `.lovable/memory/constraints/no-supabase` (memory index).
 - **localStorage for roles or admin checks:** Privilege escalation vector. Use server-validated role tables only.
+- **localStorage in MV3 background code:** Service workers cannot safely use page-origin `localStorage`; use the `chrome.storage.local` wrapper or SQLite managers.
+- **Remote sql.js / wasm assets:** Never load sql.js or `sql-wasm.wasm` from `cdn.jsdelivr`, `unpkg`, or any remote URL. Bundle `public/assets/sql-wasm.wasm` and resolve it with `chrome.runtime.getURL("assets/sql-wasm.wasm")`.
+- **Direct OPFS or DB-blob storage calls outside persistence modules:** No background module may bypass `src/background/db-persistence.ts` for OPFS or serialized SQLite blobs.
+- **Using IndexedDB injection cache as source of truth:** IndexedDB stores derived script bytes only. Never cache placeholder/stub script bytes or treat cache rows as canonical source.
+- **PascalCase rewrite of existing `chrome.storage.local` records:** Do not rewrite stored project/script/prompt objects from camelCase to PascalCase; it breaks existing consumers.
 - **Binding `undefined` to SQLite:** Always coerce via `bindOpt()` / `bindReq()` from `src/background/handlers/handler-guards.ts`. The `wrapDatabaseWithBindSafety()` Proxy now throws a typed `BindError` if anything slips through. See: `.lovable/solved-issues/10-sqlite-undefined-bind-crashes.md`.
 
 ## Reliability
@@ -20,6 +25,7 @@
 - **Bare `log()` for errors:** Always use `RiseupAsiaMacroExt.Logger.error()` (or `NamespaceLogger.error()` in SDK code). See memory: `standards/error-logging-via-namespace-logger.md`.
 - **Swallowed errors:** Every `catch` must log via the namespace logger; never `catch {}` with no diagnostic.
 - **HARD ERROR logs without exact path / missing item / reasoning:** CODE RED. See memory: `constraints/file-path-error-logging-code-red.md`.
+- **Vague Code Red diagnostics:** A Code Red log without `Path`, `Missing`, `Reason`, `ReasonDetail`, `SelectorAttempts`, and `VariableContext` is forbidden.
 
 ## UI
 
