@@ -24,9 +24,10 @@ in full. Generic, repo-agnostic, supports N extensions via matrix discovery.
 4. ✅ Extract generic `scripts/probe-siblings.sh`.
 5. ✅ Add `scripts/enumerate-extensions.mjs` (Manifest V3 auto-discovery).
 6. ✅ Reference spec from `.lovable/cicd-index.md`.
-7. Add acceptance test `scripts/__tests__/ci-cd-spec-2026-02.test.mjs`
-   verifying §40 criteria 1, 5, 6.
-8. Memory: add `mem://architecture/cicd-spec-2026-02` pointer.
+7. ✅ Acceptance test `scripts/__tests__/ci-cd-spec-2026-02.test.mjs` (§40.1, §40.3–§40.6, helper-script presence). 6/6 pass.
+8. ✅ Memory `mem://architecture/cicd-spec-2026-02` referenced from `.lovable/memory/index.md`.
+
+**Status**: ✅ CLOSED 2026-06-04 — all 8 phases shipped. Spec is now generic, repo-agnostic, enforced by CI (no-committed-zip gate), and pinned by acceptance tests.
 
 ## ✅ Release Page CI/CD Hardening Plan — 8 Steps (CLOSED 2026-06-02)
 
