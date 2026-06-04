@@ -144,25 +144,26 @@ export async function mountMacroControllerHarness(
 ): Promise<HarnessHandle> {
     const projectId = opts.projectId ?? 'e2e-harness-project';
     const bundlePath = opts.bundlePath ?? BUNDLE_PATH;
+    const skipBundle = opts.skipBundle === true;
 
-    // Code-Red: surface the exact missing path + reason per
-    // `mem://constraints/file-path-error-logging-code-red.md`.
-    try {
-        await fs.access(bundlePath);
-    } catch (cause) {
-        const err = new Error(
-            `[macro-controller-harness] Missing IIFE bundle.\n` +
-            `  path: ${bundlePath}\n` +
-            `  reason: file not found — run \`npm run build:macro-controller\` first.\n` +
-            `  cause: ${(cause as Error)?.message ?? String(cause)}`,
-        );
-        throw err;
+    let bundleSource = '';
+    if (!skipBundle) {
+        // Code-Red: surface the exact missing path + reason per
+        // `mem://constraints/file-path-error-logging-code-red.md`.
+        try {
+            await fs.access(bundlePath);
+        } catch (cause) {
+            throw new Error(
+                `[macro-controller-harness] Missing IIFE bundle.\n` +
+                `  path: ${bundlePath}\n` +
+                `  reason: file not found — run \`npm run build:macro-controller\` first.\n` +
+                `  cause: ${(cause as Error)?.message ?? String(cause)}`,
+            );
+        }
+        bundleSource = await fs.readFile(bundlePath, 'utf8');
     }
 
-    const [shellHtml, bundleSource] = await Promise.all([
-        fs.readFile(SHELL_HTML_PATH, 'utf8'),
-        fs.readFile(bundlePath, 'utf8'),
-    ]);
+    const shellHtml = await fs.readFile(SHELL_HTML_PATH, 'utf8');
 
     const targetUrl = `https://lovable.dev/projects/${encodeURIComponent(projectId)}`;
     // Use any installed extension id if Chromium exposes one — falls back to a
@@ -177,12 +178,25 @@ export async function mountMacroControllerHarness(
         await route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: shellHtml });
     });
 
-    // 3. Navigate and inject the bundle. addScriptTag with `content` keeps the
-    //    script's origin as the page (not file://), so MAIN-world guards see
-    //    `location.hostname === 'lovable.dev'`.
+    // 3. Navigate and (optionally) inject the bundle. addScriptTag with
+    //    `content` keeps the script's origin as the page (not file://), so
+    //    MAIN-world guards see `location.hostname === 'lovable.dev'`.
     const page = await context.newPage();
     await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
-    await page.addScriptTag({ content: bundleSource });
 
-    return { page, bundlePath };
+    let bundleError: Error | null = null;
+    if (!skipBundle) {
+        // Capture page-script errors thrown during bundle boot WITHOUT failing
+        // the harness — the calling test decides whether bundleError is fatal.
+        const errorPromise = new Promise<Error | null>((resolve) => {
+            const onPageError = (err: Error): void => { resolve(err); };
+            page.once('pageerror', onPageError);
+            // Resolve to null on next tick if no error fires.
+            setTimeout(() => { page.off('pageerror', onPageError); resolve(null); }, 0);
+        });
+        await page.addScriptTag({ content: bundleSource });
+        bundleError = await errorPromise;
+    }
+
+    return { page, bundlePath: skipBundle ? null : bundlePath, bundleError };
 }
