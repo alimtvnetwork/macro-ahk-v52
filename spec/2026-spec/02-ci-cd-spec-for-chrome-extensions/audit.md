@@ -111,16 +111,20 @@ event created via REST in the workflow will not re-trigger `release.yml`).
 
 ---
 
-## Step 8 — G7 (BLOCKER, severity 75/100): No platform / shell-portability matrix
+## Step 8 — G7 (BLOCKER, severity 75/100): No platform / shell-portability matrix ✅ PATCHED 2026-06-04
 
 §18 is bash; §19 is bash; §3 mentions `install.ps1` but the PowerShell mirror
-is described as "same flags, same exit codes" — that is **not enough** for an
+was described as "same flags, same exit codes" — that is **not enough** for an
 AI. PowerShell's `$LASTEXITCODE`, `-ErrorAction Stop`, `Invoke-WebRequest`
 streaming, and TLS 1.2 defaults all bite.
 
-- **Fix**: add a full §19a PowerShell reference implementation, including
-  `[Net.ServicePointManager]::SecurityProtocol = 'Tls12'`, `try/catch` with
-  explicit `exit 5`, and `Expand-Archive -Force`.
+- **Fix applied**: full **§19a "PowerShell installer (full example,
+  Windows-native)"** added — explicit TLS 1.2 pin, `$ErrorActionPreference =
+  'Stop'`, `try/catch` mapping to exit codes 3/4/5/6 matching §3, sources
+  `Resolve-Repo.ps1` (§2a) and `Verify-Sha256.ps1` (§17a), `Expand-Archive
+  -Force`, temp-dir cleanup in `finally`, and a `windows-latest` CI self-test
+  recipe.
+
 
 ---
 
