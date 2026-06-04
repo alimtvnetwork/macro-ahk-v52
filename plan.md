@@ -683,8 +683,8 @@ See that folder's `README.md` for the index.
 60. ✅ Phase B closed 2026-06-04. Credit Balance Update shipped in v3.50.0.
 
 ### Remaining items
-1. Pending — wire real Ktlo/Free/Cancelled fixtures so the 4 `fixme` Playwright skeletons (3 credit-balance + 1 credit-totals modal) can run un-skipped (tracked in `.lovable/question-and-ambiguity/`).
+1. ✅ Closed 2026-06-04 — real Ktlo/Free/Cancelled/Inline-Pro fixtures wired via `tests/e2e/fixtures/credit-balance/workspaces.ts`; all four Playwright specs are executable (`e2e-credit-balance-ktlo`, `e2e-credit-balance-timeout`, `e2e-credit-balance-no-fetch-when-inline`, `e2e-credit-totals-modal`). Focused verification passed.
 2. ✅ Closed v3.51.0 — Plan Task UX 20-step plan (`.lovable/plans/credit-totals-and-macro-ux-20-step.md`).
-3. Pending — Release installer hardening v0.2 (blocked on `MINISIGN_SECRET_KEY`).
+3. ✅ Closed 2026-06-04 — Release installer hardening v0.2 checksum verification is implemented in `install.sh` + `install.ps1`; Bash mock-server tests cover AC-21/22/23 end-to-end and `tests/installer/ps1-checksum-signature.test.sh` now pins the PowerShell checksum/signature contract in `npm run test:installer`. `MINISIGN_SECRET_KEY` only gates publishing `checksums.txt.minisig` in CI, not checksum verification.
 
 
