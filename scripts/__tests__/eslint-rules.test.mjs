@@ -25,6 +25,23 @@ export function ok() {
 const DENYLIST_VIOLATING = `
 export function readValue() {
     const val = "placeholder";
+    const cb = () => val;
+    const obj = { value: cb() };
+    return obj.value;
+}
+`;
+
+const DENYLIST_QUARANTINED = `
+export function legacyValue() {
+    const cb = () => "legacy";
+    const obj = { value: cb() };
+    return obj.value;
+}
+`;
+
+const DENYLIST_STILL_VIOLATING_IN_QUARANTINE = `
+export function legacyValue() {
+    const val = "still banned";
     return val;
 }
 `;
@@ -69,14 +86,31 @@ test('no-restricted-syntax allows Logger.error-style usage everywhere', async ()
     assert.equal(messages.length, 0);
 });
 
-test('id-denylist reports the staged val placeholder identifier', async () => {
+test('id-denylist reports staged placeholder identifiers in cleaned files', async () => {
     const messages = await lintMessages(
         DENYLIST_VIOLATING,
         'src/hooks/__fixture-denylist.ts',
         'id-denylist',
     );
-    assert.ok(messages.length >= 1);
-    assert.match(messages[0].message, /val/);
+    assert.ok(messages.some((message) => /val/.test(message.message)));
+    assert.ok(messages.some((message) => /cb/.test(message.message)));
+    assert.ok(messages.some((message) => /obj/.test(message.message)));
+});
+
+test('id-denylist quarantines legacy cb and obj debt without re-allowing val', async () => {
+    const legacyMessages = await lintMessages(
+        DENYLIST_QUARANTINED,
+        'src/background/config-seeder.ts',
+        'id-denylist',
+    );
+    assert.equal(legacyMessages.length, 0);
+
+    const valMessages = await lintMessages(
+        DENYLIST_STILL_VIOLATING_IN_QUARANTINE,
+        'src/background/config-seeder.ts',
+        'id-denylist',
+    );
+    assert.ok(valMessages.some((message) => /val/.test(message.message)));
 });
 
 test('id-denylist allows descriptive replacement names', async () => {
