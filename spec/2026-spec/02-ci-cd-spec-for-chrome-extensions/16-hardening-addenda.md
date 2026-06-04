@@ -299,5 +299,64 @@ MUST be uppercased and normalized to `[A-Z0-9_]` before use in the secret name.
 All downstream jobs MUST list `needs: preflight-secrets` so a missing secret
 short-circuits the run before any build, sign, or publish step executes.
 
+### §41.12 G22 — Installer contract test workflow (`installer-tests.yml`)
+
+The §3 exit-code contract (`0 / 3 / 4 / 5 / 6 / 8 / 9 / 10 / 11 / 12 / 13`) and
+the §18/§19 download/install scripts are non-negotiable end-user surfaces. They
+MUST be enforced by a dedicated companion workflow — `installer-tests.yml` —
+that runs on every PR touching the installer scripts, the contract JSON, or
+this spec folder.
+
+**Required structure:**
+
+```yaml
+name: Installer Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/install.*'                        # install.sh + install.ps1
+      - 'scripts/installer-contract.json'           # §3 exit-code contract
+      - 'scripts/installer-constants.*'             # generated constants
+      - 'scripts/check-installer-contract.mjs'      # contract verifier
+      - 'tests/installer/**'                        # bash + pwsh suites
+      - 'spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/**'
+      - '.github/workflows/installer-tests.yml'
+  pull_request:
+    paths: *paths   # same set
+  workflow_dispatch:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y powershell           # pwsh for .ps1 suites
+      - run: npm run test:installer                       # runs all 5 suites
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm run test:installer:windows               # real MoveFileEx E2E
+```
+
+**Mandatory test suites (every host repo MUST ship all five):**
+
+| # | File | Purpose |
+|---|------|---------|
+| 1 | `tests/installer/resolver.test.sh` | Unit: `resolve_version`, `decide_sibling_discovery` |
+| 2 | `tests/installer/mock-server.test.sh` | Full pipeline vs. local Node mock — asserts every §3 exit code |
+| 3 | `tests/installer/deferred-delete.test.sh` | Sharing-violation / locked-file logic |
+| 4 | `tests/installer/deferred-delete-sim.test.sh` | P/Invoke surface mocks |
+| 5 | `tests/installer/resolver.ps1.test.ps1` | `install.ps1` parity (200+empty, 404, 500, network, happy-tag) |
+
+**Acceptance:** the workflow MUST fail-fast (no retry) the moment any suite
+prints a non-zero exit. A green `installer-tests.yml` run is a required status
+check under §41.8 G18 branch protection (`required-status: installer-tests`).
+
 ---
+
+
 
