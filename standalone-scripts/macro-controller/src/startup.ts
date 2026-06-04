@@ -108,13 +108,6 @@ export function bootstrap(deps: {
     });
   });
 
-    // Re-render the UI when the user saves new overrides so the workspace
-    // status pills pick up the new thresholds without a page reload.
-    onSettingsChange(function () {
-      try { updateUI(); } catch (_e: unknown) { /* UI may not be mounted yet */ } // allow-swallow: UI may not be mounted at settings-change time; non-critical cosmetic update.
-    });
-  });
-
   // Spec 122a — hydrate the credit-balance throttle map + cached numbers
   // from SQLite before any /credit-balance call so the 10s per-ws cooldown
   // survives reloads and the panel can paint last-known values immediately.
