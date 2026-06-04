@@ -2,7 +2,7 @@
 /**
  * enumerate-extensions.mjs
  *
- * Generic Manifest V3 extension discovery for spec/2026/02 §11/§22.
+ * Generic Manifest V3 extension discovery for spec/2026-spec/02 §11/§22.
  * Prints a JSON array of repo-relative extension directories by default.
  * Use --lines for one path per line.
  */

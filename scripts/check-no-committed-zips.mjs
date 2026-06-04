@@ -2,7 +2,7 @@
 /**
  * check-no-committed-zips.mjs
  *
- * Enforces spec/2026/02 §26: no extension binary artifacts may be tracked
+ * Enforces spec/2026-spec/02 §26: no extension binary artifacts may be tracked
  * in git. Fails fast (exit 1) listing every offending path.
  *
  * Scope: tracked files only (uses `git ls-files`). Ignored files are fine.
@@ -29,7 +29,7 @@ const offenders = tracked
   .filter((p) => !ALLOW_PREFIXES.some((pre) => p.startsWith(pre)));
 
 if (offenders.length > 0) {
-  console.error('❌ Committed binary artifacts detected (spec/2026/02 §26):');
+  console.error('❌ Committed binary artifacts detected (spec/2026-spec/02 §26):');
   for (const p of offenders) console.error('   - ' + p);
   console.error(
     '\nFix: `git rm --cached <path>` and add the pattern to .gitignore.'
