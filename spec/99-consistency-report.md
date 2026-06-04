@@ -66,7 +66,7 @@
 
 | Reason | Points |
 |--------|--------|
-| Stub folders (`08`, `09`, `10`, `12`, `14`, `17`) lack body content | -2 |
+| Stub folders (`08`, `09`, `10`, `14`, `17`) lack body content | -2 |
 
 **Total:** 98/100
 
