@@ -70,20 +70,20 @@ export function useConfigDb(projectSlug: string) {
   };
 
   const handleBulkSave = async () => {
-    const dirtyEntries = Object.entries(edits).filter(([ek, val]) => {
+    const dirtyEntries = Object.entries(edits).filter(([ek, editedValue]) => {
       const row = rows.find((r) => editKey(r.Section, r.Key) === ek);
-      return row && val !== row.Value;
+      return row && editedValue !== row.Value;
     });
     if (dirtyEntries.length === 0) return;
 
     setBulkSaving(true);
     let saved = 0;
     let failed = 0;
-    for (const [ek, val] of dirtyEntries) {
+    for (const [ek, editedValue] of dirtyEntries) {
       const [section, key] = ek.split("::");
       try {
         const resp = await sendMessage<{ isOk: boolean }>({
-          type: "PROJECT_CONFIG_UPDATE", project: projectSlug, section, key, value: val,
+          type: "PROJECT_CONFIG_UPDATE", project: projectSlug, section, key, value: editedValue,
         });
         if (resp.isOk) saved++; else failed++;
       } catch { failed++; }
