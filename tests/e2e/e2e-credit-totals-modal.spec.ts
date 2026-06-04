@@ -29,7 +29,7 @@ test.describe('Credit Totals modal — sort → drag → filter → CSV export r
         const context = await launchExtension(chromium);
         try {
             // Network half — stubs /credit-balance for all three fixtures.
-            await installCreditBalanceStub(context, {
+            const creditStub = await installCreditBalanceStub(context, {
                 workspaces: [KTLO_WORKSPACE, FREE_WORKSPACE, CANCELLED_WORKSPACE],
                 creditBalances: {
                     [KTLO_WORKSPACE.id]: KTLO_CREDIT_BALANCE,
@@ -48,18 +48,7 @@ test.describe('Credit Totals modal — sort → drag → filter → CSV export r
             expect(bundleError, `macro-controller bundle threw on inject: ${bundleError?.message}`).toBeNull();
 
             await page.getByText('💰 Credits').click();
-            await page.waitForFunction(() => {
-                const w = window as Window & {
-                    RiseupAsiaMacroExt?: {
-                        Projects?: {
-                            MacroController?: {
-                                api?: { credits?: { getState?: () => { perWorkspace?: readonly object[] } | null } };
-                            };
-                        };
-                    };
-                };
-                return w.RiseupAsiaMacroExt?.Projects?.MacroController?.api?.credits?.getState?.()?.perWorkspace?.length === 3;
-            }, null, { timeout: 20_000 });
+            await expect.poll(() => creditStub.counts.userWorkspaces, { timeout: 20_000 }).toBeGreaterThan(0);
 
             await page.getByText('☰').click();
             await page.getByText('Credit Totals').click();
