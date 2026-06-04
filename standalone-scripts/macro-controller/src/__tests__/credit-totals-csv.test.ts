@@ -62,7 +62,7 @@ describe('generateCsv', () => {
     ]);
     // numProjects=1 falls back because default is 1 in ws(), but we override to 1 in generateCsv logic too
     // Let's just check the header is present and row has values
-    expect(csv).toMatch(/^Workspace,Plan,Projects,Used,Remaining,Total/);
+    expect(csv).toMatch(/^Workspace,Plan,Projects,Used,Remaining,Total,Daily,DailyLimit,Source/);
   });
 });
 
