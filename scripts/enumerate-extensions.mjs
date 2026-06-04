@@ -3,7 +3,7 @@
  * enumerate-extensions.mjs
  *
  * Generic Manifest V3 extension discovery for
- * spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd §11/§22.
+ * spec/2026-spec/02-ci-cd-spec-for-chrome-extensions §11/§22.
  * Prints a JSON array of repo-relative extension directories by default.
  * Use --lines for one path per line.
  */
