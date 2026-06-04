@@ -165,7 +165,7 @@ const sectionDocs: Record<string, (ns: string) => { title: string; description: 
     description: "Project-scoped persistent storage backed by SQLite. Data persists across sessions.",
     snippets: [
       { label: "Set a value", code: `await ${ns}.kv.set("counter", "42");` },
-      { label: "Get a value", code: `const val = await ${ns}.kv.get("counter");` },
+      { label: "Get a value", code: `const counterValue = await ${ns}.kv.get("counter");` },
       { label: "Delete a key", code: `await ${ns}.kv.delete("counter");` },
       { label: "List all keys", code: `const keys = await ${ns}.kv.list();\nconsole.log(keys);` },
     ],

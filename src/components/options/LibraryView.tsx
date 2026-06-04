@@ -901,11 +901,11 @@ export function LibraryView() {
       {/* Top-level Assets / Groups tabs */}
       <Tabs value={activeTab} onValueChange={v => setActiveTab(v as "assets" | "groups")}>
         <TabsList className="h-9">
-          <TabsTrigger value="assets" className="text-xs px-3 gap-1.5">
+          <TabsTrigger value="assets" className="text-xs px-3 gap-1.5" data-testid="library-tab-assets">
             <Library className="h-3.5 w-3.5" />
             Assets
           </TabsTrigger>
-          <TabsTrigger value="groups" className="text-xs px-3 gap-1.5">
+          <TabsTrigger value="groups" className="text-xs px-3 gap-1.5" data-testid="library-tab-groups">
             <Users className="h-3.5 w-3.5" />
             Groups
           </TabsTrigger>

@@ -4,7 +4,7 @@
  *
  * Runs in Bun so it can import the TS module directly. Mocks
  * `window.marco.kv` with an in-memory Map that mirrors the SQLite-backed
- * bridge contract: get(key) → string|null, set(key,val) → void,
+ * bridge contract: get(key) → string|null, set(key,value) → void,
  * delete(key) → void.
  *
  * Exercises:
@@ -31,7 +31,7 @@ const kvCalls = { get: 0, set: 0, delete: 0 };
 
 const fakeKv = {
     async get(key) { kvCalls.get++; return store.has(key) ? store.get(key) : null; },
-    async set(key, val) { kvCalls.set++; store.set(key, val); },
+    async set(key, value) { kvCalls.set++; store.set(key, value); },
     async delete(key) { kvCalls.delete++; store.delete(key); },
 };
 

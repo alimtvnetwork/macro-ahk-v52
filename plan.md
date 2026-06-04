@@ -423,7 +423,7 @@ Draft types: `standalone-scripts/types/instruction/` (one type per file, awaitin
 | **0.5** — Migrate `marco-sdk/src/instruction.ts` | ✅ Closed 2026-06-03 08:05 KL: uses shared instruction type, enum-authored closed sets, and keeps the downstream `EmptySettings` type re-export for compatibility. | ✅ Done |
 | **0.6** — Migrate `macro-controller/src/instruction.ts` | ✅ Closed 2026-06-03 08:05 KL: `MacroControllerSettings` remains local and `ProjectInstruction<MacroControllerSettings>` now uses enum-authored closed sets. | ✅ Done |
 | **0.7** — Logger `unknown` cleanup | ✅ Closed 2026-06-02: `standalone-scripts/types/riseup-namespace.d.ts` verified — only the permitted `CaughtError = unknown` leaf remains; `RiseupAsiaLogArg` already a designed union. | ✅ Done |
-| **0.8** — ESLint `id-denylist` rule | Root cause fixed 2026-06-04: global ESLint was scanning generated/cache outputs (`chrome-extension/`, `.cache/`, `test-results/`), which inflated the denylist expansion from authored-source debt into generated-artifact noise. `eslint.config.js` now ignores generated artifacts. Remaining authored-source expansion is still large (`fn`, `cb`, `el`, `msg`, `ctx`, `obj`, `val`) and must be staged by identifier/file cluster, not applied globally in one shot. | Staged |
+| **0.8** — ESLint `id-denylist` rule | Root cause fixed 2026-06-04: global ESLint was scanning generated/cache outputs (`chrome-extension/`, `.cache/`, `test-results/`), which inflated the denylist expansion from authored-source debt into generated-artifact noise. `eslint.config.js` now ignores generated artifacts. `val` authored-source pass closed 2026-06-04 with `scripts/__tests__/eslint-rules.test.mjs` pinning the rule. Remaining authored-source expansion: `fn`, `cb`, `el`, `msg`, `ctx`, `obj`; stage by identifier/file cluster, not globally in one shot. | Staged |
 | **0.9** — ESLint `consistent-type-definitions` | ✅ Closed 2026-06-02: `eslint.config.js` lines 152–160 scope `["error","type"]` to `standalone-scripts/types/instruction/**` and `standalone-scripts/*/src/instruction.ts`. | ✅ Done |
 | **0.10** — `.d.ts` `unknown` lint coverage | ✅ Closed 2026-06-02: `scripts/check-no-unknown-in-dts.mjs` enforces it (HARD_PINNED + BASELINE tiers); wired in `package.json` (`check:no-unknown-in-dts`) and `.github/workflows/ci.yml` lines 103/106. | ✅ Done |
 | **0.11** — `PaymentBannerHider` class refactor | ✅ Closed 2026-06-03 09:10 KL: already single-class entry (`standalone-scripts/payment-banner-hider/src/index.ts:28`), external CSS in `css/payment-banner-hider.css` (no `!important` — verified via grep), errors rethrown via `logError → throw` (`src/index.ts:74-78`), consumes migrated instruction via `XPathRegistry` from 0.3 — audit row in `mem://features/payment-banner-hider` already shows all 8 ✓. | ✅ Done |
@@ -453,7 +453,7 @@ Spec folder: `spec/05-chrome-extension/82-pstore-project-store/`
 
 ### Priority 4: Cross-Project Sync — Phase 3 (Complete)
 
-Phase 1 (data layer), Phase 2 (Library UI), and Phase 3 (ProjectGroup management UI, drag-to-assign projects, cross-tab sync notifications via `LIBRARY_SYNC_BROADCAST`, integration tests) all complete. Remaining: manual Chrome E2E pass when convenient.
+Phase 1 (data layer), Phase 2 (Library UI), and Phase 3 (ProjectGroup management UI, drag-to-assign projects, cross-tab sync notifications via `LIBRARY_SYNC_BROADCAST`, integration tests) all complete. Chrome E2E pass closed 2026-06-04 via executable `tests/e2e/e2e-24-cross-project-sync.spec.ts` and CI wiring.
 
 Spec: `spec/21-app/02-features/misc-features/cross-project-sync.md`
 
@@ -493,11 +493,11 @@ Memory: `.lovable/memory/features/release-installer.md`
 
 | # | Task | Effort | Impact | Blocker |
 |---|------|--------|--------|---------|
-| 1 | **Priority 0.8** — staged authored-source id-denylist expansion (`fn`, `cb`, `el`, `msg`, `ctx`, `obj`, `val`) | High | Medium — generated-output noise fixed; authored-source debt remains large | Effort budget |
-| 2 | **Priority 4** — Cross-Project Sync manual/CI Chrome E2E pass | Low | Medium | Needs dedicated browser pass |
+| 1 | **Priority 0.8** — staged authored-source id-denylist expansion (`fn`, `cb`, `el`, `msg`, `ctx`, `obj`) | High | Medium — generated-output noise fixed; `val` pass closed | Effort budget |
+| 2 | ✅ Closed 2026-06-04 — **Priority 4** Cross-Project Sync manual/CI Chrome E2E pass | Low | Medium | `e2e-24-cross-project-sync.spec.ts` + CI gate |
 | 3 | **Optional minisign release signing** | Low | Medium | Requires `MINISIGN_SECRET_KEY` operator secret |
 
-**Recommended next**: Priority 0.8 `val` rename pass (136 sites / 30 files) — largest remaining lint debt and unblocks zero-warning enforcement across all standalone scripts. Defer Priority 5 until checksum strategy is approved.
+**Recommended next**: Priority 0.8 `msg`/`ctx` rename pass — continue the staged authored-source lint cleanup after the verified `val` pass. Defer Priority 5 until checksum strategy is approved.
 
 ---
 

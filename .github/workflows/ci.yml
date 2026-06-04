@@ -2573,6 +2573,15 @@ jobs:
               --retries=2 \
               --reporter=list
 
+      - name: Run E2E-24 Cross-Project Sync Chrome spec
+        env:
+          CI: 'true'
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1280x800x24" \
+            pnpm exec playwright test tests/e2e/e2e-24-cross-project-sync.spec.ts \
+              --project=chrome-extension \
+              --reporter=list
+
 
       - name: Upload Playwright artifacts (E2E-23)
         if: always()

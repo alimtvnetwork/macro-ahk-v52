@@ -45,6 +45,8 @@ Trigger phrases the user may type to query this file:
 - [x] **Injection pipeline split — Step 9** — 2026-05-25, E2E `tests/e2e/e2e-21-injection-pipeline-split.spec.ts` shell (4 cases: stage ordering, preflight short-circuit, envelope shape, delegation spy). See `mem://workflow/14-injection-pipeline-split-session`.
 - [x] **Recorder xpath batch — Step 10** — 2026-05-25, E2E `tests/e2e/e2e-22-recorder-xpath-batch.spec.ts` shell (4 cases: 8-rapid-coalesce, debounce single, flushNow serialization, single session resolve). See `mem://workflow/14-injection-pipeline-split-session`.
 - [x] **Task 1.2 — Chrome E2E verification gate** — 2026-06-04, added `scripts/check-e2e-chrome-verification.mjs` + unit guard; CI enforces headed-Chromium/xvfb Playwright evidence instead of relying on a manual-only note.
+- [x] **Priority 4 — Cross-Project Sync Chrome E2E pass** — 2026-06-04, added executable `tests/e2e/e2e-24-cross-project-sync.spec.ts` and wired it into CI + the Chrome verification gate.
+- [x] **Priority 0.8 — `val` id-denylist pass** — 2026-06-04, cleaned authored-source `val` identifier debt and pinned the ESLint rule with `scripts/__tests__/eslint-rules.test.mjs`.
 
 ## P2 — Spec / Owner Pending
 

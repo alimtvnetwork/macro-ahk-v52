@@ -13,7 +13,7 @@ test('Chrome E2E verification gate passes on committed evidence', () => {
   assert.equal(result.status, 0, result.stdout + result.stderr);
   const payload = JSON.parse(result.stdout);
   assert.equal(payload.ok, true);
-  assert.equal(payload.checklist.length, 10);
+  assert.equal(payload.checklist.length, 11);
   assert.equal(payload.failures.length, 0);
 });
 

@@ -142,6 +142,7 @@ function GroupFormDialog({ open, onOpenChange, onSaved, editGroup }: GroupFormDi
               onChange={e => setName(e.target.value)}
               placeholder="e.g. Production Sites"
               className="h-8 text-sm"
+              data-testid="project-group-name-input"
               autoFocus
             />
           </div>
@@ -153,13 +154,14 @@ function GroupFormDialog({ open, onOpenChange, onSaved, editGroup }: GroupFormDi
               onChange={e => setSettings(e.target.value)}
               placeholder='{"logLevel": "warn", "retryOnNavigate": true}'
               className="min-h-[80px] font-mono text-xs"
+              data-testid="project-group-settings-input"
             />
           </div>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={saving || !name.trim()}>
+          <Button onClick={handleSave} disabled={saving || !name.trim()} data-testid="project-group-save-button">
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
             {isEdit ? "Update" : "Create"}
           </Button>
@@ -384,6 +386,7 @@ function GroupDetailPanel({ group, onBack, onRefresh }: GroupDetailPanelProps) {
                 className="h-6 text-[11px] gap-1"
                 onClick={handleCascade}
                 disabled={cascading || members.length === 0}
+                data-testid="project-group-cascade-button"
               >
                 {cascading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ArrowDownToLine className="h-3 w-3" />}
                 Push to {members.length} project(s)
@@ -432,6 +435,7 @@ function GroupDetailPanel({ group, onBack, onRefresh }: GroupDetailPanelProps) {
                   e.dataTransfer.setData("application/x-marco-project-uuid", p.id);
                   e.dataTransfer.effectAllowed = "copy";
                 }}
+                data-testid={`project-group-drag-source-${p.id}`}
                 className="cursor-grab active:cursor-grabbing select-none text-xs px-2 py-1 hover:bg-primary/10 hover:border-primary/40 transition-colors"
                 title={`Drag to assign "${p.name}"`}
               >
@@ -464,6 +468,7 @@ function GroupDetailPanel({ group, onBack, onRefresh }: GroupDetailPanelProps) {
             const uuid = e.dataTransfer.getData("application/x-marco-project-uuid");
             if (uuid) void addMemberById(uuid);
           }}
+          data-testid="project-group-member-drop-target"
           className={
             "rounded-lg border-2 border-dashed transition-colors " +
             (dropActive ? "border-primary bg-primary/5" : "border-border/40")
@@ -486,6 +491,7 @@ function GroupDetailPanel({ group, onBack, onRefresh }: GroupDetailPanelProps) {
                     <div
                       key={member.Id}
                       className="flex items-center justify-between p-3 rounded-lg border border-border/60 bg-card/50 hover:bg-card/80 transition-colors"
+                      data-testid={`project-group-member-${member.ProjectIdUuid}`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <Badge variant="outline" className="text-[11px] font-mono px-2 shrink-0">
@@ -593,7 +599,7 @@ export function ProjectGroupPanel({ groups, onRefresh }: ProjectGroupPanelProps)
             Organize projects into groups with shared configuration. {groups.length} group(s).
           </p>
         </div>
-        <Button size="sm" onClick={() => setCreateOpen(true)}>
+        <Button size="sm" onClick={() => setCreateOpen(true)} data-testid="project-group-new-button">
           <Plus className="h-3.5 w-3.5 mr-1" />
           New Group
         </Button>
@@ -616,6 +622,7 @@ export function ProjectGroupPanel({ groups, onRefresh }: ProjectGroupPanelProps)
               key={group.Id}
               className="group relative border-border/60 bg-card/50 hover:bg-card/80 hover:border-primary/30 transition-all duration-200 cursor-pointer hover:shadow-[0_2px_12px_-4px_hsl(var(--primary)/0.15)]"
               onClick={() => setSelectedGroup(group)}
+              data-testid={`project-group-card-${group.Id}`}
             >
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-center gap-2">

@@ -238,13 +238,13 @@ function* walkKeys(value, path = "$", depth = 0, state = { nodes: 0 }) {
         return;
     }
     if (value === null || typeof value !== "object") return;
-    for (const [key, val] of Object.entries(value)) {
+    for (const [key, entryValue] of Object.entries(value)) {
         state.nodes++;
         if (state.nodes > MAX_NODES) {
             throw new WalkAbortError("max-nodes", { nodes: state.nodes, depth, path: `${path}.${key}` });
         }
         yield { path, key };
-        yield* walkKeys(val, `${path}.${key}`, depth + 1, state);
+        yield* walkKeys(entryValue, `${path}.${key}`, depth + 1, state);
     }
 }
 

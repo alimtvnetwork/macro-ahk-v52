@@ -93,7 +93,7 @@ Every project gets a frozen namespace under \`RiseupAsiaMacroExt.Projects.<CodeN
 
 \`\`\`js
 // Read a project variable
-const val = await ${ns}.vars.get("apiKey");
+const apiKey = await ${ns}.vars.get("apiKey");
 
 // Set a variable
 await ${ns}.vars.set("apiKey", "sk-...");
@@ -148,7 +148,7 @@ const cookies = await ${ns}.cookies.getAll();
 
 \`\`\`js
 await ${ns}.kv.set("counter", "42");
-const val = await ${ns}.kv.get("counter");
+const counterValue = await ${ns}.kv.get("counter");
 await ${ns}.kv.delete("counter");
 const keys = await ${ns}.kv.list();
 \`\`\`

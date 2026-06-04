@@ -129,7 +129,7 @@ function toCamelCaseTree(value, path = "$") {
     }
     const out = {};
     const seen = new Map(); // camelKey -> originalKey, for collision detection
-    for (const [key, val] of Object.entries(value)) {
+    for (const [key, entryValue] of Object.entries(value)) {
         const camel = toCamelCase(key);
         if (seen.has(camel) && seen.get(camel) !== key) {
             throw new Error(
@@ -139,7 +139,7 @@ function toCamelCaseTree(value, path = "$") {
             );
         }
         seen.set(camel, key);
-        out[camel] = toCamelCaseTree(val, `${path}.${key}`);
+        out[camel] = toCamelCaseTree(entryValue, `${path}.${key}`);
     }
     return out;
 }
