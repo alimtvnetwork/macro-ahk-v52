@@ -27,6 +27,10 @@ _None — all known CI/CD issues resolved._
 | 10 | [`10-release-watcher-empty-version-guard.md`](./cicd-issues/10-release-watcher-empty-version-guard.md) | Release Watcher asset guard used empty version because `resolve-release` was not in direct `needs` | `.github/workflows/release-watcher.yml` | ✅ Resolved | 2026-05-26 |
 | 11 | [`11-audit-releases-ver-placeholder-collision.md`](./cicd-issues/11-audit-releases-ver-placeholder-collision.md) | Audit Releases mangled `VERSION.txt` into `<tag>SION.txt` because the `VER` placeholder collided with the literal substring inside `VERSION.txt` | `.github/workflows/audit-releases.yml` | ✅ Resolved | 2026-05-26 |
 
+## Referenced specs
+
+- [`02 - CI-CD Spec For Chrome Extensions`](../spec/2026/02%20-%20CI-CD%20Spec%20For%20Chrome%20Extensions/README.md) — generic Manifest V3 CI/CD, release artifact, installer, probing, and no-committed-ZIP standard.
+
 
 ---
 
