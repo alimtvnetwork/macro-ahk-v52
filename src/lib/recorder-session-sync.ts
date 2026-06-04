@@ -51,8 +51,8 @@ interface ChromeStorageChangeListener {
 }
 
 interface ChromeOnChangedLike {
-    addListener: (cb: ChromeStorageChangeListener) => void;
-    removeListener: (cb: ChromeStorageChangeListener) => void;
+    addListener: (callback: ChromeStorageChangeListener) => void;
+    removeListener: (callback: ChromeStorageChangeListener) => void;
 }
 
 interface ChromeApiLike {
@@ -167,8 +167,8 @@ let localBusListener: ((e: Event) => void) | null = null;
 
 function dispatch(session: RecordingSession | null): void {
     // Iterate a snapshot — listeners may unsubscribe during dispatch.
-    for (const cb of [...subscribers]) {
-        try { cb(session); } catch (err) {
+    for (const subscriber of [...subscribers]) {
+        try { subscriber(session); } catch (err) {
             logError(
                 "recorder-session-sync.dispatch",
                 `Subscriber callback threw\n  Path: subscribers Set (${subscribers.size} listener(s)) — RecorderSessionListener invocation\n  Missing: Clean callback execution for session=${session?.SessionId ?? "null"}\n  Reason: ${err instanceof Error ? err.message : String(err)} — listener body threw; remaining subscribers still dispatched`,
