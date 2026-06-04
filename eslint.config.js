@@ -121,8 +121,6 @@ export default tseslint.config(
   // graduate off this list as their authored-source debt is cleaned.
   {
     files: [
-      "scripts/check-no-bg-dynamic-import.mjs",
-      "scripts/typecheck-spec-snippets.mjs",
       "src/background/__tests__/allow-swallow-fallbacks.test.ts",
       "src/background/__tests__/lovable-dashboard-autoinject.test.ts",
       "src/background/__tests__/manifest-seeder-migration.test.ts",
@@ -202,7 +200,6 @@ export default tseslint.config(
       "src/background/wasm-integrity.ts",
       "src/components/automation/AutomationView.tsx",
       "src/components/options/ActivityLogTimeline.tsx",
-      "src/components/options/DevGuideSection.tsx",
       "src/components/options/LibraryView.tsx",
       "src/components/options/OpfsSessionBrowserPanel.tsx",
       "src/components/options/ProjectCreateForm.tsx",
@@ -217,7 +214,6 @@ export default tseslint.config(
       "src/components/options/api-explorer/types.ts",
       "src/components/options/json-tree/**/*.ts",
       "src/components/options/json-tree/**/*.tsx",
-      "src/components/options/monaco-js-intellisense.ts",
       "src/components/options/project-database/useSchemaBuilder.ts",
       "src/components/options/recorder/RecorderVisualisationPanel.tsx",
       "src/components/options/recorder/recorder-self-test.ts",
@@ -449,7 +445,9 @@ export default tseslint.config(
       "src/background/recorder/failure-logger.ts",
       "src/background/injection-diagnostics.ts",
       "src/background/context-menu-handler.ts",
+      "standalone-scripts/lovable-common/src/logger.ts",
       "standalone-scripts/lovable-dashboard/src/logger.ts",
+      "standalone-scripts/payment-banner-hider/src/logger.ts",
       "standalone-scripts/macro-controller/src/core/MacroController.ts",
       "standalone-scripts/macro-controller/src/credit-api.ts",
       "standalone-scripts/macro-controller/src/error-utils.ts",
