@@ -34,10 +34,25 @@ test('§40.1 — spec folder + README + split topic files exist at canonical pat
         '09-release-artifacts.md',
         '11-no-committed-zips.md',
         '15-acceptance-criteria.md',
+        '16-hardening-addenda.md',
+        '17-final-auditor-score.md',
+        '99-consistency-report.md',
     ];
     for (const f of expected) {
         assert.ok(existsSync(resolve(SPEC_DIR, f)), `Missing split spec file: ${f}`);
     }
+});
+
+test('audit score contract — hardening addenda cover G11-G24 and consistency report exists', () => {
+    const hardening = readFileSync(resolve(SPEC_DIR, '16-hardening-addenda.md'), 'utf8');
+    const finalScore = readFileSync(resolve(SPEC_DIR, '17-final-auditor-score.md'), 'utf8');
+    const consistency = readFileSync(resolve(SPEC_DIR, '99-consistency-report.md'), 'utf8');
+    assert.match(hardening, /G11. G24|G11–G24/, 'Hardening file must advertise G11-G24 coverage');
+    for (let n = 11; n <= 24; n++) {
+        assert.match(`${hardening}\n${finalScore}\n${consistency}`, new RegExp(`G${n}\\b`), `Spec must cover audit gap G${n}`);
+    }
+    assert.match(finalScore, /100 \/ 100/, 'Final score must match the audit report');
+    assert.match(consistency, /G1.G24|G1–G24/, 'Consistency report must state the full G1-G24 scope');
 });
 
 test('§40.3 — forty planning steps (§0) are listed in 01-forty-planning-steps.md', () => {
