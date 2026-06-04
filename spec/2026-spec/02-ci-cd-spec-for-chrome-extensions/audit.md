@@ -95,17 +95,19 @@ half-published tags.
 
 ---
 
-## Step 7 — G6 (BLOCKER, severity 78/100): No guidance on `GITHUB_TOKEN` vs. PAT
+## Step 7 — G6 ✅ PATCHED 2026-06-04 — `GITHUB_TOKEN` vs. PAT trigger rule
 
 §25 says "no third-party secrets required" but doesn't mention that the
 default `GITHUB_TOKEN` **cannot trigger downstream workflows** (e.g. a `release`
 event created via REST in the workflow will not re-trigger `release.yml`).
 
-- **Failure mode**: AI writes a workflow that creates a release via REST, then
-  wonders why nothing publishes.
-- **Fix**: add §25a: "If the workflow creates releases via REST, use a PAT
-  stored as `RELEASE_PAT` with `contents: write`; otherwise tag-push is the
-  only safe trigger."
+- **Failure mode**: AI writes a workflow that creates a release via REST with
+  `GITHUB_TOKEN`, then expects a downstream `release` event workflow to publish
+  assets. GitHub suppresses that trigger, so nothing publishes.
+- **Fix**: added §25a with the deterministic rule: keep create+publish in the
+  same workflow when using `GITHUB_TOKEN`; only use a fine-grained `RELEASE_PAT`
+  with single-repo **Contents: Read and write** when split REST-created release
+  workflows are truly required.
 
 ---
 
