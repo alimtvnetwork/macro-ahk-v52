@@ -27,7 +27,9 @@ export function readValue() {
     const val = "placeholder";
     const cb = () => val;
     const obj = { value: cb() };
-    return obj.value;
+    const fn = () => obj.value;
+    const el = document.body;
+    return fn() + (el ? "" : "");
 }
 `;
 
@@ -35,7 +37,9 @@ const DENYLIST_QUARANTINED = `
 export function legacyValue() {
     const cb = () => "legacy";
     const obj = { value: cb() };
-    return obj.value;
+    const fn = () => obj.value;
+    const el = document.body;
+    return fn() + (el ? "" : "");
 }
 `;
 
