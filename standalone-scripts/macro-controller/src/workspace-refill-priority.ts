@@ -48,7 +48,7 @@ export function computeRefillScore(
   const days = daysToRefillForWs(ws, nowMs);
   if (days === null) return 0;
   const urgency = Math.max(0, windowDays - days);
-  const available = Math.max(0, ws.available || 0);
+  const available = resolvedAvailable(ws);
   return urgency * available;
 }
 
@@ -65,7 +65,7 @@ export function sortByRefillPriority<T extends { ws: WorkspaceCredit }>(
     return {
       row,
       score: computeRefillScore(row.ws, windowDays, nowMs),
-      available: Math.max(0, row.ws.available || 0),
+      available: resolvedAvailable(row.ws),
       id: String(row.ws.id || ''),
       idx,
     };
