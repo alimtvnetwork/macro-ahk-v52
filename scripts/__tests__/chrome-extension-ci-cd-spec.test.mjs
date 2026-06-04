@@ -3,13 +3,13 @@
  * Acceptance tests for "Chrome Extension CI/CD" under
  * spec/2026-spec/02-ci-cd-spec-for-chrome-extensions.
  *
- * Verifies §40 criteria 1, 5, 6 (and 3, 4 implicitly) from the spec README
- * without invoking any network, build, or release machinery. Pure file
- * inspection — runs in a bare Node environment.
+ * The spec is split across an index README + topic files (01..17). This test
+ * verifies §40 criteria 1, 5, 6 (and 3, 4 implicitly) without invoking any
+ * network, build, or release machinery. Pure file inspection.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,51 +19,50 @@ const SPEC_DIR = resolve(REPO_ROOT, 'spec/2026-spec/02-ci-cd-spec-for-chrome-ext
 const SPEC_README = resolve(SPEC_DIR, 'README.md');
 const GITIGNORE = resolve(REPO_ROOT, '.gitignore');
 
-function readSpec() {
-    if (!existsSync(SPEC_README)) {
-        throw new Error(`Spec README missing at ${SPEC_README}`);
-    }
-    return readFileSync(SPEC_README, 'utf8');
+function readAllSpec() {
+    const files = readdirSync(SPEC_DIR).filter(f => f.endsWith('.md'));
+    return files.map(f => readFileSync(resolve(SPEC_DIR, f), 'utf8')).join('\n\n');
 }
 
-test('§40.1 — spec folder + README exist at the canonical path', () => {
+test('§40.1 — spec folder + README + split topic files exist at canonical path', () => {
     assert.ok(existsSync(SPEC_DIR), `Spec folder missing: ${SPEC_DIR}`);
     assert.ok(existsSync(SPEC_README), `Spec README missing: ${SPEC_README}`);
+    const expected = [
+        '01-forty-planning-steps.md',
+        '03-download-and-install-scripts.md',
+        '05-workflow-files-and-triggers.md',
+        '09-release-artifacts.md',
+        '11-no-committed-zips.md',
+        '15-acceptance-criteria.md',
+    ];
+    for (const f of expected) {
+        assert.ok(existsSync(resolve(SPEC_DIR, f)), `Missing split spec file: ${f}`);
+    }
 });
 
-test('§40.3 — forty planning steps (§0) are listed before detailed sections', () => {
-    const raw = readSpec();
-    const zeroIdx = raw.indexOf('## §0.');
-    const oneIdx = raw.indexOf('## §1.');
-    assert.ok(zeroIdx > -1 && oneIdx > zeroIdx, '§0 must precede §1');
-    // Every step number 1..40 should appear in §0 outline.
-    const outline = raw.slice(zeroIdx, oneIdx);
+test('§40.3 — forty planning steps (§0) are listed in 01-forty-planning-steps.md', () => {
+    const raw = readFileSync(resolve(SPEC_DIR, '01-forty-planning-steps.md'), 'utf8');
     for (let n = 1; n <= 40; n++) {
-        assert.match(outline, new RegExp(`(^|\\n)${n}\\.`), `Outline missing step ${n}`);
+        assert.match(raw, new RegExp(`(^|\\n)${n}\\.`), `Outline missing step ${n}`);
     }
 });
 
 test('§40.4 — download / install / probing sections present with runnable examples', () => {
-    const raw = readSpec();
+    const all = readAllSpec();
     for (const section of ['## §18.', '## §19.', '## §20.']) {
-        assert.ok(raw.includes(section), `Spec missing ${section}`);
+        assert.ok(all.includes(section), `Spec missing ${section}`);
     }
-    // Each example section should contain at least one fenced code block.
-    const after18 = raw.slice(raw.indexOf('## §18.'), raw.indexOf('## §19.'));
-    const after19 = raw.slice(raw.indexOf('## §19.'), raw.indexOf('## §20.'));
-    const after20 = raw.slice(raw.indexOf('## §20.'), raw.indexOf('## §21.'));
-    for (const [label, body] of [['§18', after18], ['§19', after19], ['§20', after20]]) {
-        assert.match(body, /```/, `${label} must contain a runnable example`);
-    }
+    const download = readFileSync(resolve(SPEC_DIR, '03-download-and-install-scripts.md'), 'utf8');
+    const probing = readFileSync(resolve(SPEC_DIR, '04-probing.md'), 'utf8');
+    assert.match(download, /```/, '§18/§19 file must contain a runnable example');
+    assert.match(probing, /```/, '§20 file must contain a runnable example');
 });
 
 test('§40.5 — example workflow YAML supports N extensions via strategy.matrix', () => {
-    const raw = readSpec();
-    const wfStart = raw.indexOf('## §22.');
-    assert.ok(wfStart > -1, '§22 example workflow missing');
-    const wfBody = raw.slice(wfStart, raw.indexOf('## §23.') + 4000);
-    assert.match(wfBody, /strategy:\s*\{?\s*matrix/, 'Workflow must use strategy.matrix');
-    assert.match(wfBody, /manifest\.json/, 'Workflow must auto-discover via manifest.json');
+    const wf = readFileSync(resolve(SPEC_DIR, '05-workflow-files-and-triggers.md'), 'utf8');
+    assert.ok(wf.includes('## §22.'), '§22 example workflow missing');
+    assert.match(wf, /strategy:\s*\{?\s*matrix/, 'Workflow must use strategy.matrix');
+    assert.match(wf, /manifest\.json/, 'Workflow must auto-discover via manifest.json');
 });
 
 test('§40.6 — no-committed-ZIP rule enforced in .gitignore', () => {
