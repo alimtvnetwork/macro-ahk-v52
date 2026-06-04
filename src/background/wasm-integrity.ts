@@ -142,12 +142,12 @@ async function loadChecksumManifest(checksumUrl: string): Promise<
     if (typeof json !== "object" || json === null) {
         return { kind: "malformed", reason: "checksum file is not a JSON object" };
     }
-    const obj = json as Record<string, unknown>;
+    const record = json as Record<string, unknown>;
 
-    const schema = obj.schema;
-    const algorithm = obj.algorithm;
-    const hash = obj.hash;
-    const byteLength = obj.byteLength;
+    const schema = record.schema;
+    const algorithm = record.algorithm;
+    const hash = record.hash;
+    const byteLength = record.byteLength;
 
     if (schema !== WASM_CHECKSUM_SCHEMA) {
         return {
@@ -165,9 +165,9 @@ async function loadChecksumManifest(checksumUrl: string): Promise<
         return { kind: "malformed", reason: `byteLength field is not a positive number: ${JSON.stringify(byteLength)}` };
     }
 
-    const sourcePath = typeof obj.sourcePath === "string" ? obj.sourcePath : "(unknown)";
-    const sqlJsVersion = typeof obj.sqlJsVersion === "string" ? obj.sqlJsVersion : "unknown";
-    const generatedAt = typeof obj.generatedAt === "string" ? obj.generatedAt : "(unknown)";
+    const sourcePath = typeof record.sourcePath === "string" ? record.sourcePath : "(unknown)";
+    const sqlJsVersion = typeof record.sqlJsVersion === "string" ? record.sqlJsVersion : "unknown";
+    const generatedAt = typeof record.generatedAt === "string" ? record.generatedAt : "(unknown)";
 
     return {
         kind: "ok",

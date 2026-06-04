@@ -119,8 +119,8 @@ function getPrimaryOutputFile(instruction: InstructionManifest): string | null {
 export async function handleGetScriptInfo(
     message: MessageRequest,
 ): Promise<ScriptInfoResponse | ErrorResult> {
-    const msg = message as MessageRequest & { scriptName: string };
-    const scriptName = msg.scriptName;
+    const request = message as MessageRequest & { scriptName: string };
+    const scriptName = request.scriptName;
 
     const folder = resolveScriptFolder(scriptName);
     if (!folder) {
@@ -171,8 +171,8 @@ export async function handleGetScriptInfo(
 export async function handleHotReloadScript(
     message: MessageRequest,
 ): Promise<HotReloadResponse | ErrorResult> {
-    const msg = message as MessageRequest & { scriptName: string };
-    const scriptName = msg.scriptName;
+    const request = message as MessageRequest & { scriptName: string };
+    const scriptName = request.scriptName;
 
     const folder = resolveScriptFolder(scriptName);
     if (!folder) {

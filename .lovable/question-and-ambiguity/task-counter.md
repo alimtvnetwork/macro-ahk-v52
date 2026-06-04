@@ -34,6 +34,7 @@ Timestamps use **Asia/Kuala_Lumpur** per `mem://localization/timezone`.
 | 17 | 2026-05-16 | Add new-tab / empty-URL guard: `isNewTabOrBlankUrl()` helper in `src/shared/url-utils.ts`; gate `auto-injector.handleNavigationCompleted` + `project-matcher.evaluateUrlMatches`; update spec 05-content-script-adaptation §URL Guards; new memory `mem://features/new-tab-no-url-guard`; bump v2.249.4 → v2.249.5 across 9 sites; changelog entry; README pin updated. | [48 — New-tab no-URL guard scope](./48-new-tab-no-url-guard-scope.md) |
 | 18 | 2026-06-02 | Initially created a thin `spec/2026-spec/01-prompt-spec/README.md` pointer, then finalized the requested rename: completed spec now lives at `spec/2026-spec/01-prompt-spec/` (renumbered 2026-06-03), with scripts/docs updated. | [59 — 2026-spec folder name](./59-2026-spec-folder-name.md) |
 | 19 | 2026-06-04 | Save `mem://features/macro-controller/plan-task-ux-20-step` — closed-out 20-step Credit Totals + Macro UX contract (Plan row, right-anchored Task Next, no-autorun guard, Credit Totals colour/sort/drag/filter/CSV/projects rules); add index entry. Deferred Credit Totals E2E content-script harness (option-A scope logged). | [61 — Credit Totals content-script harness](./61-credit-totals-content-script-harness.md) |
+| 20 | 2026-06-04 | Task 0.8 quarantine retirement — graduate 5 files from the id-denylist legacy quarantine: `schema-meta-handler.ts` (`msg`→`message`), `xpath-validation-handler.ts` (`msg`→`request`, inner `msg`→`errorMessage`), `script-info-handler.ts` (`msg`→`request` ×2), `wasm-integrity.ts` (`obj`→`record`), `url-trigger.ts` (`el`→`element`). Removed entries from `eslint.config.js` quarantine list. 9/9 pinned `eslint-rules.test.mjs` still green; id-denylist clean on all 5 files. Cumulative graduations: 14 → 19. | none — direct mechanical rename, no design ambiguity |
 
 ## Notes
 
@@ -43,4 +44,4 @@ Timestamps use **Asia/Kuala_Lumpur** per `mem://localization/timezone`.
   ambiguities directly to `.lovable/question-and-ambiguity/` but
   did not increment a counter, because no counter file existed
   yet). Subsequent tasks increment from 2.
-- 24 tasks remaining in the window after task 16.
+- 20 tasks remaining in the window after task 20.

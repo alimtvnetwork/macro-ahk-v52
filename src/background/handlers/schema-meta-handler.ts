@@ -38,8 +38,8 @@ interface ApplyJsonSchemaMessage extends MessageRequest {
     schema: JsonSchemaDef;
 }
 
-export async function handleApplyJsonSchema(msg: MessageRequest): Promise<{ isOk: boolean; result?: ReturnType<typeof applyJsonSchema>; errorMessage?: string }> {
-    const { project, schema } = msg as ApplyJsonSchemaMessage;
+export async function handleApplyJsonSchema(message: MessageRequest): Promise<{ isOk: boolean; result?: ReturnType<typeof applyJsonSchema>; errorMessage?: string }> {
+    const { project, schema } = message as ApplyJsonSchemaMessage;
 
     if (!project || typeof project !== "string") {
         return { isOk: false, errorMessage: "Missing 'project' (slug)" };
@@ -83,8 +83,8 @@ interface SchemaDocsResponse {
     relations?: ReturnType<typeof getMetaRelations>;
 }
 
-export async function handleGenerateSchemaDocs(msg: MessageRequest): Promise<SchemaDocsResponse> {
-    const { project, format = "both" } = msg as GenerateSchemaDocsMessage;
+export async function handleGenerateSchemaDocs(message: MessageRequest): Promise<SchemaDocsResponse> {
+    const { project, format = "both" } = message as GenerateSchemaDocsMessage;
 
     if (!project || typeof project !== "string") {
         return { isOk: false, errorMessage: "Missing 'project' (slug)" };

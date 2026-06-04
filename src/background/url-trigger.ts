@@ -274,18 +274,18 @@ function writeSentinelInPage(
         if (isSameFp) {
             return;
         }
-        const el = existing ?? document.createElement("div");
-        el.id = id;
-        el.setAttribute(attrFp, fp);
-        el.setAttribute(attrProjects, projectsCsv);
-        el.setAttribute(attrCanRun, String(canRun));
-        el.setAttribute(attrTrigger, trigger);
-        el.setAttribute(attrDecidedAt, String(decidedAt));
-        el.style.display = "none";
+        const element = existing ?? document.createElement("div");
+        element.id = id;
+        element.setAttribute(attrFp, fp);
+        element.setAttribute(attrProjects, projectsCsv);
+        element.setAttribute(attrCanRun, String(canRun));
+        element.setAttribute(attrTrigger, trigger);
+        element.setAttribute(attrDecidedAt, String(decidedAt));
+        element.style.display = "none";
         const isNew = existing === null;
         if (isNew) {
             const host = document.body ?? document.documentElement;
-            host.appendChild(el);
+            host.appendChild(element);
         }
     } catch { // allow-swallow: page may be mid-navigation / detached; sentinel element write is best-effort and re-runs on next decision.
         // Page may be mid-navigation; safe to drop.

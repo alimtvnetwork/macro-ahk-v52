@@ -40,13 +40,13 @@ export interface XPathValidationResult {
 export async function handleValidateAllXPaths(
     message: MessageRequest,
 ): Promise<XPathValidationResult> {
-    const msg = message as MessageRequest & {
+    const request = message as MessageRequest & {
         xpaths: Record<string, { xpath: string; selector?: string }>;
     };
 
     const tabId = await getActiveTabId();
     if (tabId === null) {
-        const entries = Object.entries(msg.xpaths).map(([name, { xpath, selector }]) => ({
+        const entries = Object.entries(request.xpaths).map(([name, { xpath, selector }]) => ({
             name,
             xpath,
             selector,
@@ -59,7 +59,7 @@ export async function handleValidateAllXPaths(
 
     const results: XPathValidationEntry[] = [];
 
-    for (const [name, { xpath, selector }] of Object.entries(msg.xpaths)) {
+    for (const [name, { xpath, selector }] of Object.entries(request.xpaths)) {
         const entry = await validateSingleXPath(tabId, name, xpath, selector);
         results.push(entry);
     }
@@ -125,8 +125,8 @@ async function validateSingleXPath(
             error: `XPath not found: "${name}". ${selector ? "CSS fallback also failed." : "Consider adding a CSS selector fallback."}`,
         };
     } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        return { name, xpath, selector, found: 0, status: "fail", error: msg };
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        return { name, xpath, selector, found: 0, status: "fail", error: errorMessage };
     }
 }
 
