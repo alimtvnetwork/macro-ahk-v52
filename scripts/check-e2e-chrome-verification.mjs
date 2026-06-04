@@ -58,6 +58,12 @@ const checklist = [
     patterns: [/Multi-Tab|tab/i, /context menu|active tab|sync|tracking|independent/i],
   },
   {
+    id: 'cross-project-sync',
+    label: 'Cross-Project Sync group management is covered in Chrome',
+    files: ['tests/e2e/e2e-24-cross-project-sync.spec.ts', '.github/workflows/ci.yml'],
+    patterns: [/Cross-Project Sync|project group|drag-assign|LIBRARY_GET_GROUPS/i, /e2e-24-cross-project-sync\.spec\.ts/],
+  },
+  {
     id: 'hot-reload',
     label: 'Hot-reload/watch behavior is covered',
     files: ['tests/e2e/e2e-17-watch-mode.spec.ts'],
