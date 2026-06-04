@@ -10,29 +10,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { WorkspaceCredit } from '../types';
 
-let fetchSpy: ReturnType<typeof vi.fn>;
+const hoisted = vi.hoisted(() => ({ fetchSpy: vi.fn() }));
 
-vi.mock('../credit-balance-update/credit-balance-fetcher', () => {
-    fetchSpy = vi.fn(async () => {
-        const { CreditFetchOutcome } = await import('../credit-balance-update/credit-fetch-outcome');
-        return {
-            outcome: CreditFetchOutcome.ApiHit,
-            balance: {
-                totalRemaining: 50,
-                totalGranted: 100,
-                dailyRemaining: 5,
-                dailyLimit: 10,
-                totalBillingPeriodUsed: 50,
-                expiringGrants: [],
-                grantTypeBalances: [],
-            },
-            fetchedAt: Date.now(),
-            sourceUrl: '/workspaces/x/credit-balance',
-            errorDetail: null,
-        };
-    });
-    return { fetchWorkspaceCreditBalance: fetchSpy };
-});
+vi.mock('../credit-balance-update/credit-balance-fetcher', () => ({
+    fetchWorkspaceCreditBalance: hoisted.fetchSpy,
+}));
+
+const fetchSpy = hoisted.fetchSpy;
 
 function ws(id: string): WorkspaceCredit {
     return {
