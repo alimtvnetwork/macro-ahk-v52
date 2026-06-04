@@ -670,6 +670,8 @@ on:
       version: { description: "vX.Y.Z", required: true }
 permissions: { contents: write }
 concurrency: { group: release-${{ github.ref }}, cancel-in-progress: false }
+env:
+  NODE_VERSION: "24" # Active LTS as of 2026-06; refresh when Node active LTS changes.
 
 jobs:
   setup:
@@ -696,7 +698,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm }
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: npm }
       - run: '[ -f package.json ] && npm ci || true'
       - run: '[ -f "${{ matrix.ext }}/package.json" ] && (cd "${{ matrix.ext }}" && npm ci && npm run build --if-present) || true'
       - name: Package
@@ -770,6 +772,39 @@ the trailing `# vX.Y.Z` comment together, preserving auditability.
 
 The §22 YAML uses floating tags for readability only; **production workflows
 MUST be SHA-pinned** per this section.
+
+## §22b. Node and runner version policy (active LTS only)
+
+The workflow MUST declare Node once at top level and every `setup-node` step
+MUST read that value. Inline literals such as `node-version: 20` are forbidden
+because they become stale silently when copied into future repositories.
+
+Required workflow shape:
+
+```yaml
+env:
+  NODE_VERSION: "24" # Active LTS as of 2026-06; refresh at implementation time.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@<40-char-sha> # vX.Y.Z, see §22a
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+```
+
+Implementation rule: before committing a new workflow, confirm the current
+**active LTS** from the Node.js release schedule and set `NODE_VERSION` to that
+major. Do not use an EOL major, `node`, `latest`, `current`, or a per-step
+literal. When Node promotes a new active LTS, update this single env value in
+the same PR that refreshes the `actions/setup-node` SHA pin.
+
+Runner policy: use GitHub-hosted `ubuntu-latest` for the generic release flow
+unless the host repo has a documented reason to pin an image. If pinned, use a
+supported image such as `ubuntu-24.04` and review it when GitHub announces image
+deprecation. Do not use deprecated runner labels.
 
 ## §23. Matrix-build across multiple extensions
 
