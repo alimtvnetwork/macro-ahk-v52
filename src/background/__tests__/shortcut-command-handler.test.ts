@@ -10,6 +10,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { Mock } from "vitest";
 
 vi.mock("../message-router", () => ({
     handleMessage: vi.fn(),
@@ -39,8 +40,8 @@ import { resolveScriptsForShortcut } from "../shortcut-command-handler";
 import { handleMessage } from "../message-router";
 import { evaluateUrlMatches } from "../project-matcher";
 
-const handleMessageMock = handleMessage as unknown as ReturnType<typeof vi.fn>;
-const evaluateUrlMatchesMock = evaluateUrlMatches as unknown as ReturnType<typeof vi.fn>;
+const handleMessageMock = handleMessage as unknown as Mock;
+const evaluateUrlMatchesMock = evaluateUrlMatches as unknown as Mock;
 
 function mockActiveProject(project: unknown): void {
     handleMessageMock.mockImplementation((_msg, _sender, sendResponse: (r: unknown) => void) => {

@@ -59,8 +59,8 @@ beforeEach(() => {
                     const v = storage.get(key);
                     return v === undefined ? {} : { [key]: v };
                 }),
-                set: vi.fn(async (obj: Record<string, unknown>) => {
-                    for (const [k, v] of Object.entries(obj)) storage.set(k, v);
+                set: vi.fn(async (record: Record<string, unknown>) => {
+                    for (const [k, v] of Object.entries(record)) storage.set(k, v);
                 }),
             },
         },

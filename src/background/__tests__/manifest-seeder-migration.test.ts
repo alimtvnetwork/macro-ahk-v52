@@ -9,6 +9,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import type { Mock } from "vitest";
 import {
     seedProjectsFromManifest,
     buildStoredProjectFromSeed,
@@ -56,12 +57,12 @@ function makeManifest(projects: SeedProjectEntry[]): SeedManifest {
 }
 
 const storage = new Map<string, unknown>();
-let setSpy: ReturnType<typeof vi.fn>;
+let setSpy: Mock;
 
 beforeEach(() => {
     storage.clear();
-    setSpy = vi.fn(async (obj: Record<string, unknown>) => {
-        for (const [k, v] of Object.entries(obj)) storage.set(k, v);
+    setSpy = vi.fn(async (record: Record<string, unknown>) => {
+        for (const [k, v] of Object.entries(record)) storage.set(k, v);
     });
     globalThis.chrome = {
         storage: {
