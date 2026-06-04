@@ -48,7 +48,7 @@ export function ConfigDbTab({ projectSlug }: ConfigDbTabProps) {
         edits={db.edits}
         saving={db.saving}
         editKey={db.editKey}
-        onEditChange={(ek, val) => db.setEdits((prev) => ({ ...prev, [ek]: val }))}
+        onEditChange={(ek, editedValue) => db.setEdits((prev) => ({ ...prev, [ek]: editedValue }))}
         onSave={(row) => void db.handleSave(row)}
       />
     </div>

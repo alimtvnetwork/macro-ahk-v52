@@ -11,33 +11,33 @@ export function safeParse(text: string): JsonValue {
 }
 
 /** Check if a value is a plain JSON object (not array, not null). */
-export function isObject(val: JsonValue): val is JsonObject {
-  const isNonNull = val !== null;
-  const isObjType = typeof val === "object";
-  const isNotArray = !Array.isArray(val);
+export function isObject(jsonValue: JsonValue): jsonValue is JsonObject {
+  const isNonNull = jsonValue !== null;
+  const isObjType = typeof jsonValue === "object";
+  const isNotArray = !Array.isArray(jsonValue);
 
   return isNonNull && isObjType && isNotArray;
 }
 
 /** Check if a value is a JSON primitive (string, number, boolean, null). */
-export function isPrimitive(val: JsonValue): val is string | number | boolean | null {
-  const isObj = isObject(val);
-  const isArr = Array.isArray(val);
+export function isPrimitive(jsonValue: JsonValue): jsonValue is string | number | boolean | null {
+  const isObj = isObject(jsonValue);
+  const isArr = Array.isArray(jsonValue);
   return !isObj && !isArr;
 }
 
 /** Format a primitive value for display. */
-export function formatPrimitive(val: JsonValue): string {
-  const isNull = val === null;
+export function formatPrimitive(jsonValue: JsonValue): string {
+  const isNull = jsonValue === null;
   if (isNull) return "null";
 
-  const isString = typeof val === "string";
+  const isString = typeof jsonValue === "string";
   if (isString) {
-    const isEmpty = val === "";
-    return isEmpty ? '""' : `"${val}"`;
+    const isEmpty = jsonValue === "";
+    return isEmpty ? '""' : `"${jsonValue}"`;
   }
 
-  return String(val);
+  return String(jsonValue);
 }
 
 /** Parse user input string into the appropriate JSON value type. */
