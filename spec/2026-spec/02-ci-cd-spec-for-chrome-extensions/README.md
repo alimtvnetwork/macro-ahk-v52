@@ -168,7 +168,7 @@ deployments, a policy folder).
   | 3 | Bad `--version` argument |
   | 4 | Targeted asset missing (404) in strict mode |
   | 5 | Network/tool error |
-  | 6 | Archive invalid / extraction failed |
+  | 6 | Integrity failed — SHA-256 mismatch, missing checksum entry, or archive invalid / extraction failed (see §17a) |
 
 - **Discovery vs strict:** explicit `--version` or release-URL invocation = strict
   (no fallback). Bare invocation = discovery (latest → main as last resort).
