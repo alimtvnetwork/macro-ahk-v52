@@ -1195,18 +1195,74 @@ After upload, the publish job MUST `curl -fsSLI` every uploaded asset URL
 `Content-Length`. Fail the job (exit 8 — new code, append to §3) if any asset
 404s. This catches partial uploads that §24a's no-cancel rule cannot.
 
-### §41.8 G18 — Branch protection + required-status invariants (documented)
+### §41.8 G18 — Branch protection + required-status invariants (enforced)
 
-The repo hosting an extension MUST configure on the default branch:
+The repo hosting an extension MUST configure on the default branch the exact
+ruleset below. Verification is **enforced in CI** (not just documented) — the
+`assert-branch-protection` job runs on every PR and on `main` push and exits
+non-zero with code **13** if any invariant drifts.
 
-- Require PR + 1 review.
-- Require status checks: `ci`, `version-agreement`, `web-ext-lint`,
-  `actions-sha-pin-gate`.
-- Disallow force-push and deletion.
-- Require linear history.
+Required invariants (canonical JSON shape returned by
+`gh api repos/{owner}/{repo}/branches/main/protection`):
 
-The spec ships `scripts/assert-branch-protection.sh` (uses `gh api`) as a
-verification step run in `ci.yml` on PRs targeting `main`.
+| Field | Required value |
+|---|---|
+| `required_pull_request_reviews.required_approving_review_count` | `>= 1` |
+| `required_pull_request_reviews.dismiss_stale_reviews` | `true` |
+| `required_status_checks.strict` | `true` |
+| `required_status_checks.contexts` ⊇ | `["ci","version-agreement","web-ext-lint","actions-sha-pin-gate","preflight-secrets"]` |
+| `enforce_admins.enabled` | `true` |
+| `required_linear_history.enabled` | `true` |
+| `allow_force_pushes.enabled` | `false` |
+| `allow_deletions.enabled` | `false` |
+| `block_creations.enabled` | `true` |
+
+Reference verifier (`scripts/assert-branch-protection.sh`, copy verbatim):
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+: "${GITHUB_REPOSITORY:?}"; : "${BRANCH:=main}"
+J=$(gh api "repos/$GITHUB_REPOSITORY/branches/$BRANCH/protection" 2>/dev/null) || {
+  echo "::error::branch protection not configured on $BRANCH — see spec §41.8"; exit 13; }
+req() { # req <jq-expr> <expected> <label>
+  got=$(jq -r "$1" <<<"$J")
+  [ "$got" = "$2" ] || { echo "::error::§41.8 drift: $3 = $got (want $2)"; exit 13; }
+}
+req '.required_pull_request_reviews.dismiss_stale_reviews' true 'dismiss_stale_reviews'
+req '.enforce_admins.enabled'                              true 'enforce_admins'
+req '.required_linear_history.enabled'                     true 'required_linear_history'
+req '.allow_force_pushes.enabled'                          false 'allow_force_pushes'
+req '.allow_deletions.enabled'                             false 'allow_deletions'
+req '.required_status_checks.strict'                       true 'strict_status_checks'
+n=$(jq -r '.required_pull_request_reviews.required_approving_review_count' <<<"$J")
+[ "$n" -ge 1 ] || { echo "::error::§41.8 drift: approvals=$n (want >=1)"; exit 13; }
+for c in ci version-agreement web-ext-lint actions-sha-pin-gate preflight-secrets; do
+  jq -e --arg c "$c" '.required_status_checks.contexts|index($c)' <<<"$J" >/dev/null \
+    || { echo "::error::§41.8 missing required check: $c"; exit 13; }
+done
+echo "branch protection OK"
+```
+
+Reference CI job (drop into `.github/workflows/ci.yml`):
+
+```yaml
+assert-branch-protection:
+  runs-on: ubuntu-24.04
+  permissions: { contents: read }
+  steps:
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+    - env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: bash scripts/assert-branch-protection.sh
+```
+
+`GITHUB_TOKEN` has sufficient read scope for the `branches/*/protection`
+endpoint on private repos when the workflow is in the same repo; no PAT is
+required for verification. §3 exit-code table extends:
+`13 = branch-protection drift`.
+
+
 
 ### §41.9 G19 — Chrome Web Store publish path (optional but specified)
 

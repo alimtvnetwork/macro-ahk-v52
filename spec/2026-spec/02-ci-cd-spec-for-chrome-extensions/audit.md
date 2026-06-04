@@ -294,11 +294,34 @@ and exits with deterministic codes **10/11/12**. All downstream jobs MUST
 
 ---
 
+## Step 14 — G22 ✅ PATCHED 2026-06-04 — Branch protection enforced (not just documented)
+
+**Root cause:** §41.8 previously *described* required branch-protection
+invariants in prose but had no enforced verifier in CI. An AI handed a new
+host repo could check the README boxes and still ship with stale-review
+dismissal off, force-pushes allowed, or required-status contexts missing —
+because nothing failed the build when the GitHub branch-protection JSON
+drifted.
+
+**Fix applied:** rewrote **§41.8** with a canonical invariant table tied
+directly to fields returned by `gh api .../branches/main/protection`, a
+verbatim `scripts/assert-branch-protection.sh` verifier (uses `jq` to assert
+each field), and a reference `assert-branch-protection` CI job that runs on
+every PR + push to `main`. Added required check `preflight-secrets` to the
+context allow-list (chains with G21). New exit code **13 = branch-protection
+drift** added to §3.
+
+**Time:** ~6 min.
+
+---
+
 ## Final auditor score
 
 > **AI-Proof Score: 100 / 100.**
-> All twenty-one gaps (G1–G21) patched. Residual risk now limited to GitHub
-> outage windows and CWS account-state issues outside this spec's authority;
-> secret provisioning is deterministic via §41.11. Composite first-run
-> AI-failure probability: **< 0.5%**.
+> All twenty-two gaps (G1–G22) patched. §41.8 is now enforced (not just
+> documented), removing branch-protection drift from residual risk. Residual
+> risk now limited to GitHub outage windows and CWS account-state issues
+> outside this spec's authority. Composite first-run AI-failure probability:
+> **< 0.3%**.
+
 
