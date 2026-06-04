@@ -129,26 +129,26 @@ class WsListViewState {
   }
 
   getCompactMode(): boolean { return this.isCompactMode; }
-  setCompactMode(val: boolean): void { this.isCompactMode = val; }
+  setCompactMode(enabled: boolean): void { this.isCompactMode = enabled; }
 
   getFreeOnly(): boolean { return this.isFreeOnly; }
-  setFreeOnly(val: boolean): void { this.isFreeOnly = val; }
+  setFreeOnly(enabled: boolean): void { this.isFreeOnly = enabled; }
 
   getExpiredWithCredits(): boolean { return this.isExpiredWithCredits; }
-  setExpiredWithCredits(val: boolean): void { this.isExpiredWithCredits = val; }
+  setExpiredWithCredits(enabled: boolean): void { this.isExpiredWithCredits = enabled; }
 
   getExpiring(): boolean { return this.isExpiring; }
-  setExpiring(val: boolean): void { this.isExpiring = val; }
+  setExpiring(enabled: boolean): void { this.isExpiring = enabled; }
 
   getRefillSoon(): boolean { return this.isRefillSoon; }
-  setRefillSoon(val: boolean): void { this.isRefillSoon = val; }
+  setRefillSoon(enabled: boolean): void { this.isRefillSoon = enabled; }
 
   getRefillPriority(): boolean { return this.isRefillPriority; }
 
-  setRefillPriority(val: boolean): void {
-    this.isRefillPriority = val;
+  setRefillPriority(enabled: boolean): void {
+    this.isRefillPriority = enabled;
     try {
-      localStorage.setItem('ml_refill_priority', val ? 'true' : 'false');
+      localStorage.setItem('ml_refill_priority', enabled ? 'true' : 'false');
     } catch (e: unknown) {
       logError('viewState.setRefillPriority', 'Failed to persist refill priority flag', e);
     }
@@ -156,10 +156,10 @@ class WsListViewState {
 
   getCreditSortMode(): CreditSortMode { return this.creditSortMode; }
 
-  setCreditSortMode(val: CreditSortMode): void {
-    this.creditSortMode = val;
+  setCreditSortMode(mode: CreditSortMode): void {
+    this.creditSortMode = mode;
     try {
-      localStorage.setItem('ml_credit_sort_mode', val);
+      localStorage.setItem('ml_credit_sort_mode', mode);
     } catch (e: unknown) {
       logError('viewState.setCreditSortMode',
         'Failed to persist credit sort mode', e);
