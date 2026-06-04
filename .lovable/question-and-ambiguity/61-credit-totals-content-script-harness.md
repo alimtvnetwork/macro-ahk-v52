@@ -35,3 +35,17 @@ re-deriving it.
 Proceed with **Option A** next turn. This turn's `next 1` shipped the
 small-scoped item: persisted the `plan-task-ux-20-step` memory entry
 so the closed-out UX contract survives future context resets.
+
+---
+
+## Resolution (2026-06-04)
+
+Option A scaffold landed:
+- `tests/e2e/fixtures/lovable-shell.html` — minimal fake lovable.dev shell with workspace rows + project-title testid.
+- `tests/e2e/utils/macro-controller-harness.ts` — `mountMacroControllerHarness(context, opts)`: routes `https://lovable.dev/projects/<id>` to the shell, addInitScript installs chrome.runtime/storage/tabs/scripting stubs (in-memory `chrome.storage.local`), addScriptTag injects the production IIFE (`standalone-scripts/macro-controller/dist/macro-looping.js`). Missing-bundle errors follow Code-Red format (exact path + reason).
+- `tests/e2e/e2e-macro-controller-harness.spec.ts` — smoke spec (kept `test.fixme` until CI builds the bundle in global-setup).
+- `tests/e2e/utils/__tests__/macro-controller-harness.test.mjs` — 4/4 unit guard pinning chrome-stub surface + Code-Red error shape + shell testids.
+
+Open follow-ups (next `next` slots):
+1. Wire macro-controller bundle into `tests/e2e/global-setup.ts` so the smoke spec can be un-fixmed.
+2. Replace `e2e-credit-totals-modal.spec.ts`'s pending block with a real flow driven through `mountMacroControllerHarness` once Credit Totals modal is reachable from the harness DOM.
