@@ -320,7 +320,7 @@ drift** added to §3.
 ## Final auditor score
 
 <a id="g23-exit-code-table-drift"></a>
-### Step 15 — G23 ✅ PATCHED 2026-06-04 — Canonical exit-code table drift
+## Step 15 — G23 ✅ PATCHED 2026-06-04 — Canonical exit-code table drift
 
 **Root cause:** §41.11 and §41.8 introduced deterministic failure codes
 **10/11/12/13**, but the authoritative §3 exit-code table still stopped at
@@ -338,7 +338,7 @@ G1–G23 patches, not just G1–G21.
 ---
 
 <a id="g24-secret-preflight-yaml-fix"></a>
-### Step 16 — G24 ✅ PATCHED 2026-06-04 — Secret preflight sample was not valid GitHub Actions YAML
+## Step 16 — G24 ✅ PATCHED 2026-06-04 — Secret preflight sample was not valid GitHub Actions YAML
 
 **Root cause:** the §41.11 sample used `${{ secrets[ s ] }}` inside a bash
 `for` loop. GitHub Actions expressions are evaluated before bash runs, so the
