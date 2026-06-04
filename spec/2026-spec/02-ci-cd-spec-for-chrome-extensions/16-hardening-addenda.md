@@ -356,7 +356,95 @@ jobs:
 prints a non-zero exit. A green `installer-tests.yml` run is a required status
 check under §41.8 G18 branch protection (`required-status: installer-tests`).
 
+### §41.13 G25 — Release watcher self-heal contract (`release-watcher.yml`)
+
+**Root cause:** The `release.yml` workflow is triggered by `push: tags: v*`
+plus `release` and `workflow_dispatch` (§6). In real operations, tags arrive
+out-of-band — created by the web UI, the REST API, or external tooling that
+lands a `.gitmap/release/vX.Y.Z.json` descriptor on `main`. In those paths the
+`push: tags: v*` event does **not** always fire, so the Release page is
+created with only the auto-generated source archives and the built ZIPs +
+`install.sh` / `install.ps1` / `VERSION.txt` / `checksums.txt` (§17) are
+never uploaded. Without a self-heal workflow, this regression is invisible
+until a user reports a broken install.
+
+**Required workflow:** every host repo MUST ship `release-watcher.yml` with
+the contract below. It is a non-negotiable companion of `release.yml` (see
+`pipeline/03-release-workflow.md` — Companion Workflows).
+
+```yaml
+name: Release Watcher
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.gitmap/release/v*.json'
+      - '.gitmap/release/latest.json'
+      - '.github/workflows/release.yml'
+      - '.github/workflows/release-watcher.yml'
+  release:
+    types: [published, created, edited]     # catches any out-of-band release
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: release-watcher-${{ github.ref }}
+  cancel-in-progress: false                  # never cancel an in-flight heal
+
+jobs:
+  resolve-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read version from .gitmap descriptor
+        id: ver
+        run: echo "version=$(jq -r .version .gitmap/release/latest.json)" >> "$GITHUB_OUTPUT"
+      - name: Verify tag exists on origin
+        run: git ls-remote --tags origin "refs/tags/v${{ steps.ver.outputs.version }}" | grep .
+      - name: Call canonical release.yml in-process
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner, repo: context.repo.repo,
+              workflow_id: 'release.yml', ref: 'main',
+              inputs: { version: 'v${{ steps.ver.outputs.version }}' }
+            });
+```
+
+**Mandatory invariants:**
+
+1. **Self-heal trigger set** — `push: paths: .gitmap/release/**`, `release:
+   [published, created, edited]`, and `workflow_dispatch` are ALL required.
+   Omitting `release:` re-opens the source-only Release page regression.
+2. **In-process dispatch** — call `release.yml` via `workflow_dispatch` (or
+   `workflow_call`) with the resolved version. Never queue an async
+   `gh workflow run` against stale workflow logic — the watcher could pass
+   while the Release page remains source-only.
+3. **No cancel-in-progress** — `concurrency.cancel-in-progress: false`. A
+   second descriptor push must NOT abort a heal already uploading assets.
+4. **`.gitmap/` descriptor is the source of truth** — version is read from
+   `.gitmap/release/latest.json` (or the specific `vX.Y.Z.json` for direct
+   dispatch). No version is ever parsed out of `manifest.json` or commit
+   messages by this workflow.
+5. **Fail-fast on missing tag** — if `git ls-remote --tags` does not return
+   the resolved tag, the job MUST fail (exit non-zero). The watcher never
+   creates tags itself; tag creation is handled by the release-tagger memory
+   `mem://cicd/release-watcher-self-heal-tag` (separate concern).
+6. **No retry policy** — the heal is single-attempt per trigger event. Re-run
+   only via a new descriptor push or explicit `workflow_dispatch`.
+
+**Acceptance:** a green `release-watcher.yml` run for a given `vX.Y.Z` MUST
+result in `release.yml` re-uploading every §17 asset, and the §41.7 G17
+post-publish smoke probe MUST pass against the resulting Release page. If
+either condition is false, the host repo is non-compliant with the spec.
+
 ---
+
 
 
 
