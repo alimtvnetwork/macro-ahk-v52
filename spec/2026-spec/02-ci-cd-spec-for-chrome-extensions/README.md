@@ -36,8 +36,17 @@ This spec is split into focused files. Read them in order on first pass; cross-r
 | 15 | [`15-acceptance-criteria.md`](./15-acceptance-criteria.md) | §40 | Acceptance Criteria |
 | 16 | [`16-hardening-addenda.md`](./16-hardening-addenda.md) | §41 | Hardening Addenda (G11–G24) |
 | 17 | [`17-final-auditor-score.md`](./17-final-auditor-score.md) | §42 | Final Auditor Score |
-| — | [`audit.md`](./audit.md) | — | Independent audit report |
+| — | [`audit.md`](./audit.md) | — | Independent audit report (G1–G24) |
 | — | [`99-consistency-report.md`](./99-consistency-report.md) | — | Structural health |
+
+### Direct audit anchors
+
+For agents wiring a specific hardening control, jump straight to the gap audit:
+
+- [G21 — Secrets provisioning checklist](./audit.md#g21-secrets-provisioning) (Step 13)
+- [G22 — Branch protection enforced](./audit.md#g22-branch-protection-enforced) (Step 14)
+- [G23 — Canonical exit-code table drift](./audit.md#g23-exit-code-table-drift) (Step 15)
+- [G24 — Secret preflight YAML fix](./audit.md#g24-secret-preflight-yaml-fix) (Step 16)
 
 ---
 

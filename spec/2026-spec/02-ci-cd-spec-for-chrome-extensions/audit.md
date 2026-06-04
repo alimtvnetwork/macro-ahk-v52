@@ -275,6 +275,7 @@ and exit-code `9` for tag immutability.
 
 ---
 
+<a id="g21-secrets-provisioning"></a>
 ## Step 13 — G21 ✅ PATCHED 2026-06-04 — Secrets provisioning checklist
 
 **Root cause:** §42 acknowledged "org-level secret provisioning" as residual
@@ -294,6 +295,7 @@ and exits with deterministic codes **10/11/12**. All downstream jobs MUST
 
 ---
 
+<a id="g22-branch-protection-enforced"></a>
 ## Step 14 — G22 ✅ PATCHED 2026-06-04 — Branch protection enforced (not just documented)
 
 **Root cause:** §41.8 previously *described* required branch-protection
@@ -317,6 +319,7 @@ drift** added to §3.
 
 ## Final auditor score
 
+<a id="g23-exit-code-table-drift"></a>
 ### Step 15 — G23 ✅ PATCHED 2026-06-04 — Canonical exit-code table drift
 
 **Root cause:** §41.11 and §41.8 introduced deterministic failure codes
@@ -334,6 +337,7 @@ G1–G23 patches, not just G1–G21.
 
 ---
 
+<a id="g24-secret-preflight-yaml-fix"></a>
 ### Step 16 — G24 ✅ PATCHED 2026-06-04 — Secret preflight sample was not valid GitHub Actions YAML
 
 **Root cause:** the §41.11 sample used `${{ secrets[ s ] }}` inside a bash
