@@ -72,10 +72,10 @@ interface ConfigRow {
     valueType: string;
 }
 
-function flattenConfig(obj: Record<string, unknown>, parentSection = ""): ConfigRow[] {
+function flattenConfig(record: Record<string, unknown>, parentSection = ""): ConfigRow[] {
     const rows: ConfigRow[] = [];
 
-    for (const [key, configValue] of Object.entries(obj)) {
+    for (const [key, configValue] of Object.entries(record)) {
         if (configValue !== null && typeof configValue === "object" && !Array.isArray(configValue)) {
             // Nested section — recurse with section prefix
             const section = parentSection ? `${parentSection}.${key}` : key;

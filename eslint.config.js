@@ -121,12 +121,6 @@ export default tseslint.config(
   // graduate off this list as their authored-source debt is cleaned.
   {
     files: [
-      "src/background/config-seeder.ts",
-      "src/background/context-menu-handler.ts",
-      "src/background/csp-fallback.ts",
-      
-      "src/background/handlers/__tests__/token-seeder.test.ts",
-      "src/background/handlers/automation-chain-handler.ts",
       "src/background/handlers/config-auth-handler.ts",
       "src/background/handlers/data-bridge-handler.ts",
       "src/background/handlers/dynamic-require-handler.ts",

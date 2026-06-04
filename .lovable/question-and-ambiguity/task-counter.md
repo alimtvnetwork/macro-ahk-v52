@@ -36,6 +36,7 @@ Timestamps use **Asia/Kuala_Lumpur** per `mem://localization/timezone`.
 | 19 | 2026-06-04 | Save `mem://features/macro-controller/plan-task-ux-20-step` — closed-out 20-step Credit Totals + Macro UX contract (Plan row, right-anchored Task Next, no-autorun guard, Credit Totals colour/sort/drag/filter/CSV/projects rules); add index entry. Deferred Credit Totals E2E content-script harness (option-A scope logged). | [61 — Credit Totals content-script harness](./61-credit-totals-content-script-harness.md) |
 | 20 | 2026-06-04 | Task 0.8 quarantine retirement — graduate 5 files from the id-denylist legacy quarantine: `schema-meta-handler.ts` (`msg`→`message`), `xpath-validation-handler.ts` (`msg`→`request`, inner `msg`→`errorMessage`), `script-info-handler.ts` (`msg`→`request` ×2), `wasm-integrity.ts` (`obj`→`record`), `url-trigger.ts` (`el`→`element`). Removed entries from `eslint.config.js` quarantine list. 9/9 pinned `eslint-rules.test.mjs` still green; id-denylist clean on all 5 files. Cumulative graduations: 14 → 19. | none — direct mechanical rename, no design ambiguity |
 | 21 | 2026-06-04 | Task 0.8 quarantine retirement — graduate next 5 files from the id-denylist legacy quarantine: `allow-swallow-fallbacks.test.ts` (`ReturnType<typeof vi.fn>`→`Mock`), `lovable-dashboard-autoinject.test.ts` (`obj`→`record`), `manifest-seeder-migration.test.ts` (`ReturnType<typeof vi.fn>`→`Mock`, `obj`→`record`), `manifest-seeder-projects.test.ts` (`obj`→`record`), `shortcut-command-handler.test.ts` (`ReturnType<typeof vi.fn>`→`Mock`). Removed entries from `eslint.config.js` quarantine list. Cumulative graduations: 19 → 24. | none — direct mechanical rename, no design ambiguity |
+| 22 | 2026-06-04 | Task 0.8 quarantine retirement — graduate next 5 files from the id-denylist legacy quarantine: `config-seeder.ts` (`obj`→`record`), `context-menu-handler.ts` (`el`→`element` plus submenu helpers to keep max-lines clean), `csp-fallback.ts` (`el`→`element`), `token-seeder.test.ts` (`ReturnType<typeof vi.fn>`→`Mock`), `automation-chain-handler.ts` (`msg`→`request`). Removed entries from `eslint.config.js` quarantine list. Cumulative graduations: 24 → 29. | none — direct mechanical rename, no design ambiguity |
 
 ## Notes
 
@@ -45,4 +46,4 @@ Timestamps use **Asia/Kuala_Lumpur** per `mem://localization/timezone`.
   ambiguities directly to `.lovable/question-and-ambiguity/` but
   did not increment a counter, because no counter file existed
   yet). Subsequent tasks increment from 2.
-- 19 tasks remaining in the window after task 21.
+- 18 tasks remaining in the window after task 22.

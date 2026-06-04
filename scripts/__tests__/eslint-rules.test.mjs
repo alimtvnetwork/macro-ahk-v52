@@ -130,14 +130,14 @@ test('id-denylist reports staged placeholder identifiers in cleaned files', asyn
 test('id-denylist quarantines legacy cb/obj/fn/el/msg/ctx debt without re-allowing val', async () => {
     const legacyMessages = await lintMessages(
         DENYLIST_QUARANTINED,
-        'src/background/config-seeder.ts',
+        'src/background/handlers/config-auth-handler.ts',
         'id-denylist',
     );
     assert.equal(legacyMessages.length, 0);
 
     const valMessages = await lintMessages(
         DENYLIST_STILL_VIOLATING_IN_QUARANTINE,
-        'src/background/config-seeder.ts',
+        'src/background/handlers/config-auth-handler.ts',
         'id-denylist',
     );
     assert.ok(valMessages.some((message) => /val/.test(message.message)));
