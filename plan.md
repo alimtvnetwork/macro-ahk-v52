@@ -29,6 +29,15 @@ in full. Generic, repo-agnostic, supports N extensions via matrix discovery.
 
 **Status**: ✅ CLOSED 2026-06-04 — all 8 phases shipped. Spec is now generic, repo-agnostic, enforced by CI (no-committed-zip gate), and pinned by acceptance tests.
 
+## 🆕 2026-06-04 — Macro-controller content-script harness (Option A)
+
+**Trigger**: `e2e-credit-totals-modal.spec.ts` blocked on `fixme` because the panel is content-script-injected into lovable.dev. Ambiguity logged in `.lovable/question-and-ambiguity/61-credit-totals-content-script-harness.md` — chose Option A (fake-lovable HTML + chrome.* stubs + addScriptTag the IIFE).
+
+**Phases (implement on each `next`):**
+1. ✅ Scaffold: `tests/e2e/fixtures/lovable-shell.html`, `tests/e2e/utils/macro-controller-harness.ts`, `tests/e2e/e2e-macro-controller-harness.spec.ts` (fixme until bundle is built in CI), and `tests/e2e/utils/__tests__/macro-controller-harness.test.mjs` unit guard (4/4 pass). Code-Red missing-bundle error.
+2. Wire `npm run build:macro-controller` into `tests/e2e/global-setup.ts`, then un-fixme the smoke spec.
+3. Replace the pending block in `e2e-credit-totals-modal.spec.ts` with a real flow driven through `mountMacroControllerHarness` (sort → drag → filter → CSV).
+
 ## ✅ Release Page CI/CD Hardening Plan — 8 Steps (CLOSED 2026-06-02)
 
 **Trigger**: User reported that a release tag was created, but the GitHub Release page has no Chrome extension ZIP or other built ZIP assets, and the release-page changelog/notes did not update correctly.
