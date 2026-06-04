@@ -36,12 +36,24 @@ function ws(id: string): WorkspaceCredit {
 }
 
 beforeEach(async () => {
-    fetchSpy.mockClear();
+    const { CreditFetchOutcome } = await import('../credit-balance-update/credit-fetch-outcome');
+    fetchSpy.mockReset();
+    fetchSpy.mockImplementation(async () => ({
+        outcome: CreditFetchOutcome.ApiHit,
+        balance: {
+            totalRemaining: 50, totalGranted: 100,
+            dailyRemaining: 5, dailyLimit: 10,
+            totalBillingPeriodUsed: 50,
+            expiringGrants: [], grantTypeBalances: [],
+        },
+        fetchedAt: Date.now(),
+        sourceUrl: '/workspaces/x/credit-balance',
+        errorDetail: null,
+    }));
     const ctrl = await import('../credit-balance-update/credit-fetch-controller');
     ctrl.__resetCreditFetchControllerForTests();
     const cache = await import('../credit-balance-update/credit-balance-cache');
     cache.clearCreditBalanceUpdateMemoryCache();
-    // Best-effort wipe of any IDB-backed leftovers; ignore in jsdom.
     try { await cache.invalidateCreditBalanceUpdateCache('ws_net_1'); } catch (_e) { /* allow-swallow: jsdom may lack IDB */ }
     try { await cache.invalidateCreditBalanceUpdateCache('ws_net_2'); } catch (_e) { /* allow-swallow: jsdom may lack IDB */ }
 });
