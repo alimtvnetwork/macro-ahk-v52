@@ -99,9 +99,9 @@ function _readUiToPreset(inputs: RenameInputsResult): RenamePreset {
     name: _activePresetName,
     template: inputs.tmplRow.input.value,
     prefix: inputs.prefixRow.input.value,
-    prefixEnabled: inputs.prefixRow.cb ? inputs.prefixRow.cb.checked : false,
+    prefixEnabled: inputs.prefixRow.checkbox ? inputs.prefixRow.checkbox.checked : false,
     suffix: inputs.suffixRow.input.value,
-    suffixEnabled: inputs.suffixRow.cb ? inputs.suffixRow.cb.checked : false,
+    suffixEnabled: inputs.suffixRow.checkbox ? inputs.suffixRow.checkbox.checked : false,
     startDollar: inputs.getStartNums().dollar,
     startHash: inputs.getStartNums().hash,
     startStar: inputs.getStartNums().star,
@@ -115,9 +115,9 @@ function _readUiToPreset(inputs: RenameInputsResult): RenamePreset {
 function _populateUiFromPreset(preset: RenamePreset, inputs: RenameInputsResult): void {
   inputs.tmplRow.input.value = preset.template || '';
   inputs.prefixRow.input.value = preset.prefix || '';
-  if (inputs.prefixRow.cb) { inputs.prefixRow.cb.checked = !!preset.prefixEnabled; }
+  if (inputs.prefixRow.checkbox) { inputs.prefixRow.checkbox.checked = !!preset.prefixEnabled; }
   inputs.suffixRow.input.value = preset.suffix || '';
-  if (inputs.suffixRow.cb) { inputs.suffixRow.cb.checked = !!preset.suffixEnabled; }
+  if (inputs.suffixRow.checkbox) { inputs.suffixRow.checkbox.checked = !!preset.suffixEnabled; }
   if (preset.delayMs > 0) {
     setRenameDelayMs(preset.delayMs);
     const slider = document.querySelector('#ahk-loop-rename-dialog input[type="range"]') as HTMLInputElement | null;
@@ -401,8 +401,8 @@ function _buildRenameInputs(body: HTMLElement, selected: WorkspaceCredit[]): Ren
   const updatePreview = function (): void {
     _detectVarsAndRenderStarts(startNumsContainer, tmplRow, prefixRow, suffixRow, startNums, function () { updatePreview(); });
     const template = tmplRow.input.value;
-    const prefix = prefixRow.cb!.checked ? prefixRow.input.value : '';
-    const suffix = suffixRow.cb!.checked ? suffixRow.input.value : '';
+    const prefix = prefixRow.checkbox!.checked ? prefixRow.input.value : '';
+    const suffix = suffixRow.checkbox!.checked ? suffixRow.input.value : '';
     const starts: Record<string, number> = { ...getStartNums() };
     let html = '';
     for (const [j, ws] of selected.entries()) {
@@ -416,8 +416,8 @@ function _buildRenameInputs(body: HTMLElement, selected: WorkspaceCredit[]): Ren
   tmplRow.input.oninput = updatePreview;
   prefixRow.input.oninput = updatePreview;
   suffixRow.input.oninput = updatePreview;
-  prefixRow.cb!.onchange = updatePreview;
-  suffixRow.cb!.onchange = updatePreview;
+  prefixRow.checkbox!.onchange = updatePreview;
+  suffixRow.checkbox!.onchange = updatePreview;
   updatePreview();
 
   const { etaRow, updateStaticEta } = _appendDelayAndEta(body, selected.length);
@@ -468,8 +468,8 @@ function _detectVarsAndRenderStarts(
   _snapshotStartNumInputsInto(startNums);
 
   const allText = tmplRow.input.value
-    + (prefixRow.cb?.checked ? prefixRow.input.value : '')
-    + (suffixRow.cb?.checked ? suffixRow.input.value : '');
+    + (prefixRow.checkbox?.checked ? prefixRow.input.value : '')
+    + (suffixRow.checkbox?.checked ? suffixRow.input.value : '');
   const hasDollar = /\$+/.test(allText);
   const hasHash = /#+/.test(allText);
   const hasStar = /\*{2,}/.test(allText);
@@ -621,8 +621,8 @@ function _executeRenameApply(
   applyBtn: HTMLElement, stopBtn: HTMLElement, cancelBtn: HTMLElement, etaRow: HTMLElement,
 ): void {
   const template = tmplRow.input.value;
-  const prefix = prefixRow.cb!.checked ? prefixRow.input.value : '';
-  const suffix = suffixRow.cb!.checked ? suffixRow.input.value : '';
+  const prefix = prefixRow.checkbox!.checked ? prefixRow.input.value : '';
+  const suffix = suffixRow.checkbox!.checked ? suffixRow.input.value : '';
   const starts = getStartNums();
   if (!template && !prefix && !suffix) { log('[Rename] Nothing to rename — provide template, prefix, or suffix', 'warn'); return; }
   const entries: Array<{ wsId: string; oldName: string; newName: string }> = [];
