@@ -216,7 +216,7 @@ export function schedulePostParseEnrichment(): void {
       syncCreditStateFromApi();
       mc().updateUI();
     })
-    .catch(function (err: unknown): void {
+    .catch(function (err: CaughtError): void {
       logError(LOG_SCOPE_CREDIT_FETCH, 'ktlo/free/cancelled enrichment failed', err);
     });
 }
