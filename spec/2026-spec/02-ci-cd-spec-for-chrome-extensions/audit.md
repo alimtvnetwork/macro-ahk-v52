@@ -295,6 +295,7 @@ and exits with deterministic codes **10/11/12**. All downstream jobs MUST
 
 ---
 
+<a id="g22-branch-protection-enforced"></a>
 ## Step 14 — G22 ✅ PATCHED 2026-06-04 — Branch protection enforced (not just documented)
 
 **Root cause:** §41.8 previously *described* required branch-protection
