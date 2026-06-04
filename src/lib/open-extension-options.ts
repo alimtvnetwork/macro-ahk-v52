@@ -16,7 +16,7 @@
 
 interface ChromeRuntimeLike {
     id?: string;
-    openOptionsPage?: (cb?: (() => void) | undefined) => void;
+    openOptionsPage?: (callback?: (() => void) | undefined) => void;
     getURL?: (path: string) => string;
 }
 

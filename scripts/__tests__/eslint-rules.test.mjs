@@ -157,6 +157,23 @@ test('id-denylist fully applies to cleaned XPath source files', async () => {
     assert.ok(messages.some((message) => /ctx/.test(message.message)));
 });
 
+test('id-denylist fully applies to newly graduated 0.8 cleanup files', async () => {
+    const cleanedFiles = [
+        'src/lib/open-extension-options.ts',
+        'standalone-scripts/payment-banner-hider/src/globals.d.ts',
+    ];
+
+    for (const filePath of cleanedFiles) {
+        const messages = await lintMessages(DENYLIST_QUARANTINED, filePath, 'id-denylist');
+        assert.ok(messages.some((message) => /cb/.test(message.message)), filePath);
+        assert.ok(messages.some((message) => /obj/.test(message.message)), filePath);
+        assert.ok(messages.some((message) => /\bfn\b/.test(message.message)), filePath);
+        assert.ok(messages.some((message) => /\bel\b/.test(message.message)), filePath);
+        assert.ok(messages.some((message) => /msg/.test(message.message)), filePath);
+        assert.ok(messages.some((message) => /ctx/.test(message.message)), filePath);
+    }
+});
+
 test('id-denylist allows descriptive replacement names', async () => {
     const messages = await lintMessages(
         DENYLIST_COMPLIANT,
