@@ -246,14 +246,14 @@ export async function handleStorageUpdateRow(
     const wheresClauses: string[] = [];
     const params: SqlValue[] = [];
 
-    for (const [col, val] of Object.entries(updates)) {
+    for (const [col, updateValue] of Object.entries(updates)) {
         setClauses.push(`${col} = ?`);
-        params.push(val);
+        params.push(updateValue);
     }
 
-    for (const [col, val] of Object.entries(primaryKey)) {
+    for (const [col, primaryKeyValue] of Object.entries(primaryKey)) {
         wheresClauses.push(`${col} = ?`);
-        params.push(val);
+        params.push(primaryKeyValue);
     }
 
     if (setClauses.length === 0 || wheresClauses.length === 0) {
@@ -284,9 +284,9 @@ export async function handleStorageDeleteRow(
     const wheresClauses: string[] = [];
     const params: SqlValue[] = [];
 
-    for (const [col, val] of Object.entries(primaryKey)) {
+    for (const [col, primaryKeyValue] of Object.entries(primaryKey)) {
         wheresClauses.push(`${col} = ?`);
-        params.push(val);
+        params.push(primaryKeyValue);
     }
 
     if (wheresClauses.length === 0) {
