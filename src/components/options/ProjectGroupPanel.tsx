@@ -599,7 +599,7 @@ export function ProjectGroupPanel({ groups, onRefresh }: ProjectGroupPanelProps)
             Organize projects into groups with shared configuration. {groups.length} group(s).
           </p>
         </div>
-        <Button size="sm" onClick={() => setCreateOpen(true)}>
+        <Button size="sm" onClick={() => setCreateOpen(true)} data-testid="project-group-new-button">
           <Plus className="h-3.5 w-3.5 mr-1" />
           New Group
         </Button>
@@ -622,6 +622,7 @@ export function ProjectGroupPanel({ groups, onRefresh }: ProjectGroupPanelProps)
               key={group.Id}
               className="group relative border-border/60 bg-card/50 hover:bg-card/80 hover:border-primary/30 transition-all duration-200 cursor-pointer hover:shadow-[0_2px_12px_-4px_hsl(var(--primary)/0.15)]"
               onClick={() => setSelectedGroup(group)}
+              data-testid={`project-group-card-${group.Id}`}
             >
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-center gap-2">
