@@ -209,6 +209,9 @@ jobs:
       - name: ESLint pinned file (zero warnings, sonarjs nested-template error)
         run: pnpm run lint:run-summary-types
 
+      - name: Self-test ESLint rule pins
+        run: pnpm run test:eslint-rules
+
   # ════════════════════════════════════════════════════════════
   # Job 0a1: Contract-checker wiring lint — pre-merge guard
   #
