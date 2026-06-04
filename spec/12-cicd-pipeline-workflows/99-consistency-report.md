@@ -37,4 +37,4 @@
 | Date | Version | Action |
 |------|---------|--------|
 | 2026-04-22 | 0.1.0 | Stub created during Phase 2 of spec reorganization |
-| 2026-06-04 | 0.2.0 | Merged Chrome-extension CI/CD spec from misplaced `spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/` into canonical `spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd/` |
+| 2026-06-04 | 0.2.0 | Merged Chrome-extension CI/CD spec from the misplaced dated spec tree into canonical `spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd/` |
