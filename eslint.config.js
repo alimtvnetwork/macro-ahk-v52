@@ -102,6 +102,8 @@ export default tseslint.config(
         "obj",
         "fn",
         "el",
+        "msg",
+        "ctx",
       ],
 
       // --- Function size (matches 25-line standard) ---
@@ -112,8 +114,8 @@ export default tseslint.config(
       }],
     },
   },
-  // ── Staged id-denylist legacy quarantine: cb/obj/fn/el ─────────────
-  // `cb`, `obj`, `fn`, and `el` are now banned globally for new/cleaned
+  // ── Staged id-denylist legacy quarantine: cb/obj/fn/el/msg/ctx ─────
+  // `cb`, `obj`, `fn`, `el`, `msg`, and `ctx` are now banned globally for new/cleaned
   // authored files. The files below carry pre-existing debt and remain on
   // the staged 0.8 backlog; do not add newly-cleaned files here. Files
   // graduate off this list as their authored-source debt is cleaned.

@@ -29,7 +29,9 @@ export function readValue() {
     const obj = { value: cb() };
     const fn = () => obj.value;
     const el = document.body;
-    return fn() + (el ? "" : "");
+    const msg = "message";
+    const ctx = { message: msg };
+    return fn() + ctx.message + (el ? "" : "");
 }
 `;
 
@@ -39,7 +41,9 @@ export function legacyValue() {
     const obj = { value: cb() };
     const fn = () => obj.value;
     const el = document.body;
-    return fn() + (el ? "" : "");
+    const msg = "message";
+    const ctx = { message: msg };
+    return fn() + ctx.message + (el ? "" : "");
 }
 `;
 
@@ -101,9 +105,11 @@ test('id-denylist reports staged placeholder identifiers in cleaned files', asyn
     assert.ok(messages.some((message) => /obj/.test(message.message)));
     assert.ok(messages.some((message) => /\bfn\b/.test(message.message)));
     assert.ok(messages.some((message) => /\bel\b/.test(message.message)));
+    assert.ok(messages.some((message) => /msg/.test(message.message)));
+    assert.ok(messages.some((message) => /ctx/.test(message.message)));
 });
 
-test('id-denylist quarantines legacy cb/obj/fn/el debt without re-allowing val', async () => {
+test('id-denylist quarantines legacy cb/obj/fn/el/msg/ctx debt without re-allowing val', async () => {
     const legacyMessages = await lintMessages(
         DENYLIST_QUARANTINED,
         'src/background/config-seeder.ts',
