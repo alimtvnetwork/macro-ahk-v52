@@ -337,6 +337,7 @@ G1–G23 patches, not just G1–G21.
 
 ---
 
+<a id="g24-secret-preflight-yaml-fix"></a>
 ### Step 16 — G24 ✅ PATCHED 2026-06-04 — Secret preflight sample was not valid GitHub Actions YAML
 
 **Root cause:** the §41.11 sample used `${{ secrets[ s ] }}` inside a bash
