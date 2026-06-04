@@ -708,22 +708,22 @@ export interface ImportOptions {
  * When strict mode is enabled, only PascalCase names are resolved.
  */
 function col(
-  obj: Record<string, SqlValue>,
+  rowObject: Record<string, SqlValue>,
   pascalName: string,
   snakeName: string,
   strict = false,
 ): SqlValue {
-  if (strict) return obj[pascalName];
-  return obj[pascalName] ?? obj[snakeName];
+  if (strict) return rowObject[pascalName];
+  return rowObject[pascalName] ?? rowObject[snakeName];
 }
 
 /** Resolves the runtime UID: prefers Uid column (v4+), falls back to Id column (v3 TEXT PK bundles).
  *  In strict mode only Uid / Id (PascalCase) are consulted; lowercase uid/id fallbacks are skipped. */
-function resolveUid(obj: Record<string, unknown>, strict = false): string {
-  const uid = strict ? obj["Uid"] : (obj["Uid"] ?? obj["uid"]);
+function resolveUid(rowObject: Record<string, unknown>, strict = false): string {
+  const uid = strict ? rowObject["Uid"] : (rowObject["Uid"] ?? rowObject["uid"]);
   if (uid != null && String(uid) !== "") return String(uid);
   // Fallback for v3 bundles where Id was TEXT PK containing the runtime UUID
-  const id = strict ? obj["Id"] : (obj["Id"] ?? obj["id"]);
+  const id = strict ? rowObject["Id"] : (rowObject["Id"] ?? rowObject["id"]);
   return String(id ?? "");
 }
 
@@ -738,11 +738,11 @@ function readDependenciesTable(db: Database): Map<string, Array<{ projectId: str
   if (rows.length === 0 || rows[0].values.length === 0) return out;
   const cols = rows[0].columns;
   for (const row of rows[0].values) {
-    const obj = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
-    const projectUid = String(obj["ProjectUid"] ?? "");
-    const dependsOn = String(obj["DependsOnProjectId"] ?? "");
+    const rowObject = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
+    const projectUid = String(rowObject["ProjectUid"] ?? "");
+    const dependsOn = String(rowObject["DependsOnProjectId"] ?? "");
     if (!projectUid || !dependsOn) continue;
-    const version = obj["Version"] != null ? String(obj["Version"]) : "";
+    const version = rowObject["Version"] != null ? String(rowObject["Version"]) : "";
     const list = out.get(projectUid) ?? [];
     list.push({ projectId: dependsOn, version });
     out.set(projectUid, list);
@@ -761,11 +761,11 @@ function readVariablesTable(db: Database): Map<string, Record<string, unknown>> 
   if (rows.length === 0 || rows[0].values.length === 0) return out;
   const cols = rows[0].columns;
   for (const row of rows[0].values) {
-    const obj = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
-    const projectUid = String(obj["ProjectUid"] ?? "");
-    const name = String(obj["Name"] ?? "");
+    const rowObject = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
+    const projectUid = String(rowObject["ProjectUid"] ?? "");
+    const name = String(rowObject["Name"] ?? "");
     if (!projectUid || !name) continue;
-    const rawValue = obj["Value"];
+    const rawValue = rowObject["Value"];
     let parsed: unknown = null;
     if (rawValue != null) {
       try { parsed = JSON.parse(String(rawValue)); } catch { parsed = String(rawValue); }
@@ -792,17 +792,17 @@ function readProjects(db: Database, strict = false): StoredProject[] {
 
   const cols = rows[0].columns;
   return rows[0].values.map((row: SqlValue[]) => {
-    const obj = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
-    const projectUid = resolveUid(obj, strict);
-    const schemaVersion = (col(obj, "SchemaVersion", "schema_version", strict) as number) ?? 1;
+    const rowObject = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
+    const projectUid = resolveUid(rowObject, strict);
+    const schemaVersion = (col(rowObject, "SchemaVersion", "schema_version", strict) as number) ?? 1;
     // v6 row-table promotion: when SchemaVersion >= 2 AND the rows exist,
     // prefer them over the legacy JSON blob (which is still emitted for
     // backward compatibility with v4/v5 readers).
     const depRows = depsByProject.get(projectUid);
     const dependencies = depRows && schemaVersion >= 2
       ? depRows
-      : safeJsonParse(obj["Dependencies"] as string ?? null, [] as Array<{ projectId: string; version: string }>);
-    const settingsFromBlob = safeJsonParse(col(obj, "Settings", "settings", strict) as string, {} as Record<string, unknown>);
+      : safeJsonParse(rowObject["Dependencies"] as string ?? null, [] as Array<{ projectId: string; version: string }>);
+    const settingsFromBlob = safeJsonParse(col(rowObject, "Settings", "settings", strict) as string, {} as Record<string, unknown>);
     const varRows = varsByProject.get(projectUid);
     const settings = varRows && schemaVersion >= 2
       ? { ...settingsFromBlob, variables: varRows }
@@ -810,21 +810,21 @@ function readProjects(db: Database, strict = false): StoredProject[] {
     return {
       id: projectUid,
       schemaVersion,
-      name: (col(obj, "Name", "name", strict) as string),
-      slug: (obj["Slug"] as string) ?? undefined,
-      version: (col(obj, "Version", "version", strict) as string),
-      description: (col(obj, "Description", "description", strict) as string) ?? undefined,
-      targetUrls: safeJsonParse(col(obj, "TargetUrls", "target_urls", strict) as string, []),
-      scripts: safeJsonParse(col(obj, "Scripts", "scripts", strict) as string, []),
-      configs: safeJsonParse(col(obj, "Configs", "configs", strict) as string, []),
-      cookies: safeJsonParse(obj["Cookies"] as string ?? null, []),
-      cookieRules: safeJsonParse(col(obj, "CookieRules", "cookie_rules", strict) as string, []),
+      name: (col(rowObject, "Name", "name", strict) as string),
+      slug: (rowObject["Slug"] as string) ?? undefined,
+      version: (col(rowObject, "Version", "version", strict) as string),
+      description: (col(rowObject, "Description", "description", strict) as string) ?? undefined,
+      targetUrls: safeJsonParse(col(rowObject, "TargetUrls", "target_urls", strict) as string, []),
+      scripts: safeJsonParse(col(rowObject, "Scripts", "scripts", strict) as string, []),
+      configs: safeJsonParse(col(rowObject, "Configs", "configs", strict) as string, []),
+      cookies: safeJsonParse(rowObject["Cookies"] as string ?? null, []),
+      cookieRules: safeJsonParse(col(rowObject, "CookieRules", "cookie_rules", strict) as string, []),
       dependencies,
       settings,
-      isGlobal: obj["IsGlobal"] === 1,
-      isRemovable: obj["IsRemovable"] == null ? true : obj["IsRemovable"] === 1,
-      createdAt: (col(obj, "CreatedAt", "created_at", strict) as string),
-      updatedAt: (col(obj, "UpdatedAt", "updated_at", strict) as string),
+      isGlobal: rowObject["IsGlobal"] === 1,
+      isRemovable: rowObject["IsRemovable"] == null ? true : rowObject["IsRemovable"] === 1,
+      createdAt: (col(rowObject, "CreatedAt", "created_at", strict) as string),
+      updatedAt: (col(rowObject, "UpdatedAt", "updated_at", strict) as string),
     } as StoredProject;
   });
 }
@@ -840,23 +840,23 @@ function readScripts(db: Database, strict = false): StoredScript[] {
 
   const cols = rows[0].columns;
   return rows[0].values.map((row: SqlValue[]) => {
-    const obj = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
+    const rowObject = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
     return {
-      id: resolveUid(obj, strict),
-      name: (col(obj, "Name", "name", strict) as string),
-      description: (col(obj, "Description", "description", strict) as string) ?? undefined,
-      code: (col(obj, "Code", "code", strict) as string),
-      order: (col(obj, "RunOrder", "run_order", strict) as number) ?? 0,
-      runAt: (col(obj, "RunAt", "run_at", strict) as string) ?? undefined,
-      configBinding: (col(obj, "ConfigBinding", "config_binding", strict) as string) ?? undefined,
-      isIife: col(obj, "IsIife", "is_iife", strict) === 1,
-      hasDomUsage: col(obj, "HasDomUsage", "has_dom_usage", strict) === 1,
+      id: resolveUid(rowObject, strict),
+      name: (col(rowObject, "Name", "name", strict) as string),
+      description: (col(rowObject, "Description", "description", strict) as string) ?? undefined,
+      code: (col(rowObject, "Code", "code", strict) as string),
+      order: (col(rowObject, "RunOrder", "run_order", strict) as number) ?? 0,
+      runAt: (col(rowObject, "RunAt", "run_at", strict) as string) ?? undefined,
+      configBinding: (col(rowObject, "ConfigBinding", "config_binding", strict) as string) ?? undefined,
+      isIife: col(rowObject, "IsIife", "is_iife", strict) === 1,
+      hasDomUsage: col(rowObject, "HasDomUsage", "has_dom_usage", strict) === 1,
       // v5 — auto-update fields. Absent in v4 bundles (returns undefined,
       // which the runtime treats as "auto-update disabled").
-      updateUrl: (obj["UpdateUrl"] as string) ?? undefined,
-      lastUpdateCheck: (obj["LastUpdateCheck"] as string) ?? undefined,
-      createdAt: (col(obj, "CreatedAt", "created_at", strict) as string),
-      updatedAt: (col(obj, "UpdatedAt", "updated_at", strict) as string),
+      updateUrl: (rowObject["UpdateUrl"] as string) ?? undefined,
+      lastUpdateCheck: (rowObject["LastUpdateCheck"] as string) ?? undefined,
+      createdAt: (col(rowObject, "CreatedAt", "created_at", strict) as string),
+      updatedAt: (col(rowObject, "UpdatedAt", "updated_at", strict) as string),
     } as StoredScript;
   });
 }
@@ -872,14 +872,14 @@ function readConfigs(db: Database, strict = false): StoredConfig[] {
 
   const cols = rows[0].columns;
   return rows[0].values.map((row: SqlValue[]) => {
-    const obj = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
+    const rowObject = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
     return {
-      id: resolveUid(obj, strict),
-      name: (col(obj, "Name", "name", strict) as string),
-      description: (col(obj, "Description", "description", strict) as string) ?? undefined,
-      json: (col(obj, "Json", "json", strict) as string),
-      createdAt: (col(obj, "CreatedAt", "created_at", strict) as string),
-      updatedAt: (col(obj, "UpdatedAt", "updated_at", strict) as string),
+      id: resolveUid(rowObject, strict),
+      name: (col(rowObject, "Name", "name", strict) as string),
+      description: (col(rowObject, "Description", "description", strict) as string) ?? undefined,
+      json: (col(rowObject, "Json", "json", strict) as string),
+      createdAt: (col(rowObject, "CreatedAt", "created_at", strict) as string),
+      updatedAt: (col(rowObject, "UpdatedAt", "updated_at", strict) as string),
     } as StoredConfig;
   });
 }
@@ -919,12 +919,12 @@ function readPrompts(db: Database, strict = false): PromptEntry[] {
 
     const cols = rows[0].columns;
     return rows[0].values.map((row: SqlValue[]) => {
-      const obj = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
-      const uid = resolveUid(obj, strict);
+      const rowObject = Object.fromEntries(cols.map((c: SqlValue, i: number) => [c, row[i]]));
+      const uid = resolveUid(rowObject, strict);
       const junctionCats = catsByPromptUid.get(uid);
       // v6 preferred: rebuild comma-separated list from junction.
       // Fallback: pre-v6 Prompts.Category single value.
-      const singularCategory = (col(obj, "Category", "category", strict) as string) ?? undefined;
+      const singularCategory = (col(rowObject, "Category", "category", strict) as string) ?? undefined;
       const category = junctionCats && junctionCats.length > 0
         ? junctionCats.join(", ")
         : singularCategory;
@@ -932,15 +932,15 @@ function readPrompts(db: Database, strict = false): PromptEntry[] {
         id: uid,
         // v5 — Slug column is now actually written. v4 bundles return
         // undefined here, which the Task Next resolver treats as "no slug".
-        slug: (obj["Slug"] as string) ?? undefined,
-        name: (col(obj, "Name", "name", strict) as string),
-        text: (col(obj, "Text", "text", strict) as string),
-        order: (col(obj, "RunOrder", "run_order", strict) as number) ?? 0,
-        isDefault: col(obj, "IsDefault", "is_default", strict) === 1,
-        isFavorite: col(obj, "IsFavorite", "is_favorite", strict) === 1,
+        slug: (rowObject["Slug"] as string) ?? undefined,
+        name: (col(rowObject, "Name", "name", strict) as string),
+        text: (col(rowObject, "Text", "text", strict) as string),
+        order: (col(rowObject, "RunOrder", "run_order", strict) as number) ?? 0,
+        isDefault: col(rowObject, "IsDefault", "is_default", strict) === 1,
+        isFavorite: col(rowObject, "IsFavorite", "is_favorite", strict) === 1,
         category,
-        createdAt: (col(obj, "CreatedAt", "created_at", strict) as string),
-        updatedAt: (col(obj, "UpdatedAt", "updated_at", strict) as string),
+        createdAt: (col(rowObject, "CreatedAt", "created_at", strict) as string),
+        updatedAt: (col(rowObject, "UpdatedAt", "updated_at", strict) as string),
       } as PromptEntry;
     });
   } catch {
