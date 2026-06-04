@@ -147,6 +147,12 @@ export default tseslint.config(
       "src/background/recorder/failure-logger.ts",
       "src/background/injection-diagnostics.ts",
       "src/background/context-menu-handler.ts",
+      "standalone-scripts/macro-controller/src/core/MacroController.ts",
+      "standalone-scripts/macro-controller/src/credit-api.ts",
+      "standalone-scripts/macro-controller/src/error-utils.ts",
+      "standalone-scripts/macro-controller/src/logging.ts",
+      "standalone-scripts/macro-controller/src/queue-control/auto-resume.ts",
+      "standalone-scripts/macro-controller/src/user-gesture-guard.ts",
     ],
     rules: {
       "no-restricted-syntax": "off",
