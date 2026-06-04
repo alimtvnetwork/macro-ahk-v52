@@ -40,6 +40,8 @@ export {
 } from "./ui";
 export type { LogViewerEntry, LogViewerOptions } from "./ui";
 
+export { logLovableStandaloneError } from "./logger";
+
 export {
     RunSummaryScriptCode, RunSummaryRowStatus,
     renderRunSummaryAsJson, renderRunSummaryAsText,
