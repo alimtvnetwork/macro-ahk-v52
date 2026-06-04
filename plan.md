@@ -38,6 +38,9 @@ in full. Generic, repo-agnostic, supports N extensions via matrix discovery.
 2. ✅ Verified `build:macro-controller` already runs in `tests/e2e/global-setup.ts` (line 73 of buildSteps), so the bundle exists before any spec runs. Added `skipBundle` option to the harness, captured `bundleError` instead of swallowing it, and split `e2e-macro-controller-harness.spec.ts` into a passing `skipBundle: true` bootstrap-contract test + a `fixme` bundle-injection test that surfaces real boot errors when un-fixmed.
 3. ✅ Refactored `e2e-credit-totals-modal.spec.ts` to use `mountMacroControllerHarness` for the page half (still `fixme` until the harness shell DOM grows the credit-totals trigger selectors — that's the only remaining gap). `bundleError` asserted non-null so the next iteration sees the real boot failure mode immediately.
 4. ✅ 2026-06-04 — `e2e-credit-totals-modal.spec.ts` un-fixmed and passing (39.5s). Fixes: (a) ambiguous `☰` selector → `getByTitle('More actions')` (two ☰ buttons exist: hamburger + filter-menu); (b) Free chip → Empty chip, because FREE plan rows are excluded from `aggregateCreditTotals` per v3.31.0 contract (`mem://features/macro-controller/credit-totals-exclude-free`), so the table only contains KTLO + CANCELLED — Empty narrows to the single CANCELLED row.
+5. ✅ 2026-06-04 — Bundle-injection smoke is active (not `fixme`) and asserts `#ahk-loop-container` after the production IIFE injects cleanly. Added unit guard coverage for the auth/localStorage + `window.marco` SDK stubs (`authUtils`, `api.credits.fetchWorkspaces`, `api.workspace.markViewed`) so the boot-path harness dependency cannot silently regress.
+
+**Status**: ✅ CLOSED 2026-06-04 — fake-lovable content-script harness, bundle smoke, Credit Totals modal E2E, Chromium fallback fixture, and auth/SDK stub guard are implemented and focused-verified.
 
 ## ✅ Release Page CI/CD Hardening Plan — 8 Steps (CLOSED 2026-06-02)
 
