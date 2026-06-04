@@ -56,9 +56,10 @@ beforeEach(async () => {
     const ctrl = await import('../credit-balance-update/credit-fetch-controller');
     ctrl.__resetCreditFetchControllerForTests();
     const cache = await import('../credit-balance-update/credit-balance-cache');
-    if (typeof (cache as { __resetCreditBalanceUpdateCacheForTests?: () => void }).__resetCreditBalanceUpdateCacheForTests === 'function') {
-        (cache as unknown as { __resetCreditBalanceUpdateCacheForTests: () => void }).__resetCreditBalanceUpdateCacheForTests();
-    }
+    cache.clearCreditBalanceUpdateMemoryCache();
+    // Best-effort wipe of any IDB-backed leftovers; ignore in jsdom.
+    try { await cache.invalidateCreditBalanceUpdateCache('ws_net_1'); } catch (_e) { /* allow-swallow: jsdom may lack IDB */ }
+    try { await cache.invalidateCreditBalanceUpdateCache('ws_net_2'); } catch (_e) { /* allow-swallow: jsdom may lack IDB */ }
 });
 
 describe('credit-balance network-count contract', () => {
