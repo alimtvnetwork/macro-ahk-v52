@@ -1,4 +1,4 @@
-# 02 — CI/CD Spec For Chrome Extensions
+# 02 — Chrome Extension CI/CD
 
 > **Audience:** any AI agent or human engineer given **only this folder + an
 > extension folder**. The goal: produce a working GitHub-Actions release
