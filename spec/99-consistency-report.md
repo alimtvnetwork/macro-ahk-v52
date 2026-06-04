@@ -22,13 +22,14 @@
 | 9 | `09-code-block-system/` | ✅ | ✅ | 🟡 Stub |
 | 10 | `10-research/` | ✅ | ✅ | 🟡 Stub |
 | 11 | `11-powershell-integration/` | ✅ | ✅ | ✅ Compliant |
-| 12 | `12-cicd-pipeline-workflows/` | ✅ | ✅ | 🟡 Stub |
+| 12 | `12-cicd-pipeline-workflows/` | ✅ | ✅ | ✅ Active (indexes 2026 CI/CD spec) |
 | 14 | `14-update/` | ✅ | ✅ | 🟡 Stub |
 | 17 | `17-consolidated-guidelines/` | ✅ | ✅ | 🟡 Stub |
 | 21 | `21-app/` | ✅ | ✅ | ✅ Compliant |
 | 22 | `22-app-issues/` | ✅ | ✅ | ✅ Compliant |
 | 26 | `26-chrome-extension-generic/` | ✅ | ✅ | 🟡 Skeleton (partial author) |
 | 30 | `30-import-export/` | n/a | n/a | 📂 Notes-only |
+| — | `2026-spec/` | (readme) | n/a | ✅ Dated specs |
 | — | `99-archive/` | (readme) | n/a | ✅ Compliant |
 | — | `validation-reports/` | (readme) | n/a | ✅ Populated (4 reports as of 2026-04-22) |
 
@@ -65,7 +66,7 @@
 
 | Reason | Points |
 |--------|--------|
-| Stub folders (`08`, `09`, `10`, `12`, `14`, `17`) lack body content | -2 |
+| Stub folders (`08`, `09`, `10`, `14`, `17`) lack body content | -2 |
 
 **Total:** 98/100
 

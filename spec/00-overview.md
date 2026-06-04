@@ -73,6 +73,7 @@ The numbering convention is:
 
 | Folder | Purpose |
 |--------|---------|
+| [`2026-spec/`](./2026-spec/README.md) | 2026 dated specs, including the canonical Chrome-extension CI/CD spec indexed by `12-cicd-pipeline-workflows/` |
 | [`99-archive/`](./99-archive/readme.md) | Retired content, legacy duplicates, governance history |
 | `validation-reports/` | Automated audit outputs (Phase 10 will populate) |
 

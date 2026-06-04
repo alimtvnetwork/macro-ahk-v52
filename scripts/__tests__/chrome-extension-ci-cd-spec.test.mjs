@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Acceptance tests for "Chrome Extension CI/CD" under
- * spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd.
+ * spec/2026-spec/02-ci-cd-spec-for-chrome-extensions.
  *
  * Verifies §40 criteria 1, 5, 6 (and 3, 4 implicitly) from the spec README
  * without invoking any network, build, or release machinery. Pure file
@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
-const SPEC_DIR = resolve(REPO_ROOT, 'spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd');
+const SPEC_DIR = resolve(REPO_ROOT, 'spec/2026-spec/02-ci-cd-spec-for-chrome-extensions');
 const SPEC_README = resolve(SPEC_DIR, 'README.md');
 const GITIGNORE = resolve(REPO_ROOT, '.gitignore');
 

@@ -216,10 +216,10 @@ Two workflows are mandatory:
 
 ## §7. Target spec location
 
-`./spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd/` (this folder).
-This spec belongs under the canonical CI/CD pipeline module, not under the
-dated `2026-spec` grouping folder. Keep future CI/CD pipeline specs as numbered
-lowercase-hyphen siblings inside `spec/12-cicd-pipeline-workflows/`.
+`./spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/` (this folder).
+This dated 2026 spec folder is the canonical content location for the generic
+Chrome-extension CI/CD spec. The `spec/12-cicd-pipeline-workflows/` module must
+merge it by linking/indexing it, not by moving or duplicating the content.
 
 ## §8. Purpose statement
 
@@ -1092,7 +1092,7 @@ No workflow edits required.
 
 ## §40. Acceptance criteria (binds the whole spec)
 
-1. `./spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd/` exists.
+1. `./spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/` exists.
 2. Spec is generic and repo-agnostic; all paths are relative.
 3. The forty planning steps (§0) are written before the detailed sections.
 4. Download script, install script, and probing feature are documented with

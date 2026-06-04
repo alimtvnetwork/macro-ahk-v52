@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # probe-siblings.sh — generic HEAD-only probe.
 #
-# Spec: spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd/README.md §20
+# Spec: spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/README.md §20
 # Two modes:
 #   1. SIBLING DISCOVERY:  ./probe-siblings.sh siblings <base-url>
 #        → prints the highest-numbered sibling that returns 200

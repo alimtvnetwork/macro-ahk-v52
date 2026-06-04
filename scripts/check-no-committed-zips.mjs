@@ -2,7 +2,7 @@
 /**
  * check-no-committed-zips.mjs
  *
- * Enforces spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd §26:
+ * Enforces spec/2026-spec/02-ci-cd-spec-for-chrome-extensions §26:
  * no extension binary artifacts may be tracked
  * in git. Fails fast (exit 1) listing every offending path.
  *
@@ -30,7 +30,7 @@ const offenders = tracked
   .filter((p) => !ALLOW_PREFIXES.some((pre) => p.startsWith(pre)));
 
 if (offenders.length > 0) {
-  console.error('❌ Committed binary artifacts detected (spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd §26):');
+  console.error('❌ Committed binary artifacts detected (spec/2026-spec/02-ci-cd-spec-for-chrome-extensions §26):');
   for (const p of offenders) console.error('   - ' + p);
   console.error(
     '\nFix: `git rm --cached <path>` and add the pattern to .gitignore.'

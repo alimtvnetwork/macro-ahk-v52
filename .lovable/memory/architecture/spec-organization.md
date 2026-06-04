@@ -3,6 +3,7 @@ Specifications follow a numeric hierarchy: 00-standards (overviews), 01-app-issu
 **Top-level spec roots** (each a self-contained tree, numbered for sort order):
 
 - `spec/2026-spec/01-prompt-spec/` — Prompt-management 2026 spec (renamed 2026-06-03 from `spec/2026-spec/01-prompt-spec/`; children densely renumbered `01..20`, no sparse `1N0-` gaps). See `mem://architecture/prompt-spec-2026-layout` for full layout, rename history, and the `scripts/spec/apply-rename-map.mjs` rewriter.
+- `spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/` — canonical 2026 Chrome-extension CI/CD spec. `spec/12-cicd-pipeline-workflows/` indexes/merges this path; do not relocate the content into `12-cicd-pipeline-workflows/`.
 - `spec/21-app/` — host-app spec (incl. `05-prompts/INDEX.json` for tooling).
 - `spec/22-app-issues/` — issue RCAs.
 - `spec/01-spec-authoring-guide/` — authoring guardrails (incl. `09-exceptions.md` for readme.txt prohibitions SP-1..SP-7).

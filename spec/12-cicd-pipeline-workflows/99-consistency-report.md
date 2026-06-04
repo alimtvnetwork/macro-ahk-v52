@@ -24,8 +24,8 @@
 |---|------|--------|
 | 00 | `00-overview.md` | ✅ Present |
 | 01 | `01-repo-rename-script.md` | ✅ Present |
-| 02 | `02-chrome-extension-ci-cd/README.md` | ✅ Present |
-| 02a | `02-chrome-extension-ci-cd/audit.md` | ✅ Present |
+| 02 | `../2026-spec/02-ci-cd-spec-for-chrome-extensions/README.md` | ✅ Linked canonical spec |
+| 02a | `../2026-spec/02-ci-cd-spec-for-chrome-extensions/audit.md` | ✅ Linked audit |
 | 99 | `99-consistency-report.md` | ✅ Present |
 
 **Total:** 5 files
@@ -37,4 +37,4 @@
 | Date | Version | Action |
 |------|---------|--------|
 | 2026-04-22 | 0.1.0 | Stub created during Phase 2 of spec reorganization |
-| 2026-06-04 | 0.2.0 | Merged Chrome-extension CI/CD spec from the misplaced dated spec tree into canonical `spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd/` |
+| 2026-06-04 | 0.2.0 | Merged Chrome-extension CI/CD spec into this module by indexing the canonical dated folder `spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/` |

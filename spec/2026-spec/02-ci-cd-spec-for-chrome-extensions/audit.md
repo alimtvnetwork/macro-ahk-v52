@@ -1,6 +1,6 @@
 # Gap Analysis — Chrome Extension CI/CD Spec
 
-> Audit of `spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd/README.md`
+> Audit of `spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/README.md`
 > against the bar: **"hand this folder + an extension folder to any AI; it
 > must ship a working release with zero guesswork."**
 >
