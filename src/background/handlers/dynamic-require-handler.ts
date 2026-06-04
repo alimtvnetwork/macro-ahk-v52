@@ -50,8 +50,8 @@ type RequireStatus = "loaded" | "denied" | "error" | "not_found";
 export async function handleDynamicRequire(
     message: MessageRequest,
 ): Promise<{ isOk: boolean; namespace?: string; errorMessage?: string }> {
-    const msg = message as DynamicRequireMessage;
-    const { target, requesterProjectId, tabId } = msg;
+    const request = message as DynamicRequireMessage;
+    const { target, requesterProjectId, tabId } = request;
 
     if (!target || !requesterProjectId || !tabId) {
         logDynamicLoad(requesterProjectId ?? "unknown", target ?? "unknown", "error", "Missing required fields");

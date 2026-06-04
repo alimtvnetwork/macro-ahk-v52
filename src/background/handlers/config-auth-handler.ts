@@ -723,14 +723,14 @@ function extractJwtFromAuthTokenPayload(payload: unknown, depth = 0): string | n
     if (typeof payload === "string") return isLikelyJwt(payload) ? payload : null;
     if (typeof payload !== "object") return null;
 
-    const obj = payload as Record<string, unknown>;
-    const directCandidates = [obj.token, obj.authToken, obj.access_token, obj.jwt, obj.sessionId];
+    const record = payload as Record<string, unknown>;
+    const directCandidates = [record.token, record.authToken, record.access_token, record.jwt, record.sessionId];
     for (const candidate of directCandidates) {
         const token = extractJwtFromAuthTokenPayload(candidate, depth + 1);
         if (token !== null) return token;
     }
 
-    const wrappers = [obj.payload, obj.result, obj.data, obj.response];
+    const wrappers = [record.payload, record.result, record.data, record.response];
     for (const wrapper of wrappers) {
         const token = extractJwtFromAuthTokenPayload(wrapper, depth + 1);
         if (token !== null) return token;

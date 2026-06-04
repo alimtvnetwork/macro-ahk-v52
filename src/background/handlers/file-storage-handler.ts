@@ -32,8 +32,8 @@ let onFilesChanged: ((projectId: string) => void) | null = null;
  * Registers a callback invoked when files change (save/delete).
  * Used by namespace-cache to invalidate without a circular import.
  */
-export function onFileStorageChange(cb: (projectId: string) => void): void {
-    onFilesChanged = cb;
+export function onFileStorageChange(callback: (projectId: string) => void): void {
+    onFilesChanged = callback;
 }
 
 export function bindFileStorageDbManager(manager: DbManager): void {
@@ -59,9 +59,9 @@ export interface FileEntry {
 }
 
 export async function handleFileSave(
-    msg: MessageRequest,
+    request: MessageRequest,
 ): Promise<{ isOk: true; id: string } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & {
+    const raw = request as MessageRequest & {
         projectId?: unknown;
         filename?: unknown;
         mimeType?: unknown;
@@ -90,9 +90,9 @@ export async function handleFileSave(
 }
 
 export async function handleFileGet(
-    msg: MessageRequest,
+    request: MessageRequest,
 ): Promise<{ file: (FileEntry & { dataBase64: string }) | null } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & { fileId?: unknown };
+    const raw = request as MessageRequest & { fileId?: unknown };
     const fileId = requireField(raw.fileId);
     if (!fileId) return missingFieldError("fileId", "file:get");
 
@@ -121,9 +121,9 @@ export async function handleFileGet(
 }
 
 export async function handleFileList(
-    msg: MessageRequest,
+    request: MessageRequest,
 ): Promise<{ files: FileEntry[] } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & { projectId?: unknown };
+    const raw = request as MessageRequest & { projectId?: unknown };
     const projectId = requireProjectId(raw.projectId);
     if (!projectId) return missingFieldError("projectId", "file:list");
 
@@ -149,9 +149,9 @@ export async function handleFileList(
 }
 
 export async function handleFileDelete(
-    msg: MessageRequest,
+    request: MessageRequest,
 ): Promise<{ isOk: true } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & { fileId?: unknown };
+    const raw = request as MessageRequest & { fileId?: unknown };
     const fileId = requireField(raw.fileId);
     if (!fileId) return missingFieldError("fileId", "file:delete");
 

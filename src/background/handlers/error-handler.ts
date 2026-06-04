@@ -110,7 +110,7 @@ function queryUnresolvedErrors(db: ReturnType<typeof getErrorsDb>): SqlRow[] {
 export async function handleUserScriptError(
     message: MessageRequest,
 ): Promise<OkResponse> {
-    const msg = message as MessageRequest & {
+    const request = message as MessageRequest & {
         scriptId: string;
         message: string;
         stack: string;
@@ -118,7 +118,7 @@ export async function handleUserScriptError(
         projectId?: string;
     };
 
-    insertUserScriptError(msg);
+    insertUserScriptError(request);
     dbManager!.markDirty();
     broadcastErrorCountChange();
     return { isOk: true };
@@ -170,7 +170,7 @@ export async function handleClearErrors(): Promise<OkResponse> {
 }
 
 /** Inserts a USER_SCRIPT_ERROR row into the errors table. */
-function insertUserScriptError(msg: {
+function insertUserScriptError(request: {
     scriptId: string;
     message: string;
     stack: string;
@@ -180,17 +180,17 @@ function insertUserScriptError(msg: {
     const db = getErrorsDb();
     const now = new Date().toISOString();
     const version = chrome.runtime.getManifest().version;
-    const codeSnippet = msg.scriptCode?.slice(0, 500) ?? null;
+    const codeSnippet = request.scriptCode?.slice(0, 500) ?? null;
 
     db.run(
         `INSERT INTO Errors (SessionId, Timestamp, Level, Source, Category, ErrorCode, Message, StackTrace, ScriptId, ProjectId, ScriptFile, ExtVersion)
          VALUES ('', ?, 'ERROR', 'user-script', 'INJECTION', 'USER_SCRIPT_ERROR', ?, ?, ?, ?, ?, ?)`,
         [
             now,
-            bindReq(msg.message, "(no message)"),
-            bindOpt(msg.stack),
-            bindReq(msg.scriptId, "unknown"),
-            bindOpt(msg.projectId),
+            bindReq(request.message, "(no message)"),
+            bindOpt(request.stack),
+            bindReq(request.scriptId, "unknown"),
+            bindOpt(request.projectId),
             codeSnippet,
             bindReq(version, "0.0.0"),
         ],
