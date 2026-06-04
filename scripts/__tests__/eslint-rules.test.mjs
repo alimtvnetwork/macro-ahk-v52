@@ -99,9 +99,11 @@ test('id-denylist reports staged placeholder identifiers in cleaned files', asyn
     assert.ok(messages.some((message) => /val/.test(message.message)));
     assert.ok(messages.some((message) => /cb/.test(message.message)));
     assert.ok(messages.some((message) => /obj/.test(message.message)));
+    assert.ok(messages.some((message) => /\bfn\b/.test(message.message)));
+    assert.ok(messages.some((message) => /\bel\b/.test(message.message)));
 });
 
-test('id-denylist quarantines legacy cb and obj debt without re-allowing val', async () => {
+test('id-denylist quarantines legacy cb/obj/fn/el debt without re-allowing val', async () => {
     const legacyMessages = await lintMessages(
         DENYLIST_QUARANTINED,
         'src/background/config-seeder.ts',
