@@ -284,7 +284,7 @@ export const ProjectsListView = forwardRef<HTMLDivElement, Props>(function Proje
         <ToggleGroup
           type="single"
           value={importMode}
-          onValueChange={(val) => { if (val) setImportMode(val as "merge" | "replace"); }}
+          onValueChange={(mode) => { if (mode) setImportMode(mode as "merge" | "replace"); }}
           className="bg-muted/50 border border-border rounded-md p-0.5"
         >
           <ToggleGroupItem value="merge" className="text-xs h-7 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-sm">
