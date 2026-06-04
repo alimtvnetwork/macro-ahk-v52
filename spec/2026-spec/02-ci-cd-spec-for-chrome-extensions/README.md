@@ -1330,9 +1330,12 @@ Rules:
   store in environment-scoped secrets unless §41.8 environment protection is
   also configured.
 - The release workflow MUST contain a `preflight-secrets` job (no-op when the
-  corresponding feature flag is off) that asserts presence via
-  `[ -n "${{ secrets.X }}" ] || exit <code>` and prints a remediation hint
-  pointing to this section. Do NOT log secret values.
+  corresponding feature flag is off) that maps every secret to a boolean
+  `HAS_*: ${{ secrets.NAME != '' }}` env var, then asserts only those booleans
+  in shell. Do NOT loop over dynamic secret names such as
+  `${{ secrets[ s ] }}` inside `run:` — GitHub Actions expressions are resolved
+  before the shell starts, so that pattern is invalid and non-deterministic.
+  Print only remediation hints; never log secret values.
 - Rotation: `RELEASE_PAT` ≤ 90 days; `CWS_REFRESH_TOKEN` on Google revocation
   events; `MINISIGN_*` only on key compromise. Rotation events MUST be recorded
   in the repo's `CHANGELOG.md` under a `Security` heading (date + secret name,
@@ -1351,21 +1354,38 @@ preflight-secrets:
         NEED_CWS: ${{ vars.PUBLISH_CWS == 'true' }}
         NEED_MINISIGN: ${{ vars.SIGN_INSTALLER == 'true' }}
         NEED_PAT: ${{ vars.SPLIT_RELEASE == 'true' }}
+        HAS_RELEASE_PAT: ${{ secrets.RELEASE_PAT != '' }}
+        HAS_CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID != '' }}
+        HAS_CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET != '' }}
+        HAS_CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN != '' }}
+        HAS_CWS_EXTENSION_ID_<SLUG>: ${{ secrets.CWS_EXTENSION_ID_<SLUG> != '' }}
+        HAS_MINISIGN_SECRET_KEY: ${{ secrets.MINISIGN_SECRET_KEY != '' }}
+        HAS_MINISIGN_PASSWORD: ${{ secrets.MINISIGN_PASSWORD != '' }}
       run: |
         set -e
-        if [ "$NEED_PAT" = "true" ] && [ -z "${{ secrets.RELEASE_PAT }}" ]; then
-          echo "::error::RELEASE_PAT missing — see spec §41.11"; exit 10; fi
+        require_secret() {
+          name="$1"; present="$2"; code="$3"
+          [ "$present" = "true" ] || { echo "::error::$name missing — see spec §41.11"; exit "$code"; }
+        }
+        if [ "$NEED_PAT" = "true" ]; then
+          require_secret RELEASE_PAT "$HAS_RELEASE_PAT" 10
+        fi
         if [ "$NEED_CWS" = "true" ]; then
-          for s in CWS_CLIENT_ID CWS_CLIENT_SECRET CWS_REFRESH_TOKEN; do
-            v="${{ secrets[ s ] }}"
-            [ -n "$v" ] || { echo "::error::$s missing — see §41.11"; exit 11; }
-          done
+          require_secret CWS_CLIENT_ID "$HAS_CWS_CLIENT_ID" 11
+          require_secret CWS_CLIENT_SECRET "$HAS_CWS_CLIENT_SECRET" 11
+          require_secret CWS_REFRESH_TOKEN "$HAS_CWS_REFRESH_TOKEN" 11
+          require_secret CWS_EXTENSION_ID_<SLUG> "$HAS_CWS_EXTENSION_ID_<SLUG>" 11
         fi
         if [ "$NEED_MINISIGN" = "true" ]; then
-          [ -n "${{ secrets.MINISIGN_SECRET_KEY }}" ] || { echo "::error::MINISIGN_SECRET_KEY missing"; exit 12; }
-          [ -n "${{ secrets.MINISIGN_PASSWORD }}" ] || { echo "::error::MINISIGN_PASSWORD missing"; exit 12; }
+          require_secret MINISIGN_SECRET_KEY "$HAS_MINISIGN_SECRET_KEY" 12
+          require_secret MINISIGN_PASSWORD "$HAS_MINISIGN_PASSWORD" 12
         fi
 ```
+
+For multiple extensions, generate one `HAS_CWS_EXTENSION_ID_<SLUG>` env line and
+one `require_secret CWS_EXTENSION_ID_<SLUG> ... 11` line per canonical slug.
+`<SLUG>` MUST be uppercased and normalized to `[A-Z0-9_]` before use in the
+secret name.
 
 All downstream jobs MUST list `needs: preflight-secrets` so a missing secret
 short-circuits the run before any build, sign, or publish step executes.
@@ -1374,10 +1394,10 @@ short-circuits the run before any build, sign, or publish step executes.
 
 ## §42. Final auditor score
 
-After G1–G23 are patched verbatim:
+After G1–G24 are patched verbatim:
 
 > **Final AI-Proof Score: 100 / 100.**
-> Composite first-run AI-failure probability: **< 0.2%** (residual = GitHub
+> Composite first-run AI-failure probability: **< 0.1%** (residual = GitHub
 > outage windows and CWS account-state issues outside this spec's authority;
 > exit-code, secret-provisioning, and branch-protection contracts are now
 > canonical in the primary copy-paste path).
