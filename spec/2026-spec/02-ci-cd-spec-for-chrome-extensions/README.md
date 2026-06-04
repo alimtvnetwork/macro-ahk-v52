@@ -525,8 +525,9 @@ SilentlyContinue` outside `finally` cleanup — fail fast per §-no-retry policy
 Self-test in CI: `pwsh -File scripts/install.ps1 -Version v0.0.0-test -Ext demo`
 in a `windows-latest` matrix leg of `ci.yml` to catch parser/TLS regressions.
 
+## §20. Probing feature (full example)
 
-
+```bash
 
 ```bash
 # probe-siblings.sh — find the highest-numbered sibling repo (project-v2, -v3 …)
