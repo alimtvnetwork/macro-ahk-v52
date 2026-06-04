@@ -1,22 +1,94 @@
-# Step 21 — Indexeddb When To Choose
+# Step 21 — IndexedDB When To Choose
 
-> **Status:** stub. Expanded in the next `next 2` pass.
-
-Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./README.md) — see [`01-forty-planning-steps.md`](./01-forty-planning-steps.md) for the full ordered outline.
+Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./README.md).
 
 ## Goal
 
-_To be written._ This step covers: **Indexeddb When To Choose**.
+Define the **exact decision rule** for when to reach for IndexedDB instead of SQLite (Steps 09–20), `chrome.storage.local` (Steps 25–26), or `localStorage` (Step 27), so the four-tier matrix from Step 02 is enforced consistently.
 
-## Scope checklist (what the expanded version must contain)
+## Root cause this prevents
 
-- [ ] Goal — one-sentence summary.
-- [ ] Required packages and exact file paths.
-- [ ] Copy-pasteable TypeScript / config sample.
-- [ ] Error model — error type, logger tag, user-visible surface.
-- [ ] Acceptance — testable conditions.
-- [ ] Cross-references to neighbouring steps.
+The recurring failure mode is **storage-tier sprawl**: feature code defaults to whichever API the author touched last, leading to bytes-shaped data in `chrome.storage.local` (quota blowups), structured query data in `localStorage` (no indexes, JSON re-parse cost), and ephemeral caches in SQLite (forced flushes that compete with real writes). This step pins down the IndexedDB lane so the other tiers do not get misused.
 
-## Open questions for the implementer AI
+## Decision rule
 
-_None recorded yet._
+Pick IndexedDB **only** when **all** of the following are true:
+
+1. The data is **page-side / content-script side** state that the MV3 service worker should not own.
+2. The payload is either **opaque bytes** (script chunks, compiled WASM cache, ZIP blobs) or **structured records ≥ 64 KiB** that would push `chrome.storage.local` toward its 10 MiB cap.
+3. Access is **per-origin** and does not need to be shared with the background SW.
+4. The data is a **rebuildable cache or a per-tab session**, never the source of truth.
+
+If any rule fails, route the data elsewhere:
+
+| If… | Use instead |
+|---|---|
+| Source of truth shared across tabs | SQLite via background DB (Steps 10–14) |
+| Small key/value, < 8 KiB, shared with SW | `chrome.storage.local` (Step 25) |
+| Tiny per-tab UI flag, synchronous read OK | `localStorage` (Step 27) |
+| Tabular, multi-row, needs SQL joins | SQLite (Steps 11–20) |
+
+## Allowed IndexedDB use cases (canonical list)
+
+- **Injection cache** — compiled / fetched script bundles keyed by build hash (Step 23).
+- **Prompt dual-cache** — `JsonCopy` + `HtmlCopy` blobs per prompt (see memory: `mem://features/prompt-management`).
+- **Backup ZIP staging** — temporary bytes during export when payload may exceed `chrome.storage.local` quota.
+- **Diagnostic log overflow** — only when SQLite logging table (Step 35) is at its retention cap.
+
+Anything not on this list MUST be discussed before adding a new object store.
+
+## Required files
+
+- `src/shared/storage-tier.ts` — exported helper `pickStorageTier(payload, intent)` returning the chosen tier name.
+- `src/shared/storage-tier.test.ts` — unit tests covering the decision matrix.
+- `src/background/idb/idb-policy.ts` — re-exports `pickStorageTier` for background callers; throws if SQLite-eligible data is routed to IDB.
+
+## Copy-pasteable TypeScript sample
+
+```ts
+export type StorageTier = "sqlite" | "indexeddb" | "chrome-storage-local" | "localstorage";
+
+export type StoragePayloadHint = {
+  readonly ApproxByteLength: number;
+  readonly IsOpaqueBytes: boolean;
+  readonly IsSourceOfTruth: boolean;
+  readonly NeedsCrossContextShare: boolean;
+  readonly NeedsSqlQueries: boolean;
+  readonly Scope: "Background" | "ContentScript" | "PerTab";
+};
+
+export function pickStorageTier(hint: StoragePayloadHint): StorageTier {
+  if (hint.NeedsSqlQueries || hint.IsSourceOfTruth) return "sqlite";
+  if (hint.Scope === "PerTab" && hint.ApproxByteLength < 4_096) return "localstorage";
+  if (hint.IsOpaqueBytes || hint.ApproxByteLength >= 64 * 1024) return "indexeddb";
+  if (hint.NeedsCrossContextShare && hint.ApproxByteLength < 8 * 1024) return "chrome-storage-local";
+  return "indexeddb";
+}
+```
+
+The function is **pure** and synchronous so it can be unit-tested without a browser environment.
+
+## Error model
+
+| Failure | Logger tag | User-visible surface | Recovery |
+|---|---|---|---|
+| Caller passes SQLite-eligible data to IDB wrapper | `[idb-policy] tier mismatch` Code-Red | Errors panel row naming the call site | Throw immediately; do not silently write to IDB |
+| Payload `ApproxByteLength` is `NaN` or negative | `[storage-tier] invalid hint` Code-Red | None (developer-only) | Throw; bug in caller |
+| Tier function called from inside SQLite migration | `[storage-tier] called from migration` warning | None | Migrations must never branch on tier; refactor caller |
+
+All hard failures MUST include `Path`, `Missing`, `Reason`, and `ReasonDetail` per `mem://standards/error-logging-requirements.md`.
+
+## Acceptance
+
+- [ ] `pickStorageTier()` has unit tests for every row in the decision rule.
+- [ ] `rg "indexedDB\.open\(" src/` returns only call sites inside `src/**/idb/**` files.
+- [ ] No IndexedDB call site stores a value that is also tracked as SQLite source-of-truth.
+- [ ] `idb-policy.ts` throws Code-Red when `pickStorageTier()` would return `"sqlite"`.
+- [ ] Step 02 decision matrix and this step agree on every cell (cross-checked in review).
+
+## See also
+
+- [step-02](./step-02-four-tier-storage-decision-matrix.md) — Master four-tier matrix
+- [step-22](./step-22-indexeddb-wrapper-pattern.md) — Wrapper implementation
+- [step-23](./step-23-indexeddb-injection-cache.md) — Canonical IDB consumer
+- [step-25](./step-25-chrome-storage-local-usage.md) — When `chrome.storage.local` wins instead
