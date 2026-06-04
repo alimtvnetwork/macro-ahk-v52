@@ -50,6 +50,7 @@ import { installSpaRouteGuard } from './spa-route-guard';
 import { MAX_SDK_ATTEMPTS, SDK_RETRY_DELAY_MS, MAX_UI_CREATE_RETRIES, STARTUP_WS_MAX_RETRIES } from './constants';
 import { Label } from './types';
 import { loadSettingsOverrides, onSettingsChange } from './settings-store';
+import { setTimeoutMs as setCreditFetchTimeoutMs, subscribeCreditFetchSettings } from './credit-balance-update/credit-fetch-controller';
 import { hydrateCreditBalanceFromCache } from './credit-balance/hydrate';
 import { initMacroDb, saveProjectMetadata } from './db/macro-db';
 import { setupPromptCapture } from './ui/prompt-utils';
