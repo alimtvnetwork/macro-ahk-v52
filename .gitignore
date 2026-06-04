@@ -86,6 +86,8 @@ marco-script-ahk-v4/logs/
 # Archives / binaries (optional but typically safe to ignore)
 # =============================================================================
 *.zip
+*.crx
+*.xpi
 *.tar
 *.tar.gz
 *.tgz
