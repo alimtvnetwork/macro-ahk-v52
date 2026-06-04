@@ -653,7 +653,8 @@ See that folder's `README.md` for the index.
 60. ✅ Phase B closed 2026-06-04. Credit Balance Update shipped in v3.50.0.
 
 ### Remaining items
-1. Pending — wire real Ktlo/Free/Cancelled fixtures so the 3 `fixme` Playwright skeletons can run un-skipped (tracked in `.lovable/question-and-ambiguity/`).
-2. Pending — Plan Task UX (`.lovable/plans/credit-totals-and-macro-ux-20-step.md`).
+1. Pending — wire real Ktlo/Free/Cancelled fixtures so the 4 `fixme` Playwright skeletons (3 credit-balance + 1 credit-totals modal) can run un-skipped (tracked in `.lovable/question-and-ambiguity/`).
+2. ✅ Closed v3.51.0 — Plan Task UX 20-step plan (`.lovable/plans/credit-totals-and-macro-ux-20-step.md`).
 3. Pending — Release installer hardening v0.2 (blocked on `MINISIGN_SECRET_KEY`).
+
 
