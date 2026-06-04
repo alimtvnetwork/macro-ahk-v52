@@ -24,6 +24,7 @@ import { CREDIT_API_BASE, loopCreditState } from './shared-state';
 import { parseLoopApiResponse, syncCreditStateFromApi, applyProZeroEnrichment, applyProOneEnrichment } from './credit-parser';
 import { logError } from './error-utils';
 import { ApiPath } from './types';
+import { enrichCreditBalanceUpdateWorkspaces } from './credit-balance-update/enrichment';
 
 const LOG_SCOPE_CREDIT_FETCH = 'credit-fetch';
 const CREDIT_FETCH_ASYNC_SCOPE = 'credit-fetch-async';
@@ -207,6 +208,16 @@ export function schedulePostParseEnrichment(): void {
     })
     .catch(function (err: unknown): void {
       logError(LOG_SCOPE_CREDIT_FETCH, 'pro_1 enrichment failed', err);
+    });
+
+  enrichCreditBalanceUpdateWorkspaces(loopCreditState.perWorkspace)
+    .then(function (mutated: number): void {
+      if (mutated === 0) return;
+      syncCreditStateFromApi();
+      mc().updateUI();
+    })
+    .catch(function (err: unknown): void {
+      logError(LOG_SCOPE_CREDIT_FETCH, 'ktlo/free/cancelled enrichment failed', err);
     });
 }
 
