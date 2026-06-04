@@ -48,6 +48,22 @@ function resolveExtensionPath(): string {
 
 const EXTENSION_PATH = resolveExtensionPath();
 
+const SYSTEM_CHROMIUM_CANDIDATES = [
+  '/bin/chromium',
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+  '/usr/bin/google-chrome',
+  '/usr/bin/google-chrome-stable',
+];
+
+function resolveChromiumExecutablePath(): string | undefined {
+  for (const candidate of SYSTEM_CHROMIUM_CANDIDATES) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+
+  return undefined;
+}
+
 // ─── Manifest-Driven Page Paths ──────────────────────────────────────
 //
 // popup / options HTML paths are declared in the built manifest. Reading them
@@ -92,6 +108,8 @@ export async function launchExtension(
   }
   return browserType.launchPersistentContext('', {
     headless: true,
+    executablePath: resolveChromiumExecutablePath(),
+    acceptDownloads: true,
     args: [
       `--disable-extensions-except=${EXTENSION_PATH}`,
       `--load-extension=${EXTENSION_PATH}`,
