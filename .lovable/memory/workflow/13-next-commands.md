@@ -48,6 +48,7 @@ Trigger phrases the user may type to query this file:
 - [x] **Priority 4 — Cross-Project Sync Chrome E2E pass** — 2026-06-04, added executable `tests/e2e/e2e-24-cross-project-sync.spec.ts` and wired it into CI + the Chrome verification gate.
 - [x] **Priority 0.8 — `val` id-denylist pass** — 2026-06-04, cleaned authored-source `val` identifier debt and pinned the ESLint rule with `scripts/__tests__/eslint-rules.test.mjs`.
 - [x] **Priority 0.8 — `cb`/`obj` id-denylist enforcement pass** — 2026-06-04, renamed cleaned-file shorthand in recorder sync, SQLite bundle import, and bulk rename inputs; globally banned `cb`/`obj` for new/cleaned files while explicitly quarantining remaining legacy debt.
+- [x] **Priority 0.8 — `fn`/`el` id-denylist enforcement pass** — 2026-06-04, added `fn` and `el` to the global `id-denylist`, merged the legacy quarantine block to cover all pre-existing fn/el debt files (authored src, standalone-scripts, tests, e2e specs, helper mjs scripts), and extended `scripts/__tests__/eslint-rules.test.mjs` so the quarantine + global ban + descriptive-name acceptance are pinned by the regression suite. Verified `npx eslint .` reports 0 `id-denylist` `(fn|el)` violations.
 
 ## P2 — Spec / Owner Pending
 
