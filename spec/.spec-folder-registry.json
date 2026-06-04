@@ -2,7 +2,7 @@
   "$schema": "./.spec-folder-registry.schema.json",
   "version": "1.0.0",
   "purpose": "Authoritative list of spec/ subfolders that must always exist. Used by scripts/spec-folder-guard.mjs to detect/repair auto-cleanup damage.",
-  "lastVerified": "2026-04-22",
+  "lastVerified": "2026-06-04",
   "policy": {
     "sentinelFile": ".lovable-keep",
     "atRiskDefinition": "Any directory inside spec/ that contains zero direct files (only subdirectories or empty). Sentinels prevent these from being treated as empty.",
@@ -69,8 +69,13 @@
     },
     {
       "path": "spec/12-cicd-pipeline-workflows",
-      "kind": "core-stub",
+      "kind": "core",
       "mustHaveOverview": true
+    },
+    {
+      "path": "spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd",
+      "kind": "core-leaf",
+      "mustHaveOverview": false
     },
     {
       "path": "spec/14-update",
