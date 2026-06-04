@@ -979,8 +979,8 @@ class WsDropdownState {
     return this.hash;
   }
 
-  setHash(val: string): void {
-    this.hash = val;
+  setHash(nextHash: string): void {
+    this.hash = nextHash;
   }
 
   invalidate(): void {
