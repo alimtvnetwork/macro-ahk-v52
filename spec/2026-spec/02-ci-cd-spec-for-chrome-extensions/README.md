@@ -310,6 +310,30 @@ Use `softprops/action-gh-release@v2`:
   `${PREV_TAG}..${VER}` git range. **Exclude** the current tag from the
   candidate list when picking `PREV_TAG`, otherwise the range is empty.
 
+Deterministic `PREV_TAG` rule (copy exactly; `VER` is the tag name with the
+leading `v`, e.g. `v3.49.1`):
+
+```bash
+VER="v${VERSION#v}"
+PREV_TAG=$(git tag --list 'v*' --sort=-v:refname | grep -vFx "$VER" | head -1 || true)
+
+if [[ -n "$PREV_TAG" ]]; then
+  RANGE="$PREV_TAG..$VER"
+else
+  FIRST_COMMIT=$(git rev-list --max-parents=0 "$VER" | tail -1)
+  RANGE="$FIRST_COMMIT..$VER"
+fi
+
+{
+  echo "# Release $VER"
+  echo
+  git log --no-merges --format='- %s (%h)' "$RANGE"
+} > release-assets/RELEASE_NOTES.md
+```
+
+Never use `git describe --tags --abbrev=0` after creating the current tag: it
+usually returns the current tag, producing an empty release-note range.
+
 ## §17. Scripts on the release page
 
 Always upload, in addition to the ZIPs:
