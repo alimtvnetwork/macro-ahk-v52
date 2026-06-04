@@ -177,3 +177,21 @@ CI workflow only needs `contents: read`.
 | `actions/upload-artifact` | v4 |
 | `actions/download-artifact` | v4 |
 | `softprops/action-gh-release` | v2 |
+
+## Companion Workflows
+
+`release.yml` does not run alone — these companion workflows enforce
+governance, recovery, and reporting around the release path. Treat the
+combined set as the canonical "release DAG"; any addition or removal here
+MUST be reflected in this table (and is enforced by
+`scripts/__tests__/pipeline-docs-vs-ci.test.mjs`).
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `audit-releases.yml` | schedule + dispatch | Audits published releases for missing/zero-byte assets |
+| `quality-badges.yml` | push to main | Regenerates README quality / coverage badges |
+| `readonly-paths-guard.yml` | pull_request | Blocks edits to `skipped/` and `.release/` |
+| `spec-gates.yml` | pull_request | Enforces spec link checks and structural gates |
+| `spec-governance-quarterly.yml` | schedule | Quarterly spec drift / governance review |
+| `ping.yml` | push | Canary that proves unfiltered `on: push` still fires |
+
