@@ -139,6 +139,13 @@ function sanitize(raw: unknown): SettingsOverrides {
     }
   });
 
+  // creditFetchDelayMs — clamped to [500, 15000] per spec 06-settings-slider.md.
+  const cfd = r.creditFetchDelayMs;
+  if (typeof cfd === 'number' && Number.isFinite(cfd)) {
+    const clamped = Math.max(500, Math.min(15000, Math.floor(cfd)));
+    out.creditFetchDelayMs = clamped;
+  }
+
   const booleanFields: Array<keyof SettingsOverrides> = [
     'enableCanceledCreditOverride',
     'enableWorkspaceStatusLabels',
