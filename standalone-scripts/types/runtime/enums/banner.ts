@@ -39,6 +39,7 @@ export const enum BannerEventName {
 export const enum BannerLogFn {
     Check = "PaymentBannerHider.check",
     Hide = "PaymentBannerHider.hide",
+    SmokeTest = "PaymentBannerHider.smokeTest",
     StartObserver = "PaymentBannerHider.startObserver",
     StopObserver = "PaymentBannerHider.stopObserver",
 }
