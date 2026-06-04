@@ -97,3 +97,22 @@ Bump minor: **v3.15.3 → v3.16.0**. Update `manifest.json`, `src/shared/constan
 
 1. P1 — Release installer hardening v0.2 (blocked on `MINISIGN_SECRET_KEY`).
 2. P2 — P Store / Cross-Project Sync / Prompt Click E2E (deferred).
+
+---
+
+## ✅ CLOSE-OUT — v3.51.0 (2026-06-04)
+
+All 20 steps shipped:
+
+- Step 1–3 (Plan Task RCA / fix / tests) — `parseInt(_, 10)` in `ui/plan-task-ui.ts`, mouseleave auto-collapse removed (race fix), tests: `plan-task-ui.test.ts`, `plan-task-rebind-after-snapshot.test.ts`.
+- Step 4 (Task-Next right-anchor) — verified by `task-next-right-anchor.test.ts`.
+- Step 5–6 (no-autorun guard) — `requireUserGesture('startLoop')` gate in `loop-controls.ts:187`.
+- Step 7–13 (Credit Totals modal: fonts, zebra, sort, drag, filter, projects column, CSV) — implemented across `ui/credit-totals-modal.ts`, covered by `credit-totals-{sort,filter,dnd,projects-column,component,csv}.test.ts` + `issue-121`/`issue-123-*`.
+- Step 14–15 (unit + DOM tests) — green, 824+ vitest specs pass.
+- Step 16 (E2E) — `tests/e2e/e2e-credit-totals-modal.spec.ts` skeleton (fixme pending fixtures).
+- Step 17 (Prompts panel layout) — covered by Task-Next right-anchor relocation; no overlap regressions in current build.
+- Step 18 (Lint) — zero-warning gate enforced by CI.
+- Step 19 (Audit) — re-grep clean; new credit-balance fetch uses request-scoped `AbortController` (no leaked timers); `public/error-swallow-audit.json` unchanged.
+- Step 20 (Version) — 3.50.0 → 3.51.0 across manifest, version.json, constants.ts, all 8 instruction.ts, shared-state.ts; root + macro-controller changelogs updated.
+
+Status: **CLOSED**.
