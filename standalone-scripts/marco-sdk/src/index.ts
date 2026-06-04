@@ -71,7 +71,11 @@ registerSdkSelfNamespace(marco, "2.169.0");
 try {
     runSdkSelfTest("2.169.0");
 } catch (err) {
-    console.error("[marco-sdk] self-test threw unexpectedly", err);
+    NamespaceLogger.error(
+        "index",
+        "SDK self-test threw unexpectedly. Path: standalone-scripts/marco-sdk/src/index.ts. Missing: Passing SDK self-test. Reason: runSdkSelfTest threw.",
+        err,
+    );
 }
 
 

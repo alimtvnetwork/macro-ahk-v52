@@ -95,8 +95,12 @@ client.interceptors.response.use(
                     config.__retryCount = 1;
                     return client(config);
                 }
-            } catch {
-                console.error(`[marco-sdk:http] Token refresh failed\n  Path: marco_bearer_token refresh via cookie/localStorage\n  Missing: Valid JWT for re-authentication\n  Reason: Refresh attempt threw — user may need to re-authenticate`);
+            } catch (err) {
+                NamespaceLogger.error(
+                    "http",
+                    "Token refresh failed. Path: marco_bearer_token refresh via cookie/localStorage. Missing: Valid JWT for re-authentication. Reason: Refresh attempt threw — user may need to re-authenticate",
+                    err,
+                );
             }
         }
 
