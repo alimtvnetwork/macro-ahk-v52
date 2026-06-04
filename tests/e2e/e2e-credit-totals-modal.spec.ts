@@ -50,7 +50,7 @@ test.describe('Credit Totals modal — sort → drag → filter → CSV export r
             await page.getByText('💰 Credits').click();
             await expect.poll(() => creditStub.counts.userWorkspaces, { timeout: 20_000 }).toBeGreaterThan(0);
 
-            await page.getByText('☰').click();
+            await page.getByTitle('More actions').click();
             await page.getByText('Credit Totals').click();
             const modal = page.locator('#marco-credit-totals-modal');
             await expect(modal).toBeVisible();
