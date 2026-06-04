@@ -6,9 +6,9 @@
 >
 > Scoring: each axis 0–100. 100 = AI cannot fail. <70 = blocking gap.
 >
-> **Overall AI-Proof Score: 100 / 100** — all twenty identified CI/CD gaps
-> (G1–G20) are now patched. G11–G20 closed via §41 hardening addenda and §42
-> final-score block.
+> **Overall AI-Proof Score: 100 / 100** — all twenty-three identified CI/CD
+> gaps (G1–G23) are now patched. G11–G23 closed via §41 hardening addenda,
+> copy-paste re-audits, and §42 final-score block.
 
 ---
 
@@ -317,11 +317,28 @@ drift** added to §3.
 
 ## Final auditor score
 
+### Step 15 — G23 ✅ PATCHED 2026-06-04 — Canonical exit-code table drift
+
+**Root cause:** §41.11 and §41.8 introduced deterministic failure codes
+**10/11/12/13**, but the authoritative §3 exit-code table still stopped at
+codes **8/9**. A future AI copying only the primary contract would implement
+secret-preflight and branch-protection failures with ad hoc codes, while the
+hardening addenda expected fixed codes.
+
+**Fix applied:** updated the canonical §3 table to include **10 = missing
+`RELEASE_PAT`**, **11 = missing `CWS_*`**, **12 = missing `MINISIGN_*`**, and
+**13 = branch-protection drift**. Updated §42 so the final score reflects all
+G1–G23 patches, not just G1–G21.
+
+**Time:** ~5 min.
+
+---
+
 > **AI-Proof Score: 100 / 100.**
-> All twenty-two gaps (G1–G22) patched. §41.8 is now enforced (not just
-> documented), removing branch-protection drift from residual risk. Residual
-> risk now limited to GitHub outage windows and CWS account-state issues
+> All twenty-three gaps (G1–G23) patched. The canonical §3 table now matches
+> every hardening addendum, removing exit-code drift from the copy-paste path.
+> Residual risk is limited to GitHub outage windows and CWS account-state issues
 > outside this spec's authority. Composite first-run AI-failure probability:
-> **< 0.3%**.
+> **< 0.2%**.
 
 

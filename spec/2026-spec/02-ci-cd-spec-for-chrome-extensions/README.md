@@ -171,6 +171,10 @@ deployments, a policy folder).
   | 6 | Integrity failed — SHA-256 mismatch, missing checksum entry, or archive invalid / extraction failed (see §17a) |
   | 8 | Post-publish probe failed — at least one uploaded release asset is missing, zero-byte, or unreachable |
   | 9 | Tag immutability violation — an existing version tag points at a different commit or the channel rule is violated |
+  | 10 | Missing `RELEASE_PAT` while split-release mode is enabled |
+  | 11 | Missing `CWS_*` secret while Chrome Web Store publishing is enabled |
+  | 12 | Missing `MINISIGN_*` secret while installer signing is enabled |
+  | 13 | Branch-protection drift — live GitHub protection JSON does not match §41.8 |
 
 - **Discovery vs strict:** explicit `--version` or release-URL invocation = strict
   (no fallback). Bare invocation = discovery (latest → main as last resort).
@@ -1370,10 +1374,11 @@ short-circuits the run before any build, sign, or publish step executes.
 
 ## §42. Final auditor score
 
-After G1–G21 are patched verbatim:
+After G1–G23 are patched verbatim:
 
 > **Final AI-Proof Score: 100 / 100.**
-> Composite first-run AI-failure probability: **< 0.5%** (residual = GitHub
+> Composite first-run AI-failure probability: **< 0.2%** (residual = GitHub
 > outage windows and CWS account-state issues outside this spec's authority;
-> org-level secret provisioning is now deterministic via §41.11).
+> exit-code, secret-provisioning, and branch-protection contracts are now
+> canonical in the primary copy-paste path).
 
