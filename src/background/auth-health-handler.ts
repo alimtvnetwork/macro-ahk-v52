@@ -236,11 +236,11 @@ export async function buildAuthHealthResponse(): Promise<AuthHealthResponse> {
 async function timedStrategy(
     name: string,
     tier: number,
-    fn: () => Promise<{ success: boolean; detail: string }>,
+    strategyRunner: () => Promise<{ success: boolean; detail: string }>,
 ): Promise<AuthStrategyResult> {
     const t0 = performance.now();
     try {
-        const result = await fn();
+        const result = await strategyRunner();
         return {
             name,
             tier,
