@@ -1,6 +1,6 @@
 ---
 name: chrome-extension-ci-cd-spec
-description: Generic 40-step Chrome-extension CI/CD spec (spec/12-cicd-pipeline-workflows/02) — repo-agnostic, matrix-discovers Manifest V3 folders, forbids committed ZIPs
+description: Generic 40-step Chrome-extension CI/CD spec (spec/2026-spec/02-ci-cd-spec-for-chrome-extensions) — repo-agnostic, matrix-discovers Manifest V3 folders, forbids committed ZIPs
 type: reference
 ---
 
@@ -10,7 +10,7 @@ Updated: 2026-06-04
 Authoritative generic spec for wiring a Chrome-extension CI/CD pipeline in any
 repo from just an extension folder.
 
-📄 `spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd/README.md`
+📄 `spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/README.md`
 
 ## Non-negotiables (mirror to any new repo)
 
@@ -31,5 +31,5 @@ repo from just an extension folder.
 ## Local-repo phases (in plan.md, executed on each `next`)
 
 `.gitignore` enforcement → CI no-zip gate → generic `download-extension.sh` →
-`probe-siblings.sh` → `enumerate-extensions.mjs` → cicd-index link → spec
-acceptance test → this memory entry.
+`probe-siblings.sh` → `enumerate-extensions.mjs` → cicd-index link → 12-CI/CD
+module index merge → spec acceptance test → this memory entry.
