@@ -133,10 +133,17 @@ Downstream jobs download these artifacts into the same relative paths before bui
 
 Artifacts have a 1-day retention — they are ephemeral build intermediates only.
 
+## Test Runner
 
-- Vitest with `vitest run` (single pass, no watch)
+The `setup` job runs the test suite via Vitest:
+
+- `vitest run` (single pass, no watch)
 - jsdom environment for DOM-dependent tests
 - Tests located in `src/__tests__/`, `src/test/`, and `**/__tests__/`
+
+> See the canonical generic spec at
+> [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](../spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/README.md)
+> for the repo-agnostic CI/CD contract this workflow implements.
 
 ## What "Build Extension" Does Internally
 

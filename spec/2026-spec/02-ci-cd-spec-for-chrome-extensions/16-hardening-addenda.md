@@ -196,6 +196,14 @@ Absence of any secret SKIPS this step cleanly — never fails the release.
 - §3 exit-code table extends: `8 = post-publish probe failed`,
   `9 = tag immutability violation`.
 
+---
+
+## §41 — Follow-up audit (G21–G24)
+
+The four subsections below (§41.11–§41.14) close the residual gaps surfaced by
+the independent follow-up audit. They are tracked as **G21–G24** in
+[`audit.md`](./audit.md) and in [`99-consistency-report.md`](./99-consistency-report.md).
+
 ### §41.11 G21 — Secrets provisioning checklist (deterministic, per-repo)
 
 To remove the residual "org-level secret provisioning" variance noted in §42,
