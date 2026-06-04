@@ -14,7 +14,7 @@
 
 ## 🆕 2026-06-04 — CI/CD Spec For Chrome Extensions (40-step, generic)
 
-**Spec**: `spec/2026/02 - CI-CD Spec For Chrome Extensions/README.md` — written
+**Spec**: `spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/README.md` — written
 in full. Generic, repo-agnostic, supports N extensions via matrix discovery.
 
 **Phases (implement on each `next`):**

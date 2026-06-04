@@ -2,7 +2,7 @@
 # download-extension.sh — fetch ONE Chrome-extension release ZIP from a
 # GitHub Release. Generic mirror of scripts/download-extension.ps1.
 #
-# Spec: spec/2026/02 - CI-CD Spec For Chrome Extensions/README.md §18
+# Spec: spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/README.md §18
 # Exit codes (fixed contract — see §3):
 #   0 ok | 3 bad args | 4 asset 404 (strict) | 5 network/tool | 6 archive invalid
 #

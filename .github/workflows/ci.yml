@@ -910,7 +910,7 @@ jobs:
           fi
           echo "✅ All .md filenames are lowercase"
 
-      - name: Enforce no committed *.zip / *.crx / *.xpi (spec/2026/02 §26)
+      - name: Enforce no committed *.zip / *.crx / *.xpi (spec/2026-spec/02 §26)
         run: node scripts/check-no-committed-zips.mjs
 
       - name: Preflight · Chrome E2E verification coverage gate

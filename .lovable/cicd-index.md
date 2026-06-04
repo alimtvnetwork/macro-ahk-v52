@@ -29,7 +29,7 @@ _None — all known CI/CD issues resolved._
 
 ## Referenced specs
 
-- [`02 - CI-CD Spec For Chrome Extensions`](../spec/2026/02%20-%20CI-CD%20Spec%20For%20Chrome%20Extensions/README.md) — generic Manifest V3 CI/CD, release artifact, installer, probing, and no-committed-ZIP standard.
+- [`02 — CI/CD Spec For Chrome Extensions`](../spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/README.md) — generic Manifest V3 CI/CD, release artifact, installer, probing, and no-committed-ZIP standard.
 
 
 ---

@@ -1,6 +1,6 @@
 ---
 name: cicd-spec-2026-02
-description: Generic 40-step Chrome-extension CI/CD spec (spec/2026/02) — repo-agnostic, matrix-discovers Manifest V3 folders, forbids committed ZIPs
+description: Generic 40-step Chrome-extension CI/CD spec (spec/2026-spec/02) — repo-agnostic, matrix-discovers Manifest V3 folders, forbids committed ZIPs
 type: reference
 ---
 
@@ -10,7 +10,7 @@ Updated: 2026-06-04
 Authoritative generic spec for wiring a Chrome-extension CI/CD pipeline in any
 repo from just an extension folder.
 
-📄 `spec/2026/02 - CI-CD Spec For Chrome Extensions/README.md`
+📄 `spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/README.md`
 
 ## Non-negotiables (mirror to any new repo)
 
