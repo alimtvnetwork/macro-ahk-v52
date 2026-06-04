@@ -47,7 +47,7 @@ export default tseslint.config(
       "no-restricted-syntax": [
         "error",
         {
-          selector: "CallExpression[callee.object.name='console'][callee.property.name='error']",
+          selector: "CallExpression[callee.property.name='error'][callee.object.name='console'], CallExpression[callee.property.name='error'][callee.object.property.name='console']",
           message: "Use Logger.error / logError / logBgError instead of console.error (see scripts/audit-logger-compliance.mjs allowlist).",
         },
       ],
