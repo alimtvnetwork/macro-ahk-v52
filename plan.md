@@ -35,8 +35,9 @@ in full. Generic, repo-agnostic, supports N extensions via matrix discovery.
 
 **Phases (implement on each `next`):**
 1. ✅ Scaffold: `tests/e2e/fixtures/lovable-shell.html`, `tests/e2e/utils/macro-controller-harness.ts`, `tests/e2e/e2e-macro-controller-harness.spec.ts` (fixme until bundle is built in CI), and `tests/e2e/utils/__tests__/macro-controller-harness.test.mjs` unit guard (4/4 pass). Code-Red missing-bundle error.
-2. Wire `npm run build:macro-controller` into `tests/e2e/global-setup.ts`, then un-fixme the smoke spec.
-3. Replace the pending block in `e2e-credit-totals-modal.spec.ts` with a real flow driven through `mountMacroControllerHarness` (sort → drag → filter → CSV).
+2. ✅ Verified `build:macro-controller` already runs in `tests/e2e/global-setup.ts` (line 73 of buildSteps), so the bundle exists before any spec runs. Added `skipBundle` option to the harness, captured `bundleError` instead of swallowing it, and split `e2e-macro-controller-harness.spec.ts` into a passing `skipBundle: true` bootstrap-contract test + a `fixme` bundle-injection test that surfaces real boot errors when un-fixmed.
+3. ✅ Refactored `e2e-credit-totals-modal.spec.ts` to use `mountMacroControllerHarness` for the page half (still `fixme` until the harness shell DOM grows the credit-totals trigger selectors — that's the only remaining gap). `bundleError` asserted non-null so the next iteration sees the real boot failure mode immediately.
+4. Extend `tests/e2e/fixtures/lovable-shell.html` with the macro-controller panel's trigger DOM (workspace dropdown, Credits button) and un-fixme the credit-totals + bundle-injection specs.
 
 ## ✅ Release Page CI/CD Hardening Plan — 8 Steps (CLOSED 2026-06-02)
 
