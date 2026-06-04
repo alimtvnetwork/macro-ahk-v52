@@ -96,15 +96,23 @@ the current tag when run after tagging.
 
 ---
 
-## Step 6 — G5 (HIGH, severity 72/100): Concurrency & cancellation rules missing
+## Step 6 — G5 ✅ PATCHED 2026-06-04 — Concurrency & cancellation rules missing
 
 §22 shows `concurrency: { group: release-${{ github.ref }}, cancel-in-progress: false }`
 but doesn't explain why. An AI optimizing for speed will flip
 `cancel-in-progress: true`, which kills mid-upload releases and leaves
 half-published tags.
 
-- **Fix**: add §24a stating cancel-in-progress MUST be `false` on the publish
-  job, MAY be `true` on `ci.yml`.
+- **Failure mode**: a second release run cancels the first after the GitHub
+  Release exists but before every ZIP, installer, and checksum has uploaded;
+  users see a valid tag with incomplete or inconsistent assets.
+- **Root cause**: the original YAML had the correct flag but did not state the
+  invariant, so a generic implementation can copy common CI advice and use
+  `cancel-in-progress: true` everywhere.
+- **Fix applied**: §24a now makes `cancel-in-progress: false` mandatory for
+  every release/publish/sign/tag-mutating workflow, while allowing `true` only
+  for non-publishing CI jobs.
+- **Time**: ~6 min.
 
 ---
 
@@ -196,7 +204,7 @@ copies the YAML verbatim, it ships an EOL runtime.
 | 10| Stale Node version copied verbatim | 35% | 55 | G10 |
 
 **Composite AI-failure probability on first run, as-is: ~88%.**
-After G1, G2, G4, G6, G7, G9 are patched: **~18%**.
+After G1, G2, G4, G5, G6, G7, G9 are patched: **~14%**.
 
 ---
 
@@ -208,6 +216,6 @@ After G1, G2, G4, G6, G7, G9 are patched: **~18%**.
 4. **G9** — SHA-pinning rule in §22a (15 min).
 5. **G7** — Full PowerShell installer in §19a (45 min).
 6. **G4** — `PREV_TAG` exact command in §16 (10 min). ✅ PATCHED 2026-06-04
-7. **G3**, **G5**, **G8**, **G10** — sweep in one follow-up pass.
+7. **G3**, **G5**, **G8**, **G10** — sweep in one follow-up pass. G3 and G5 are now patched.
 
 After this patch pass, re-score: target **≥ 90/100 AI-proof**.

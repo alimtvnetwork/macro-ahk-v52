@@ -785,6 +785,30 @@ workflow edits needed.
 - Use `actions/upload-artifact@v4` / `download-artifact@v4` (1-day retention)
   to pass ZIPs between `build` and `publish` jobs.
 
+## §24a. Concurrency and cancellation rule (publish is never cancel-in-progress)
+
+Release publication is a stateful operation: it creates or updates a tag/release,
+uploads multiple assets, writes checksums, and may flip `draft: false`. A newer
+run must **not** kill an older publish run mid-upload, because that leaves a
+visible release with missing ZIPs, missing installer scripts, or stale checksums.
+
+Hard rule for `.github/workflows/release.yml`:
+
+```yaml
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+```
+
+`cancel-in-progress: true` is allowed for non-publishing CI workflows such as
+`.github/workflows/ci.yml`, where abandoning stale lint/test runs is safe. It is
+forbidden on any job or workflow that creates releases, uploads release assets,
+publishes browser-store packages, signs artifacts, or mutates tags.
+
+If a release workflow needs narrower serialization, use a deterministic release
+group such as `release-${{ needs.setup.outputs.version }}` after the version has
+been resolved, but keep `cancel-in-progress: false`.
+
 ## §25. Permissions & secrets
 
 - `permissions: { contents: write }` is required on the publish job.
