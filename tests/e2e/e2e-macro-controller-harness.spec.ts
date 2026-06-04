@@ -2,47 +2,75 @@
  * E2E — Macro-controller harness smoke test.
  *
  * Validates the Option-A content-script harness shipped in
- * tests/e2e/utils/macro-controller-harness.ts (see ambiguity log
- * `.lovable/question-and-ambiguity/61-credit-totals-content-script-harness.md`).
+ * `tests/e2e/utils/macro-controller-harness.ts`
+ * (see `.lovable/question-and-ambiguity/61-credit-totals-content-script-harness.md`).
  *
- * Asserts only the bootstrapping invariants — that the simulated lovable.dev
- * page loads, the chrome.* stub is present before any page script, and the
- * macro-controller IIFE injects without throwing. Deeper assertions about the
- * panel DOM (Credit Totals modal, sort/drag/CSV round-trip) belong in
- * e2e-credit-totals-modal.spec.ts once that test is un-fixmed.
+ * Two passes:
+ *   1. skipBundle=true — pins the bootstrap contract (URL routing, chrome.*
+ *      stubs, shell DOM) deterministically without depending on whether the
+ *      production IIFE happens to boot cleanly inside this minimal shell.
+ *   2. Bundle injection — exercises the addScriptTag path against the real
+ *      `standalone-scripts/macro-controller/dist/macro-looping.js` produced by
+ *      globalSetup's `build:macro-controller` step. Any page-script error is
+ *      captured (not silently swallowed) and surfaced via bundleError so the
+ *      next harness phase can iterate on real failure modes.
  */
 import { test, expect, chromium } from '@playwright/test';
 import { launchExtension } from './fixtures';
 import { mountMacroControllerHarness } from './utils/macro-controller-harness';
 
 test.describe('Macro-controller content-script harness', () => {
+    test('bootstraps a simulated lovable.dev page with chrome.* stubs (no bundle)', async () => {
+        const context = await launchExtension(chromium);
+        try {
+            const { page, bundlePath } = await mountMacroControllerHarness(context, {
+                projectId: 'harness-smoke',
+                skipBundle: true,
+            });
+
+            // URL surface — content-script gates check location.hostname.
+            expect(page.url()).toMatch(/^https:\/\/lovable\.dev\/projects\/harness-smoke/);
+            expect(bundlePath).toBeNull();
+
+            // chrome.* stubs installed before page scripts (addInitScript).
+            const chromeShape = await page.evaluate(() => {
+                const c = (window as unknown as {
+                    chrome?: {
+                        runtime?: { id?: string };
+                        storage?: { local?: { get?: unknown } };
+                        tabs?: { query?: unknown };
+                    };
+                }).chrome;
+                return {
+                    hasChrome: typeof c !== 'undefined',
+                    runtimeId: c?.runtime?.id ?? null,
+                    storageLocalGet: typeof c?.storage?.local?.get === 'function',
+                    tabsQuery: typeof c?.tabs?.query === 'function',
+                };
+            });
+            expect(chromeShape.hasChrome).toBe(true);
+            expect(chromeShape.runtimeId).toBeTruthy();
+            expect(chromeShape.storageLocalGet).toBe(true);
+            expect(chromeShape.tabsQuery).toBe(true);
+
+            // Shell DOM rendered.
+            await expect(page.getByTestId('project-title')).toHaveText('Harness Project');
+            await expect(page.getByTestId('workspace-sidebar')).toBeVisible();
+        } finally {
+            await context.close();
+        }
+    });
+
     test.fixme(
-        'mounts the production IIFE on a simulated lovable.dev project page',
+        'injects the production IIFE without page-script errors (un-fixme once panel-mount selectors are stable)',
         async () => {
             const context = await launchExtension(chromium);
             try {
-                const { page } = await mountMacroControllerHarness(context, {
-                    projectId: 'harness-smoke',
+                const { page, bundleError } = await mountMacroControllerHarness(context, {
+                    projectId: 'harness-bundle-smoke',
                 });
-
-                // URL surface — content-script gates check location.hostname.
-                expect(page.url()).toMatch(/^https:\/\/lovable\.dev\/projects\/harness-smoke/);
-
-                // chrome.* stubs installed before page scripts (addInitScript).
-                const chromeShape = await page.evaluate(() => ({
-                    hasChrome: typeof (window as unknown as { chrome?: unknown }).chrome !== 'undefined',
-                    runtimeId: (window as unknown as { chrome?: { runtime?: { id?: string } } })
-                        .chrome?.runtime?.id ?? null,
-                    storageLocalGet: typeof (window as unknown as {
-                        chrome?: { storage?: { local?: { get?: unknown } } };
-                    }).chrome?.storage?.local?.get === 'function',
-                }));
-                expect(chromeShape.hasChrome).toBe(true);
-                expect(chromeShape.runtimeId).toBeTruthy();
-                expect(chromeShape.storageLocalGet).toBe(true);
-
-                // Shell DOM rendered.
-                await expect(page.getByTestId('project-title')).toHaveText('Harness Project');
+                expect(page.url()).toMatch(/^https:\/\/lovable\.dev\/projects\/harness-bundle-smoke/);
+                expect(bundleError, `bundle threw: ${bundleError?.message}`).toBeNull();
             } finally {
                 await context.close();
             }
