@@ -189,8 +189,12 @@ MUST be reflected in this table (and is enforced by
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | `audit-releases.yml` | schedule + dispatch | Audits published releases for missing/zero-byte assets |
+| `installer-tests.yml` | pull_request + dispatch | Runs installer (`install.sh`/`install.ps1`) contract tests |
 | `quality-badges.yml` | push to main | Regenerates README quality / coverage badges |
 | `readonly-paths-guard.yml` | pull_request | Blocks edits to `skipped/` and `.release/` |
+| `recover-latest-release-assets.yml` | dispatch | Re-uploads missing assets to the latest release |
+| `recover-v3-4-2-release-assets.yml` | dispatch | Targeted recovery for legacy v3.4.2 release |
+| `release-watcher.yml` | schedule + dispatch | Self-heals missing release tags from `.gitmap/` |
 | `spec-gates.yml` | pull_request | Enforces spec link checks and structural gates |
 | `spec-governance-quarterly.yml` | schedule | Quarterly spec drift / governance review |
 | `ping.yml` | push | Canary that proves unfiltered `on: push` still fires |
