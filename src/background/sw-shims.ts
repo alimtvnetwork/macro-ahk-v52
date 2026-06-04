@@ -200,7 +200,7 @@ function shimObservers(): void {
 
 function shimMiscApis(): void {
     if (typeof requestAnimationFrame === "undefined") {
-        _g.requestAnimationFrame = (cb: (...args: unknown[]) => void) => setTimeout(cb, 0);
+        _g.requestAnimationFrame = (callback: (...args: unknown[]) => void) => setTimeout(callback, 0);
         _g.cancelAnimationFrame = (id: number) => clearTimeout(id);
     }
     if (typeof CustomEvent === "undefined") {

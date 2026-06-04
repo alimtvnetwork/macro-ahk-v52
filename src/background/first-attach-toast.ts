@@ -225,22 +225,22 @@ export async function maybeShowFirstAttachToast(
  * Call once from boot.
  */
 export function registerFirstAttachToastBridge(): void {
-    chrome.runtime.onMessage.addListener((msg, sender) => {
-        if (!isToastActionMessage(msg)) return false;
+    chrome.runtime.onMessage.addListener((message, sender) => {
+        if (!isToastActionMessage(message)) return false;
         const tabId = sender.tab?.id;
-        const url = msg.url;
+        const url = message.url;
         if (typeof tabId !== "number") return false;
 
-        if (msg.action === "accept") {
+        if (message.action === "accept") {
             void markOriginSeen(url);
-        } else if (msg.action === "dismiss-tab") {
+        } else if (message.action === "dismiss-tab") {
             dismissOriginForTab(tabId, url);
-        } else if (msg.action === "dismiss-persist") {
+        } else if (message.action === "dismiss-persist") {
             void persistDismissOrigin(url);
             void markOriginSeen(url);
         }
         console.log(
-            `[first-attach-toast] action=${msg.action} tab=${tabId} url=${url}`,
+            `[first-attach-toast] action=${message.action} tab=${tabId} url=${url}`,
         );
         return false;
     });

@@ -129,7 +129,7 @@ export default tseslint.config(
       "src/background/config-seeder.ts",
       "src/background/context-menu-handler.ts",
       "src/background/csp-fallback.ts",
-      "src/background/first-attach-toast.ts",
+      
       "src/background/handlers/__tests__/token-seeder.test.ts",
       "src/background/handlers/automation-chain-handler.ts",
       "src/background/handlers/config-auth-handler.ts",
@@ -194,7 +194,7 @@ export default tseslint.config(
       "src/background/recorder/xpath-of-element.ts",
       "src/background/script-resolver.ts",
       "src/background/session-log-writer.ts",
-      "src/background/sw-shims.ts",
+      
       "src/background/url-trigger.ts",
       "src/background/wasm-integrity.ts",
       "src/components/automation/AutomationView.tsx",

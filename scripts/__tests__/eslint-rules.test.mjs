@@ -160,6 +160,8 @@ test('id-denylist fully applies to cleaned XPath source files', async () => {
 test('id-denylist fully applies to newly graduated 0.8 cleanup files', async () => {
     const cleanedFiles = [
         'src/background/auth-health-handler.ts',
+        'src/background/first-attach-toast.ts',
+        'src/background/sw-shims.ts',
         'src/lib/open-extension-options.ts',
         'standalone-scripts/macro-controller/src/gitsync/disconnect-repo.ts',
         'standalone-scripts/macro-controller/src/log-activity-ui.ts',
