@@ -25,10 +25,6 @@ vi.mock('../error-utils', () => ({
 
 import { fetchWorkspaceCreditBalance } from '../credit-balance-update/credit-balance-fetcher';
 
-interface FetchGlobal {
-    fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
-}
-
 beforeEach(() => {
     getBearerTokenSpy.mockClear();
     getBearerTokenSpy.mockResolvedValue('tok_abc123def4567890');
