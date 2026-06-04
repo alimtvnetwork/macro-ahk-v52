@@ -34,7 +34,7 @@ This spec is split into focused files. Read them in order on first pass; cross-r
 | 13 | [`13-operations-and-troubleshooting.md`](./13-operations-and-troubleshooting.md) | §34, §35, §36, §36a, §37, §38 | Failure Handling, Checklists, Rollback & Troubleshooting |
 | 14 | [`14-glossary.md`](./14-glossary.md) | §39 | Glossary |
 | 15 | [`15-acceptance-criteria.md`](./15-acceptance-criteria.md) | §40 | Acceptance Criteria |
-| 16 | [`16-hardening-addenda.md`](./16-hardening-addenda.md) | §41 | Hardening Addenda (G11–G20) |
+| 16 | [`16-hardening-addenda.md`](./16-hardening-addenda.md) | §41 | Hardening Addenda (G11–G24) |
 | 17 | [`17-final-auditor-score.md`](./17-final-auditor-score.md) | §42 | Final Auditor Score |
 | — | [`audit.md`](./audit.md) | — | Independent audit report |
 | — | [`99-consistency-report.md`](./99-consistency-report.md) | — | Structural health |

@@ -1,4 +1,4 @@
-# 16 — Hardening Addenda (G11–G20)
+# 16 — Hardening Addenda (G11–G24)
 
 > Path-to-100 hardening rules layered on top of the base spec.
 
@@ -6,10 +6,10 @@ Part of [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](./README.md).
 
 ---
 
-## §41. Hardening addenda (G11–G20) — path to 100/100
+## §41. Hardening addenda (G11–G24) — path to 100/100
 
-These ten addenda close the residual 8-point gap identified after G1–G10. Each
-is mandatory; copy verbatim.
+These addenda close the residual gap identified after G1–G10 and the follow-up
+audit gaps G21–G24. Each is mandatory; copy verbatim.
 
 ### §41.1 G11 — Minimum-permissions `GITHUB_TOKEN` (top-level + per-job)
 
