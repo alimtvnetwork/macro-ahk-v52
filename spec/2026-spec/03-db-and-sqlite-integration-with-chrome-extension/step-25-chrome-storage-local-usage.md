@@ -130,8 +130,8 @@ export async function writeChromeLocal(
   value: JsonValue,
 ): Promise<void> {
   assertKnownStorageKey(key);
-  const bytes = measureJsonBytes(value);
-  assertChromeStorageLocalBudget(key, bytes);
+  measureJsonBytes(value); // retained for diagnostics hooks; Step 26 performs the enforced check
+  await assertChromeStorageLocalBudget(key, value);
   await chrome.storage.local.set({ [key]: value });
 }
 ```
