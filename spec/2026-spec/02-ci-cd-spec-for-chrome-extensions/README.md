@@ -361,10 +361,10 @@ historically passed mismatched majors.
 
 ## §15. Attaching artifacts to a Release
 
-Use `softprops/action-gh-release@v2`:
+Use a SHA-pinned `softprops/action-gh-release` action (see §22a):
 
 ```yaml
-- uses: softprops/action-gh-release@v2
+- uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87 # v2.0.5
   with:
     tag_name: v${{ needs.setup.outputs.version }}
     files: release-assets/*
@@ -614,7 +614,8 @@ Required helpers (mirror the bash ones):
   entry.
 
 Exit-code parity (§3): 3=bad input, 4=asset 404, 5=network/API,
-6=integrity/extract. **Never** swallow errors with `-ErrorAction
+6=integrity/extract, 8=post-publish probe failed, 9=tag immutability violation.
+**Never** swallow errors with `-ErrorAction
 SilentlyContinue` outside `finally` cleanup — fail fast per §-no-retry policy.
 
 Self-test in CI: `pwsh -File scripts/install.ps1 -Version v0.0.0-test -Ext demo`
@@ -889,7 +890,8 @@ For REST-created releases, use exactly one of these deterministic designs:
 
 1. **Recommended:** do not split creation and publishing. Keep release creation,
    artifact upload, checksums, and installer upload inside the same `release.yml`
-   run using `GITHUB_TOKEN` plus `permissions: { contents: write }`.
+   run using `GITHUB_TOKEN`, top-level `contents: read`, and publish-job-only
+   elevation to `contents: write`.
 2. **Allowed only when split workflows are required:** create the release with a
    fine-grained PAT stored as `RELEASE_PAT`, scoped to the single repository with
    **Contents: Read and write**. Use `RELEASE_PAT` only for the REST release
