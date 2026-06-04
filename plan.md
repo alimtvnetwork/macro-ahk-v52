@@ -574,3 +574,86 @@ Multi-tab synchronization and robust persistence for long-running automation ses
 - **Storage**: Migrate high-frequency state updates to `indexedDB` (vs. `chrome.storage.local`).
 - **UI**: "Workspace" selector in main header; "Recovery" indicator in status bar.
 - **Logic**: `StateReconciler` to merge updates from different tabs.
+
+---
+
+## 🆕 Credit Balance Update — 60-Step Plan (Ktlo / Free / Cancelled)
+
+**Trigger (2026-06-04, user verbatim):** Lite (`ktlo`), Free, and Cancelled
+workspaces return no inline credit info → UI shows `0/0`. Call the
+`/workspaces/{id}/credit-balance` endpoint only when inline data is absent.
+Add a settings slider (default 3 s) for the fetch timeout. Use proper Enums
+(`Plan`, `GrantType`). Ship with unit + integration + E2E tests.
+
+**Spec:** `spec/21-app/01-chrome-extension/credit-balance-update/` (20 files).
+**Ambiguity log policy:** No-Questions Mode active — log to
+`.lovable/question-and-ambiguity/` if anything blocks.
+
+### Phase A — Spec (Steps 1–20)  ✅ COMPLETED 2026-06-04
+
+All 20 files committed under `spec/21-app/01-chrome-extension/credit-balance-update/`.
+See that folder's `README.md` for the index.
+
+### Phase B — Implementation (Steps 21–60)
+
+#### Enums & types (21–25)
+21. Create `credit-balance-update/plan.ts` + `plan-mapper.ts` (Plan enum, wire mapping, CODE-RED log on Unknown).
+22. Create `grant-type.ts` + `grant-type-mapper.ts`.
+23. Create `credit-balance-types.ts` (CreditBalance, GrantTypeBalance, ExpiringGrant, Membership, WorkspaceInfo, CreditFetchResult).
+24. Create `credit-fetch-outcome.ts` enum.
+25. Add `__tests__/plan-mapper.test.ts` + `grant-type-mapper.test.ts` (cover all wire values + Unknown).
+
+#### Parser & fetcher (26–30)
+26. `credit-balance-parser.ts` — snake_case→camelCase, defaults+warn for missing numerics, ParseError on bad shape.
+27. `__tests__/credit-balance-parser.test.ts` — sample payload + edge cases.
+28. `credit-balance-fetcher.ts` — `fetchWithTimeout` using AbortController; finally-clearTimeout pair.
+29. Wire `getBearerToken()` (no direct localStorage).
+30. Mandatory failure logging via `Logger.error('CreditBalanceUpdate.fetch', …)` with full Reason/ReasonDetail schema (file 11).
+
+#### Cache + single-flight (31–34)
+31. `credit-balance-cache.ts` — Map<WorkspaceId, CreditFetchResult> + IDB store `entries_v2_ktlo_free_cancelled`, 10-min TTL.
+32. Invalidation hooks: settings change, manual Refresh, auth recovery.
+33. Single-flight Map<WorkspaceId, Promise<…>> in controller.
+34. `__tests__/credit-balance-cache.test.ts` — TTL boundary, invalidation, single-flight join.
+
+#### Controller (35–38)
+35. `credit-fetch-controller.ts` — trigger logic from spec file 02 (hasInlineCredits, plan branch, single auth retry).
+36. Expose `requestCredits(workspace)` and `setTimeoutMs(ms)` (hot reload).
+37. Subscribe to settings bus updates to refresh `timeoutMs`.
+38. `__tests__/credit-fetch-controller.test.ts` — InlineHit, Skipped, ApiHit, ApiCacheHit, Timeout, AuthError, single-flight.
+
+#### UI integration (39–44)
+39. `credit-summary-resolver.ts` — produce `{available,total,daily,source}` for UI consumers.
+40. Update workspace row cell to call resolver; render `—` when source=Timeout & no cached value.
+41. Update singleton tooltip with new Credits section (file 07).
+42. Update Credit Totals modal columns + CSV export to include new fields and `source`.
+43. Update `workspace-refill-priority.ts` to read from resolver (no duplicate math).
+44. Snapshot test for modal + tooltip dark-theme tokens (no new hex values).
+
+#### Settings (45–48)
+45. Add `creditFetchDelayMs` to settings payload + validator (min 500, max 15000, step 100, default 3000).
+46. Render slider in Macro Controller Settings panel with live readout.
+47. Wire `SAVE_SETTINGS` / `GET_SETTINGS` bus messages + hydration on boot.
+48. `__tests__/settings-credit-fetch-delay.test.ts` — coercion, persistence, hot reload to controller.
+
+#### E2E (49–52)
+49. `tests/e2e/e2e-credit-balance-ktlo.spec.ts` — happy path Ktlo workspace.
+50. `tests/e2e/e2e-credit-balance-timeout.spec.ts` — timeout + slider change.
+51. `tests/e2e/e2e-credit-balance-no-fetch-when-inline.spec.ts` — zero calls when inline credits present.
+52. Network-count assertion in extension-artifacts reporter (exactly 1 call per workspace per window).
+
+#### Audit, lint, ship (53–60)
+53. Run `npm run lint` + standalone lint; zero warnings (memory `linting-policy`).
+54. Run `scripts/audit-error-swallow.mjs` — confirm zero new swallows.
+55. Verify timer-teardown audit unchanged (`public/timer-teardown-audit.json`).
+56. Update memory: create `mem://features/macro-controller/credit-balance-update` + add Core entry.
+57. Version bump (minor) across manifest, constants.ts, all instruction.ts, shared-state.ts, readme.md pins, both changelogs.
+58. Add changelog entry under **Added** (file 20).
+59. Re-run full test suite + Playwright; attach acceptance-matrix evidence to PR.
+60. Mark Phase B complete in plan.md; update README.md/Phase-B box; close out.
+
+### Remaining items
+1. Phase B step 21 (next).
+2. Pending — Plan Task UX (`.lovable/plans/credit-totals-and-macro-ux-20-step.md`).
+3. Pending — Release installer hardening v0.2 (blocked on `MINISIGN_SECRET_KEY`).
+
