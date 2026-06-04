@@ -45,7 +45,9 @@ test.describe('E2E-24 — Cross-Project Sync Chrome pass', () => {
       await options.getByTestId('project-group-save-button').click();
 
       await expect(options.getByText(groupName)).toBeVisible({ timeout: 20_000 });
-      await options.getByText(groupName).click();
+      const groupId = await readGroupId(options, groupName);
+      expect(groupId).not.toBeNull();
+      await options.getByTestId(`project-group-card-${groupId}`).click();
       await expect(options.getByTestId(`project-group-drag-source-${PROJECT_ALPHA_ID}`)).toBeVisible();
 
       await dragProjectIntoMembers(options, PROJECT_ALPHA_ID);
@@ -128,5 +130,13 @@ async function readGroupMembers(page: Page, groupName: string): Promise<string[]
     if (!group) return [];
     const membersResponse = await chrome.runtime.sendMessage({ type: 'LIBRARY_GET_GROUP_MEMBERS', groupId: group.Id });
     return membersResponse.members.map((member: { ProjectIdUuid: string }) => member.ProjectIdUuid);
+  }, groupName);
+}
+
+async function readGroupId(page: Page, groupName: string): Promise<number | null> {
+  return await page.evaluate(async (name) => {
+    const groupsResponse = await chrome.runtime.sendMessage({ type: 'LIBRARY_GET_GROUPS' });
+    const group = groupsResponse.groups.find((candidate: { Name: string }) => candidate.Name === name);
+    return group?.Id ?? null;
   }, groupName);
 }
