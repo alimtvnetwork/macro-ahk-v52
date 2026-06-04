@@ -129,3 +129,4 @@ Updated: 2026-06-02 (Asia/Kuala_Lumpur)
 - [Prompt Macros engine](mem://features/prompt-macros) — State machine, persistence, score parsing, 5-tier vars, audit folder, loop safety
 - [Prompt Variables](mem://features/prompt-variables) — `{{ VarName }}` syntax + shared declaration shape + 5-tier resolution waterfall
 - [Macro-Prompts folder](mem://architecture/macro-prompts-folder) — `standalone-scripts/macro-prompts/` source-of-truth + 13-stage aggregator
+- [CI/CD spec 2026-02 (generic)](mem://architecture/cicd-spec-2026-02) — 40-step generic Chrome-extension CI/CD spec; matrix discovery; never-commit-ZIP rule
