@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.50.0] — 2026-06-04
+
+### Added
+- **Credit Balance Update** — Ktlo (Lite) / Free / Cancelled workspaces now fetch `/workspaces/{id}/credit-balance` on demand when inline credits are absent, with PascalCase `Plan` + `GrantType` + `CreditFetchOutcome` enums, AbortController-backed timeout, dual-layer cache (in-memory + IndexedDB, 10-min TTL), single-flight join, single auth-retry, and full failure-log schema (Reason + ReasonDetail). Spec: `spec/21-app/01-chrome-extension/credit-balance-update/`.
+- **Credit-Balance Fetch Timeout slider** — Macro Controller → Settings → Timing now exposes a 500–15000 ms slider (default 3000) that hot-reloads into the controller via `SAVE_SETTINGS`.
+- **Credit Totals CSV** — export now includes `Daily`, `DailyLimit`, and resolver `Source` (Inline / Cache / Timeout / Missing) columns.
+- **Hover-card Source row** — singleton workspace tooltip surfaces the resolver source whenever credits originate from the `/credit-balance` cache or a Timeout.
+
+### Changed
+- `workspace-refill-priority` now reads the resolver-backed available value so urgency math is consistent across Inline / Cache / Timeout sources.
+- Version bump: 3.49.0 → 3.50.0 (all version files synced).
+
+---
+
 ## [v3.49.0] — 2026-05-31
 
 ### Added
