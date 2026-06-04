@@ -60,6 +60,12 @@ export interface SettingsOverrides {
   pauseQueueOnError?: boolean;
   /** Maximum number of retries for a failed task. Default 3. */
   maxTaskRetries?: number;
+  /**
+   * Credit-balance fetch timeout (ms) for Ktlo/Free/Cancelled workspaces.
+   * Spec: spec/21-app/01-chrome-extension/credit-balance-update/06-settings-slider.md.
+   * Range 500..15000, default 3000.
+   */
+  creditFetchDelayMs?: number;
 
 
   /**
