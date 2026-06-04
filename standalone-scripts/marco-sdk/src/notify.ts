@@ -154,10 +154,10 @@ function formatRequestDetail(rd: RequestDetail): string {
     if (rd.method || rd.url) lines.push("Request: " + (rd.method || "?") + " " + (rd.url || "?"));
     if (rd.headers) {
         for (const k of Object.keys(rd.headers)) {
-            const val = k.toLowerCase() === "authorization"
+            const headerValue = k.toLowerCase() === "authorization"
                 ? rd.headers[k].substring(0, 20) + "...REDACTED"
                 : rd.headers[k];
-            lines.push("  " + k + ": " + val);
+            lines.push("  " + k + ": " + headerValue);
         }
     }
     if (rd.body) lines.push("Body: " + rd.body.substring(0, 500));
