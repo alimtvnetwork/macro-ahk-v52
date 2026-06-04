@@ -14,6 +14,12 @@
 
 import type { WorkspaceCredit } from './types';
 import { daysUntil } from './workspace-status';
+import { resolveCreditSummary } from './credit-balance-update/credit-summary-resolver';
+
+/** Single source of truth for "available credits" — resolver-backed (Step 43). */
+function resolvedAvailable(ws: WorkspaceCredit): number {
+  return Math.max(0, resolveCreditSummary(ws).available);
+}
 
 /**
  * Resolve the days-until-refill for a workspace, or `null` when no usable
