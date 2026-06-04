@@ -1,22 +1,196 @@
 # Step 20 — Query Helpers
 
-> **Status:** stub. Expanded in the next `next 2` pass.
-
-Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./README.md) — see [`01-forty-planning-steps.md`](./01-forty-planning-steps.md) for the full ordered outline.
+Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./README.md).
 
 ## Goal
 
-_To be written._ This step covers: **Query Helpers**.
+Centralize SQLite read/write helpers so every query uses typed bind values, deterministic statement cleanup, namespace guards, dirty marking after writes, and Code-Red logging on failure.
 
-## Scope checklist (what the expanded version must contain)
+## Root cause this prevents
 
-- [ ] Goal — one-sentence summary.
-- [ ] Required packages and exact file paths.
-- [ ] Copy-pasteable TypeScript / config sample.
-- [ ] Error model — error type, logger tag, user-visible surface.
-- [ ] Acceptance — testable conditions.
-- [ ] Cross-references to neighbouring steps.
+The recurring sql.js failure class is **ad-hoc query execution**: callers manually prepare statements, forget `stmt.free()`, pass `undefined` into binds, or write without calling `markDirty()`. Query helpers are the implementation seam that makes Steps 15–18 enforceable everywhere.
 
-## Open questions for the implementer AI
+## Required files
 
-_None recorded yet._
+- `src/background/sqlite-query-helpers.ts` — global helper functions
+- `src/background/project-query-helpers.ts` — project-scoped wrapper that injects slug/namespace context
+- `src/background/sqlite-bind-safety.ts` — existing Proxy net from Step 16 remains the final safety layer
+- `src/shared/sql-types.ts` — `SqlValue`, `SqlRow`, and result contracts
+- `src/shared/namespace.ts` — `assertNamespace()` from Step 14
+
+No new package is required.
+
+## Data types
+
+```ts
+export type SqlValue = string | number | bigint | boolean | Uint8Array | null;
+
+export type SqlRow = Record<string, SqlValue>;
+
+export type QueryContext = {
+  readonly Tag: string;
+  readonly Path: string;
+  readonly Namespace: string | null;
+};
+```
+
+`undefined` is not part of `SqlValue`. Optional values must be normalized by handler guards (`bindOpt`, `bindReq`) before reaching helpers.
+
+## Copy-pasteable TypeScript sample
+
+```ts
+import type { Database } from "sql.js";
+import { RiseupAsiaMacroExt } from "../shared/logger";
+import type { QueryContext, SqlRow, SqlValue } from "../shared/sql-types";
+import { assertNamespace } from "../shared/namespace";
+import { markDirty } from "./db-manager";
+
+type StatementBindValue = SqlValue[] | Record<string, SqlValue>;
+
+function assertNoUndefinedBind(bind: StatementBindValue): void {
+  const values = Array.isArray(bind) ? bind : Object.values(bind);
+  for (const value of values) {
+    if (value === undefined) {
+      throw new TypeError("SQLite bind contains undefined; use null or bindOpt() instead");
+    }
+  }
+}
+
+export function selectRows(
+  db: Database,
+  sql: string,
+  bind: StatementBindValue,
+  context: QueryContext,
+): SqlRow[] {
+  assertNoUndefinedBind(bind);
+  if (context.Namespace !== null) assertNamespace(context.Namespace);
+
+  const stmt = db.prepare(sql);
+  try {
+    stmt.bind(bind);
+    const rows: SqlRow[] = [];
+    while (stmt.step()) {
+      rows.push(stmt.getAsObject() as SqlRow);
+    }
+    return rows;
+  } catch (err) {
+    RiseupAsiaMacroExt.Logger.error("[sqlite-query] select failed", {
+      Path: context.Path,
+      Missing: "SQLite query result rows",
+      Reason: "SelectFailed",
+      ReasonDetail: err instanceof Error ? err.message : String(err),
+      Tag: context.Tag,
+      SqlPreview: sql.slice(0, 240),
+    });
+    throw err;
+  } finally {
+    stmt.free();
+  }
+}
+
+export function executeWrite(
+  db: Database,
+  sql: string,
+  bind: StatementBindValue,
+  context: QueryContext,
+): void {
+  assertNoUndefinedBind(bind);
+  if (context.Namespace !== null) assertNamespace(context.Namespace);
+
+  const stmt = db.prepare(sql);
+  try {
+    stmt.bind(bind);
+    stmt.step();
+    markDirty();
+  } catch (err) {
+    RiseupAsiaMacroExt.Logger.error("[sqlite-query] write failed", {
+      Path: context.Path,
+      Missing: "SQLite write committed and marked dirty",
+      Reason: "WriteFailed",
+      ReasonDetail: err instanceof Error ? err.message : String(err),
+      Tag: context.Tag,
+      SqlPreview: sql.slice(0, 240),
+    });
+    throw err;
+  } finally {
+    stmt.free();
+  }
+}
+```
+
+## Helper rules
+
+1. **No raw `db.prepare()` outside helpers** except schema migration files from Step 13 and bind-safety proxy internals from Step 16.
+2. **Every statement is freed in `finally`.** Leaked statements hold memory in long-lived extension sessions.
+3. **Writes mark dirty only after successful `stmt.step()`.** Failed writes must not schedule misleading flushes.
+4. **No helper accepts `undefined`.** Optional fields become `null` at handler boundaries.
+5. **Namespace-aware tables require `assertNamespace()` before query execution.** Never trust UI-provided namespace strings.
+6. **No string interpolation for values.** SQL text may contain table/column constants only; values must be bound.
+7. **Project helpers inject project context.** Callers should not hand-build `Path` strings for project DBs.
+
+## Project wrapper pattern
+
+```ts
+import type { Database } from "sql.js";
+import type { SqlRow, SqlValue } from "../shared/sql-types";
+import { selectRows, executeWrite } from "./sqlite-query-helpers";
+import { markProjectDirty } from "./project-db-manager";
+
+export function selectProjectRows(
+  db: Database,
+  projectSlug: string,
+  namespace: string,
+  sql: string,
+  bind: readonly SqlValue[],
+): SqlRow[] {
+  return selectRows(db, sql, [...bind], {
+    Tag: "project-query",
+    Path: `project-db:${projectSlug}`,
+    Namespace: namespace,
+  });
+}
+
+export function executeProjectWrite(
+  db: Database,
+  projectSlug: string,
+  namespace: string,
+  sql: string,
+  bind: readonly SqlValue[],
+): void {
+  executeWrite(db, sql, [...bind], {
+    Tag: "project-query",
+    Path: `project-db:${projectSlug}`,
+    Namespace: namespace,
+  });
+  markProjectDirty(projectSlug);
+}
+```
+
+For project DBs, `executeProjectWrite()` MUST mark the project dirty after the write. Global `executeWrite()` marks the global DB dirty.
+
+## Error model
+
+| Failure | Logger tag | User-visible surface | Recovery |
+|---|---|---|---|
+| Undefined bind | `[sqlite-query] bind failed` or Step 16 `BindError` | Errors panel row with SQL preview | Caller fixes guard normalization; no retry |
+| Select failed | `[sqlite-query] select failed` Code-Red when data is required | Toast only if user action is blocked | Throw to caller |
+| Write failed | `[sqlite-query] write failed` Code-Red | Toast + Errors panel row | Throw; dirty flag is not marked |
+| Statement cleanup failed | `[sqlite-query] cleanup failed` warning | None unless repeated | Log exact path and continue throwing original error |
+
+Every logged failure MUST include `Path`, `Missing`, `Reason`, and `ReasonDetail`.
+
+## Acceptance
+
+- [ ] `rg "\.prepare\(" src/background` shows raw prepares only in `sqlite-query-helpers.ts`, schema migration files, and bind-safety internals.
+- [ ] Tests prove `selectRows()` frees statements on success and failure.
+- [ ] Tests prove `executeWrite()` calls `markDirty()` only after successful `stmt.step()`.
+- [ ] Tests prove passing `undefined` throws before sql.js receives the bind array.
+- [ ] Project write tests prove `markProjectDirty(projectSlug)` is called for project DB writes.
+- [ ] All helper failures use `RiseupAsiaMacroExt.Logger.error()` and include `Path`, `Missing`, `Reason`, and `ReasonDetail`.
+
+## See also
+
+- [step-14](./step-14-per-namespace-db-pattern.md) — Namespace guard rules
+- [step-15](./step-15-bind-safety-entry-point-guards.md) — Handler boundary normalization
+- [step-16](./step-16-bind-safety-proxy-net.md) — Global bind-safety proxy
+- [step-18](./step-18-flush-strategy.md) — Dirty marking and flush debounce
