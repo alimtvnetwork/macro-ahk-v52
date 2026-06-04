@@ -115,7 +115,7 @@ interface TreeNodeRowContentProps {
   onStartEdit: () => void;
   onCommitEdit: () => void;
   onCancelEdit: () => void;
-  onEditValueChange: (val: string) => void;
+  onEditValueChange: (nextValue: string) => void;
   onStartRename: () => void;
   onCommitRename: (newKey: string) => void;
   onCancelRename: () => void;
@@ -283,11 +283,11 @@ interface ObjectNodesProps {
 export function ObjectNodes({ obj, path, onUpdate, onDelete, onRename }: ObjectNodesProps) {
   return (
     <div className="space-y-0.5">
-      {Object.entries(obj).map(([key, val]) => (
+      {Object.entries(obj).map(([key, objectValue]) => (
         <TreeNodeRow
           key={[...path, key].join(".")}
           nodeKey={key}
-          value={val}
+          value={objectValue}
           path={[...path, key]}
           onUpdate={onUpdate}
           onDelete={onDelete}
