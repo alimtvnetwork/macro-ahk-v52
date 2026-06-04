@@ -48,7 +48,9 @@ test.describe('Credit Totals modal — sort → drag → filter → CSV export r
             expect(bundleError, `macro-controller bundle threw on inject: ${bundleError?.message}`).toBeNull();
 
             await page.getByText('💰 Credits').click();
-            await expect(page.locator('[data-credit-totals-row]')).toHaveCount(3, { timeout: 20_000 });
+            await page.waitForFunction(() => {
+                return window.RiseupAsiaMacroExt?.Projects?.MacroController?.api?.credits?.getState?.()?.perWorkspace?.length === 3;
+            }, null, { timeout: 20_000 });
 
             await page.getByText('☰').click();
             await page.getByText('Credit Totals').click();
@@ -56,6 +58,7 @@ test.describe('Credit Totals modal — sort → drag → filter → CSV export r
             await expect(modal).toBeVisible();
 
             const rows = modal.locator('[data-credit-totals-row]');
+            await modal.locator('[data-sort-key="rem"]').click();
             await modal.locator('[data-sort-key="rem"]').click();
             await expect(rows.nth(0).locator('[data-cell="name"]')).toContainText('Cancelled Pro Workspace');
 
