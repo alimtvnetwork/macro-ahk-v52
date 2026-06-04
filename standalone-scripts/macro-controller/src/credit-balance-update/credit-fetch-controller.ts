@@ -105,7 +105,7 @@ async function fetchWithSingleAuthRetry(ws: WorkspaceCredit, plan: Plan): Promis
 
 async function requestCreditsUncached(ws: WorkspaceCredit, plan: Plan): Promise<CreditFetchResult> {
     const result = await fetchWithSingleAuthRetry(ws, plan);
-    writeCreditBalanceUpdateCache(ws.id, result, cacheTtlFor(result));
+    void writeCreditBalanceUpdateCache(ws.id, result, cacheTtlFor(result));
     if (result.balance) {
         overlayCreditBalanceOnWorkspace(ws, result.balance);
     }
