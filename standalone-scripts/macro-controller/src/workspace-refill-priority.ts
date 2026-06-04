@@ -14,6 +14,12 @@
 
 import type { WorkspaceCredit } from './types';
 import { daysUntil } from './workspace-status';
+import { resolveCreditSummary } from './credit-balance-update/credit-summary-resolver';
+
+/** Single source of truth for "available credits" — resolver-backed (Step 43). */
+function resolvedAvailable(ws: WorkspaceCredit): number {
+  return Math.max(0, resolveCreditSummary(ws).available);
+}
 
 /**
  * Resolve the days-until-refill for a workspace, or `null` when no usable
@@ -42,7 +48,7 @@ export function computeRefillScore(
   const days = daysToRefillForWs(ws, nowMs);
   if (days === null) return 0;
   const urgency = Math.max(0, windowDays - days);
-  const available = Math.max(0, ws.available || 0);
+  const available = resolvedAvailable(ws);
   return urgency * available;
 }
 
@@ -59,7 +65,7 @@ export function sortByRefillPriority<T extends { ws: WorkspaceCredit }>(
     return {
       row,
       score: computeRefillScore(row.ws, windowDays, nowMs),
-      available: Math.max(0, row.ws.available || 0),
+      available: resolvedAvailable(row.ws),
       id: String(row.ws.id || ''),
       idx,
     };

@@ -32,6 +32,7 @@ import {
 } from './workspace-status';
 import { getWorkspaceLifecycleConfig, type WorkspaceLifecycleConfig } from './workspace-lifecycle-config';
 import { explainEffectiveStatus, type StatusExplanation } from './status-explainer';
+import { resolveCreditSummary } from './credit-balance-update/credit-summary-resolver';
 
 const HOVERCARD_ID = 'marco-ws-hovercard';
 const SEL_WS_ITEM = '.loop-ws-item';
@@ -112,20 +113,28 @@ export function buildSubHeader(ws: WorkspaceCredit): string {
 }
 
 function buildCreditsSection(ws: WorkspaceCredit): string {
+  // Use credit-summary-resolver (Step 39) so Ktlo/Free/Cancelled rows render
+  // values from /credit-balance cache when inline credits are absent.
+  // Spec: spec/21-app/01-chrome-extension/credit-balance-update/07-ui-display.md
+  const summary = resolveCreditSummary(ws);
   const out: string[] = [sectionHeaderHtml('Credits')];
-  out.push(rowHtml('Available', String(Math.round(ws.available || 0)), '#34d399'));
+  const availStr = summary.renderDash ? '—' : String(summary.available);
+  out.push(rowHtml('Available', availStr, '#34d399'));
   if ((ws.freeRemaining || 0) > 0 || (ws.freeGranted || 0) > 0) {
     out.push(rowHtml('Free Trial',
       Math.round(ws.freeRemaining || 0) + ' / ' + Math.round(ws.freeGranted || 0)));
   }
   out.push(rowHtml('Daily',
-    Math.round(ws.dailyFree || 0) + ' / ' + Math.round(ws.dailyLimit || 0)));
-  if ((ws.rolloverLimit || 0) > 0) {
+    summary.daily + ' / ' + summary.dailyLimit));
+  if (summary.rolloverLimit > 0) {
     out.push(rowHtml('Rollover',
-      Math.round(ws.rollover || 0) + ' / ' + Math.round(ws.rolloverLimit || 0)));
+      summary.rollover + ' / ' + summary.rolloverLimit));
   }
   out.push(rowHtml('Billing',
-    Math.round(ws.billingAvailable || 0) + ' / ' + Math.round(ws.limit || 0)));
+    summary.billingAvailable + ' / ' + summary.billingLimit));
+  if (summary.source !== 'Inline') {
+    out.push(rowHtml('Source', summary.source));
+  }
   return out.join('');
 }
 

@@ -60,6 +60,12 @@ export interface SettingsOverrides {
   pauseQueueOnError?: boolean;
   /** Maximum number of retries for a failed task. Default 3. */
   maxTaskRetries?: number;
+  /**
+   * Credit-balance fetch timeout (ms) for Ktlo/Free/Cancelled workspaces.
+   * Spec: spec/21-app/01-chrome-extension/credit-balance-update/06-settings-slider.md.
+   * Range 500..15000, default 3000.
+   */
+  creditFetchDelayMs?: number;
 
 
   /**
@@ -132,6 +138,13 @@ function sanitize(raw: unknown): SettingsOverrides {
       (out as Record<string, unknown>)[f] = Math.floor(val);
     }
   });
+
+  // creditFetchDelayMs — clamped to [500, 15000] per spec 06-settings-slider.md.
+  const cfd = r.creditFetchDelayMs;
+  if (typeof cfd === 'number' && Number.isFinite(cfd)) {
+    const clamped = Math.max(500, Math.min(15000, Math.floor(cfd)));
+    out.creditFetchDelayMs = clamped;
+  }
 
   const booleanFields: Array<keyof SettingsOverrides> = [
     'enableCanceledCreditOverride',

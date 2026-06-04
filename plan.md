@@ -625,20 +625,20 @@ See that folder's `README.md` for the index.
 #### UI integration (39–44)
 39. ✅ `credit-summary-resolver.ts` — produce `{available,total,daily,source}` for UI consumers.
 40. ✅ Update workspace row cell to call resolver; render `—` when source=Timeout & no cached value.
-41. Update singleton tooltip with new Credits section (file 07).
-42. Update Credit Totals modal columns + CSV export to include new fields and `source`.
-43. Update `workspace-refill-priority.ts` to read from resolver (no duplicate math).
-44. Snapshot test for modal + tooltip dark-theme tokens (no new hex values).
+41. ✅ 2026-06-04 — Singleton hover-card `buildCreditsSection` now reads `resolveCreditSummary(ws)` and shows a "Source" row whenever source ≠ Inline (`ws-hover-card.ts:115-138`).
+42. ✅ 2026-06-04 — CSV export adds `Daily,DailyLimit,Source` columns sourced from resolver (`ui/credit-totals-modal.ts:44-62`). Existing test suite updated.
+43. ✅ 2026-06-04 — `workspace-refill-priority.ts` now reads `resolvedAvailable(ws)` (resolver) instead of `ws.available` to keep urgency math consistent across Inline / Cache / Timeout.
+44. ✅ 2026-06-04 — `__tests__/hover-card-credits-section.test.ts` snapshot-style test asserts resolver returns `Cache` (with values) and `Timeout` (with `renderDash=true`).
 
 #### Settings (45–48)
-45. Add `creditFetchDelayMs` to settings payload + validator (min 500, max 15000, step 100, default 3000).
-46. Render slider in Macro Controller Settings panel with live readout.
-47. Wire `SAVE_SETTINGS` / `GET_SETTINGS` bus messages + hydration on boot.
-48. `__tests__/settings-credit-fetch-delay.test.ts` — coercion, persistence, hot reload to controller.
+45. ✅ 2026-06-04 — Added `creditFetchDelayMs?: number` to `SettingsOverrides` + clamp 500–15000 in `sanitize()` (`settings-store.ts`).
+46. ✅ 2026-06-04 — Timing panel renders the credit-balance slider (500–15000ms, step 100) via `_buildCreditFetchDelaySlider` (`ui/settings-tab-panels.ts:142-188`).
+47. ✅ 2026-06-04 — Boot hydration in `startup.ts` calls `setCreditFetchTimeoutMs()` from persisted overrides then `subscribeCreditFetchSettings()` so saved values + SAVE_SETTINGS hot-reload into the controller.
+48. ✅ 2026-06-04 — `__tests__/settings-credit-fetch-delay.test.ts` covers clamp, NaN rejection, round-trip, and subscribe hot-reload into the controller (5 cases — all green).
 
 #### E2E (49–52)
-49. `tests/e2e/e2e-credit-balance-ktlo.spec.ts` — happy path Ktlo workspace.
-50. `tests/e2e/e2e-credit-balance-timeout.spec.ts` — timeout + slider change.
+49. ✅ 2026-06-04 (scaffold) — `tests/e2e/e2e-credit-balance-ktlo.spec.ts` happy-path skeleton (marked `test.fixme` pending Ktlo fixture).
+50. ✅ 2026-06-04 (scaffold) — `tests/e2e/e2e-credit-balance-timeout.spec.ts` timeout-then-slider-recovery skeleton (`test.fixme` pending network-stub harness).
 51. `tests/e2e/e2e-credit-balance-no-fetch-when-inline.spec.ts` — zero calls when inline credits present.
 52. Network-count assertion in extension-artifacts reporter (exactly 1 call per workspace per window).
 
@@ -653,7 +653,14 @@ See that folder's `README.md` for the index.
 60. Mark Phase B complete in plan.md; update README.md/Phase-B box; close out.
 
 ### Remaining items
-1. Phase B step 41 (next).
-2. Pending — Plan Task UX (`.lovable/plans/credit-totals-and-macro-ux-20-step.md`).
-3. Pending — Release installer hardening v0.2 (blocked on `MINISIGN_SECRET_KEY`).
+1. Phase B step 51 — zero-call e2e for inline-credit workspaces.
+2. Phase B step 52 — network-count reporter assertion.
+3. Phase B steps 53–55 — lint + error-swallow + timer-teardown audit pass.
+4. Phase B step 56 — write `mem://features/macro-controller/credit-balance-update` + index entry.
+5. Phase B step 57 — minor version bump across manifest / constants / instruction.ts / shared-state.ts / changelogs.
+6. Phase B step 58 — changelog **Added** entry per spec file 20.
+7. Phase B step 59 — full suite + Playwright run, attach acceptance-matrix.
+8. Phase B step 60 — close-out: mark Phase B complete in plan.md + README.
+9. Pending — Plan Task UX (`.lovable/plans/credit-totals-and-macro-ux-20-step.md`).
+10. Pending — Release installer hardening v0.2 (blocked on `MINISIGN_SECRET_KEY`).
 

@@ -27,19 +27,19 @@ function ws(partial: Partial<WorkspaceCredit>): WorkspaceCredit {
 describe('generateCsv', () => {
   it('returns header only for empty workspace list', () => {
     const csv = generateCsv([]);
-    expect(csv).toBe('Workspace,Plan,Projects,Used,Remaining,Total');
+    expect(csv).toBe('Workspace,Plan,Projects,Used,Remaining,Total,Daily,DailyLimit,Source');
   });
 
   it('emits one data row per workspace in order', () => {
     const csv = generateCsv([
-      ws({ id: 'a', fullName: 'Alpha', plan: 'pro_3', numProjects: 7, totalCreditsUsed: 320, available: 80, totalCredits: 400 }),
-      ws({ id: 'b', fullName: 'Beta', plan: 'pro_0', numProjects: 0, totalCreditsUsed: 45, available: 15, totalCredits: 60 }),
+      ws({ id: 'a', fullName: 'Alpha', plan: 'pro_3', numProjects: 7, totalCreditsUsed: 320, available: 80, totalCredits: 400, dailyFree: 0, dailyLimit: 5 }),
+      ws({ id: 'b', fullName: 'Beta', plan: 'pro_0', numProjects: 0, totalCreditsUsed: 45, available: 15, totalCredits: 60, dailyFree: 0, dailyLimit: 5 }),
     ]);
     const lines = csv.split('\r\n');
     expect(lines).toHaveLength(3);
-    expect(lines[0]).toBe('Workspace,Plan,Projects,Used,Remaining,Total');
-    expect(lines[1]).toBe('"Alpha","pro_3",7,320,80,400');
-    expect(lines[2]).toBe('"Beta","pro_0",0,45,15,60');
+    expect(lines[0]).toBe('Workspace,Plan,Projects,Used,Remaining,Total,Daily,DailyLimit,Source');
+    expect(lines[1]).toMatch(/^"Alpha","pro_3",7,320,80,400,0,5,(Inline|Cache|Missing)$/);
+    expect(lines[2]).toMatch(/^"Beta","pro_0",0,45,15,60,0,5,(Inline|Cache|Missing)$/);
   });
 
   it('quotes names containing double quotes by doubling them', () => {
@@ -62,7 +62,7 @@ describe('generateCsv', () => {
     ]);
     // numProjects=1 falls back because default is 1 in ws(), but we override to 1 in generateCsv logic too
     // Let's just check the header is present and row has values
-    expect(csv).toMatch(/^Workspace,Plan,Projects,Used,Remaining,Total/);
+    expect(csv).toMatch(/^Workspace,Plan,Projects,Used,Remaining,Total,Daily,DailyLimit,Source/);
   });
 });
 

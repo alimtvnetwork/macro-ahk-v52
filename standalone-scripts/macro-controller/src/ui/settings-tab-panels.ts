@@ -136,10 +136,49 @@ export function buildTimingPanel(makeField: MakeFieldFn): TimingPanelResult {
   inputs['creditPollIntervalSeconds'] = pollField.input;
   panel.appendChild(pollField.row);
 
+  // Credit-balance fetch timeout slider (Step 46) — Ktlo/Free/Cancelled.
+  const cbField = _buildCreditFetchDelaySlider(overrides.creditFetchDelayMs ?? 3000);
+  inputs['creditFetchDelayMs'] = cbField.input;
+  panel.appendChild(cbField.row);
+
   // Toggles for Delay and Retry
   const automationToggles = _buildAutomationToggles(panel, overrides);
 
   return { panel, inputs, automationToggles };
+}
+
+/** Builds the credit-balance fetch-delay slider (Step 46, range 500–15000ms, step 100). */
+function _buildCreditFetchDelaySlider(initialValue: number): { row: HTMLDivElement; input: HTMLInputElement } {
+  const row = document.createElement('div');
+  row.style.cssText = 'margin-top:8px;margin-bottom:10px;';
+  const lbl = document.createElement('div');
+  lbl.style.cssText = 'font-size:10px;color:' + cSectionHeader + ';margin-bottom:3px;font-weight:600;';
+  lbl.textContent = 'Credit-Balance Fetch Timeout (ms)';
+  row.appendChild(lbl);
+
+  const sliderRow = document.createElement('div');
+  sliderRow.style.cssText = 'display:flex;align-items:center;gap:8px;';
+  const slider = document.createElement('input');
+  slider.type = 'range';
+  slider.min = '500';
+  slider.max = '15000';
+  slider.step = '100';
+  slider.value = String(Math.max(500, Math.min(15000, Math.floor(initialValue))));
+  slider.style.cssText = 'flex:1;height:6px;accent-color:' + cPrimary + ';cursor:pointer;';
+  const valLabel = document.createElement('span');
+  valLabel.style.cssText = 'font-size:11px;color:' + cPanelText + ';min-width:48px;text-align:right;font-family:monospace;';
+  valLabel.textContent = slider.value + 'ms';
+  slider.oninput = function() { valLabel.textContent = slider.value + 'ms'; };
+  sliderRow.appendChild(slider);
+  sliderRow.appendChild(valLabel);
+  row.appendChild(sliderRow);
+
+  const hint = document.createElement('div');
+  hint.style.cssText = 'font-size:9px;color:#64748b;margin-top:2px;';
+  hint.textContent = 'Timeout for /credit-balance fetch on Ktlo / Free / Cancelled workspaces.';
+  row.appendChild(hint);
+
+  return { row, input: slider };
 }
 
 /** Internal helper for automation toggles in Timing panel. */

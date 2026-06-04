@@ -50,6 +50,7 @@ import { installSpaRouteGuard } from './spa-route-guard';
 import { MAX_SDK_ATTEMPTS, SDK_RETRY_DELAY_MS, MAX_UI_CREATE_RETRIES, STARTUP_WS_MAX_RETRIES } from './constants';
 import { Label } from './types';
 import { loadSettingsOverrides, onSettingsChange } from './settings-store';
+import { setTimeoutMs as setCreditFetchTimeoutMs, subscribeCreditFetchSettings } from './credit-balance-update/credit-fetch-controller';
 import { hydrateCreditBalanceFromCache } from './credit-balance/hydrate';
 import { initMacroDb, saveProjectMetadata } from './db/macro-db';
 import { setupPromptCapture } from './ui/prompt-utils';
@@ -91,7 +92,22 @@ export function bootstrap(deps: {
   // Preload user settings overrides (chrome.storage.local) before any UI render
   // so the first paint of the workspace list reflects edited grace/refill values.
   // Fire-and-forget — non-blocking; resolver falls back to JSON until loaded.
-  void loadSettingsOverrides().then(function () {
+  void loadSettingsOverrides().then(function (overrides) {
+    // Hydrate the credit-balance-update controller timeout (Step 47) so the
+    // user-configured slider value takes effect on first paint. Subscribe so
+    // SAVE_SETTINGS updates hot-reload into the controller too.
+    if (typeof overrides.creditFetchDelayMs === 'number') {
+      setCreditFetchTimeoutMs(overrides.creditFetchDelayMs);
+    }
+    subscribeCreditFetchSettings();
+
+    // Re-render the UI when the user saves new overrides so the workspace
+    // status pills pick up the new thresholds without a page reload.
+    onSettingsChange(function () {
+      try { updateUI(); } catch (_e: unknown) { /* UI may not be mounted yet */ } // allow-swallow: UI may not be mounted at settings-change time; non-critical cosmetic update.
+    });
+  });
+
     // Re-render the UI when the user saves new overrides so the workspace
     // status pills pick up the new thresholds without a page reload.
     onSettingsChange(function () {
