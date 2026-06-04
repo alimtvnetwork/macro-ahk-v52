@@ -29,7 +29,7 @@ const logRenderState = new LogRenderState();
 export function addActivityLog(time: string | null, level: string, message: string, indent: number): void {
   const timestamp = time || new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
   const indentLevel = indent || 0;
-  const entry = { time: timestamp, level: level, msg: message, indent: indentLevel };
+  const entry = { time: timestamp, level: level, message: message, indent: indentLevel };
 
   activityLogLines.push(entry);
   let didTrim = false;
@@ -59,7 +59,7 @@ function _buildLogEntryHtml(entry: ActivityLogEntry): string {
     html += CssFragment.SpanStyleColor + cLogTimestamp + ';">[' + entry.time + ']</span> ';
     html += CssFragment.SpanStyleColor + cLogDefault + ';">[' + entry.level + ']</span> ';
   }
-  html += entry.msg;
+  html += entry.message;
   html += '</div>';
   return html;
 }

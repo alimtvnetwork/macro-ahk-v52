@@ -12,7 +12,7 @@
 
 export interface ActivityLogEntry {
   time: string;
-  msg: string;
+  message: string;
   level: string;
   indent: number;
 }

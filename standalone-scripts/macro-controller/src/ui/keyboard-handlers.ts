@@ -35,7 +35,7 @@ export interface KeyboardHandlerDeps {
   startLoop: (dir: string) => void;
   stopLoop: () => void;
   forceSwitch: (dir: string) => void;
-  restorePanel: (ctx: PanelLayoutCtx) => void;
+  restorePanel: (layoutContext: PanelLayoutCtx) => void;
   taskNextDeps?: TaskNextDeps;
 }
 
