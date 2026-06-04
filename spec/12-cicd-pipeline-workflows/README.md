@@ -7,4 +7,5 @@ CI/CD specification covering the GitHub Actions pipeline (`.github/workflows/ci.
 ## Files
 - [`00-overview.md`](./00-overview.md)
 - [`01-repo-rename-script.md`](./01-repo-rename-script.md)
+- [`02-chrome-extension-ci-cd/`](./02-chrome-extension-ci-cd/) — generic Manifest V3 CI/CD and release-hardening spec
 - [`99-consistency-report.md`](./99-consistency-report.md)
