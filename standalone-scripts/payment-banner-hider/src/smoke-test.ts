@@ -18,6 +18,8 @@
 
 import { BannerLocator } from "./banner-locator";
 import { PaymentBannerHider } from "./index";
+import { BannerLogFn } from "../../types/runtime/enums/banner";
+import { logPaymentBannerHiderError } from "./logger";
 import {
     BannerState,
     REMOVE_DELAY_MS,
@@ -104,7 +106,7 @@ export async function runPaymentBannerHiderSmokeTest(): Promise<boolean> {
             return true;
         }
 
-        console.error(`${TAG} FAIL`, failures);
+        logPaymentBannerHiderError(BannerLogFn.SmokeTest, `${TAG} FAIL`, failures);
 
         return false;
     } finally {
