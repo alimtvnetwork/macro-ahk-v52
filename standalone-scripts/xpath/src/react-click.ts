@@ -4,14 +4,14 @@
 
 import { getLogger } from "./logger";
 
-export function reactClick(el: Element, callerXpath?: string): void {
+export function reactClick(targetElement: Element, callerXpath?: string): void {
   const { log, logSub } = getLogger();
-  const tag = "<" + el.tagName.toLowerCase() +
-    ((el as HTMLElement).id ? "#" + (el as HTMLElement).id : "") + ">";
+  const tag = "<" + targetElement.tagName.toLowerCase() +
+    ((targetElement as HTMLElement).id ? "#" + (targetElement as HTMLElement).id : "") + ">";
 
   log("reactClick", "Clicking " + tag + " | XPath: " + (callerXpath || "(no xpath)"));
 
-  const rect = el.getBoundingClientRect();
+  const rect = targetElement.getBoundingClientRect();
   const cx = rect.left + rect.width / 2;
   const cy = rect.top + rect.height / 2;
 
@@ -32,11 +32,11 @@ export function reactClick(el: Element, callerXpath?: string): void {
     isPrimary: true,
   };
 
-  el.dispatchEvent(new PointerEvent("pointerdown", pointerOpts));
-  el.dispatchEvent(new MouseEvent("mousedown", mouseOpts));
-  el.dispatchEvent(new PointerEvent("pointerup", pointerOpts));
-  el.dispatchEvent(new MouseEvent("mouseup", mouseOpts));
-  el.dispatchEvent(new MouseEvent("click", mouseOpts));
+  targetElement.dispatchEvent(new PointerEvent("pointerdown", pointerOpts));
+  targetElement.dispatchEvent(new MouseEvent("mousedown", mouseOpts));
+  targetElement.dispatchEvent(new PointerEvent("pointerup", pointerOpts));
+  targetElement.dispatchEvent(new MouseEvent("mouseup", mouseOpts));
+  targetElement.dispatchEvent(new MouseEvent("click", mouseOpts));
 
   logSub("reactClick", "All 5 events dispatched");
 }

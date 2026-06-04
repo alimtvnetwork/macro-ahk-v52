@@ -59,8 +59,8 @@ export function findElement(descriptor: ElementDescriptor): Element | null {
           return sResult;
         }
       } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : String(e);
-        warn("findElement", "  Invalid selector: " + msg);
+        const message = e instanceof Error ? e.message : String(e);
+        warn("findElement", "  Invalid selector: " + message);
       }
     }
   }
@@ -79,8 +79,8 @@ export function findElement(descriptor: ElementDescriptor): Element | null {
             return ariaResult;
           }
         } catch (e: unknown) {
-          const msg = e instanceof Error ? e.message : String(e);
-          warn("findElement", "  Invalid ARIA selector for '" + ariaLabels[a] + "': " + msg);
+          const message = e instanceof Error ? e.message : String(e);
+          warn("findElement", "  Invalid ARIA selector for '" + ariaLabels[a] + "': " + message);
         }
       }
     }

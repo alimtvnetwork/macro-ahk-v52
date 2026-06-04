@@ -3,13 +3,13 @@
  * Decoupled so core modules can log without circular imports.
  */
 
-type LogFn = (fn: string, msg: string) => void;
+type LogFunction = (scopeLabel: string, message: string) => void;
 
-let _log: LogFn = () => {};
-let _logSub: LogFn = () => {};
-let _warn: LogFn = () => {};
+let _log: LogFunction = () => {};
+let _logSub: LogFunction = () => {};
+let _warn: LogFunction = () => {};
 
-export function setLogger(log: LogFn, logSub: LogFn, warn: LogFn): void {
+export function setLogger(log: LogFunction, logSub: LogFunction, warn: LogFunction): void {
   _log = log;
   _logSub = logSub;
   _warn = warn;

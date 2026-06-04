@@ -12,8 +12,8 @@ export function getByXPath(xpath: string): Node | null {
   try {
     return document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e);
-    getLogger().warn("getByXPath", "XPath evaluation error: " + msg);
+    const message = e instanceof Error ? e.message : String(e);
+    getLogger().warn("getByXPath", "XPath evaluation error: " + message);
     getLogger().warn("getByXPath", "Problematic XPath: " + xpath);
     return null;
   }
@@ -33,8 +33,8 @@ export function getAllByXPath(xpath: string): Node[] {
     }
     return nodes;
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e);
-    getLogger().warn("getAllByXPath", "XPath evaluation error: " + msg);
+    const message = e instanceof Error ? e.message : String(e);
+    getLogger().warn("getAllByXPath", "XPath evaluation error: " + message);
     getLogger().warn("getAllByXPath", "Problematic XPath: " + xpath);
     return [];
   }

@@ -143,6 +143,20 @@ test('id-denylist quarantines legacy cb/obj/fn/el/msg/ctx debt without re-allowi
     assert.ok(valMessages.some((message) => /val/.test(message.message)));
 });
 
+test('id-denylist fully applies to cleaned XPath source files', async () => {
+    const messages = await lintMessages(
+        DENYLIST_QUARANTINED,
+        'standalone-scripts/xpath/src/react-click.ts',
+        'id-denylist',
+    );
+    assert.ok(messages.some((message) => /cb/.test(message.message)));
+    assert.ok(messages.some((message) => /obj/.test(message.message)));
+    assert.ok(messages.some((message) => /\bfn\b/.test(message.message)));
+    assert.ok(messages.some((message) => /\bel\b/.test(message.message)));
+    assert.ok(messages.some((message) => /msg/.test(message.message)));
+    assert.ok(messages.some((message) => /ctx/.test(message.message)));
+});
+
 test('id-denylist allows descriptive replacement names', async () => {
     const messages = await lintMessages(
         DENYLIST_COMPLIANT,
