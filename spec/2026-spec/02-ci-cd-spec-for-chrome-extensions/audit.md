@@ -149,15 +149,15 @@ streaming, and TLS 1.2 defaults all bite.
 
 ---
 
-## Step 9 — G8 (HIGH, severity 68/100): Missing rollback / yank guidance
+## Step 9 — G8 (HIGH, severity 68/100): Missing rollback / yank guidance ✅ PATCHED 2026-06-04
 
-What happens when a bad release ships? No section covers:
-- Deleting the tag (`git push --delete origin vX.Y.Z`).
-- Marking the GitHub Release as draft via REST.
-- Whether `make_latest` auto-rolls back to the previous release (it does, but
-  the AI doesn't know).
+**Root cause**: The spec covered the happy path (publish → probe → done) but said nothing about what to do when a release is bad. An AI implementing recovery from training data alone will reach for `git push --delete origin vX.Y.Z` + "Delete release" — which is the **wrong** answer for any release that has already been downloaded, because `install.sh`/`install.ps1` and Chrome auto-update will then 404 forever and `checksums.txt` re-probes will fail.
 
-- **Fix**: new §36a "Rollback procedure" with exact commands.
+**Failure mode**: Bad ZIP ships → user deletes tag/release → already-installed extensions can no longer self-verify, mirrors serve stale binaries with no forward-pointer, and the same `vX.Y.Z` gets reused on the fix attempt, which Chrome's auto-updater silently ignores (version monotonicity).
+
+- **Fix applied**: new **§36a "Rollback / yank playbook (mandatory)"** with a 3-branch decision tree (never-installed vs. already-downloaded vs. security incident), hard rules forbidding tag force-push / version reuse / yank-notice removal, and the rule that every supersede MUST bump at least patch and link forward via a `## Supersedes` section.
+
+
 
 ---
 
