@@ -32,6 +32,7 @@ import {
 } from './workspace-status';
 import { getWorkspaceLifecycleConfig, type WorkspaceLifecycleConfig } from './workspace-lifecycle-config';
 import { explainEffectiveStatus, type StatusExplanation } from './status-explainer';
+import { resolveCreditSummary } from './credit-balance-update/credit-summary-resolver';
 
 const HOVERCARD_ID = 'marco-ws-hovercard';
 const SEL_WS_ITEM = '.loop-ws-item';
