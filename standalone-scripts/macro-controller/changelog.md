@@ -1,6 +1,16 @@
 # Macro Controller — Changelog
 
+## v3.51.0 (2026-06-04)
+
+### Added
+- Playwright E2E skeleton for Credit Totals modal (sort → drag → filter → CSV).
+- Close-out of `.lovable/plans/credit-totals-and-macro-ux-20-step.md` — every Step 1–20 fix shipped with matching tests; no-autorun guard verified, parseInt radix verified, Task-Next right-anchored, Credit Totals modal sort/drag/filter/CSV/projects-column live.
+
+### Changed
+- Version bump 3.50.0 → 3.51.0 across manifest, version.json, constants.ts, all 8 instruction.ts, shared-state.ts.
+
 ## v3.38.0 (2026-05-30)
+
 
 ### Added
 - **Issue 125 — Dashboard Summary Bar, Auth Relocation & Expire Badge Color Fix.**
