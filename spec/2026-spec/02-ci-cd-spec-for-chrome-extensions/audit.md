@@ -28,7 +28,7 @@ or *ambiguous*, not what is wrong.
 
 ---
 
-## Step 2 — G1 (BLOCKER, severity 90/100): `OWNER`/`REPO` are undefined inputs
+## Step 2 — G1 ✅ PATCHED 2026-06-04 — `OWNER`/`REPO` resolution waterfall
 
 §18 and §19 require `OWNER` and `REPO` env vars (`${OWNER:?}`) but the spec
 never tells the AI **where they come from**.
