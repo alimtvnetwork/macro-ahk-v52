@@ -151,17 +151,8 @@ export function bootstrap(deps: {
   // (consumed by the "Open Lovable Tabs" panel in the macro controller).
   registerPageWorkspaceResponder();
 
-  // ── Phase 01 V2: UI creation deferred until data loaded ──
-  // Set a hard 5s timeout fallback — if API hasn't resolved, create UI anyway
-  const uiCreationTimeout = window.setTimeout(function () {
-    if (!document.getElementById(IDS.CONTAINER)) {
-      log('Startup: ⏱ 5s timeout — creating UI without workspace data (fallback)', 'warn');
-      createUiAndObserver();
-    }
-  }, 5000);
+  scheduleUiCreationFallback();
 
-  // Store timeout ID so loadWorkspacesOnStartup can cancel it on success
-  (state as unknown as Record<string, unknown>).__uiTimeoutId = uiCreationTimeout;
 
   // ── Background data loading ──
   timingStart(Label.PromptPrewarm, 'Prompt Pre-warm');
