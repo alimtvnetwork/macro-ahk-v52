@@ -69,9 +69,9 @@ export interface PanelBuilderDeps {
   forceSwitch: (direction: string) => void;
   fetchLoopCreditsWithDetect: (isRetry?: boolean) => void;
   autoDetectLoopCurrentWorkspace: (token: string) => Promise<void>;
-  updateProjectButtonXPath: (val: string) => void;
-  updateProgressXPath: (val: string) => void;
-  updateWorkspaceXPath: (val: string) => void;
+  updateProjectButtonXPath: (nextXPath: string) => void;
+  updateProgressXPath: (nextXPath: string) => void;
+  updateWorkspaceXPath: (nextXPath: string) => void;
   executeJs: () => void;
   navigateLoopJsHistory: (dir: string) => void;
   populateLoopWorkspaceDropdown: () => void;
