@@ -1,7 +1,7 @@
 # Consistency Report — CI/CD Pipeline Workflows
 
-**Version:** 0.1.0
-**Last Updated:** 2026-04-22
+**Version:** 0.2.0
+**Last Updated:** 2026-06-04
 
 ---
 
@@ -14,7 +14,7 @@
 | Lowercase kebab-case naming | ✅ |
 | Unique numeric sequence prefixes | ✅ |
 
-**Health Score:** 100/100 (A+) — structural compliance only; module is a planned stub with no content.
+**Health Score:** 100/100 (A+) — structural compliance and active Chrome-extension CI/CD spec present.
 
 ---
 
@@ -22,10 +22,13 @@
 
 | # | File | Status |
 |---|------|--------|
-| 00 | `00-overview.md` | ✅ Present (stub) |
+| 00 | `00-overview.md` | ✅ Present |
+| 01 | `01-repo-rename-script.md` | ✅ Present |
+| 02 | `02-chrome-extension-ci-cd/README.md` | ✅ Present |
+| 02a | `02-chrome-extension-ci-cd/audit.md` | ✅ Present |
 | 99 | `99-consistency-report.md` | ✅ Present |
 
-**Total:** 2 files
+**Total:** 5 files
 
 ---
 
@@ -34,3 +37,4 @@
 | Date | Version | Action |
 |------|---------|--------|
 | 2026-04-22 | 0.1.0 | Stub created during Phase 2 of spec reorganization |
+| 2026-06-04 | 0.2.0 | Merged Chrome-extension CI/CD spec from misplaced `spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/` into canonical `spec/12-cicd-pipeline-workflows/02-chrome-extension-ci-cd/` |
