@@ -1,22 +1,160 @@
-# Step 30 — Sdk Content Script Contract
-
-> **Status:** stub. Expanded in the next `next 2` pass.
+# Step 30 — SDK Content-Script Contract
 
 Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./README.md) — see [`01-forty-planning-steps.md`](./01-forty-planning-steps.md) for the full ordered outline.
 
+## Root cause this step prevents
+
+The SDK self-test and page-load code previously exposed storage bugs because messages reached background handlers with incomplete payloads, especially missing `projectId`, and handler code tried to bind `undefined` into SQLite. The fix is to make the SDK/content-script bridge responsible for typed envelopes, default SDK namespace identity, correlation IDs, and fail-fast responses before any DB handler sees invalid input.
+
 ## Goal
 
-_To be written._ This step covers: **Sdk Content Script Contract**.
+Define the exact SDK ↔ content script ↔ background contract that guarantees required fields, single-path auth, safe KV access, and observable failures.
 
-## Scope checklist (what the expanded version must contain)
+## Required files
 
-- [ ] Goal — one-sentence summary.
-- [ ] Required packages and exact file paths.
-- [ ] Copy-pasteable TypeScript / config sample.
-- [ ] Error model — error type, logger tag, user-visible surface.
-- [ ] Acceptance — testable conditions.
-- [ ] Cross-references to neighbouring steps.
+- `standalone-scripts/marco-sdk/src/bridge.ts` — MAIN-world request/response transport.
+- `standalone-scripts/marco-sdk/src/kv.ts` — SDK KV API; always sends a project identity.
+- `standalone-scripts/marco-sdk/src/auth.ts` — public `getBearerToken()` path.
+- `src/content-scripts/page-bridge.ts` — isolated-world relay; validates channel and origin.
+- `src/background/message-router.ts` — background handler dispatch and error mapping.
+- `src/test/regression/sdk-selftest-handler.test.ts` — regression for SDK self-test payloads.
+- `standalone-scripts/marco-sdk/src/bridge.test.ts` — timeout and correlation tests.
 
-## Open questions for the implementer AI
+No new runtime package is required.
 
-_None recorded yet._
+## Constants
+
+```ts
+export const SDK_CHANNEL = "RISEUP_ASIA_MACRO_SDK";
+export const SDK_DEFAULT_PROJECT_ID = "RiseupMacroSdk";
+export const SDK_BRIDGE_TIMEOUT_MS = 5_000;
+```
+
+`SDK_DEFAULT_PROJECT_ID` is deliberate: the SDK has self-owned KV data even before a user project is selected. It prevents null/undefined project IDs from reaching SQLite-backed handlers.
+
+## Request envelope
+
+```ts
+type SdkBridgeRequest<TPayload> = {
+    channel: typeof SDK_CHANNEL;
+    direction: "sdk-to-extension";
+    requestId: string;
+    messageType: "KV_GET" | "KV_SET" | "AUTH_GET_BEARER_TOKEN" | "SELF_TEST";
+    projectId: string;
+    payload: TPayload;
+};
+
+type SdkBridgeResponse<TPayload> = {
+    channel: typeof SDK_CHANNEL;
+    direction: "extension-to-sdk";
+    requestId: string;
+    isOk: boolean;
+    payload?: TPayload;
+    errorMessage?: string;
+    reason?: string;
+    reasonDetail?: string;
+};
+```
+
+## SDK-side send helper
+
+```ts
+export function sendSdkRequest<TPayload, TResult>(
+    messageType: SdkBridgeRequest<TPayload>["messageType"],
+    payload: TPayload,
+    projectId = SDK_DEFAULT_PROJECT_ID,
+): Promise<TResult> {
+    const requestId = crypto.randomUUID();
+    const request: SdkBridgeRequest<TPayload> = {
+        channel: SDK_CHANNEL,
+        direction: "sdk-to-extension",
+        requestId,
+        messageType,
+        projectId,
+        payload,
+    };
+
+    return new Promise((resolve, reject) => {
+        const timer = window.setTimeout(() => {
+            window.removeEventListener("message", onMessage);
+            reject(new Error(`SDK bridge timed out: ${messageType}; requestId=${requestId}`));
+        }, SDK_BRIDGE_TIMEOUT_MS);
+
+        function onMessage(event: MessageEvent<SdkBridgeResponse<TResult>>): void {
+            if (event.source !== window) return;
+            const response = event.data;
+            if (response.channel !== SDK_CHANNEL || response.requestId !== requestId) return;
+            window.clearTimeout(timer);
+            window.removeEventListener("message", onMessage);
+            if (response.isOk) {
+                resolve(response.payload as TResult);
+                return;
+            }
+            reject(new Error(response.errorMessage ?? response.reason ?? "SDK bridge request failed"));
+        }
+
+        window.addEventListener("message", onMessage);
+        window.postMessage(request, window.location.origin);
+    });
+}
+```
+
+## Content-script relay rules
+
+1. Accept messages only when `event.source === window`.
+2. Require `channel === SDK_CHANNEL` and `direction === "sdk-to-extension"`.
+3. Require non-empty `requestId`, `messageType`, and `projectId`.
+4. Forward to `chrome.runtime.sendMessage()` with source `sdk-main-world`.
+5. Echo the same `requestId` back to the page.
+6. Convert `chrome.runtime.lastError` into `isOk:false` with `Reason="ChromeRuntimeLastError"`.
+7. Do not retry bridge messages. Caller may issue a new request explicitly.
+
+## KV contract
+
+```ts
+export async function kvGet(key: string, projectId = SDK_DEFAULT_PROJECT_ID): Promise<string | null> {
+    if (key.trim() === "") {
+        throw new Error("KV key is required");
+    }
+    return sendSdkRequest<{ key: string }, string | null>("KV_GET", { key }, projectId);
+}
+
+export async function kvSet(key: string, value: string, projectId = SDK_DEFAULT_PROJECT_ID): Promise<void> {
+    if (key.trim() === "") {
+        throw new Error("KV key is required");
+    }
+    await sendSdkRequest<{ key: string; value: string }, { saved: true }>("KV_SET", { key, value }, projectId);
+}
+```
+
+Background handlers still run `requireProjectId()` and `requireKey()`; SDK defaults are not a substitute for server-side/background validation.
+
+## Error model
+
+| Failure | Reason | Logger tag | User-visible surface |
+|---|---|---|---|
+| Missing project id before relay | `MissingRequiredField` | `SDK_BRIDGE` | SDK promise rejects |
+| Bridge timeout | `BridgeResponseTimeout` | SDK console + optional diagnostic row | SDK promise rejects |
+| Runtime disconnected | `ChromeRuntimeLastError` | `SDK_BRIDGE` | SDK promise rejects |
+| Handler rejects payload | handler reason, e.g. `MissingRequiredField` | handler tag | SDK promise rejects with response error |
+| BindError reaches router | `SQLITE_BIND_ERROR` | `SQLITE_BIND` | Errors panel row with column + SQL preview |
+
+Failure reports must include `requestId`, `messageType`, `projectId`, `Reason`, and `ReasonDetail`. For non-DOM failures, log `SelectorAttempts: null`. For requests with no variables, log `VariableContext: null`.
+
+## Acceptance
+
+- [ ] SDK KV self-test sends `projectId: "RiseupMacroSdk"`.
+- [ ] Content-script relay rejects missing `requestId`, `messageType`, or `projectId` before forwarding.
+- [ ] Background handlers still validate with `requireProjectId()` / `requireKey()`.
+- [ ] Bridge timeout is exactly one fail-fast timeout, not a retry loop.
+- [ ] Response always echoes the request ID.
+- [ ] Regression test proves no SDK self-test path can bind `undefined` into SQLite.
+- [ ] No SDK file imports extension background modules directly.
+
+## Cross-references
+
+- [step-15](./step-15-bind-safety-entry-point-guards.md) — required field guards.
+- [step-16](./step-16-bind-safety-proxy-net.md) — last-resort BindError defense.
+- [step-27](./step-27-localstorage-usage.md) — auth reads remain behind `getBearerToken()`.
+- [step-29](./step-29-cross-context-access.md) — context boundary diagram.
+- Memory: SQLite bind safety layer and single-path auth contract.
