@@ -40,13 +40,13 @@ beforeEach(async () => {
 });
 
 describe('credit-balance-update cache', () => {
-    it('returns fresh memory cache entries inside TTL', () => {
-        writeCreditBalanceUpdateCache('ws_1', result(), 1_000, 10_000);
+    it('returns fresh memory cache entries inside TTL', async () => {
+        await writeCreditBalanceUpdateCache('ws_1', result(), 1_000, 10_000);
         expect(readCreditBalanceUpdateCacheSync('ws_1', 10_999)?.balance?.totalRemaining).toBe(5);
     });
 
-    it('drops memory cache entries after TTL boundary', () => {
-        writeCreditBalanceUpdateCache('ws_1', result(), 1_000, 10_000);
+    it('drops memory cache entries after TTL boundary', async () => {
+        await writeCreditBalanceUpdateCache('ws_1', result(), 1_000, 10_000);
         expect(readCreditBalanceUpdateCacheSync('ws_1', 11_000)).toBeNull();
     });
 
