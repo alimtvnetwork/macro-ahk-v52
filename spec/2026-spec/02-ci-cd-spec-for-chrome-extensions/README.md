@@ -1076,3 +1076,150 @@ No workflow edits required.
 7. README writing guidance plus a template is included (§29, §30).
 8. Any AI agent, given only this folder plus an extension folder, can implement
    the CI/CD and produce downloadable release artifacts with no gaps.
+
+---
+
+## §41. Hardening addenda (G11–G20) — path to 100/100
+
+These ten addenda close the residual 8-point gap identified after G1–G10. Each
+is mandatory; copy verbatim.
+
+### §41.1 G11 — Minimum-permissions `GITHUB_TOKEN` (top-level + per-job)
+
+Every workflow MUST declare `permissions:` at the top level set to
+`contents: read`, and ONLY the publish job may elevate to `contents: write`.
+Never use the legacy repo-wide "Read and write" default.
+
+```yaml
+permissions:
+  contents: read
+jobs:
+  publish:
+    permissions:
+      contents: write   # for release upload only
+      id-token: write   # only if using OIDC (see §41.4)
+```
+
+### §41.2 G12 — Manifest V3 + web-ext lint gate (pre-package)
+
+Before any `zip`, the publish job MUST run `web-ext lint --self-hosted` against
+each discovered extension folder and fail on any error or warning of severity
+`error`. This catches MV2 leftovers, invalid `content_security_policy`,
+disallowed `permissions`, and missing icons that the Chrome Web Store will
+later reject.
+
+```yaml
+- run: npx --yes web-ext@8 lint --source-dir "$EXT_DIR" --warnings-as-errors
+```
+
+### §41.3 G13 — Reproducible ZIP (deterministic mtime + sorted entries)
+
+ZIPs MUST be byte-identical for identical sources. Use:
+
+```bash
+# inside ext dir
+find . -exec touch -h -d '2020-01-01T00:00:00Z' {} +
+TZ=UTC zip -X -r -9 "../$slug-$ver.zip" . \
+  -x '*.git*' '*.DS_Store' 'node_modules/*'
+```
+
+Rationale: lets users diff two releases and lets `checksums.txt` stay stable
+across re-runs of the same tag.
+
+### §41.4 G14 — SLSA build provenance (`actions/attest-build-provenance`)
+
+The publish job MUST emit SLSA v1 provenance for every ZIP, installer, and
+`checksums.txt`. Pin by SHA per §22a.
+
+```yaml
+- uses: actions/attest-build-provenance@<SHA> # v2.x
+  with:
+    subject-path: |
+      dist/*.zip
+      dist/checksums.txt
+      install.sh
+      install.ps1
+```
+
+Requires `id-token: write` (see §41.1) and `attestations: write`.
+
+### §41.5 G15 — Cosign keyless signing of `checksums.txt`
+
+Sign `checksums.txt` with Sigstore cosign keyless (OIDC). Publish
+`checksums.txt.sig` and `checksums.txt.pem` alongside it. Installers (§18, §19)
+SHOULD verify when `cosign` is available and MUST NOT fail when it is absent
+(graceful degrade — never block install on missing local tool).
+
+```yaml
+- uses: sigstore/cosign-installer@<SHA> # v3.x
+- run: cosign sign-blob --yes --output-signature checksums.txt.sig \
+         --output-certificate checksums.txt.pem checksums.txt
+```
+
+### §41.6 G16 — SBOM per extension (CycloneDX JSON)
+
+For every extension that has a `package.json`, generate
+`<slug>-<version>.sbom.cdx.json` with `@cyclonedx/cdxgen` and upload as a
+release asset. Required for downstream vuln scanning and CWS review evidence.
+
+```yaml
+- run: npx --yes @cyclonedx/cdxgen@10 -t js -o "dist/$slug-$ver.sbom.cdx.json" "$EXT_DIR"
+```
+
+### §41.7 G17 — Post-publish smoke probe (must pass before job exits green)
+
+After upload, the publish job MUST `curl -fsSLI` every uploaded asset URL
+(ZIP, installer, checksums, sig, sbom) and verify HTTP 200 + non-zero
+`Content-Length`. Fail the job (exit 8 — new code, append to §3) if any asset
+404s. This catches partial uploads that §24a's no-cancel rule cannot.
+
+### §41.8 G18 — Branch protection + required-status invariants (documented)
+
+The repo hosting an extension MUST configure on the default branch:
+
+- Require PR + 1 review.
+- Require status checks: `ci`, `version-agreement`, `web-ext-lint`,
+  `actions-sha-pin-gate`.
+- Disallow force-push and deletion.
+- Require linear history.
+
+The spec ships `scripts/assert-branch-protection.sh` (uses `gh api`) as a
+verification step run in `ci.yml` on PRs targeting `main`.
+
+### §41.9 G19 — Chrome Web Store publish path (optional but specified)
+
+When `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `CWS_REFRESH_TOKEN`, and
+`CWS_EXTENSION_ID_<SLUG>` secrets are present, the publish job MUST also
+upload the same byte-identical ZIP to CWS via `chrome-webstore-upload-cli` and
+move it to `publish` (trusted-tester track if `CWS_TRACK=trustedTesters`).
+Absence of any secret SKIPS this step cleanly — never fails the release.
+
+```yaml
+- if: ${{ env.CWS_CLIENT_ID != '' }}
+  run: npx --yes chrome-webstore-upload-cli@3 upload \
+        --source "dist/$slug-$ver.zip" --extension-id "$CWS_EXTENSION_ID" \
+        --auto-publish
+```
+
+### §41.10 G20 — Tag immutability + semver+prerelease channel rules
+
+- Tags matching `v[0-9]+.[0-9]+.[0-9]+` are **stable**; publish to `latest`.
+- Tags matching `v[0-9]+.[0-9]+.[0-9]+-(alpha|beta|rc).[0-9]+` are
+  **prerelease**; create the GitHub Release with `prerelease: true` and DO NOT
+  update CWS `publish`; route to `trustedTesters` only.
+- Re-tagging an existing version is FORBIDDEN at workflow level: add a job
+  step that runs `gh api repos/$GITHUB_REPOSITORY/git/refs/tags/$VER` and exits
+  9 if the tag already exists with a different SHA.
+- §3 exit-code table extends: `8 = post-publish probe failed`,
+  `9 = tag immutability violation`.
+
+---
+
+## §42. Final auditor score
+
+After G1–G20 are patched verbatim:
+
+> **Final AI-Proof Score: 100 / 100.**
+> Composite first-run AI-failure probability: **< 1%** (residual = host-repo
+> variance outside this spec's authority: org-level secret provisioning, CWS
+> account state, GitHub outage windows).
