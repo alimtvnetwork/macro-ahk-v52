@@ -529,7 +529,6 @@ in a `windows-latest` matrix leg of `ci.yml` to catch parser/TLS regressions.
 
 ```bash
 
-```bash
 # probe-siblings.sh — find the highest-numbered sibling repo (project-v2, -v3 …)
 probe_max=20; concurrency=8; deadline=5
 base="$1"  # e.g. https://github.com/acme/project
