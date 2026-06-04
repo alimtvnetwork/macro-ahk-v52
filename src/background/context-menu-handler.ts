@@ -211,24 +211,13 @@ async function doRebuildProjectSubmenu(): Promise<void> {
     const hasProjects = projects.length > 0;
 
     if (!hasProjects) {
-        createMenuItemSafe({
-            id: PROJECT_ID_PREFIX + "none",
-            parentId: MENU_ID.PROJECT_PARENT,
-            title: "(no projects)",
-            enabled: false,
-            contexts: ["all"],
-        });
+        createNoProjectsMenuItem();
         return;
     }
 
     // De-duplicate by id in case upstream returned duplicates (root cause of
     // "duplicate id" warnings when two projects shared an id).
-    const seen = new Set<string>();
-    const uniqueProjects = projects.filter((p) => {
-        if (seen.has(p.id)) return false;
-        seen.add(p.id);
-        return true;
-    });
+    const uniqueProjects = dedupeProjectsById(projects);
 
     const nextIds: string[] = [];
     for (const project of uniqueProjects) {
@@ -246,6 +235,25 @@ async function doRebuildProjectSubmenu(): Promise<void> {
     }
 
     trackedProjectIds = nextIds;
+}
+
+function createNoProjectsMenuItem(): void {
+    createMenuItemSafe({
+        id: PROJECT_ID_PREFIX + "none",
+        parentId: MENU_ID.PROJECT_PARENT,
+        title: "(no projects)",
+        enabled: false,
+        contexts: ["all"],
+    });
+}
+
+function dedupeProjectsById<T extends { id: string }>(projects: T[]): T[] {
+    const seen = new Set<string>();
+    return projects.filter((project) => {
+        if (seen.has(project.id)) return false;
+        seen.add(project.id);
+        return true;
+    });
 }
 
 let trackedProjectIds: string[] = [];
@@ -354,8 +362,8 @@ async function handleReinjectScripts(tabId: number): Promise<void> {
                     "marco-controller-marker",
                 ];
                 for (const id of markerIds) {
-                    const el = document.getElementById(id);
-                    if (el) el.remove();
+                    const element = document.getElementById(id);
+                    if (element) element.remove();
                 }
             },
         });

@@ -230,7 +230,7 @@ async function executeInMainWorld(code: string): Promise<string> {
 
     // Remove ALL previous marco injection scripts (any type) to prevent stale cached code
     const staleScripts = document.querySelectorAll('script[data-marco-injection]');
-    staleScripts.forEach(function(el) { el.remove(); });
+    staleScripts.forEach(function(element) { element.remove(); });
 
     const target = document.body ?? document.documentElement;
     if (!target) {
@@ -530,7 +530,7 @@ async function executeBlobInjection(code: string): Promise<string> {
 
     // Remove ALL previous marco injection scripts to prevent stale cached code
     const staleScripts = document.querySelectorAll('script[data-marco-injection]');
-    staleScripts.forEach(function(el) { el.remove(); });
+    staleScripts.forEach(function(element) { element.remove(); });
 
     const target = document.body ?? document.documentElement;
     if (!target) {
@@ -544,6 +544,7 @@ async function executeBlobInjection(code: string): Promise<string> {
     // eslint-disable-next-line max-lines-per-function
     await new Promise<void>((resolve, reject) => {
         let timeoutId: number | null = null;
+        // Duplicated intentionally: this function is serialized by chrome.scripting.executeScript.
         const cleanup = (): void => {
             if (timeoutId !== null) {
                 window.clearTimeout(timeoutId);

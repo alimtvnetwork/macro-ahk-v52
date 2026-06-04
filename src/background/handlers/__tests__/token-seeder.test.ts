@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Mock } from "vitest";
 
 const TAB_ID = 321;
 const TAB_URL = "https://id-preview--584600b3-0bba-43a0-a09d-ab632bf4b5ac.lovable.app/";
@@ -6,28 +7,28 @@ const TAB_URL = "https://id-preview--584600b3-0bba-43a0-a09d-ab632bf4b5ac.lovabl
 type ChromeMock = {
   runtime: {
     id: string;
-    sendMessage: ReturnType<typeof vi.fn>;
-    getURL: ReturnType<typeof vi.fn>;
+    sendMessage: Mock;
+    getURL: Mock;
   };
   storage: {
     local: {
-      get: ReturnType<typeof vi.fn>;
-      set: ReturnType<typeof vi.fn>;
-      remove: ReturnType<typeof vi.fn>;
+      get: Mock;
+      set: Mock;
+      remove: Mock;
     };
   };
   cookies: {
-    get: ReturnType<typeof vi.fn>;
-    getAll: ReturnType<typeof vi.fn>;
+    get: Mock;
+    getAll: Mock;
   };
   tabs: {
-    get: ReturnType<typeof vi.fn>;
+    get: Mock;
   };
   permissions: {
-    contains: ReturnType<typeof vi.fn>;
+    contains: Mock;
   };
   scripting: {
-    executeScript: ReturnType<typeof vi.fn>;
+    executeScript: Mock;
   };
 };
 

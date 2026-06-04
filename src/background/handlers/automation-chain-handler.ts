@@ -100,8 +100,8 @@ async function getProjectChainDb(projectSlug: string) {
     return db;
 }
 
-function resolveProject(msg: ChainMessage): string {
-    return msg.project || "__system__";
+function resolveProject(request: ChainMessage): string {
+    return request.project || "__system__";
 }
 
 function rowToChain(r: SqlRow): ChainOutput {
@@ -123,8 +123,8 @@ function rowToChain(r: SqlRow): ChainOutput {
 /*  GET_AUTOMATION_CHAINS                                              */
 /* ------------------------------------------------------------------ */
 
-export async function handleGetAutomationChains(msg?: MessageRequest): Promise<{ isOk: true; chains: ChainOutput[] }> {
-    const project = resolveProject((msg ?? {}) as ChainMessage);
+export async function handleGetAutomationChains(request?: MessageRequest): Promise<{ isOk: true; chains: ChainOutput[] }> {
+    const project = resolveProject((request ?? {}) as ChainMessage);
     const db = await getProjectChainDb(project);
     const stmt = db.prepare("SELECT * FROM AutomationChains ORDER BY Id");
     const chains: ChainOutput[] = [];
@@ -139,8 +139,8 @@ export async function handleGetAutomationChains(msg?: MessageRequest): Promise<{
 /*  SAVE_AUTOMATION_CHAIN (create or update)                           */
 /* ------------------------------------------------------------------ */
 
-export async function handleSaveAutomationChain(msg: MessageRequest): Promise<{ isOk: boolean; errorMessage?: string }> {
-    const raw = msg as ChainMessage;
+export async function handleSaveAutomationChain(request: MessageRequest): Promise<{ isOk: boolean; errorMessage?: string }> {
+    const raw = request as ChainMessage;
     const project = resolveProject(raw);
     const chain = raw.chain;
     if (!chain || !chain.name || !chain.slug) {
@@ -181,8 +181,8 @@ export async function handleSaveAutomationChain(msg: MessageRequest): Promise<{ 
 /*  DELETE_AUTOMATION_CHAIN                                            */
 /* ------------------------------------------------------------------ */
 
-export async function handleDeleteAutomationChain(msg: MessageRequest): Promise<{ isOk: boolean; errorMessage?: string }> {
-    const raw = msg as ChainMessage;
+export async function handleDeleteAutomationChain(request: MessageRequest): Promise<{ isOk: boolean; errorMessage?: string }> {
+    const raw = request as ChainMessage;
     const project = resolveProject(raw);
     const chainId = raw.chainId;
     if (!chainId) {
@@ -199,8 +199,8 @@ export async function handleDeleteAutomationChain(msg: MessageRequest): Promise<
 /*  TOGGLE_AUTOMATION_CHAIN                                            */
 /* ------------------------------------------------------------------ */
 
-export async function handleToggleAutomationChain(msg: MessageRequest): Promise<{ isOk: boolean; errorMessage?: string }> {
-    const raw = msg as ChainMessage;
+export async function handleToggleAutomationChain(request: MessageRequest): Promise<{ isOk: boolean; errorMessage?: string }> {
+    const raw = request as ChainMessage;
     const project = resolveProject(raw);
     const chainId = raw.chainId;
     if (!chainId) {
@@ -220,8 +220,8 @@ export async function handleToggleAutomationChain(msg: MessageRequest): Promise<
 /*  IMPORT_AUTOMATION_CHAINS (bulk insert)                             */
 /* ------------------------------------------------------------------ */
 
-export async function handleImportAutomationChains(msg: MessageRequest): Promise<{ isOk: boolean; imported?: number; errorMessage?: string }> {
-    const raw = msg as ChainMessage;
+export async function handleImportAutomationChains(request: MessageRequest): Promise<{ isOk: boolean; imported?: number; errorMessage?: string }> {
+    const raw = request as ChainMessage;
     const project = resolveProject(raw);
     const chains = raw.chains;
     if (!Array.isArray(chains)) {
