@@ -68,8 +68,32 @@ Always upload, in addition to the ZIPs:
 - `CHANGELOG.md` (verbatim copy)
 - `RELEASE_NOTES.md` (auto-generated)
 
+**Installer exit-code contract** — `install.sh` / `install.ps1` MUST exit with
+exactly the codes defined in [`03-download-and-install-scripts.md` §3](./03-download-and-install-scripts.md#3-install-script).
+Quick reference for release-time gates:
+
+| Code | Meaning | Spec anchor |
+|------|---------|-------------|
+| 0    | Success | §3 |
+| 3    | Bad `--version` argument | §3 |
+| 4    | Targeted asset missing (404) in strict mode | §3 |
+| 5    | Network/tool error | §3 |
+| 6    | Integrity failure (SHA-256 mismatch / archive invalid) | §17a |
+| 8    | Post-publish probe failed (missing/zero-byte asset) | §41.7 G17 |
+| 9    | Tag immutability violation | §41.10 G20 |
+| 10   | Missing `RELEASE_PAT` while split-release enabled | §41.11 G21 |
+| 11   | Missing `CWS_*` secret while CWS publish enabled | §41.11 G21 |
+| 12   | Missing `MINISIGN_*` secret while installer signing enabled | §41.11 G21 |
+| 13   | Branch-protection drift vs §41.8 | §41.8 G18 |
+
+The release workflow MUST fail-fast on any of `8 / 9 / 10 / 11 / 12 / 13` —
+they signal an unsafe or non-reproducible release page and MUST NOT be retried
+(see `mem://constraints/no-retry-policy`).
+
 
 ---
+
+
 
 ## §17a. SHA-256 verification contract (MANDATORY)
 
