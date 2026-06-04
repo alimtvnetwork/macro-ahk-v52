@@ -8,6 +8,7 @@
 
 import { parseOwnerSwitchCsv } from "../csv";
 import type { OwnerSwitchCsvParseResult } from "../csv";
+import { logLovableStandaloneError } from "../../../lovable-common/src/logger";
 
 export type ParseHandler = (result: OwnerSwitchCsvParseResult, fileName: string) => void;
 
@@ -36,7 +37,7 @@ export const wireFileInput = (input: HTMLInputElement, onParsed: ParseHandler): 
 
         handleFile(file, onParsed).catch((caught: unknown): void => {
             const message = caught instanceof Error ? caught.message : String(caught);
-            globalThis.console.error(`[LovableOwnerSwitch] CSV read failed: ${message}`);
+            logLovableStandaloneError("LovableOwnerSwitch.wireFileInput", `CSV read failed: ${message}`, caught);
         });
     });
 };
