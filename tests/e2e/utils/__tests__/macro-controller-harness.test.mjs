@@ -41,6 +41,24 @@ test('chrome stub exposes runtime/storage/tabs surfaces required by the boot pat
     }
 });
 
+test('page stub exposes auth token and marco SDK surfaces required by the bundle boot path', () => {
+    const src = readFileSync(HARNESS, 'utf8');
+    for (const needle of [
+        'marco_bearer_token',
+        'lovable-session-id',
+        'marco_token_saved_at',
+        'window.marco.authUtils',
+        'normalizeBearerToken',
+        'isUsableToken',
+        'window.marco.api.credits',
+        'fetchWorkspaces',
+        'window.marco.api.workspace',
+        'markViewed',
+    ]) {
+        assert.ok(src.includes(needle), `page stub missing auth/SDK surface: ${needle}`);
+    }
+});
+
 test('missing-bundle error follows Code-Red format (path + reason)', () => {
     const src = readFileSync(HARNESS, 'utf8');
     assert.match(src, /Missing IIFE bundle/, 'must name the missing artifact');
