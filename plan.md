@@ -596,19 +596,19 @@ See that folder's `README.md` for the index.
 
 ### Phase B — Implementation (Steps 21–60)
 
-#### Enums & types (21–25)
-21. Create `credit-balance-update/plan.ts` + `plan-mapper.ts` (Plan enum, wire mapping, CODE-RED log on Unknown).
-22. Create `grant-type.ts` + `grant-type-mapper.ts`.
-23. Create `credit-balance-types.ts` (CreditBalance, GrantTypeBalance, ExpiringGrant, Membership, WorkspaceInfo, CreditFetchResult).
-24. Create `credit-fetch-outcome.ts` enum.
-25. Add `__tests__/plan-mapper.test.ts` + `grant-type-mapper.test.ts` (cover all wire values + Unknown).
+#### Enums & types (21–25) ✅ COMPLETED 2026-06-04
+21. ✅ Create `credit-balance-update/plan.ts` + `plan-mapper.ts` (Plan enum, wire mapping, CODE-RED log on Unknown).
+22. ✅ Create `grant-type.ts` + `grant-type-mapper.ts`.
+23. ✅ Create `credit-balance-types.ts` (CreditBalance, GrantTypeBalance, ExpiringGrant, Membership, WorkspaceInfo, CreditFetchResult).
+24. ✅ Create `credit-fetch-outcome.ts` enum.
+25. ✅ Add `__tests__/plan-mapper.test.ts` + `grant-type-mapper.test.ts` (cover all wire values + Unknown).
 
-#### Parser & fetcher (26–30)
-26. `credit-balance-parser.ts` — snake_case→camelCase, defaults+warn for missing numerics, ParseError on bad shape.
-27. `__tests__/credit-balance-parser.test.ts` — sample payload + edge cases.
-28. `credit-balance-fetcher.ts` — `fetchWithTimeout` using AbortController; finally-clearTimeout pair.
-29. Wire `getBearerToken()` (no direct localStorage).
-30. Mandatory failure logging via `Logger.error('CreditBalanceUpdate.fetch', …)` with full Reason/ReasonDetail schema (file 11).
+#### Parser & fetcher (26–30) ✅ COMPLETED 2026-06-04
+26. ✅ `credit-balance-parser.ts` — snake_case→camelCase, defaults+warn for missing numerics, ParseError on bad shape.
+27. ✅ `__tests__/credit-balance-parser.test.ts` — sample payload + edge cases.
+28. ✅ `credit-balance-fetcher.ts` — `fetchWithTimeout` using AbortController; finally-clearTimeout pair.
+29. ✅ Wire `getBearerToken()` (no direct localStorage).
+30. ✅ Mandatory failure logging via `Logger.error('CreditBalanceUpdate.fetch', …)` with full Reason/ReasonDetail schema (file 11).
 
 #### Cache + single-flight (31–34)
 31. `credit-balance-cache.ts` — Map<WorkspaceId, CreditFetchResult> + IDB store `entries_v2_ktlo_free_cancelled`, 10-min TTL.
@@ -653,7 +653,7 @@ See that folder's `README.md` for the index.
 60. Mark Phase B complete in plan.md; update README.md/Phase-B box; close out.
 
 ### Remaining items
-1. Phase B step 21 (next).
+1. Phase B step 31 (next).
 2. Pending — Plan Task UX (`.lovable/plans/credit-totals-and-macro-ux-20-step.md`).
 3. Pending — Release installer hardening v0.2 (blocked on `MINISIGN_SECRET_KEY`).
 
