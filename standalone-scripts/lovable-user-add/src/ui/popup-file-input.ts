@@ -8,6 +8,7 @@
 
 import { parseUserAddCsv } from "../csv";
 import type { UserAddCsvParseResult } from "../csv";
+import { logLovableStandaloneError } from "../../../lovable-common/src/logger";
 
 export type ParseHandler = (result: UserAddCsvParseResult, fileName: string) => void;
 
@@ -36,7 +37,7 @@ export const wireFileInput = (input: HTMLInputElement, onParsed: ParseHandler): 
 
         handleFile(file, onParsed).catch((caught: unknown): void => {
             const message = caught instanceof Error ? caught.message : String(caught);
-            globalThis.console.error(`[LovableUserAdd] CSV read failed: ${message}`);
+            logLovableStandaloneError("LovableUserAdd.wireFileInput", `CSV read failed: ${message}`, caught);
         });
     });
 };
