@@ -61,8 +61,8 @@ test.describe('Macro-controller content-script harness', () => {
         }
     });
 
-    test.fixme(
-        'injects the production IIFE without page-script errors (un-fixme once panel-mount selectors are stable)',
+    test(
+        'injects the production IIFE without page-script errors',
         async () => {
             const context = await launchExtension(chromium);
             try {
@@ -71,6 +71,7 @@ test.describe('Macro-controller content-script harness', () => {
                 });
                 expect(page.url()).toMatch(/^https:\/\/lovable\.dev\/projects\/harness-bundle-smoke/);
                 expect(bundleError, `bundle threw: ${bundleError?.message}`).toBeNull();
+                await expect(page.locator('#ahk-loop-container')).toBeVisible({ timeout: 7000 });
             } finally {
                 await context.close();
             }
