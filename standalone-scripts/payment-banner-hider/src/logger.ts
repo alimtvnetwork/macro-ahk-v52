@@ -15,23 +15,23 @@ function getNamespace(): RiseupAsiaMacroExtNamespace | undefined {
 }
 
 export function logPaymentBannerHiderError(
-    fn: string,
+    functionName: string,
     message: string,
     error?: CaughtError,
 ): void {
     const logger = getNamespace()?.Logger;
 
     if (logger !== undefined) {
-        logger.error(fn, message, error);
+        logger.error(functionName, message, error);
 
         return;
     }
 
     if (error !== undefined) {
-        console.error(`[${fn}] ${message}`, error);
+        console.error(`[${functionName}] ${message}`, error);
 
         return;
     }
 
-    console.error(`[${fn}] ${message}`);
+    console.error(`[${functionName}] ${message}`);
 }
