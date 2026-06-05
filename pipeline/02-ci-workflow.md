@@ -142,7 +142,7 @@ The `setup` job runs the test suite via Vitest:
 - Tests located in `src/__tests__/`, `src/test/`, and `**/__tests__/`
 
 > See the canonical generic spec at
-> [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](../spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/README.md)
+> [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](../spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/readme.md)
 > for the repo-agnostic CI/CD contract this workflow implements.
 
 ## What "Build Extension" Does Internally

@@ -2,7 +2,7 @@
 
 > The forty ordered planning steps the rest of this spec elaborates.
 
-Part of [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](./README.md).
+Part of [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](./readme.md).
 
 ---
 
@@ -79,7 +79,7 @@ These forty steps are the **outline**. The detailed spec below (§1–§40) maps
 
 ## Audit Anchors (source-of-truth)
 
-- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](README.md).
+- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](readme.md).
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 

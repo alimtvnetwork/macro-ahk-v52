@@ -46,7 +46,7 @@ Cross-refs: `04-loader-contract/01-loader-interface.md`, `04-error-modes.md`.
 
 ## Audit Anchors (source-of-truth)
 
-- Implementations MUST honor every numeric default declared in [runtime defaults](../reference/05-runtime-defaults.md); see also [related](../README.md).
+- Implementations MUST honor every numeric default declared in [runtime defaults](../reference/05-runtime-defaults.md); see also [related](../readme.md).
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 

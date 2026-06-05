@@ -38,7 +38,7 @@ The existing `release-procedure.md` (at `spec/21-app/02-features/chrome-extensio
 |---|------|-------------|
 | 00 | [00-overview.md](./00-overview.md) | This file |
 | 01 | [01-repo-rename-script.md](./01-repo-rename-script.md) | Generic shell script that rewrites the previous repo name to the current one across all tracked text files (auto-detected from `git remote`). |
-| 02 | [2026 Chrome-extension CI/CD](../2026-spec/02-ci-cd-spec-for-chrome-extensions/README.md) | Merged reference to the canonical dated spec for generic Manifest V3 CI/CD, release artifact, installer, probing, hardening, and no-committed-ZIP standard. |
+| 02 | [2026 Chrome-extension CI/CD](../2026-spec/02-ci-cd-spec-for-chrome-extensions/readme.md) | Merged reference to the canonical dated spec for generic Manifest V3 CI/CD, release artifact, installer, probing, hardening, and no-committed-ZIP standard. |
 | 99 | [99-consistency-report.md](./99-consistency-report.md) | Structural health report |
 
 ---

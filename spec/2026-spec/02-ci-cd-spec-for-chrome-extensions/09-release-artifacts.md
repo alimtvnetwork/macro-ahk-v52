@@ -2,7 +2,7 @@
 
 > Attaching artifacts, release notes, installer scripts on the release page, SHA-256 contract, preview download, and acceptance checks.
 
-Part of [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](./README.md).
+Part of [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](./readme.md).
 
 ---
 
@@ -207,7 +207,7 @@ a.click(); URL.revokeObjectURL(a.href);
 
 ## Audit Anchors (source-of-truth)
 
-- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](README.md).
+- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](readme.md).
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 

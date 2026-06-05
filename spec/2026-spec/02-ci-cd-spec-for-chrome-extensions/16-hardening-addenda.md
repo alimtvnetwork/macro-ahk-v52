@@ -2,7 +2,7 @@
 
 > Path-to-100 hardening rules layered on top of the base spec.
 
-Part of [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](./README.md).
+Part of [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](./readme.md).
 
 ---
 
@@ -471,7 +471,7 @@ either condition is false, the host repo is non-compliant with the spec.
 
 ## Audit Anchors (source-of-truth)
 
-- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](README.md).
+- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](readme.md).
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 

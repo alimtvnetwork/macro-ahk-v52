@@ -1,6 +1,6 @@
 # Step 18 — Flush Strategy
 
-Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./README.md).
+Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./readme.md).
 
 ## Goal
 

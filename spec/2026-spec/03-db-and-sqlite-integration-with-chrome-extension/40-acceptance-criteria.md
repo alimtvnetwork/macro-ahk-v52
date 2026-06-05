@@ -1,6 +1,6 @@
 # Step 40 — Acceptance Criteria
 
-Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./README.md) — see [`01-forty-planning-steps.md`](./01-forty-planning-steps.md) for the full ordered outline.
+Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./readme.md) — see [`01-forty-planning-steps.md`](./01-forty-planning-steps.md) for the full ordered outline.
 
 ## Root cause this step prevents
 
@@ -169,7 +169,7 @@ Numeric defaults referenced in this file are canonical in [Runtime Defaults](../
 
 ## Audit Anchors (source-of-truth)
 
-- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](README.md).
+- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](readme.md).
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 

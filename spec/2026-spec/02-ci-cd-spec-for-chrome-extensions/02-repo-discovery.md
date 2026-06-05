@@ -2,7 +2,7 @@
 
 > How any agent reads the host repo and resolves owner/repo without hard-coding.
 
-Part of [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](./README.md).
+Part of [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](./readme.md).
 
 ---
 
@@ -112,4 +112,4 @@ function Resolve-OwnerRepo {
 
 - Default operation budget MUST be **5000 ms** (per `reference/05-runtime-defaults.md`).
 - Maximum retry attempts MUST be **3 items** before escalation.
-- See [folder index](README.md) for sibling specs and cross-references.
+- See [folder index](readme.md) for sibling specs and cross-references.

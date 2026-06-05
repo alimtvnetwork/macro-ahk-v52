@@ -2,7 +2,7 @@
 
 > One-line download + install contracts (bash + PowerShell), with full reference implementations.
 
-Part of [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](./README.md).
+Part of [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](./readme.md).
 
 ---
 
@@ -249,4 +249,4 @@ in a `windows-latest` matrix leg of `ci.yml` to catch parser/TLS regressions.
 
 - Default operation budget MUST be **5000 ms** (per `reference/05-runtime-defaults.md`).
 - Maximum retry attempts MUST be **3 items** before escalation.
-- See [folder index](README.md) for sibling specs and cross-references.
+- See [folder index](readme.md) for sibling specs and cross-references.

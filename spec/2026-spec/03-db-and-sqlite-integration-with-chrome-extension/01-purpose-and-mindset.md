@@ -1,6 +1,6 @@
 # Step 01 — Purpose and Mindset
 
-> Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./README.md). See [`01-forty-planning-steps.md`](./01-forty-planning-steps.md) for the full outline.
+> Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./readme.md). See [`01-forty-planning-steps.md`](./01-forty-planning-steps.md) for the full outline.
 
 ## Goal
 
@@ -81,7 +81,7 @@ This spec encodes the **defaults that prevent each failure**, with a copy-pastea
 
 ## Audit Anchors (source-of-truth)
 
-- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](README.md).
+- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](readme.md).
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 

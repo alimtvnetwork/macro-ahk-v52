@@ -82,7 +82,7 @@ retries.
 
 - Default operation budget MUST be **5000 ms** (per `reference/05-runtime-defaults.md`).
 - Maximum retry attempts MUST be **3 items** before escalation.
-- See [folder index](../README.md) for sibling specs and cross-references.
+- See [folder index](../readme.md) for sibling specs and cross-references.
 
 ---
 

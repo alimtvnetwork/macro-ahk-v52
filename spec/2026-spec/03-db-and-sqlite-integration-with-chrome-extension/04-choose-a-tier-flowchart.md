@@ -1,6 +1,6 @@
 # Step 04 — Choose a Tier Flowchart
 
-> Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./README.md). Previous: [`step-03-quota-persistence-eviction.md`](./03-quota-persistence-eviction.md). Next: [`step-05-mv3-constraints.md`](./05-mv3-constraints.md).
+> Part of [`spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/`](./readme.md). Previous: [`step-03-quota-persistence-eviction.md`](./03-quota-persistence-eviction.md). Next: [`step-05-mv3-constraints.md`](./05-mv3-constraints.md).
 
 ## Goal
 
@@ -268,7 +268,7 @@ Every policy violation must include the exact file path and key/store name when 
 
 ## Audit Anchors (source-of-truth)
 
-- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](README.md).
+- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](readme.md).
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 

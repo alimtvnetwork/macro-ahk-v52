@@ -30,7 +30,7 @@ sibling folders:
 
 | Folder | Purpose | Index |
 |--------|---------|-------|
-| [`macros/`](./macros/) | Chained, multi-step prompt automation with audit loops | [`macros/README.md`](./macros/README.md) |
+| [`macros/`](./macros/) | Chained, multi-step prompt automation with audit loops | [`macros/README.md`](./macros/readme.md) |
 | [`macro-prompts/`](./macro-prompts/) | Template-heavy prompts invoked only by macros | (Block 3) |
 | [`variables/`](./variables/) | `{{ Variable }}` templating shared by prompts + macros | (Block 2) |
 | [`ui/`](./ui/) | Prompts button + panel + Macros tab UX | (Block 5) |
