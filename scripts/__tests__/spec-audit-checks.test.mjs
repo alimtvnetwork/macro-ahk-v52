@@ -275,3 +275,48 @@ test('quarantine checker fails when draft lacks Graduation Plan', () => {
     rmSync(rootPath, { recursive: true, force: true });
   }
 });
+
+const SNAPSHOT_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-score-snapshot.mjs');
+
+test('score-snapshot checker fails when snapshot file is missing', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, '01-demo/01-good.md', '# Good\n');
+    const snapshotPath = join(rootPath, 'missing.snapshot.json');
+    const result = spawnSync(process.execPath, [SNAPSHOT_SCRIPT, `--root=${rootPath}`, `--snapshot=${snapshotPath}`], { encoding: 'utf8' });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /snapshot lock missing/);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('score-snapshot checker --update seeds the lock and passes on rerun', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, '01-demo/01-good.md', '# Good\n');
+    const snapshotPath = join(rootPath, 'scores.snapshot.json');
+    const seed = spawnSync(process.execPath, [SNAPSHOT_SCRIPT, `--root=${rootPath}`, `--snapshot=${snapshotPath}`, '--update'], { encoding: 'utf8' });
+    assert.equal(seed.status, 0, seed.stderr);
+    const rerun = spawnSync(process.execPath, [SNAPSHOT_SCRIPT, `--root=${rootPath}`, `--snapshot=${snapshotPath}`], { encoding: 'utf8' });
+    assert.equal(rerun.status, 0, rerun.stderr);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('score-snapshot checker fails when a tracked file is deleted', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, '01-demo/01-good.md', '# Good\n');
+    const snapshotPath = join(rootPath, 'scores.snapshot.json');
+    spawnSync(process.execPath, [SNAPSHOT_SCRIPT, `--root=${rootPath}`, `--snapshot=${snapshotPath}`, '--update'], { encoding: 'utf8' });
+    rmSync(join(rootPath, '01-demo/01-good.md'));
+    writeFixture(rootPath, '01-demo/02-other.md', '# Other\n');
+    const result = spawnSync(process.execPath, [SNAPSHOT_SCRIPT, `--root=${rootPath}`, `--snapshot=${snapshotPath}`], { encoding: 'utf8' });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /removed or renamed/);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
