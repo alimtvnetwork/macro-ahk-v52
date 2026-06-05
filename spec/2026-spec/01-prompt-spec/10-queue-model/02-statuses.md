@@ -61,3 +61,15 @@ pending ─► processing ─► completed
 - The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+<!-- audit: inline-types -->
+
+## Type & Schema (canonical)
+
+```json
+{
+  "$id": "QueueStatus",
+  "type": "string",
+  "enum": ["queued","running","done","failed","cancelled"],
+  "description": "Closed enum; transitions: queued -> running -> (done|failed|cancelled). Backwards transitions are forbidden."
+}
+```

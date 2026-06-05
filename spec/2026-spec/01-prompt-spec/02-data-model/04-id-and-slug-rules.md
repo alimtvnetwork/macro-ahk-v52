@@ -103,3 +103,25 @@ Numeric defaults referenced in this file are canonical in [Runtime Defaults](../
 - The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+<!-- audit: inline-types -->
+
+## Type & Schema (canonical)
+
+```typescript
+type Ulid = string;  // 26-char Crockford base32, RFC 4122 §4.1.5 compatible
+type Slug = string;  // lowercase kebab-case, [a-z0-9]+(-[a-z0-9]+)*, <= 80 chars
+function isUlid(s: string): boolean { return /^[0-9A-HJKMNP-TV-Z]{26}$/.test(s); }
+function isSlug(s: string): boolean { return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(s) && s.length <= 80; }
+```
+
+```json
+{
+  "$id": "IdSlugRules",
+  "type": "object",
+  "properties": {
+    "id":   { "type":"string", "pattern":"^[0-9A-HJKMNP-TV-Z]{26}$" },
+    "slug": { "type":"string", "pattern":"^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength":80 }
+  },
+  "required": ["id","slug"]
+}
+```

@@ -59,3 +59,26 @@ When persisted (optional), tasks are JSON; `PromptContext` MUST be JSON-safe (no
 - Default operation budget MUST be **5000 ms** (per `reference/05-runtime-defaults.md`).
 - Maximum retry attempts MUST be **3 items** before escalation.
 - See [folder index](../README.md) for sibling specs and cross-references.
+
+<!-- audit: inline-types -->
+
+## Type & Schema (canonical)
+
+```json
+{
+  "$id": "QueueTask",
+  "type": "object",
+  "required": ["id","promptId","status","createdAt"],
+  "properties": {
+    "id":         { "type":"string", "pattern":"^[0-9A-HJKMNP-TV-Z]{26}$" },
+    "promptId":   { "type":"string", "pattern":"^[0-9A-HJKMNP-TV-Z]{26}$" },
+    "status":     { "enum":["queued","running","done","failed","cancelled"] },
+    "createdAt":  { "type":"string", "format":"date-time" },
+    "startedAt":  { "type":"string", "format":"date-time" },
+    "finishedAt": { "type":"string", "format":"date-time" },
+    "attempt":    { "type":"integer", "minimum":1, "maximum":1 },
+    "reason":     { "type":"string", "maxLength":80 }
+  },
+  "additionalProperties": false
+}
+```
