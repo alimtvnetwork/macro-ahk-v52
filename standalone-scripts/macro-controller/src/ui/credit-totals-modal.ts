@@ -29,17 +29,15 @@ export function formatCount(n: number): string {
   return n.toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
 
-/** Convert an ISO timestamp into a short MYT clock string ("Tue 00:00 MYT"). */
-export function formatMytReset(iso: string): string {
+/** Convert an ISO timestamp into a short local clock string ("Tue 00:00"). */
+export function formatLocalReset(iso: string): string {
   if (!iso) return '—';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '—';
-  const MYT_OFFSET_MS = 8 * 60 * 60 * 1000;
-  const mytDate = new Date(d.getTime() + MYT_OFFSET_MS);
-  const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][mytDate.getUTCDay()];
-  const hh = String(mytDate.getUTCHours()).padStart(2, '0');
-  const mm = String(mytDate.getUTCMinutes()).padStart(2, '0');
-  return weekday + ' ' + hh + ':' + mm + ' MYT';
+  const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return weekday + ' ' + hh + ':' + mm;
 }
 
 /** Generate a RFC-4180-ish CSV string from workspace credits. */
@@ -545,7 +543,7 @@ export function buildBody(totals: CreditTotals, workspaces: ReadonlyArray<Worksp
   ]));
   cardsRow.appendChild(buildCard('Free Daily Credits', [
     { label: 'Today remaining', value: totals.freeDailyRemaining + ' / ' + totals.freeDailyCap, tone: totals.freeDailyRemaining > 0 ? 'ok' : 'muted' },
-    { label: 'Resets at', value: formatMytReset(totals.resetAtMyt), tone: 'accent' },
+    { label: 'Resets at', value: formatLocalReset(totals.resetAtLocal), tone: 'accent' },
     { label: 'Workspaces', value: formatCount(totals.totalCount), tone: 'total' },
   ]));
   body.appendChild(cardsRow);

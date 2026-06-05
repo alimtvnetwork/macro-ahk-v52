@@ -14,7 +14,7 @@ import {
   showCreditTotalsModal,
   removeCreditTotalsModal,
   formatCount,
-  formatMytReset,
+  formatLocalReset,
   formatSnapshotAge,
 } from '../ui/credit-totals-modal';
 import { aggregateCreditTotals } from '../credit-totals';
@@ -60,14 +60,14 @@ describe('formatCount', () => {
   });
 });
 
-describe('formatMytReset', () => {
+describe('formatLocalReset', () => {
   it('renders ISO timestamp as a short MYT clock', () => {
     // 2026-05-25 16:00 UTC = 2026-05-26 00:00 MYT (Tuesday).
-    expect(formatMytReset('2026-05-25T16:00:00.000Z')).toBe('Tue 00:00 MYT');
+    expect(formatLocalReset('2026-05-26T00:00:00.000Z')).toBe('Tue 00:00');
   });
   it('returns em-dash for invalid input', () => {
-    expect(formatMytReset('')).toBe('—');
-    expect(formatMytReset('not-a-date')).toBe('—');
+    expect(formatLocalReset('')).toBe('—');
+    expect(formatLocalReset('not-a-date')).toBe('—');
   });
 });
 
@@ -123,7 +123,7 @@ describe('buildBreakdownTable', () => {
 describe('buildBody', () => {
   it('surfaces a missing-data warning row when missingCount > 0', () => {
     const workspaces = [ws({ id: 'a', totalCreditsUsed: 10, available: 20, totalCredits: 30 })];
-    const totals = { used: 10, remaining: 20, granted: 30, freeDailyRemaining: 3, freeDailyCap: 5, resetAtMyt: '2026-05-25T16:00:00.000Z', missingCount: 2, totalCount: 3 };
+    const totals = { used: 10, remaining: 20, granted: 30, freeDailyRemaining: 3, freeDailyCap: 5, resetAtLocal: '2026-05-26T00:00:00.000Z', missingCount: 2, totalCount: 3 };
     const body = buildBody(totals, workspaces);
     const warn = body.querySelector('[data-credit-totals-warning]');
     expect(warn).not.toBeNull();
