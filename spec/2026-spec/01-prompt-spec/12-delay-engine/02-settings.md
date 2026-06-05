@@ -1,6 +1,6 @@
 # 02 — Per-Mode Settings
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T77
 
 ## Override scope

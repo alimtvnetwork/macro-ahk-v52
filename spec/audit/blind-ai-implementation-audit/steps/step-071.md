@@ -1,6 +1,6 @@
 # Step 71 — Dark-only theme enforcement
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Core rule:** Dark Theme Enforced
 **Files:** `src/components/theme/ThemeProvider.tsx`, `src/index.css`
 

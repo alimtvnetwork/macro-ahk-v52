@@ -1,6 +1,6 @@
 # Step 98 — Cross-cutting: deferred workstreams clarity
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://preferences/deferred-workstreams`
 
 ## Findings

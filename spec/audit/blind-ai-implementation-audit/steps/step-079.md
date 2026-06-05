@@ -1,6 +1,6 @@
 # Step 79 — Workspace badge display + tooltip popup
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://features/macro-controller/workspace-badge-display` (v3.12.0), `workspace-tooltip-members-popup` (Issue 113)
 
 ## Reasoning

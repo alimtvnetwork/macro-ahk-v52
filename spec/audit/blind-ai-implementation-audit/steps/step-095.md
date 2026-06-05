@@ -1,6 +1,6 @@
 # Step 95 — Cross-cutting: 17-consolidated-guidelines vs. `.lovable/coding-guidelines.md`
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Recurring from:** S5, S90
 
 ## Findings

@@ -1,6 +1,6 @@
 # T33 · `prompt.md` body conventions
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 The plain-text payload that ends up in `Prompt.body` after loading.
 

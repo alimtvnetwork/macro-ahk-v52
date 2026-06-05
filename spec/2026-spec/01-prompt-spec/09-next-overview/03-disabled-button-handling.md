@@ -1,6 +1,6 @@
 # 03 — Disabled-Button Handling
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T63
 
 ## Policy: retry-once-after-readiness-check

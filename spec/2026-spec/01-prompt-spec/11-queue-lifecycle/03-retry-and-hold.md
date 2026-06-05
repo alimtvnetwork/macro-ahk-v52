@@ -1,6 +1,6 @@
 # 03 — Retry & Hold
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T73
 
 ## No-Retry Policy (project-wide hard rule)

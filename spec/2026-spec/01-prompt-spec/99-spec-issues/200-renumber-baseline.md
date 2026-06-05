@@ -1,6 +1,6 @@
 # Renumber Baseline — Phase A + B complete
 
-**Date:** 2026-06-03 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-03
 **Plan:** `.lovable/plans/prompt-spec-2026-renumber-100.md`
 **Status:** Phase A ✅ · Phase B ✅ · Phase C ✅ · Phase D steps 41–50 ✅ · Phase D steps 51–60 pending
 
@@ -213,7 +213,7 @@ Live spec path: **`spec/2026-spec/01-prompt-spec/`**
 | 109 | Preserved `./02-queue-engine` snippet rewrite | 1 s | ✅ orchestrator can still import the extracted queue-engine snippet |
 | 110 | Re-ran `typecheck-spec-snippets.mjs` | 15 s | ✅ clean — 5 snippets typecheck |
 
-## Phase I (steps 111–120) — gate hardening (2026-06-03 14:20 MYT)
+## Phase I (steps 111–120) — gate hardening (2026-06-03)
 
 | Step | Action | Time | Result |
 |------|--------|------|--------|

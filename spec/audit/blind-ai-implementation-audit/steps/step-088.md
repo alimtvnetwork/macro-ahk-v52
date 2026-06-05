@@ -1,6 +1,6 @@
 # Step 88 — Skipped folders policy
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Core rule:** Read-only `skipped/` and `.release/`
 
 ## Reasoning

@@ -1,6 +1,6 @@
 # Step 87 — readme.txt prohibitions (SP-1..SP-7)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Core rule:** readme.txt — STRICTLY PROHIBITED time/clock/timestamp/git-update
 
 ## Reasoning

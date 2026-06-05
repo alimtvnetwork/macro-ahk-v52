@@ -1,6 +1,6 @@
 # Step 60 — Timer & observer teardown (lifecycle hygiene)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Core rule:** Timer & observer teardown — v2.243.0 audit L-1..L-5
 **Memory:** `mem://standards/timer-and-observer-teardown`
 

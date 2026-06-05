@@ -1,6 +1,6 @@
 # T44 · Keyboard contract
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 Every interactive dropdown action MUST have a keyboard equivalent.
 

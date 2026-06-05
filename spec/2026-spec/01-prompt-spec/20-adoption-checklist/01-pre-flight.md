@@ -1,6 +1,6 @@
 # 01 — Pre-flight checklist
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T116
 
 Before any code lands, confirm every `???` from the integration questionnaire (T101) has a real value.

@@ -1,6 +1,6 @@
 # Glossary — 2026 Prompt Spec
 
-**Updated:** 2026-06-03 (Asia/Kuala_Lumpur)
+**Updated:** 2026-06-03
 
 | Term | Definition |
 |---|---|

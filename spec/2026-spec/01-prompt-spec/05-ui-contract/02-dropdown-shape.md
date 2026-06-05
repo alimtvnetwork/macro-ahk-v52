@@ -1,6 +1,6 @@
 # T42 · Dropdown shape
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 Required regions of the open dropdown, top to bottom.
 

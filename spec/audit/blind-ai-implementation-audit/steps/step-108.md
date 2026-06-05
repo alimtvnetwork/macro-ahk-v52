@@ -1,6 +1,6 @@
 # Step 108 — Revised top-7 priority order (post-verification)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 
 ## Revisions after Batch 11 verification
 - ❌ **Drop S96** from top-7 — PERF-1 is **already fixed** in `hot-reload.ts` (Step 104). Just needs memory update.

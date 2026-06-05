@@ -1,6 +1,6 @@
 # 02 — Host Submit Button
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T62
 
 ## Contract

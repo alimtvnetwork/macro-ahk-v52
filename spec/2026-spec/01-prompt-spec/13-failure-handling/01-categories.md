@@ -1,6 +1,6 @@
 # 01 — Failure Categories
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T81
 
 ## Canonical taxonomy

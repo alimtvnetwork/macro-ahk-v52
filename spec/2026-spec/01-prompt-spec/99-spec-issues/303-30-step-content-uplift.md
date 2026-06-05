@@ -1,6 +1,6 @@
 # 303 — 30-Step Content Uplift Manifest
 
-**Date:** 2026-06-03 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-03
 **Trigger:** User instruction "improve that spec. I'll give you 30 steps to fix this".
 **Outcome:** 22 new reference files + 1 README rewrite, all wired into a refreshed master index. Blind-AI rescore re-confirms **100 / 100** with the structural gaps already closed in `302-gap-closure-30-step-proof.md` and the content scaffolding now densified.
 

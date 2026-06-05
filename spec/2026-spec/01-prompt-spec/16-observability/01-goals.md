@@ -1,6 +1,6 @@
 # 01 — Observability Goals
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T96
 
 ## What we want to answer

@@ -1,6 +1,6 @@
 # T43 · Search and filter
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 Two orthogonal filters narrow the visible prompt list:
 

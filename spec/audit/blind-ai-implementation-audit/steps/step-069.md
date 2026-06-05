@@ -1,6 +1,6 @@
 # Step 69 — Failure log schema validator
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Files:** `scripts/check-failure-log-schema.mjs` + test
 **Memory:** Core rule "Failure logs (mandatory shape)"
 

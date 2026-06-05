@@ -1,6 +1,6 @@
 # 04 — Rich Editor Adapters (ProseMirror / Lexical / CodeMirror / Monaco)
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T54
 
 ## Principle

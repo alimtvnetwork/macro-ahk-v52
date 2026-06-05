@@ -1,6 +1,6 @@
 # Step 81 — Planning roadmap (`plan.md`)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://workflow/planning-roadmap`
 **Files:** `plan.md` (561 lines), `.lovable/plan.md` (20 lines), `.lovable/plan-26-chrome-extension-generic.md`, `.lovable/plans/`
 

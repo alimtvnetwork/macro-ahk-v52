@@ -1,6 +1,6 @@
 # Step 73 — CSS injection sentinel
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://features/css-injection-sentinel`
 
 ## Reasoning

@@ -1,6 +1,6 @@
 # Step 106 — Verify S88 (skipped/release CI guard)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 
 ## Verified
 `.release` referenced in 4 workflows: `release.yml`, `release-watcher.yml`, `installer-tests.yml`, `ci.yml`. These **consume** `.release/` artifacts but do NOT guard against edits to it.

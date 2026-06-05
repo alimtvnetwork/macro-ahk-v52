@@ -1,6 +1,6 @@
 # T50 · Paste toast
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 A small, transient piece of UI feedback shown immediately after a
 paste attempt. Required for accessibility (announced via `aria-live`,

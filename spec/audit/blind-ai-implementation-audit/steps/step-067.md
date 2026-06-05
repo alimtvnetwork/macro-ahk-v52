@@ -1,6 +1,6 @@
 # Step 67 — Audit script ecosystem (52 check-/audit- scripts)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Files:** `scripts/check-*.mjs`, `scripts/audit-*.mjs` (52 total)
 
 ## Reasoning

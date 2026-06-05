@@ -1,6 +1,6 @@
 # Step 82 — Suggestions convention
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://workflow/suggestions-convention`
 **Files:** `.lovable/memory/suggestions/01-suggestions-tracker.md`, `.lovable/suggestions.md`
 

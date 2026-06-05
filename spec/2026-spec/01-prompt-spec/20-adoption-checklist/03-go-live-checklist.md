@@ -1,6 +1,6 @@
 # 03 — Go-live checklist
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T118
 
 **Functional**

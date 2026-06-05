@@ -1,7 +1,7 @@
 # Audit 12 — Namespace Logger Contract
 
 - **Source spec**: `../12-namespace-logger-contract.md`
-- **Audit date**: 2026-06-05 (Asia/Kuala_Lumpur)
+- **Audit date**: 2026-06-05
 - **Audited against**: `mem://standards/error-logging-via-namespace-logger.md`,
   `mem://features/namespace-database-creation`,
   `mem://architecture/logging-data-contract`,

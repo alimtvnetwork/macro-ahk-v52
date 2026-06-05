@@ -1,6 +1,6 @@
 # Step 53 — Message relay 3-tier system
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Spec:** `04-architecture/03-message-relay.md`
 **Memory:** `mem://architecture/message-relay-system`
 

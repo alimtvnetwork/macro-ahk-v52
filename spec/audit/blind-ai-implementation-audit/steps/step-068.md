@@ -1,6 +1,6 @@
 # Step 68 — Release watcher self-heal
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://cicd/release-watcher-self-heal-tag`
 
 ## Reasoning

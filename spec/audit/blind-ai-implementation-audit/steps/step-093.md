@@ -1,6 +1,6 @@
 # Step 93 — Cross-cutting: instruction-driven seeding + dual-emit
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memories:** `mem://architecture/instruction-driven-seeding` + `mem://architecture/instruction-dual-emit-phase-2b`
 
 ## Findings

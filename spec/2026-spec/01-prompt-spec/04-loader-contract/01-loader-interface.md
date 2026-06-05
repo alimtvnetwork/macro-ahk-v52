@@ -1,6 +1,6 @@
 # T36 · Loader interface
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 `PromptLoader` is the read-through layer between the UI and the
 `PromptStore`. It owns caching, variable resolution, and error

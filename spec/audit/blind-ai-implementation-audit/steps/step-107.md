@@ -1,6 +1,6 @@
 # Step 107 — Verify S60 (timer-teardown audit)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 
 ## Verified
 `ls scripts/ | grep -iE "timer|teardown|observer"` → **no matches**.

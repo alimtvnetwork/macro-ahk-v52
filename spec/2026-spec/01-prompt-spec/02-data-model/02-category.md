@@ -1,6 +1,6 @@
 # T27 · `PromptCategory` shape + free-tag fallback
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 Categories group prompts in the dropdown chip row. They are intentionally
 lightweight — a category is essentially a styled tag.

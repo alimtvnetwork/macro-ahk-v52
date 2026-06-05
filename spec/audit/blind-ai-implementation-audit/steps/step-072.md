@@ -1,6 +1,6 @@
 # Step 72 — Theme variable architecture (HSL semantic tokens)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Spec:** `07-design-system/02-theme-variable-architecture.md`
 
 ## Reasoning

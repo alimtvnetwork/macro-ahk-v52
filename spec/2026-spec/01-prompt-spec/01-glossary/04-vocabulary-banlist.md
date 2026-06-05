@@ -1,6 +1,6 @@
 # T24 · Vocabulary ban-list
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 To keep this spec genuinely generic, certain product / project / vendor
 identifiers from the source codebase MUST NOT appear in any file under

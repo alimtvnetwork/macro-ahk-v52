@@ -1,6 +1,6 @@
 # T28 · `PromptStore` interface
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 The single seam between the Prompts feature and any persistence
 backend. Integrators implement this; the rest of the spec only ever

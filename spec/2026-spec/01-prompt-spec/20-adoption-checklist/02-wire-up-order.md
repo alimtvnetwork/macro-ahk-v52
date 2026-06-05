@@ -1,6 +1,6 @@
 # 02 — Recommended wire-up order
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T117
 
 1. **Data model** (`02-data-model/`) — define `Prompt`, `PromptCategory` types in host code.

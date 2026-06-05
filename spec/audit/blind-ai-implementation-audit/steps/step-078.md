@@ -1,6 +1,6 @@
 # Step 78 — View transition patterns
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://ui/view-transition-patterns`
 
 ## Reasoning

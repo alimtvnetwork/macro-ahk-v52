@@ -1,6 +1,6 @@
 # T29 · `id` and `slug` rules
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 `id` and `slug` solve different problems. Implementations MUST keep
 them separate.

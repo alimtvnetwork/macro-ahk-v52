@@ -1,6 +1,6 @@
 # 05 — Handoff: where the next AI should start reading
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T120
 
 **Reading order for any AI model picking up this spec cold:**

@@ -1,6 +1,6 @@
 # Step 109 — Implementation kickoff: S81 quick-win
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 
 ## Why S81 first as proof-of-execution
 Smallest change with most-immediate clarity gain. Converts `.lovable/plan.md` (20 lines, redundant) into a 1-line pointer to canonical `plan.md` (561 lines).

@@ -52,8 +52,8 @@ pipeline runs from racing each other's `markInjected()`.
     regardless of the per-project `VerboseLogging` toggle. Sentinel logs
     are metadata only (`mem://standards/verbose-logging-and-failure-diagnostics`).
 13. **Wall-clock vs display.** `installedAtIso` is UTC ISO from
-    `new Date().toISOString()`. UI converts to Asia/Kuala_Lumpur via
-    `formatRelativeMy()` at render time only.
+    `new Date().toISOString()`. UI converts to via
+    `formatRelativeLocal()` at render time only.
 14. **`func:` form intentional.** Probe/mark/clear use the `func:` form
     (not `files:`) so the sentinel is atomic across builds and adds no
     `web_accessible_resources` entry. No `@shared/*` imports are
@@ -327,7 +327,7 @@ ad-hoc `console.log`.
 - **Outerhtml capture** — never. Sentinel is metadata only, regardless of
   `VerboseLogging`.
 - **`installedAt` timezone confusion** — sentinel writes UTC; UI converts
-  to Asia/Kuala_Lumpur at render only.
+  to at render only.
 - **`func` arity drift** — `args` is positional JSON; a test asserts
   `probe.length === args.length` and `mark.length === args.length`.
 
@@ -347,7 +347,7 @@ ad-hoc `console.log`.
       one pipeline → one `markInjected`.
 - [ ] Sentinel probe NEVER captures `outerHTML` regardless of verbose
       toggle.
-- [ ] `installedAtIso` is UTC; UI formats to Asia/Kuala_Lumpur at render.
+- [ ] `installedAtIso` is UTC; UI formats to at render.
 - [ ] Script-id list > `MAX_SENTINEL_SCRIPT_IDS` stores
       `data-marco-script-hash` + count instead of full array.
 - [ ] Iframe / non-top-frame requests return

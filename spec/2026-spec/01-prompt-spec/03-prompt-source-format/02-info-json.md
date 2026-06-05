@@ -1,6 +1,6 @@
 # T32 · `info.json` contract
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 The metadata sidecar for an on-disk prompt. Validated by
 `prompt.schema.json` from `02-data-model/05-json-schema.md` after the

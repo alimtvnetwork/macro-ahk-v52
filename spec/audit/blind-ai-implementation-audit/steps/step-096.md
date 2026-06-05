@@ -1,6 +1,6 @@
 # Step 96 — Cross-cutting: performance audit follow-through (PERF-1..PERF-8)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://performance/idle-loop-audit-2026-04-25`
 
 ## Findings

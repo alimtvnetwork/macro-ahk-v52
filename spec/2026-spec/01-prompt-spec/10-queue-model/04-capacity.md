@@ -1,6 +1,6 @@
 # 04 — Capacity
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T69
 
 ## Default cap: **999 tasks**

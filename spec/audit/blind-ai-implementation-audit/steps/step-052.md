@@ -1,6 +1,6 @@
 # Step 52 — Three-world model (MAIN / ISOLATED / BG)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Spec:** `04-architecture/02-three-world-model.md`
 **Memory:** `mem://architecture/injection-context-awareness` (SDK only in MAIN)
 

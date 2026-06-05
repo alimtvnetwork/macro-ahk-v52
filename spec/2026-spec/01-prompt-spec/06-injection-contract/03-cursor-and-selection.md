@@ -1,6 +1,6 @@
 # T48 · Cursor and selection — paste modes
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 How existing ChatBox content interacts with the pasted prompt text.
 The user (or queue engine) picks one of three `PasteMode` values per

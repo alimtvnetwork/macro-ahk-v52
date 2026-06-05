@@ -1,7 +1,7 @@
 # Audit 07 — Status and Health Panel
 
 - **Source spec**: `../07-status-and-health-panel.md`
-- **Audit date**: 2026-06-05 22:28 Asia/Kuala_Lumpur (duration ~5 min)
+- **Audit date**: 2026-06-05 (duration ~5 min)
 - **Audited against**: `mem://standards/timer-and-observer-teardown`,
   `mem://constraints/no-retry-policy`,
   `mem://standards/error-logging-via-namespace-logger.md`,

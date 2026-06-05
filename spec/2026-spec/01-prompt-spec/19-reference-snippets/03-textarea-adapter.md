@@ -1,6 +1,6 @@
 # 03 — Textarea editor adapter reference
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T113
 
 ```ts

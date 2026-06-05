@@ -1,6 +1,6 @@
 # Step 97 — Cross-cutting: spec organization (00–08 numeric hierarchy)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://architecture/spec-organization` (00–08)
 
 ## Findings

@@ -1,6 +1,6 @@
 # 05 — Adoption Telemetry
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T105
 
 ## Onboarding-specific events

@@ -1,7 +1,7 @@
 # Audit 14 — Boot Failure Banner
 
 - **Source spec**: `../14-boot-failure-banner.md`
-- **Audit date**: 2026-06-05 (Asia/Kuala_Lumpur)
+- **Audit date**: 2026-06-05
 - **Audited against**: `mem://architecture/extension-error-management`,
   `mem://features/log-diagnostics-export`,
   `mem://features/wasm-probe-persistence`,

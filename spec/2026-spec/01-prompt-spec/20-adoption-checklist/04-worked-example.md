@@ -1,6 +1,6 @@
 # 04 — Worked example: shipping Prompts to "HelpDeskly"
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T119
 
 **Scenario.** A fictional support-chat web app **HelpDeskly** wants the Prompts feature so agents can fire canned replies and run a 5-step "summarize ticket" loop.

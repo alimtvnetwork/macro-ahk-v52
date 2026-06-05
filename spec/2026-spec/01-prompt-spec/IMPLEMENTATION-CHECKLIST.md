@@ -1,6 +1,6 @@
 # Implementation Checklist — Blind-AI Runbook
 
-**Updated:** 2026-06-03 (Asia/Kuala_Lumpur)
+**Updated:** 2026-06-03
 **Read order:** Top to bottom. Do not skip ahead.
 
 ## Phase 0 — Read

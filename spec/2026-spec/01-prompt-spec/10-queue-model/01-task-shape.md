@@ -1,6 +1,6 @@
 # 01 — Queue Task Shape
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T66
 
 ```ts

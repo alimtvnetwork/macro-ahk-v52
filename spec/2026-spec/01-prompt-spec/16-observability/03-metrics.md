@@ -1,6 +1,6 @@
 # 03 — Metrics & Aggregations
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T98
 
 ## Local rollups (computed on demand from event log)

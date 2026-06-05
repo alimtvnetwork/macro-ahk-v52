@@ -1,7 +1,7 @@
 # 01 — Prompt Spec 2026 — Overview
 
 **Status:** DRAFT (Step 0 of 120)
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 **Renamed:** 2026-06-03 (root was `spec/2026-spec/01-prompt-spec/`, now `spec/2026-spec/01-prompt-spec/`)
 **Owner:** Riseup Asia LLC
 **Source feature:** `standalone-scripts/macro-controller/src/ui/prompt-*.ts` + `standalone-scripts/prompts/**`

@@ -1,6 +1,6 @@
 # Step 84 — Task execution pattern (RCA → tasks → "next")
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://workflow/task-execution-pattern`, `mem://preferences/next-command-convention`
 
 ## Reasoning

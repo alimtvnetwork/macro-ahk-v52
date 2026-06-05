@@ -1,6 +1,6 @@
 # T26 · `Prompt` shape
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 The single record type the rest of the spec revolves around.
 Keys are written in plain `camelCase`; the integrator is free to

@@ -1,6 +1,6 @@
 # Step 65 — Vite build environment (Node built-in imports)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://constraints/vite-build-environment`
 
 ## Reasoning

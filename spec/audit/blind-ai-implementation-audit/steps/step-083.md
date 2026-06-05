@@ -1,6 +1,6 @@
 # Step 83 — Question-and-ambiguity convention
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Core rule:** No-Questions Mode (active, 40-task window from 2026-04-26)
 
 ## Reasoning

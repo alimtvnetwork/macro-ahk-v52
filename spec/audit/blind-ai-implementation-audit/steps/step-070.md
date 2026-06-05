@@ -1,6 +1,6 @@
 # Step 70 — Storage PascalCase rewrite ban
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Core rule:** No Storage PascalCase Migration
 **File:** `scripts/check-no-storage-pascalcase-rewrite.mjs`
 

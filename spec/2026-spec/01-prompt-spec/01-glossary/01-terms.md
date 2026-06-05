@@ -1,6 +1,6 @@
 # T21 · Terms
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 Canonical vocabulary for this spec. Any future doc that uses these
 words MUST use the meaning given here.

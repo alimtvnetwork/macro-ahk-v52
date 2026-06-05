@@ -1,6 +1,6 @@
 # Step 99 — Cross-cutting: log diagnostics export + session logging
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memories:** `mem://features/log-diagnostics-export` + `mem://architecture/session-logging-system`
 
 ## Findings

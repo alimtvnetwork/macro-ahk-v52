@@ -1,6 +1,6 @@
 # Step 86 — Documentation standards (readme.md / CHANGELOG / CONTRIBUTING)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://workflow/documentation-standards` + `mem://workflow/root-readme-authoring-order`
 
 ## Reasoning

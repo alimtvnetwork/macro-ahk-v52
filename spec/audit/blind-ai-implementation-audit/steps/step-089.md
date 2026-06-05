@@ -1,6 +1,6 @@
 # Step 89 — Memory index hygiene
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **File:** `mem://index.md` (Core + Memories sections)
 
 ## Reasoning

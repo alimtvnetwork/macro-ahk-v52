@@ -1,6 +1,6 @@
 # 01 — In-memory PromptStore reference
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T111
 **~40 LOC TypeScript pseudo-code, no repo imports.**
 

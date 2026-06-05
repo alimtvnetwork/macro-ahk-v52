@@ -1,7 +1,7 @@
 # Audit 11 — Error Logging Discipline
 
 - **Source spec**: `../11-error-logging-discipline.md`
-- **Audit date**: 2026-06-05 (Asia/Kuala_Lumpur)
+- **Audit date**: 2026-06-05
 - **Audited against**: `mem://standards/error-logging-requirements.md`,
   `mem://constraints/file-path-error-logging-code-red.md`,
   `mem://standards/error-logging-via-namespace-logger.md`,

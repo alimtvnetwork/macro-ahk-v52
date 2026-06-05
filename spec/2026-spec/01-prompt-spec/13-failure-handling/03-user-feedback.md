@@ -1,6 +1,6 @@
 # 03 — User Feedback
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T83
 
 ## Surfaces

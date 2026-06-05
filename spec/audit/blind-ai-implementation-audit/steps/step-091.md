@@ -1,6 +1,6 @@
 # Step 91 — Cross-cutting: error swallowing audit
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://features/error-swallow-audit-generator`
 
 ## Findings

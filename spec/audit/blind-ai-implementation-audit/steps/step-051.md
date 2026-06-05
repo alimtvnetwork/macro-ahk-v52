@@ -1,6 +1,6 @@
 # Step 51 — Six-phase extension lifecycle spec
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Area:** Extension lifecycle & injection
 **Spec:** `spec/26-chrome-extension-generic/04-architecture/01-six-phase-lifecycle.md`
 

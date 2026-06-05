@@ -1,6 +1,6 @@
 # 2026 Prompt Spec — Master Index
 
-**Updated:** 2026-06-03 (Asia/Kuala_Lumpur)
+**Updated:** 2026-06-03
 **Canonical path:** `spec/2026-spec/01-prompt-spec/`
 **Score:** 100 / 100 (blind-AI rescore, post 30-step content uplift — see `99-spec-issues/303-30-step-content-uplift.md`)
 

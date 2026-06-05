@@ -1,6 +1,6 @@
 # 04 — Recovery
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T84
 
 ## Recovery surface, not retry

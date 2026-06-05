@@ -1,6 +1,6 @@
 # T23 · Non-goals
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 Things this spec deliberately does **not** cover. If a future task
 proposes one of these, push back and link this file.

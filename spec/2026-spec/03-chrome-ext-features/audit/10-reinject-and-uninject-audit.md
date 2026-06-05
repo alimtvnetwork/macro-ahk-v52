@@ -1,7 +1,7 @@
 # Audit 10 — Re-inject and Uninject
 
 - **Source spec**: `../10-reinject-and-uninject.md`
-- **Audit date**: 2026-06-05 07:35 Asia/Kuala_Lumpur (duration ~6 min)
+- **Audit date**: 2026-06-05 (duration ~6 min)
 - **Audited against**: `mem://architecture/script-injection-lifecycle`,
   `mem://standards/timer-and-observer-teardown`,
   `mem://architecture/message-relay-system`,

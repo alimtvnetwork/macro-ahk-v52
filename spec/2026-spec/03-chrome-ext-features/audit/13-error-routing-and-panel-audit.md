@@ -1,7 +1,7 @@
 # Audit 13 — Error Routing and Errors Panel
 
 - **Source spec**: `../13-error-routing-and-panel.md`
-- **Audit date**: 2026-06-05 (Asia/Kuala_Lumpur)
+- **Audit date**: 2026-06-05
 - **Audited against**: `mem://architecture/real-time-error-synchronization`,
   `mem://features/log-diagnostics-export`,
   `mem://architecture/logging-data-contract`,

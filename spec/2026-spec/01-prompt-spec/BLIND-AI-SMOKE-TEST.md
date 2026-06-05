@@ -1,6 +1,6 @@
 # Blind-AI Smoke Test — 20 Questions
 
-**Updated:** 2026-06-03 (Asia/Kuala_Lumpur)
+**Updated:** 2026-06-03
 **Pass criterion:** 20 / 20. Each question must be answerable by pointing to a single spec file (no inference).
 
 | # | Question | Authoritative file |

@@ -1,6 +1,6 @@
 # 05 — Next-loop orchestrator reference
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T115
 
 ```ts

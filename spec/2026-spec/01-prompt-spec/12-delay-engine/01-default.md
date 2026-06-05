@@ -1,6 +1,6 @@
 # 01 — Default Delay
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T76
 
 ## Default: **7000 ms** (window 5000–10000 ms)

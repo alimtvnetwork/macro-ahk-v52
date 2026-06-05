@@ -1,6 +1,6 @@
 # 02 — Edit Prompt
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T57
 
 ## Editable fields

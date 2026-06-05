@@ -1,6 +1,6 @@
 # T31 · On-disk folder layout
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 When a `PromptStore` is backed by a file system (the canonical
 distribution format and the shape used by the reference corpus at

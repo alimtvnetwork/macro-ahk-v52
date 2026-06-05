@@ -1,6 +1,6 @@
 # Step 58 — Dynamic script loading (`RiseupAsiaMacroExt.require`)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://architecture/dynamic-script-loading` (audited via SQLite)
 
 ## Reasoning

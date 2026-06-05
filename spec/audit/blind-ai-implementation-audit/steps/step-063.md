@@ -1,6 +1,6 @@
 # Step 63 — Build lock sentinel
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://features/build-lock-sentinel`
 
 ## Reasoning

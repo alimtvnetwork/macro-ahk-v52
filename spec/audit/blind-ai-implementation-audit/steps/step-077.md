@@ -1,6 +1,6 @@
 # Step 77 — Animation strategy (Tailwind + standard CSS only)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://style/animation-strategy` (zero external libraries)
 
 ## Reasoning

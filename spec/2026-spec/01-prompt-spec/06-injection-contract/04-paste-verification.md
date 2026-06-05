@@ -1,6 +1,6 @@
 # T49 · Paste verification
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 After running the T47 strategy, the injector MUST confirm the text
 actually reached the ChatBox. This is the single most common source

@@ -66,7 +66,7 @@ Spec is implementation-ready. Apply R1–R4 in a follow-up patch to reach ~95/10
 
 ## Audit time
 
-Started: 2026-06-05 22:14 Asia/Kuala_Lumpur. Finished: 2026-06-05 22:20. Duration: ~6 min.
+Started: 2026-06-05. Finished: 2026-06-05 22:20. Duration: ~6 min.
 
 ## Remaining audit items
 

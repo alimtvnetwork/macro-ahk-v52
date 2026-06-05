@@ -1,6 +1,6 @@
 # Step 105 — Verify S97 (spec range drift)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 
 ## Verified
 `ls spec/ | grep "^[0-9]" | wc -l` → **27** numbered top-level entries (00, 01, 02, 04, 05, 06, 07, 08, 09, 10, 11, 12, 14, 17, 21, 22, 23, 26, 30, 31, 32, plus repeats and `99-*` files).

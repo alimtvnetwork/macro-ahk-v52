@@ -1,6 +1,6 @@
 # 05 — Pause During Delay
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T80
 
 ## Requirement

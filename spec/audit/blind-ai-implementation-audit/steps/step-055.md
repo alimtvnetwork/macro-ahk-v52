@@ -1,6 +1,6 @@
 # Step 55 — New-tab / no-URL guard
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** Core rule + `mem://features/new-tab-no-url-guard` (v2.249.5)
 
 ## Reasoning

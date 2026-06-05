@@ -1,6 +1,6 @@
 # Step 104 — Verify S96 (PERF-1 hot-reload prod guard)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 
 ## Verified
 `src/background/hot-reload.ts` header:

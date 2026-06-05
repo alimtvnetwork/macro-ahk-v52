@@ -1,6 +1,6 @@
 # 02 — Event Schema
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T97
 
 ```ts
@@ -16,7 +16,7 @@ type ObservabilityEvent =
 
 ## Field rules
 
-- `at` is ISO 8601 in Asia/Kuala_Lumpur (Core memory: Timezone).
+- `at` is ISO 8601 in (Core memory: Timezone).
 - `taskId` is the ULID from `QueuedTask.id`.
 - `durationMs` measured from `task.started` to `task.completed`.
 - `promptSlug` is the only user-content field allowed; bodies are never emitted.

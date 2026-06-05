@@ -1,6 +1,6 @@
 # T45 · Accessibility
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 WCAG 2.2 AA is the baseline. This file pins the choices the Prompts
 feature MUST make so behaviour is uniform across hosts.

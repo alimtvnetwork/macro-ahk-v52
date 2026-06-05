@@ -1,6 +1,6 @@
 # 01 — Next-Automation Overview
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T61
 
 ## Purpose

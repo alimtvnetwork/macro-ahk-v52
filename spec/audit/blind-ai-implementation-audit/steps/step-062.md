@@ -1,6 +1,6 @@
 # Step 62 — Versioning policy unified
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Core rule:** Versioning unified across manifest, constants.ts, scripts
 **Memory:** `mem://workflow/versioning-policy` + `mem://workflow/automated-version-validation`
 

@@ -1,7 +1,7 @@
 # Audit 08 — Script Injection Lifecycle
 
 - **Source spec**: `../08-script-injection-lifecycle.md`
-- **Audit date**: 2026-06-05 22:33 Asia/Kuala_Lumpur (duration ~5 min)
+- **Audit date**: 2026-06-05 (duration ~5 min)
 - **Audited against**: `mem://architecture/script-injection-lifecycle`,
   `mem://architecture/injection-context-awareness`,
   `mem://architecture/message-relay-system`,

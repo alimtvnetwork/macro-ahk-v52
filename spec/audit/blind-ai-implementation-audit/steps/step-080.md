@@ -1,6 +1,6 @@
 # Step 80 — Design system spec coverage (07-design-system/*)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Spec:** `spec/07-design-system/` (14 files: 00–13 + 97/99)
 
 ## Reasoning

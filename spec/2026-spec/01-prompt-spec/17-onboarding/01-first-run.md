@@ -1,6 +1,6 @@
 # 01 — First-Run Experience
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T101
 
 ## Trigger

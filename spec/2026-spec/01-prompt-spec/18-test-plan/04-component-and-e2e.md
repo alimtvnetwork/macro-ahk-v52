@@ -1,6 +1,6 @@
 # 04 — Component & E2E
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T109
 
 ## Component (Testing Library)

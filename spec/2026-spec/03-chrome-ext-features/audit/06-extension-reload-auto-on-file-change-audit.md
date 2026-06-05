@@ -68,7 +68,7 @@ Spec is implementation-ready. R1–R4 are low-priority polish; none block step 0
 
 ## Audit time
 
-Started: 2026-06-05 22:20 Asia/Kuala_Lumpur. Finished: 2026-06-05 22:25. Duration: ~5 min.
+Started: 2026-06-05. Finished: 2026-06-05 22:25. Duration: ~5 min.
 
 ## Remaining audit items
 

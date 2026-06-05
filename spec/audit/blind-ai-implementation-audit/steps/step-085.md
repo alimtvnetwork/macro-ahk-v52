@@ -1,6 +1,6 @@
 # Step 85 — Readiness reports
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://workflow/readiness-reports` (Reliability + Failure-Chance Report before implementation)
 
 ## Reasoning

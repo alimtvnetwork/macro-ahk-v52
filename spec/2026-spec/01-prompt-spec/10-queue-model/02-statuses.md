@@ -1,6 +1,6 @@
 # 02 — Task Statuses
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T67
 
 ## States

@@ -1,6 +1,6 @@
 # 03 — Jitter
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T78
 
 ## Default: **±20 %** symmetric jitter

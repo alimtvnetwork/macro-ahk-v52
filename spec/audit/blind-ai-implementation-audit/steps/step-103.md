@@ -1,6 +1,6 @@
 # Step 103 — Verify S77 (framer-motion ban)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 
 ## Verified
 `grep framer-motion package.json` → **no matches**. Same for `gsap`.

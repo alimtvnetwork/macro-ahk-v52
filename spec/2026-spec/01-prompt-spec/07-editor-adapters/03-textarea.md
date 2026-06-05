@@ -1,6 +1,6 @@
 # 03 — Textarea / Input Adapter
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T53
 
 ## Scope

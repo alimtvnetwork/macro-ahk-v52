@@ -1,6 +1,6 @@
 # T34 · Defaults vs user prompts — merge precedence
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 A running Prompts feature typically merges **two** sources:
 

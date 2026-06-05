@@ -1,6 +1,6 @@
 # Step 110 — Batch 11 closing summary + drift corrections
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 
 ## Verifications run (Batch 11 = steps 101–110)
 | Step | Finding | Status after verification |

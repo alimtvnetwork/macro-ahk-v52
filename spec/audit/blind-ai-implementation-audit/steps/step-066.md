@@ -1,6 +1,6 @@
 # Step 66 — Sourcemap strategy
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://architecture/sourcemap-strategy` (dev=inline, prod=none)
 
 ## Reasoning

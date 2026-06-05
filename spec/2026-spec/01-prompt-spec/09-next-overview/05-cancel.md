@@ -1,6 +1,6 @@
 # 05 — Cancel
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T65
 
 ## Surfaces

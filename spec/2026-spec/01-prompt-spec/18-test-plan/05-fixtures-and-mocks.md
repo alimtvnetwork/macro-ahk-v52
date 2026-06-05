@@ -1,6 +1,6 @@
 # 05 — Test Fixtures & Mocks
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T110
 
 ## Shared fixtures

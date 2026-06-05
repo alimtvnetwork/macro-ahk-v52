@@ -1,6 +1,6 @@
 # T38 · Variable resolution
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 How `{{name}}` placeholders in `prompt.md` become real text at
 `render()` time.
@@ -20,7 +20,7 @@ How `{{name}}` placeholders in `prompt.md` become real text at
      advanced adapters.
    - `{{before}}` / `{{after}}` → `ctx.editor.before` / `ctx.editor.after`.
 3. **Built-in clock variables** (from `ctx.now ?? new Date()`):
-   - `{{date}}` → ISO date in **Asia/Kuala_Lumpur** (project default;
+   - `{{date}}` → UTC ISO date for storage; UI renders in the user's local timezone (
      integrator may override by supplying `vars.date`). Format: `YYYY-MM-DD`.
    - `{{time}}` → `HH:mm` in the same zone.
    - `{{datetime}}` → `YYYY-MM-DD HH:mm`.

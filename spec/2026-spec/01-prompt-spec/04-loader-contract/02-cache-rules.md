@@ -1,6 +1,6 @@
 # T37 · Cache rules
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 The loader owns exactly one cache: the merged prompt list produced by
 `loadAll()`. No partial / per-prompt caching — keeps invalidation trivial.

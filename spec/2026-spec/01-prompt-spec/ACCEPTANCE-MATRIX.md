@@ -1,6 +1,6 @@
 # Acceptance Matrix
 
-**Updated:** 2026-06-03 (Asia/Kuala_Lumpur)
+**Updated:** 2026-06-03
 **Rule:** Every spec subfolder must have a row. Implementer fills the right column with the test ID(s) that prove the acceptance.
 
 | Spec folder | Acceptance summary | Bound test IDs |

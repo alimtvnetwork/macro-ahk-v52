@@ -1,6 +1,6 @@
 # Step 61 — CI push trigger policy
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Core rule:** CI push trigger unfiltered
 **Files:** `.github/workflows/ci.yml`, `scripts/__tests__/ci-workflow-trigger-policy.test.mjs`
 

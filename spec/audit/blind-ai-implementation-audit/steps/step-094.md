@@ -1,6 +1,6 @@
 # Step 94 — Cross-cutting: namespace database creation rules
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://features/namespace-database-creation` (dot-separated, max 25, System.* reserved)
 
 ## Findings

@@ -1,6 +1,6 @@
 # 01 — Test Plan Overview
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T106
 
 ## Pyramid

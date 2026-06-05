@@ -1,6 +1,6 @@
 # T41 · Trigger surface
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 Where and how the End User opens the Prompts dropdown. The Prompts
 feature ships **no opinion** on the host UI chrome — the integrator

@@ -1,6 +1,6 @@
 # T46 · Target resolution
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 How the injector finds the ChatBox at runtime. The selector itself is
 **host-supplied** (`Q1` in `00-overview.md`); this file defines how the

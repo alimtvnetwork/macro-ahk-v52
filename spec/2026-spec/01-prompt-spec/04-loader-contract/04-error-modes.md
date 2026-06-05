@@ -1,6 +1,6 @@
 # T39 · Error modes
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 Every loader / store failure surfaces as a **typed error** with a
 short `Reason` code and a human-readable `ReasonDetail`. This matches

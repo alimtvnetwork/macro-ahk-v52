@@ -1,6 +1,6 @@
 # T30 · JSON Schema for `Prompt` and `PromptCategory`
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 Use these schemas in any implementation language to validate
 on-disk / over-the-wire records. Schema dialect: **JSON Schema 2020-12**.

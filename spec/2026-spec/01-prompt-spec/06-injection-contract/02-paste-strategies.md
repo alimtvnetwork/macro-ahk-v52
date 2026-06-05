@@ -1,6 +1,6 @@
 # T47 · Paste strategies
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 Once T46 returns a target element, the injector must place text into
 it in a way the HostApp's framework **observes**. Different editor

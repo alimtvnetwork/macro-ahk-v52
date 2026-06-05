@@ -1,6 +1,6 @@
 # Step 76 — UI framework choice (React rejected for content scripts)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://architecture/ui-framework-selection` (React rejected; UIManager used)
 
 ## Reasoning

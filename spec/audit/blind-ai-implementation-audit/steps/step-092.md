@@ -1,6 +1,6 @@
 # Step 92 — Cross-cutting: webhook fail-fast vs. schema versioning
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memories:** `mem://constraints/webhook-fail-fast` + `mem://features/webhook-result-schema-version` (v=2)
 
 ## Findings

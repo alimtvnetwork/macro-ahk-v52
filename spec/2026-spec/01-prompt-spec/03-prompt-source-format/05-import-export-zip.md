@@ -1,6 +1,6 @@
 # T35 · Import / export zip format
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 Round-trippable bundle for moving prompts between installs.
 

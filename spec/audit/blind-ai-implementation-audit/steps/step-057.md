@@ -1,6 +1,6 @@
 # Step 57 — Self-healing script storage (builtin-script-guard)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://architecture/self-healing-script-storage` (two-stage recovery)
 
 ## Reasoning

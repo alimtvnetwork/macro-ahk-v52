@@ -1,6 +1,6 @@
 # Step 75 — Constant naming (SCREAMING_SNAKE_CASE prefixes)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://architecture/constant-naming-convention` (ID_, SEL_, ATTR_, CSS_)
 
 ## Reasoning

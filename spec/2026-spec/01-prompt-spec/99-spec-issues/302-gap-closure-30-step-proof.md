@@ -1,6 +1,6 @@
 # Gap-Closure Proof — 88 → 100 (30-step audit)
 
-**Date:** 2026-06-03 14:25 MYT (Asia/Kuala_Lumpur, UTC+8)
+**Date:** 2026-06-03
 **Scope:** `spec/2026-spec/01-prompt-spec/`
 **Source-of-gap document:** [`300-blind-ai-rescore-pre-renumber.md`](./300-blind-ai-rescore-pre-renumber.md)
 **Outcome:** ✅ **No gap remains.** Both deductions that produced the 88/100 score (−8 Structural Clarity, −2 Root Naming) are demonstrably eliminated. Score = **100/100**, independently re-verifiable.

@@ -1,6 +1,6 @@
 # Step 64 — Build artifact preservation (`emptyOutDir: false`)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Memory:** `mem://architecture/build-artifact-preservation`
 
 ## Reasoning

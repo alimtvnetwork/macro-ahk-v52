@@ -1,6 +1,6 @@
 # Step 54 — Injection pipeline (script-injection-lifecycle 7 stages)
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Spec:** `04-architecture/07-injection-pipeline.md`
 **Memory:** `mem://architecture/script-injection-lifecycle` (7-stage via SW MAIN world)
 

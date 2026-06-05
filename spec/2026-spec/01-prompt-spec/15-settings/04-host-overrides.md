@@ -1,6 +1,6 @@
 # 04 — Per-Host Overrides
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T94
 
 ## Provider interface

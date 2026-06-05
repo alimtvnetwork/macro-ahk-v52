@@ -1,6 +1,6 @@
 # 04 — Skip First
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T79
 
 ## Default: **skip the delay before the first task** (`skipFirst: true`)

@@ -1,6 +1,6 @@
 # 02 — Detection Hooks
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T82
 
 ## Host-supplied hooks

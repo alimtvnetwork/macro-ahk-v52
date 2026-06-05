@@ -1,6 +1,6 @@
 # Step 90 — Strictly-avoid + coding-guidelines + what-to-read trio
 
-**Timestamp:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Timestamp:** 2026-06-02
 **Files:** `.lovable/strictly-avoid.md`, `.lovable/coding-guidelines.md`, `.lovable/what-to-read.md`, `.lovable/overview.md`, `.lovable/prompt.md`
 
 ## Reasoning

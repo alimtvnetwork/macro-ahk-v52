@@ -1,6 +1,6 @@
 # 02 — Process Tick
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** T72
 
 ## Single-runner loop

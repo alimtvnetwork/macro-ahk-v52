@@ -1,6 +1,6 @@
 # T22 · Actors
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 
 Three actors interact with this spec. Every later section MUST be
 readable from at least one of these vantage points.
