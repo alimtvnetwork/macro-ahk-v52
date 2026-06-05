@@ -141,7 +141,6 @@ export default tseslint.config(
       "src/background/script-resolver.ts",
       "src/background/session-log-writer.ts",
       
-      "src/components/automation/AutomationView.tsx",
       "src/components/options/ActivityLogTimeline.tsx",
       "src/components/options/LibraryView.tsx",
       "src/components/options/OpfsSessionBrowserPanel.tsx",
