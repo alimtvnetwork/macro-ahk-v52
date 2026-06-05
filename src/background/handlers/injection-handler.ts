@@ -74,36 +74,36 @@ export async function handleInjectScripts(
     const pipelineStart = performance.now();
     const timings: Record<string, number> = {};
 
-    const time = async <T>(label: string, fn: () => Promise<T>): Promise<T> => {
+    const time = async <T>(label: string, operation: () => Promise<T>): Promise<T> => {
         const start = performance.now();
-        const result = await fn();
+        const result = await operation();
         timings[label] = Math.round((performance.now() - start) * 10) / 10;
         return result;
     };
 
-    const msg = message as MessageRequest & {
+    const injectRequest = message as MessageRequest & {
         tabId: number;
         scripts: ScriptEntry[];
         forceReload?: boolean;
         launchSource?: InjectionLaunchSource;
     };
 
-    const isForceRun = msg.forceReload === true;
-    const launchSource: InjectionLaunchSource = msg.launchSource === "passive" ? "passive" : "manual";
+    const isForceRun = injectRequest.forceReload === true;
+    const launchSource: InjectionLaunchSource = injectRequest.launchSource === "passive" ? "passive" : "manual";
 
     // ── Early guard: skip injection on restricted URLs (chrome://, edge://, about:, etc.) ──
     try {
-        const tab = await chrome.tabs.get(msg.tabId);
+        const tab = await chrome.tabs.get(injectRequest.tabId);
         const tabUrl = tab.url ?? "";
         if (/^(chrome|edge|brave|opera|about|devtools|chrome-extension):\/\//i.test(tabUrl)) {
-            console.warn("[injection] BLOCKED — cannot inject into restricted URL: %s (tabId=%d)", tabUrl, msg.tabId);
+            console.warn("[injection] BLOCKED — cannot inject into restricted URL: %s (tabId=%d)", tabUrl, injectRequest.tabId);
             // v2.197.0: Field name corrected from `success` → `isSuccess` to
             // match the InjectionResult type used everywhere else in the
             // handler (see lines 181, 233, 491). The cast was masking the
             // typo, so callers (incl. e2e-script-injection) saw `undefined`
             // instead of `false` and asserted against the wrong field.
             return {
-                results: (msg.scripts as Array<{ id?: string }>).map((s) => ({
+                results: (injectRequest.scripts as Array<{ id?: string }>).map((s) => ({
                     scriptId: s.id ?? "unknown",
                     isSuccess: false,
                     errorMessage: `Cannot inject into restricted URL: ${tabUrl}`,
@@ -112,17 +112,17 @@ export async function handleInjectScripts(
             };
         }
     } catch (tabErr) {
-        console.warn("[injection] BLOCKED — tab %d is inaccessible (closed or discarded): %s", msg.tabId, (tabErr as Error).message);
+        console.warn("[injection] BLOCKED — tab %d is inaccessible (closed or discarded): %s", injectRequest.tabId, (tabErr as Error).message);
         return { results: [], inlineSyntaxErrorDetected: false };
     }
 
-    console.log("[injection] ── PIPELINE START ── tabId=%d, raw scripts=%d, forceReload=%s, launchSource=%s", msg.tabId, msg.scripts.length, isForceRun, launchSource);
+    console.log("[injection] ── PIPELINE START ── tabId=%d, raw scripts=%d, forceReload=%s, launchSource=%s", injectRequest.tabId, injectRequest.scripts.length, isForceRun, launchSource);
 
     // Show loading spinner toast at start of injection
     const toastEnabledEarly = await isInjectionToastEnabled();
     if (toastEnabledEarly) {
-        void showInjectionLoadingToast(msg.tabId, msg.scripts.length).catch((toastErr) => {
-            logBgWarnError(BgLogTag.INJECTION, `showInjectionLoadingToast failed (tab ${msg.tabId}, ${msg.scripts.length} scripts) — UI cosmetic only, pipeline continues`, toastErr);
+        void showInjectionLoadingToast(injectRequest.tabId, injectRequest.scripts.length).catch((toastErr) => {
+            logBgWarnError(BgLogTag.INJECTION, `showInjectionLoadingToast failed (tab ${injectRequest.tabId}, ${injectRequest.scripts.length} scripts) — UI cosmetic only, pipeline continues`, toastErr);
         });
     }
 
@@ -135,12 +135,12 @@ export async function handleInjectScripts(
     if (isForceRun) {
         console.log(
             "[injection:syntax-preflight] SKIPPED — forceReload=true, syntax preflight bypassed (raw scripts=%d)",
-            msg.scripts.length,
+            injectRequest.scripts.length,
         );
     }
-    const hasInlineSyntaxError = !isForceRun && requestHasInlineSyntaxError(msg.scripts as InjectionRequestScript[]);
+    const hasInlineSyntaxError = !isForceRun && requestHasInlineSyntaxError(injectRequest.scripts as InjectionRequestScript[]);
     const inlineSyntaxFailures = hasInlineSyntaxError
-        ? collectInlineSyntaxFailures(msg.scripts as InjectionRequestScript[])
+        ? collectInlineSyntaxFailures(injectRequest.scripts as InjectionRequestScript[])
         : [];
     if (hasInlineSyntaxError) {
         await cacheDelete(PIPELINE_CACHE_CATEGORY, PIPELINE_CACHE_KEY);
@@ -157,7 +157,7 @@ export async function handleInjectScripts(
     // shadows a new request — including bad-syntax requests that would
     // otherwise be reported as failures (see e2e syntax-error test).
     if (!isForceRun && !hasInlineSyntaxError) {
-        const requestedFingerprint = buildRequestFingerprint(msg.scripts as Array<Partial<InjectableScript> & { path?: string }>);
+        const requestedFingerprint = buildRequestFingerprint(injectRequest.scripts as Array<Partial<InjectableScript> & { path?: string }>);
         const cachedPayload = await time("cache_gate", () =>
             cacheGet<PipelineCachePayload>(PIPELINE_CACHE_CATEGORY, PIPELINE_CACHE_KEY));
         const cachedFingerprint = cachedPayload?.requestFingerprint ?? "";
@@ -170,7 +170,7 @@ export async function handleInjectScripts(
             console.log("[injection] CACHE HIT — skipping Stages 0–3, using cached payload (%d chars, %d scripts) in %.1fms",
                 cachedPayload.code.length, cachedPayload.scriptMeta.length, timings["cache_gate"]);
             // Jump directly to Stage 2 (env prep) + Stage 4 (execute) with cached payload
-            return await executeCachedPayload(msg.tabId, cachedPayload, pipelineStart, timings, time);
+            return await executeCachedPayload(injectRequest.tabId, cachedPayload, pipelineStart, timings, time);
         }
         if (cachedPayload && !cacheMatchesRequest) {
             await cacheDelete(PIPELINE_CACHE_CATEGORY, PIPELINE_CACHE_KEY);
