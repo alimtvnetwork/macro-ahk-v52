@@ -10,8 +10,10 @@ const errors = [];
 for (const name of readdirSync(SPEC)) {
   const dir = join(SPEC, name);
   if (!statSync(dir).isDirectory()) continue;
-  const readme = join(dir, 'README.md');
-  if (!existsSync(readme)) { errors.push(`${dir}: missing README.md`); continue; }
+  const lower = join(dir, 'readme.md');
+  const upper = join(dir, 'README.md');
+  const readme = existsSync(lower) ? lower : upper;
+  if (!existsSync(readme)) { errors.push(`${dir}: missing readme.md`); continue; }
   const body = readFileSync(readme, 'utf8');
   for (const rx of REQUIRED) {
     if (!rx.test(body)) errors.push(`${readme}: missing required section ${rx}`);
