@@ -297,7 +297,7 @@ export default tseslint.config(
       "standalone-scripts/marco-sdk/src/self-test.ts",
       "standalone-scripts/marco-sdk/src/utils.ts",
       "standalone-scripts/payment-banner-hider/src/index.ts",
-      "standalone-scripts/payment-banner-hider/src/smoke-test.ts",
+      
       
       
       "tests/e2e/cold-start.spec.ts",
