@@ -134,6 +134,9 @@ for (const file of files) {
   const lines = body.split(/\r?\n/);
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
+    if (isPedagogicalCounterExample(line)) {
+      continue;
+    }
     for (const pattern of FORBIDDEN_PATTERNS) {
       pattern.regex.lastIndex = 0;
       if (pattern.regex.test(line)) {
