@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.54.0] — 2026-06-05 Version Bump
+
+### Changed
+- Version bump: 3.53.0 → 3.54.0 across manifest, `src/shared/constants.ts`, `version.json`, and all standalone-script `instruction.ts` / `shared-state.ts` files.
+- Pinned root `readme.md` install snippets and "Pinned version" callouts to `v3.54.0`.
+
+### Fixed
+- **E2E-24 cross-project-sync**: Scoped `getByText('Alpha Automation')` to the `project-group-member-${PROJECT_ALPHA_ID}` test-id container to avoid strict-mode collision with the post-drag toast.
+
+---
+
 ## [v3.53.0] — 2026-06-05 CI/CD Pipeline Hardening
 
 ### Fixed
