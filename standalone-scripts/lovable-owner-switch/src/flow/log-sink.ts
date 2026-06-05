@@ -3,8 +3,8 @@
  *
  * Q10 default: logs are SQLite-tagged rows, NOT files. Each entry is a
  * typed `LogEntry` carrying `TaskId` + `RowIndex` + `Phase` + `Severity`
- * + `Message` + `Timestamp` (ISO Asia/Kuala_Lumpur is rendered by the
- * UI; storage stores UTC ISO).
+ * + `Message` + `Timestamp` (UTC ISO is rendered in the user's
+ * local timezone by the UI).
  *
  * Storage execution against `RiseupAsiaMacroExt.Sqlite` is wired by
  * P10's runtime adapter (next phase or P11+); this module exposes a

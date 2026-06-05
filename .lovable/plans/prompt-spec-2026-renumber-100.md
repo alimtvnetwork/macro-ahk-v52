@@ -2,7 +2,7 @@
 
 # Plan — Rename `spec/2026-spec/01-prompt-spec/` → `spec/2026-spec/01-prompt-spec/` and renumber children to dense `01..NN`
 
-**Created:** 2026-06-03 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-03
 **Owner:** Lovable agent
 **Trigger:** User request — "keep nice folder structure inside the 2026 spec; rename root to `2026-spec`; renumber children as 01, 02, 03 sequential; audit & fix every cross-reference; 100-step plan; final blind-AI audit score."
 **Memory anchors:** `mem://architecture/spec-organization`, `mem://workflow/file-naming-convention`, `mem://constraints/skipped-folders`.

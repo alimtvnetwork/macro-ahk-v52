@@ -181,7 +181,9 @@ function Field({ label, value }: { label: string; value?: string | null }) {
 
 function formatTimestamp(iso: string): string {
   try {
-    return new Date(iso).toLocaleString("en-MY", { timeZone: "Asia/Kuala_Lumpur" });
+    return new Date(iso).toLocaleString(undefined, {
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    });
   } catch {
     return iso;
   }

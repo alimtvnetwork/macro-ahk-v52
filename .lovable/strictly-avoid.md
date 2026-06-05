@@ -29,7 +29,7 @@
 
 ## Timezone
 
-- **Hardcoded timezone (any form):** Never write `Asia/Kuala_Lumpur`, `Kuala Lumpur`, `Malaysia` as a project timezone, `(UTC+8)` as a canonical tag, or any other fixed IANA zone / city label in code, specs, audits, plans, READMEs, comments, logs, or memory. All render-time formatting MUST use the user's local timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone`. Store timestamps as UTC ISO-8601. See memory: `localization/timezone`.
+- **Hardcoded timezone (any form):** Never write fixed IANA zones, city labels, country labels, fixed offsets, or canonical timezone tags in code, specs, audits, plans, READMEs, comments, logs, or memory. UI formatting MUST use the user's local timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone`. Store timestamps as UTC ISO-8601. See memory: `localization/timezone`.
 
 ## UI
 
@@ -48,7 +48,7 @@
 ### Strictly prohibited — readme.txt (sequenced, non-negotiable)
 
 1. **Never create, regenerate, or "update" `readme.txt` programmatically.** It is a manual milestone marker. The only legitimate writer is the user during a version bump.
-2. **Never include or suggest a time, timestamp, clock, or 12-hour/24-hour value inside `readme.txt`.** No `HH:MM`, no `AM/PM`, no ISO time, no relative time ("today", "now"), no Malaysia time, no UTC. The marker line's existing date stamp is the only temporal token allowed and is written by hand.
+2. **Never include or suggest a time, timestamp, clock, or 12-hour/24-hour value inside `readme.txt`.** No `HH:MM`, no `AM/PM`, no ISO time, no relative time ("today", "now"), no fixed-zone time, no UTC. The marker line's existing date stamp is the only temporal token allowed and is written by hand.
 3. **Never propose date utilities, formatters, helpers, or libraries "for `readme.txt`"** — this includes `dd-MMM-YYYY`, 12-hour clocks, locale formatters, `Intl.DateTimeFormat` wrappers, or any time-zone helper.
 4. **Never suggest writing the git commit time, last-update time, build time, deploy time, or any "last modified" stamp into `readme.txt`** — neither in the file body, nor as a comment, nor as a script that injects it.
 5. **Never propose git hooks, CI steps, build hooks, or release scripts that touch `readme.txt`.** It is outside every automation pipeline.

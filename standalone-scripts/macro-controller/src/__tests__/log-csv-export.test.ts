@@ -119,7 +119,7 @@ describe('CSV export — header / row alignment', () => {
     expect(header).toContain('Active Refill Warning (days)');
     expect(header).toContain('Available % of Total');
     expect(header).toContain('Daily % Used');
-    expect(header).toContain('Exported At (Asia/Kuala_Lumpur)');
+    expect(header).toContain('Exported At');
     expect(header).toContain('Workspace Short Name');
     expect(header).toContain('Git Sync Enabled');
   });
@@ -172,11 +172,11 @@ describe('CSV export — lifecycle column values', () => {
     expect(cols[headers.indexOf('Available % of Total')]).toBe('25.0');
   });
 
-  it('Exported At column is populated with Malaysia-timezone ISO string', () => {
+  it('Exported At column is populated with UTC ISO string', () => {
     const lines = exportAndRead([makeWs({})]);
     const headers = lines[0].split(',');
     const cols = lines[1].split(',');
-    const exported = cols[headers.indexOf('Exported At (Asia/Kuala_Lumpur)')];
-    expect(exported).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+08:00$/);
+    const exported = cols[headers.indexOf('Exported At')];
+    expect(exported).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
   });
 });

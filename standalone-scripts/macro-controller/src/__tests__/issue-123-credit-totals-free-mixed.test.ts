@@ -115,7 +115,7 @@ describe('Issue 123 — FREE-tier exclusion + mixed lists', () => {
     expect(r.granted).toBe(0);
     expect(r.totalCount).toBe(0);
     expect(r.missingCount).toBe(0);
-    expect(r.resetAtMyt).toMatch(/T16:00:00\.000Z$/); // next 00:00 MYT in UTC
+    expect(r.resetAtLocal).toMatch(/T00:00:00\.000Z$/);
   });
 
   it('FREE row with NaN billing fields does not pollute missingCount', () => {

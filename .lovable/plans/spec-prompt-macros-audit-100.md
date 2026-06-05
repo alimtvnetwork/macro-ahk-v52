@@ -1,6 +1,6 @@
 # Spec Audit — Prompt-Macros — 100-Task Phased Plan
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02
 **Mode:** DISCOVERY (no fixes). Each `next` = the next un-checked task.
 **Output folder:** `spec/21-app/05-prompts/99-spec-issues/`
 **Memory:** `mem://audits/spec-prompt-macros`
@@ -40,7 +40,7 @@
 20. [x] `20-image-asset-rot.md` — image refs without assets.
 21. [x] `21-relative-vs-absolute-paths.md` — guide expects spec-relative.
 22. [x] `22-mixed-date-formats.md` — ISO vs other.
-23. [x] `23-mixed-tz-mentions.md` — confirm Asia/Kuala_Lumpur usage.
+23. [x] `23-mixed-tz-mentions.md` — confirm timezone mentions use UTC storage and local rendering only.
 24. [x] `24-version-bump-policy.md` — none of the new docs declare semver intent.
 25. [x] `25-changelog-coverage.md` — `98-changelog.md` (after rename) coverage gaps.
 
@@ -91,7 +91,7 @@
 
 ---
 
-## AUDIT COMPLETE — 2026-06-02 (Asia/Kuala_Lumpur)
+## AUDIT COMPLETE — 2026-06-02
 
 All 100 tasks executed (66–85 collapsed by C29 shortcut). v1 honest readiness: **37/100** (later proven falsified — see retraction).
 

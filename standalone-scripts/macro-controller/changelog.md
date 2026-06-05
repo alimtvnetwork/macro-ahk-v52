@@ -1,5 +1,13 @@
 # Macro Controller — Changelog
 
+## v3.52.0 (2026-06-05)
+
+### Changed
+- Removed hardcoded timezone formatting from source code, default prompts, metadata, and `.lovable` cleanup targets.
+- CSV export timestamps now store UTC ISO strings; UI timestamp displays resolve the user's local timezone at render time.
+- Credit Totals reset timestamp now uses local-midnight semantics instead of fixed-offset calculations.
+- Version bump 3.51.0 → 3.52.0 across manifest, version.json, constants.ts, all 8 instruction.ts, and shared-state.ts.
+
 ## v3.51.0 (2026-06-04)
 
 ### Added

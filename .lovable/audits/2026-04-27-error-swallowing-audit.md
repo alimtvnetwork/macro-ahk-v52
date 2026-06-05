@@ -1,6 +1,6 @@
 # Error-Swallowing & Missing-Log Audit
 
-> **Date:** 2026-04-27 (Asia/Kuala_Lumpur)
+> **Date:** 2026-04-27
 > **Scope:** `src/**` and `standalone-scripts/**` (TS/TSX, excluding tests, dist, `.d.ts`, and `marco-sdk-template.ts` which is a runtime-injected page script with intentional minimal surface).
 > **Anchored to:**
 > - `spec/03-error-manage/02-error-architecture/01-error-handling-reference.md` (3-tier, never silent)

@@ -49,8 +49,7 @@ The matching memory pointer lives at
 
 - Markdown with clear headers.
 - Keep each note **under 200 words** for quick review.
-- Include a timestamp (`Asia/Kuala_Lumpur` per
-  `mem://localization/timezone`).
+- Include a UTC ISO timestamp or bare date; do not append a city/timezone tag.
 - Append one bullet to `.lovable/question-and-ambiguity/readme.md`
   pointing at the new file.
 

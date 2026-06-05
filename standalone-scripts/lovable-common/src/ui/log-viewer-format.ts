@@ -1,8 +1,8 @@
 /**
  * Shared Logs Viewer — pure formatting helpers.
  *
- * - `formatTimestampLocal` renders the stored UTC ISO into Asia/Kuala_Lumpur
- *   per `mem://localization/timezone`.
+ * - `formatTimestampLocal` renders the stored UTC ISO in the user's local
+ *   timezone per `mem://localization/timezone`.
  * - `formatRowIndex` renders `null` (task-level entries) as "—" so the
  *   table never shows literal "null".
  * - `formatEntriesAsText` produces the plain-text payload for the
@@ -13,8 +13,8 @@
 import { LogViewerSeverityCode } from "./log-viewer-types";
 import type { LogViewerEntry } from "./log-viewer-types";
 
-const KL_TIME_OPTIONS: Intl.DateTimeFormatOptions = {
-    timeZone: "Asia/Kuala_Lumpur",
+const LOCAL_TIME_OPTIONS: Intl.DateTimeFormatOptions = {
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     year: "numeric", month: "2-digit", day: "2-digit",
     hour: "2-digit", minute: "2-digit", second: "2-digit",
     hour12: false,
@@ -27,7 +27,7 @@ export const formatTimestampLocal = (utcIso: string): string => {
         return utcIso;
     }
 
-    return new Intl.DateTimeFormat("en-CA", KL_TIME_OPTIONS).format(d);
+    return new Intl.DateTimeFormat("en-CA", LOCAL_TIME_OPTIONS).format(d);
 };
 
 export const formatRowIndex = (rowIndex: number | null): string => {

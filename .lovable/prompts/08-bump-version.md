@@ -30,7 +30,7 @@ Do it for all the bump-version prompts in the macro-controller.
    d. Every `standalone-scripts/*/src/instruction.ts` manifest (`macro-controller`, `xpath`, `marco-sdk`, `lovable-user-add`, `lovable-common`, `lovable-owner-switch`, …)
    e. Run `node scripts/check-version-sync.mjs` and confirm exit 0
 2. **Add changelog entry** to root `changelog.md`:
-   a. New `## vX.Y.0 — {YYYY-MM-DD}` heading (date in Asia/Kuala_Lumpur)
+   a. New `## vX.Y.0 — {YYYY-MM-DD}` heading
    b. Bullets grouped by `Added`, `Changed`, `Fixed`, `Removed` as applicable
    c. Reference the workstream / spec / plan section that triggered the bump
 3. **Pin version in root `README.md`**:
@@ -54,7 +54,7 @@ magic strings (use Enum/Constants), `is`/`has` boolean prefixes, DRY.
 1. **All three artifacts must move together**: version sites + changelog + README. Never bump version without the changelog entry or README pin.
 2. **Apply to every existing "bump version" prompt** in the macro-controller — this checklist is the canonical template; older bump-version prompts inherit it by reference.
 3. Never overwrite a previous changelog entry; always append a new dated section.
-4. Date uses Asia/Kuala_Lumpur timezone (per project core memory).
+4. Dates use UTC storage or bare `YYYY-MM-DD` headings; render local time only in UI.
 5. No CI notifications on bump (per project core memory).
 6. Sequential fail-fast — if `check-version-sync.mjs` fails, stop and fix; do not retry blindly.
 

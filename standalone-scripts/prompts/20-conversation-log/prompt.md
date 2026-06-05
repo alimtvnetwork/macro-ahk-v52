@@ -33,7 +33,7 @@
 # <Title>
 
 **Sequence:** NNN
-**Captured (Asia/Kuala_Lumpur):** YYYY-MM-DD HH:MM
+**CapturedUtc:** YYYY-MM-DDTHH:MM:SSZ
 **Span:** <user-message-count> user prompts
 **Topic:** <one-line summary>
 
@@ -67,7 +67,7 @@
 **Rules:**
 - User prompts are **verbatim** (preserve typos, casing, punctuation). Wrap each in a blockquote.
 - Assistant side is a **terse factual summary only** — never paste internal reasoning, never invent quotes.
-- Use Asia/Kuala_Lumpur timezone for any timestamps (per Core memory).
+- Use UTC ISO-8601 for stored timestamps; render local time only in UI.
 - If you cannot recall a prior user prompt with confidence, write `> [unrecoverable — see chat history index N]` rather than guessing. Use `chat_search` tools to recover when possible.
 
 ---

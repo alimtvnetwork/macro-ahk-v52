@@ -81,7 +81,7 @@ function formatRemaining(ms: number): string {
 function formatRetryTimestamp(ts: number): string {
     try {
         return new Intl.DateTimeFormat("en-GB", {
-            timeZone: "Asia/Kuala_Lumpur",
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
@@ -172,7 +172,7 @@ export function TokenSeederStatusIndicator() {
 
     const retryLine = isReady
         ? "Retrying on next poll."
-        : `Next retry at ${formatRetryTimestamp(nextRetryAt)} MYT (in ${formatRemaining(nextRetryMs)}).`;
+        : `Next retry at ${formatRetryTimestamp(nextRetryAt)} (in ${formatRemaining(nextRetryMs)}).`;
 
     const tooltip =
         `${targets.length} tab(s) blocked Chrome scripting access.\n` +

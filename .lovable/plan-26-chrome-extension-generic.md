@@ -2,7 +2,7 @@
 
 **Status:** Draft (planning only — no spec files written yet)
 **Author:** Lovable AI
-**Date:** 2026-04-24 (Asia/Kuala_Lumpur)
+**Date:** 2026-04-24
 **Goal:** Produce a *drop-in* spec folder distilled from everything we learned building the Riseup Asia Macro Extension, written generically so any AI can read it and **blindly build a new Chrome MV3 extension end-to-end** — UI, TypeScript, SQLite + IndexedDB + chrome.storage layering, namespace concept, error model, design tokens, linter setup, folder structure, CI, and packaging.
 
 The spec must be **AI-followable, not human tutorial**. Every section ends with explicit *DO / DO NOT / VERIFY* checklists.

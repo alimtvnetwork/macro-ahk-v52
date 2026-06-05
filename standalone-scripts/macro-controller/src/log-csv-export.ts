@@ -19,7 +19,7 @@
  *                                    days since change, days to refill, active grace
  *                                    + refill-warning thresholds)
  *   • Computed ratios         (2) ← added v2.223.0 (Available % of Total, Daily % Used)
- *   • Export snapshot meta    (1) ← added v2.223.0 (Malaysia-timezone snapshot)
+ *   • Export snapshot meta    (1) ← added v2.223.0 (UTC snapshot)
  *
  * @see spec/04-macro-controller/ts-migration-v2/05-module-splitting.md
  */
@@ -47,18 +47,9 @@ function pct(count: number, denom: number): string {
   return (Math.round((count / denom) * 1000) / 10).toFixed(1);
 }
 
-/** Malaysia-timezone (UTC+8) ISO-like timestamp: 2026-04-22T19:40:43+08:00. */
-function nowMalaysiaIso(): string {
-  const now = new Date();
-  // UTC+8 offset in ms
-  const local = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-  const yyyy = local.getUTCFullYear();
-  const MM = String(local.getUTCMonth() + 1).padStart(2, '0');
-  const dd = String(local.getUTCDate()).padStart(2, '0');
-  const HH = String(local.getUTCHours()).padStart(2, '0');
-  const mm = String(local.getUTCMinutes()).padStart(2, '0');
-  const ss = String(local.getUTCSeconds()).padStart(2, '0');
-  return yyyy + '-' + MM + '-' + dd + 'T' + HH + ':' + mm + ':' + ss + '+08:00';
+/** UTC ISO timestamp for stored/exported audit metadata. */
+function nowUtcIso(): string {
+  return new Date().toISOString();
 }
 
 // eslint-disable-next-line max-lines-per-function, sonarjs/cognitive-complexity -- declarative column assembly with per-cell fallback ternaries; splitting hides the column ↔ header alignment that this file is built around
@@ -153,7 +144,7 @@ const CSV_HEADER = [
   // Computed ratios
   'Available % of Total', 'Daily % Used',
   // Export snapshot meta
-  'Exported At (Asia/Kuala_Lumpur)',
+  'Exported At',
 ].join(',');
 
 function downloadCsvBlob(csvText: string, filename: string): void {
@@ -182,7 +173,7 @@ export function exportWorkspacesAsCsv(): void {
   });
 
   const config = getWorkspaceLifecycleConfig();
-  const exportedAt = nowMalaysiaIso();
+  const exportedAt = nowUtcIso();
   const lines = [CSV_HEADER];
 
   for (const ws of sorted) {
@@ -214,7 +205,7 @@ export function exportAvailableWorkspacesAsCsv(): void {
   });
 
   const config = getWorkspaceLifecycleConfig();
-  const exportedAt = nowMalaysiaIso();
+  const exportedAt = nowUtcIso();
   const lines = [CSV_HEADER];
 
   for (const ws of sorted) {

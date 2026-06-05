@@ -1,6 +1,6 @@
 # H10 — Host-wiring PoC (2026-spec)
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 **Task:** H10 (spec-hardening backlog)
 
 A single self-contained `index.html` wires together the five reference

@@ -1,6 +1,6 @@
 # Prompt Macros — 100-Step Spec Authoring Plan
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur) · **Revised:** 2026-06-02 (expanded 50 → 100, added Variables + Macro-Prompts folder)
+**Created:** 2026-06-02 · **Revised:** 2026-06-02 (expanded 50 → 100, added Variables + Macro-Prompts folder)
 **Goal:** Extend the Prompts subsystem with a **Macro** (chained prompt) capability — declarative multi-step prompt sequences that auto-issue `next` keywords, run audits, write gap analysis into `spec/audit/<runId>/`, loop until a target score is met, then write a final report. Also document **prompt Variables / Templating**, a dedicated **Macro-Prompts folder**, **Save / Export / Import / Replace via JSON**, and the Prompts button UX in detail.
 
 This plan is the source of truth. Each `next 10` executes the next un-checked block; tasks are written so a blind AI can execute them in order without further guidance.
@@ -89,7 +89,7 @@ The macro engine resolves a `Slug` by searching macro-prompts first, then regula
 
 ### A.4 Run model
 
-- `runId = <macroSlug>-<yyyymmdd-HHmmss>` (Asia/Kuala_Lumpur).
+- `runId = <macroSlug>-<yyyymmdd-HHmmss>` (UTC timestamp).
 - All artifacts under `spec/audit/<runId>/` (created on first write).
 - State `{ currentStep, loopCount, lastScore, runId, variables }` persisted in `chrome.storage.local` → survives SW restarts.
 - Pause / Resume / Stop in the Prompts panel.
@@ -262,7 +262,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ---
 
-## Status: COMPLETE — 100/100 (2026-06-02, Asia/Kuala_Lumpur)
+## Status: COMPLETE — 100/100 (2026-06-02)
 
 ### Final artifact summary
 

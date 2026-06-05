@@ -16,7 +16,7 @@ function totals(p: Partial<CreditTotals>): CreditTotals {
     used: 0, remaining: 0, granted: 0,
     freeDailyRemaining: 0, freeDailyCap: 0,
     totalCount: 0, missingCount: 0,
-    resetAtMyt: '',
+    resetAtLocal: '',
     ...p,
   };
 }

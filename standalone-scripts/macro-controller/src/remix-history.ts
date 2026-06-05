@@ -17,7 +17,7 @@ const HISTORY_PANEL_ID = 'marco-remix-history-panel';
 const MAX_HISTORY_ENTRIES = 50;
 
 export interface RemixHistoryEntry {
-  /** Epoch ms when the remix completed (Asia/Kuala_Lumpur formatted at render). */
+  /** Epoch ms when the remix completed; rendered in the user's local timezone. */
   timestamp: number;
   source: string;
   destination: string;
@@ -55,7 +55,7 @@ function removeHistoryPanel(): void {
 function formatTimestamp(ts: number): string {
   try {
     return new Date(ts).toLocaleString('en-GB', {
-      timeZone: 'Asia/Kuala_Lumpur',
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       hour12: false,
       hour: '2-digit',
       minute: '2-digit',

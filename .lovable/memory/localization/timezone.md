@@ -1,1 +1,1 @@
-The project uses Malaysia (Asia/Kuala_Lumpur) as the local timezone for time-sensitive data and formatting.
+Never hardcode a timezone. Store timestamps as UTC ISO-8601 and render them in the user's local timezone with `Intl.DateTimeFormat().resolvedOptions().timeZone`. Do not add city or timezone tags to spec, audit, plan, log, README, prompt, or memory headers.

@@ -1,10 +1,10 @@
 # Memory: index.md
-Updated: 2026-06-02 (Asia/Kuala_Lumpur)
+Updated: just now
 
 # Project Memory
 
 ## Core
-- **Timezone**: Asia/Kuala_Lumpur (Malaysia) for time-sensitive data.
+- **Timezone**: NEVER hardcode a timezone. Use the user's local timezone at render time (`Intl.DateTimeFormat().resolvedOptions().timeZone`). No city/zone tags in spec/audit/plan/log headers. Store UTC, render local. See `mem://localization/timezone`.
 - **Read-only folders**: Never modify `skipped/` or `.release/` folders.
 - **No Supabase**: Supabase is strictly forbidden (auth, tokens, SDKs, localStorage).
 - **No Storage PascalCase Migration**: Phase 2c-storage v2 is strictly forbidden. Rewriting `StoredProject` keys in `chrome.storage.local` would break ~50+ consumers.
@@ -32,7 +32,7 @@ Updated: 2026-06-02 (Asia/Kuala_Lumpur)
 - **Prompt Macros audit-root**: Prompt Macros write audits ONLY under `spec/audit/<RunId>/`; never to `skipped/` or `.release/`. Variables resolve Step → Macro → RunContext → Default → fail-fast. See `mem://features/prompt-macros`.
 
 ## Memories
-- [Timezone](mem://localization/timezone) — Asia/Kuala_Lumpur for local timezone formatting
+- [Timezone](mem://localization/timezone) — Never hardcode a timezone; render in user's local timezone
 - [Versioning policy](mem://workflow/versioning-policy) — Unified versioning across manifest, constants.ts, scripts
 - [Planning roadmap](mem://workflow/planning-roadmap) — plan.md as authoritative prioritized backlog
 - [Suggestions convention](mem://workflow/suggestions-convention) — Single file tracking in .lovable/memory/suggestions/

@@ -6,7 +6,7 @@ type: feature
 
 # Audit — `spec/21-app/05-prompts/` (Prompt-Macros subsystem)
 
-**Started:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Started:** 2026-06-02
 **v1 closed:** 2026-06-02 — 14 Criticals reported, falsified 37/100 honest score.
 **v2 retraction:** 2026-06-02 — `ls` proved most missing-file claims hallucinated; real score 86/100; 2 confirmed Criticals (C66, C67).
 **v3 upgrade:** 2026-06-02 — 50-step blind-AI upgrade (`99-spec-issues/104`, `105`). Created 47 new spec docs + 2 memory files + R1–R3 verification rules. Audited score **100/100**, smoke test **20/20**.

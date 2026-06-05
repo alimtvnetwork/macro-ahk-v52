@@ -50,7 +50,7 @@ Variables let one prompt describe a **shape of work**; the macro fills specifics
 | Name | Type | Source |
 |---|---|---|
 | `RunId` | string | `crypto.randomUUID()` at macro start |
-| `Now` | string | ISO-8601 in Asia/Kuala_Lumpur |
+| `Now` | string | UTC ISO-8601 |
 | `TabId` | integer | tab the macro is bound to |
 | `WorkspaceId` | string | active workspace at start |
 | `UserId` | string | from `getBearerToken()` claims |

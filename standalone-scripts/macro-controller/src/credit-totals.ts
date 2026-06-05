@@ -27,7 +27,7 @@
  *    daily free credits are per-account, not per-workspace; taking the max
  *    treats whichever snapshot is freshest as authoritative.
  *  - freeDailyCap: constant 5 (Lovable Free plan daily credit cap).
- *  - resetAtMyt: next 00:00 in Asia/Kuala_Lumpur (project Core timezone).
+ *  - resetAtLocal: next 00:00 in the user's local timezone.
  *  - missingCount: non-FREE rows that had no usable credit fields.
  *
  * No retry, no network, no side effects. Pure.
@@ -37,9 +37,6 @@ import type { WorkspaceCredit } from './types';
 
 /** Lovable Free plan: 5 daily credits per account. */
 export const FREE_DAILY_CAP = 5;
-
-/** IANA timezone for the project (Core rule: Asia/Kuala_Lumpur). */
-export const PROJECT_TIMEZONE = 'Asia/Kuala_Lumpur';
 
 /** Wire-string plan literal for the pro_0 branch (enriched fields). */
 const PLAN_PRO_ZERO = 'pro_0';
@@ -59,8 +56,8 @@ export interface CreditTotals {
   freeDailyRemaining: number;
   /** Free daily cap (constant). */
   freeDailyCap: number;
-  /** ISO 8601 timestamp of next free-daily reset (00:00 MYT). */
-  resetAtMyt: string;
+  /** UTC ISO timestamp of next free-daily reset at local midnight. */
+  resetAtLocal: string;
   /** Non-FREE workspaces excluded due to entirely-missing credit fields. */
   missingCount: number;
   /** Non-FREE workspaces considered (after FREE-tier filter). */
@@ -124,23 +121,10 @@ function isMissingCreditData(ws: WorkspaceCredit): boolean {
 }
 
 /**
- * Compute the next 00:00 in Asia/Kuala_Lumpur (UTC+8, no DST) as ISO string.
- *
- * Note: MYT has no DST, so a fixed +8h offset is correct. We deliberately
- * avoid `Intl.DateTimeFormat` to keep this fully unit-testable without
- * timezone-data dependencies in the JSDOM test env.
+ * Compute the next 00:00 in the user's local timezone as a UTC ISO string.
  */
-export function computeNextMytMidnight(now: Date): string {
-  const MYT_OFFSET_MS = 8 * 60 * 60 * 1000;
-  const mytNowMs = now.getTime() + MYT_OFFSET_MS;
-  const mytNow = new Date(mytNowMs);
-  const nextMytMidnightMs = Date.UTC(
-    mytNow.getUTCFullYear(),
-    mytNow.getUTCMonth(),
-    mytNow.getUTCDate() + 1,
-    0, 0, 0, 0,
-  ) - MYT_OFFSET_MS;
-  return new Date(nextMytMidnightMs).toISOString();
+export function computeNextLocalMidnight(now: Date): string {
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString();
 }
 
 /**
@@ -187,7 +171,7 @@ export function aggregateCreditTotals(
     granted: Math.round(granted),
     freeDailyRemaining,
     freeDailyCap: FREE_DAILY_CAP,
-    resetAtMyt: computeNextMytMidnight(now),
+    resetAtLocal: computeNextLocalMidnight(now),
     missingCount,
     totalCount: consideredCount,
   };

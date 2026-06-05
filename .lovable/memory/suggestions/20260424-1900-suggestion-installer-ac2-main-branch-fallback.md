@@ -1,6 +1,6 @@
 # Suggestion — Implement AC-2 (main-branch fallback) in installer
 
-**Created:** 2026-04-24 19:00 (UTC+8)
+**Created:** 2026-04-24
 **Status:** ✅ IMPLEMENTED — sh side 2026-04-24; ps1 side 2026-05-16 (v2.249.2)
 **Audit source:** `plan.md` Pending #3 audit run on 2026-04-24
 

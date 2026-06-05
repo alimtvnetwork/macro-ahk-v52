@@ -521,7 +521,7 @@ interface OnboardingStepBoundaryState {
 }
 
 /**
- * Catches render-time errors thrown by an onboarding step and surfaces a
+ * Catches rendering errors thrown by an onboarding step and surfaces a
  * stable, testable failure UI. E2E tests assert against
  * `data-testid="onboarding-step-error"` so a failed step renders an
  * actionable error message instead of timing out on a missing locator.
