@@ -14,8 +14,8 @@ declare global {
 
 interface XPathUtilsAPI {
   version: string;
-  setLogger: (info: (fn: string, msg: string) => void, sub: (fn: string, msg: string) => void, warn: (fn: string, msg: string) => void) => void;
-  reactClick: (el: Element, xpath?: string) => void;
+  setLogger: (info: (scope: string, message: string) => void, sub: (scope: string, message: string) => void, warn: (scope: string, message: string) => void) => void;
+  reactClick: (target: Element, xpath?: string) => void;
 }
 
 interface MarcoSDKPromptEntry {
@@ -124,20 +124,20 @@ interface MarcoSDK {
     dismissAll(): void;
     onError(callback: (error: unknown) => void): void;
     getRecentErrors(): unknown[];
-    _setStopLoopCallback(fn: () => void): void;
+    _setStopLoopCallback(callback: () => void): void;
     _setVersion(v: string): void;
     [key: string]: unknown;
   };
   prompts?: MarcoSDKPromptsApi;
   utils?: {
     withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T>;
-    withRetry<T>(fn: () => Promise<T>, options: Record<string, unknown>): Promise<T>;
+    withRetry<T>(task: () => Promise<T>, options: Record<string, unknown>): Promise<T>;
     createConcurrencyLock<T>(): unknown;
     delay(ms: number): Promise<void>;
     pollUntil<T>(condition: () => T | null | undefined | false, options?: Record<string, unknown>): Promise<T | null>;
     waitForElement(options: Record<string, unknown>): Promise<Element | null>;
-    debounce<A extends unknown[]>(fn: (...args: A) => void, ms: number): (...args: A) => void;
-    throttle<A extends unknown[]>(fn: (...args: A) => void, ms: number): (...args: A) => void;
+    debounce<A extends unknown[]>(handler: (...args: A) => void, ms: number): (...args: A) => void;
+    throttle<A extends unknown[]>(handler: (...args: A) => void, ms: number): (...args: A) => void;
     safeJsonParse<T>(json: string, fallback: T): T;
     formatDuration(ms: number): string;
     uid(prefix?: string): string;

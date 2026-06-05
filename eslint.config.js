@@ -228,7 +228,7 @@ export default tseslint.config(
       "standalone-scripts/macro-controller/src/dom-cache.ts",
       "standalone-scripts/macro-controller/src/dom-helpers.ts",
       "standalone-scripts/macro-controller/src/gitsync/progress-probe.ts",
-      "standalone-scripts/macro-controller/src/globals.d.ts",
+      
       "standalone-scripts/macro-controller/src/logging.ts",
       "standalone-scripts/macro-controller/src/macro-looping.ts",
       "standalone-scripts/macro-controller/src/project-name-dropdown.ts",
