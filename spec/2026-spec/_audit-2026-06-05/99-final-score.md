@@ -29,13 +29,17 @@
 | `audit-scan.py` composite ≥ 90 | ✅ 100 |
 | `check-acceptance.mjs` | ✅ green |
 | `check-dangling-links.mjs` | ✅ green |
+| `check-constant-divergence.mjs` | ✅ green |
 | `check-must-constants.mjs` | ✅ green |
 | `check-must-memory-refs.mjs` | ✅ green |
+| `check-cross-folder-owners.mjs` | ✅ green |
 | `check-quarantine.mjs` | ✅ green |
 | `check-pitfalls.mjs` | ✅ green |
 | `check-score-floor.mjs` | ✅ green |
 | `check-score-snapshot.mjs` | ✅ green |
+| `no-bare-fetch.mjs` | ✅ green |
+| `check-footer-lint.mjs` | ✅ green |
 
 ## Remaining headroom
 
-Future work focuses on no-bare-fetch / footer-lint guards, full workflow wiring, and qualitative duplicate-rule consolidation.
+Only final full audit verification and tag snapshot remain.

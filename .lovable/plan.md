@@ -23,11 +23,14 @@
 
 Carried forward (open, not auto-picked):
 
-1. **ws-members-panel.ts:314 unterminated string (TS1002)** — pre-existing, blocks `tsc --noEmit` on macro-controller. _(from `.lovable/pending-issues/readme.md`)_ — out of scope for this audit-uplift cycle; remains open.
-2. **Deferred (do NOT auto-pick):** D1 React component tests, D2 E2E React UI, D3 Prompt Click E2E, D4 P Store, D5 Cross-Project Sync. _(`05-future-pending-work.md`; honor `mem://preferences/deferred-workstreams`)_
-3. **Issue 115 — Workspace label refinement** — already marked ✅ COMPLETE in v3.12.0; leave closed.
+1. **P Store marketplace workstream** — discuss-later only per `mem://preferences/deferred-workstreams`; do not recommend or auto-plan.
 
-No new pending items are introduced by this plan. If step 29 fires, a new entry will be appended at execution time.
+Closed during step 29 sweep:
+
+1. **ws-members-panel.ts:314 TS1002 note** — stale; targeted TypeScript syntax check on the exact file is green. Moved to `.lovable/solved-issues/14-ws-members-panel-ts1002-cleared.md`.
+2. **Issue 115 — Workspace label refinement** — already ✅ COMPLETE; moved to `.lovable/solved-issues/15-workspace-label-refinement.md`.
+
+No new pending items were introduced by this plan.
 
 ## Ambiguities (logged, non-blocking)
 
@@ -82,7 +85,7 @@ Each step is atomic, has a proof hook (test / script / scorer delta), and lists 
 
 ### Wave E — Final score, sign-off, pending sweep (steps 29–30)
 
-29. **Pending-issues sweep.** If any backlog item required user input or was deferred, append a new entry under `.lovable/pending-issues/` with exact path, missing item, and reasoning (Code Red logging rule). Cross-check `06-workspace-label-refinement.md` stays ✅ COMPLETE.
+29. ✅ **Pending-issues sweep.** Stale TS1002 note moved to solved after targeted syntax verification; completed workspace-label item moved to solved; only P Store remains deferred with exact path, missing item, and reasoning.
 30. **Final write-up.** Re-run full audit; if composite ≥ 99.5 AND 0 files <90 AND all 5 CI checks green → update `_audit-2026-06-05/99-final-score.md` + top-level `README.md` with the new score, the "100%" verification snippet, and the snapshot hash. If any gate red, log gap to `.lovable/question-and-ambiguity/` and stop for user input. Proof: CI green on final push + composite ≥ 99.5 printed.
 
 ---

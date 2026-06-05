@@ -1,4 +1,4 @@
-# Issue 115 — Workspace Label Refinement (Cancel / Refill In / Expired For)
+# Solved: Issue 115 — Workspace Label Refinement (Cancel / Refill In / Expired For)
 
 **Status:** ✅ COMPLETE — shipped in v3.12.0 (2026-05-25).
 **Target version:** v3.12.1 (minor bump).
@@ -131,3 +131,7 @@ Bump `v3.11.1 → v3.12.0` across `manifest.json`, `src/shared/constants.ts`, ev
 - [ ] **PERF-14 / PERF-15** — Low severity, deferred.
 
 All 10 steps complete. See changelog.md and `mem://features/macro-controller/workspace-badge-display`.
+
+## Pending Sweep Resolution
+
+This file was already marked ✅ COMPLETE but was still stored under `.lovable/pending-issues/`. The pending sweep moved it to `.lovable/solved-issues/` so the pending folder only contains genuinely open/deferred work.
