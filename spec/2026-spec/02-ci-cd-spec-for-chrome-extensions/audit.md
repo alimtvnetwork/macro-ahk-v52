@@ -38,7 +38,7 @@ never tells the AI **where they come from**.
 - **Fix**: add §2a "Owner/Repo resolution" with priority order:
   1. `--owner`/`--repo` CLI flags.
   2. `GITHUB_REPOSITORY` env (set by Actions).
-  3. `git remote get-url origin` parsed regex `github.com[:/]([^/]+)/([^/.]+)`.
+  3. `git remote get-url origin` parsed regex `github.com(?::|/)([^/]+)/([^/.]+)`.
   4. Hard fail with exit 3 if none resolve. **Never** hard-code.
 
 ---

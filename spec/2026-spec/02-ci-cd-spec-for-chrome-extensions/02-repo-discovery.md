@@ -32,7 +32,7 @@ this exact waterfall — in this order, fail-fast, no retry:
 2. **`GITHUB_REPOSITORY` env var** — set automatically inside GitHub Actions
    as `owner/repo`; split on `/`.
 3. **`git remote get-url origin`** — parse with regex
-   `github\.com[:/]([^/]+)/([^/.]+?)(\.git)?$`; group 1 = owner, group 2 = repo.
+   `github\.com(?::|/)([^/]+)/([^/.]+?)(\.git)?$`; group 1 = owner, group 2 = repo.
 4. **Fail with exit code `3`** and the message
    `owner/repo unresolved: pass --owner/--repo, set GITHUB_REPOSITORY, or run inside a git checkout with an origin remote`.
 
