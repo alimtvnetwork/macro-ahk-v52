@@ -22,7 +22,7 @@ The root and per-folder `99-consistency-report.md` files audit folder **structur
 | Folder | Structure | Content Quality (blind-AI) | Per-folder consistency report |
 | --- | --- | --- | --- |
 | `2026-spec/01-prompt-spec` | ✅ | 🟢 100 | — (none) |
-| `2026-spec/02-ci-cd-spec-for-chrome-extensions` | ✅ | 🟢 100 | [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/99-consistency-report.md`](../../spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/99-consistency-report.md) |
+| `2026-spec/02-ci-cd-spec-for-chrome-extensions` | ✅ | 🟢 100 | [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/99-consistency-report.md`](../02-ci-cd-spec-for-chrome-extensions/99-consistency-report.md) |
 | `2026-spec/03-chrome-ext-features` | ✅ | 🟢 100 | — (none) |
 | `2026-spec/03-db-and-sqlite-integration-with-chrome-extension` | ✅ | 🟢 100 | — (none) |
 
