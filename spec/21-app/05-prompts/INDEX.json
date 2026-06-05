@@ -641,28 +641,28 @@
       "bytes": 2644
     },
     {
-      "path": "spec/21-app/05-prompts/99-spec-issues/96-RETRACTION-c29-folders-exist.md",
+      "path": "spec/21-app/05-prompts/99-spec-issues/96-retraction-c29-folders-exist.md",
       "title": "96 — RETRACTION: C29 (\"missing subfolders\") is FALSE",
       "status": null,
       "version": null,
       "bytes": 1212
     },
     {
-      "path": "spec/21-app/05-prompts/99-spec-issues/97-RETRACTION-c70-readiness-evidence-valid.md",
+      "path": "spec/21-app/05-prompts/99-spec-issues/97-retraction-c70-readiness-evidence-valid.md",
       "title": "97 — RETRACTION: C70 (\"READINESS-SCORE.md falsified\") is FALSE",
       "status": null,
       "version": null,
       "bytes": 879
     },
     {
-      "path": "spec/21-app/05-prompts/99-spec-issues/98-RETRACTION-c68-memory-exists.md",
+      "path": "spec/21-app/05-prompts/99-spec-issues/98-retraction-c68-memory-exists.md",
       "title": "98 — RETRACTION: C68 (`mem://architecture/macro-prompts-folder` missing) is FALSE",
       "status": null,
       "version": null,
       "bytes": 563
     },
     {
-      "path": "spec/21-app/05-prompts/99-spec-issues/99-CONFIRMED-c66-c67-memory-files-missing.md",
+      "path": "spec/21-app/05-prompts/99-spec-issues/99-confirmed-c66-c67-memory-files-missing.md",
       "title": "99 — CONFIRMED: C66 + C67 — Two memory files genuinely missing",
       "status": null,
       "version": null,
@@ -1341,7 +1341,7 @@
       "bytes": 990
     },
     {
-      "path": "spec/21-app/05-prompts/macros/READINESS-SCORE-v2.md",
+      "path": "spec/21-app/05-prompts/macros/readiness-score-v2.md",
       "title": "Readiness Score (v2 — Honest 100/100)",
       "status": null,
       "version": null,
@@ -1357,7 +1357,7 @@
     {
       "path": "spec/21-app/05-prompts/macros/readme.md",
       "title": "Prompt Macros — Spec Index",
-      "status": "** ✅ v2.0 complete. Audited readiness **100 / 100** (`READINESS-SCORE-v2.md`). See `../README.md` (root index) and `../IMPLEMENTATION-CHECKLIST.md` for the blind-AI runbook.",
+      "status": "** ✅ v2.0 complete. Audited readiness **100 / 100** (`readiness-score-v2.md`). See `../README.md` (root index) and `../IMPLEMENTATION-CHECKLIST.md` for the blind-AI runbook.",
       "version": null,
       "bytes": 2464
     },
