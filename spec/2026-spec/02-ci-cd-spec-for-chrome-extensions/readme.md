@@ -90,3 +90,5 @@ For agents wiring a specific hardening control, jump straight to the gap audit:
 - [ ] No operational numeric constant is hardcoded here without binding to `reference/05-runtime-defaults.md` (verified by `scripts/audit/check-must-constants.mjs --strict`).
 - [ ] Composite audit score for this folder is `100 / 100` (verified by `scripts/audit/audit-scan.py`).
 
+
+> Owner: see [Chrome-extension CI/CD spec](mem://architecture/chrome-extension-ci-cd-spec) for the authoritative rule.
