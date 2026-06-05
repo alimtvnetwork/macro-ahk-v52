@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// Build spec-tooltips.json from GLOSSARY.md + ACRONYMS.md (ui/17 spec).
+// Build spec-tooltips.json from glossary.md + acronyms.md (ui/17 spec).
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 const SRC = [
-  { file: 'spec/21-app/05-prompts/GLOSSARY.md', refBase: 'spec/21-app/05-prompts/GLOSSARY.md' },
-  { file: 'spec/21-app/05-prompts/ACRONYMS.md', refBase: 'spec/21-app/05-prompts/ACRONYMS.md' },
+  { file: 'spec/21-app/05-prompts/glossary.md', refBase: 'spec/21-app/05-prompts/glossary.md' },
+  { file: 'spec/21-app/05-prompts/acronyms.md', refBase: 'spec/21-app/05-prompts/acronyms.md' },
 ];
 const OUT = 'public/spec-tooltips.json';
 

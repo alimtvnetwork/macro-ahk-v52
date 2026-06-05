@@ -1,154 +1,154 @@
 {
   "Macro": {
     "short": "Ordered chain of typed steps stored as a MacroDefinition JSON",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Step": {
     "short": "Single typed action (one of 8 StepKindIds)",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "StepKindId": {
     "short": "Integer 1–8 mapping to a Step kind (see macros/01-step-kinds.md)",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "RunId": {
     "short": "UUID v4 generated at macro start; namespaces all artifacts",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "RunState": {
     "short": "Persistent record under chrome.storage.local key Macro.RunState.<RunId>",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "MacroEvent": {
     "short": "Typed event union emitted on the message bus",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Score": {
     "short": "Integer 0–100 parsed from final-audit output",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "TargetScore": {
     "short": "Threshold a loop-if checks against (default 100)",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "MaxLoops": {
     "short": "Hard cap on loop-if iterations (default 5, ceiling 20)",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Audit folder": {
     "short": "spec/audit/<RunId>/ — written by audit / final-audit steps",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Interpolator": {
     "short": "Resolves {{ Var }} via 5-tier waterfall",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Variable Sensitive": {
     "short": "Flag marking a variable for  masking in all outputs",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Verbose logging": {
     "short": "Per-project toggle gating full HTML + untruncated Text capture",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "SelectorAttempts": {
     "short": "Mandatory failure-log array describing every selector try",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "VariableContext": {
     "short": "Mandatory failure-log array describing every variable resolution",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Reason / ReasonDetail": {
     "short": "Short code + human string on every failure log",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Injector": {
     "short": "MAIN-world script executing DOM/chatbox actions",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Background runner": {
     "short": "Service-worker module owning RunState and watchdog",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Panel": {
     "short": "React UI in extension popup/sidebar",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Built-in context": {
     "short": "Auto-supplied read-only variables (RunId, Now, TabId, …)",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "info.json": {
     "short": "Per-prompt declaration file (slug, version, variables)",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Slug": {
     "short": "URL-safe prompt identifier (kebab-case)",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Seed bundle": {
     "short": "Initial set of starter prompts shipped with the extension",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "Prompt cache": {
     "short": "IndexedDB JsonCopy + HtmlCopy stores",
-    "ref": "spec/21-app/05-prompts/GLOSSARY.md"
+    "ref": "spec/21-app/05-prompts/glossary.md"
   },
   "BNF": {
     "short": "Backus–Naur Form",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "CQ14/15": {
     "short": "Code Quality rules: braces / newlines",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "E2E": {
     "short": "End-to-end test",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "FSM": {
     "short": "Finite State Machine",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "MV3": {
     "short": "Manifest V3 (Chrome extensions)",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "OPFS": {
     "short": "Origin Private File System",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "RLS": {
     "short": "Row-Level Security (N/A — no Supabase)",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "SDK": {
     "short": "RiseupAsiaMacroExt MAIN-world API",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "SemVer": {
     "short": "Semantic Versioning",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "SP-1..7": {
     "short": "readme.txt prohibitions",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "SQL": {
     "short": "SQLite namespace store",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "SW": {
     "short": "Service Worker (background)",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "TTL": {
     "short": "Time To Live (token)",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   },
   "WCAG": {
     "short": "Web Content Accessibility Guidelines",
-    "ref": "spec/21-app/05-prompts/ACRONYMS.md"
+    "ref": "spec/21-app/05-prompts/acronyms.md"
   }
 }
