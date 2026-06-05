@@ -34,7 +34,7 @@ and UTC-storage / Malaysia-display time handling.
 - **G1 (result-shape drift):** Step 09 now defines `InjectionOutcome = "fresh" | "already-injected" | "guarded"` plus `reason?: string`; the success branch keys off `outcome`, not inferred `reason` text.
 - **G2 (`func:` serialization):** Contract item 14 explicitly states probe/mark/clear use serialized `func:` form, with no `@shared/*` imports inside; acceptance includes positional args/arity coverage.
 - **G3 (concurrent probe/mark race):** Contract item 5 and §Mutex define `inFlight: Map<number, Promise<InjectionResult>>`; same-tab concurrent injections join the same promise and cannot double-run the pipeline.
-- **G4 (timestamp boundary):** Contract item 13 and mark rules store `installedAtIso` as UTC ISO; UI display converts with `formatRelativeLocal()` for only at render.
+- **G4 (timestamp boundary):** Contract item 13 and mark rules store `installedAtIso` as UTC ISO; UI display converts with `formatRelativeLocal()` using the user's local timezone only at render.
 - **G5 (empty frame result):** §Probe implementation handles `frames.length === 0` with `Reason="ProbeFailed"` and `reasonDetail="no frame result"`; `sentinel-empty-frames.test.ts` is listed.
 - **G6 (unbounded script ids):** `MAX_SENTINEL_SCRIPT_IDS = 64`; overflow stores an empty ids array plus `data-marco-script-hash="sha1:...,count:N"` and round-trips `scriptIdsCount`.
 - **G7 (hot-path present logging):** §Diagnostics rate-limits `Sentinel.Present` to once per `(tabId, buildId)` per service-worker lifetime.

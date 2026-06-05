@@ -20,10 +20,10 @@ How `{{name}}` placeholders in `prompt.md` become real text at
      advanced adapters.
    - `{{before}}` / `{{after}}` → `ctx.editor.before` / `ctx.editor.after`.
 3. **Built-in clock variables** (from `ctx.now ?? new Date()`):
-   - `{{date}}` → UTC ISO date for storage; UI renders in the user's local timezone (
-     integrator may override by supplying `vars.date`). Format: `YYYY-MM-DD`.
-   - `{{time}}` → `HH:mm` in the same zone.
-   - `{{datetime}}` → `YYYY-MM-DD HH:mm`.
+   - `{{date}}` → UTC ISO date for storage; UI renders in the user's local
+      timezone. Integrators may override by supplying `vars.date`. Format: `YYYY-MM-DD`.
+   - `{{time}}` → UTC `HH:mm` for storage; UI renders local time.
+   - `{{datetime}}` → UTC `YYYY-MM-DD HH:mm` for storage; UI renders local date-time.
    - `{{iso}}` → UTC ISO-8601 (`2026-06-02T03:14:00Z`).
 4. **Empty default** — unresolved placeholders render as empty string
    **and** emit an `unresolved-variable` warning event (see T39) carrying
