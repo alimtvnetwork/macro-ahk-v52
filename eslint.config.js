@@ -197,7 +197,6 @@ export default tseslint.config(
       "standalone-scripts/lovable-user-add/src/flow/run-row.ts",
       "standalone-scripts/macro-controller/src/__tests__/credit-fetch-controller.test.ts",
       "standalone-scripts/macro-controller/src/__tests__/credit-totals-csv.test.ts",
-      "standalone-scripts/macro-controller/src/__tests__/credit-totals-dnd.test.ts",
       "standalone-scripts/macro-controller/src/__tests__/credit-totals-filter.test.ts",
       "standalone-scripts/macro-controller/src/__tests__/dom-helpers.test.ts",
       "standalone-scripts/macro-controller/src/__tests__/issue-121-sort-filter-immediate.test.ts",

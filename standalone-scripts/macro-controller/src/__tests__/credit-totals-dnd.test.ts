@@ -88,10 +88,10 @@ describe('buildBreakdownTable — drag-drop', () => {
     } as unknown as DataTransfer;
   }
 
-  function fire(el: Element, type: string, dt: DataTransfer): boolean {
+  function fire(element: Element, type: string, dt: DataTransfer): boolean {
     const ev = new Event(type, { bubbles: true, cancelable: true }) as Event & { dataTransfer?: DataTransfer };
     ev.dataTransfer = dt;
-    return el.dispatchEvent(ev);
+    return element.dispatchEvent(ev);
   }
 
   it('rows are draggable by default (sort dir = none)', () => {
