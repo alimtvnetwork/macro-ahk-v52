@@ -186,7 +186,6 @@ export default tseslint.config(
       "standalone-scripts/lovable-dashboard/src/focus-selected.ts",
       "standalone-scripts/lovable-dashboard/src/homepage-dashboard-variables.ts",
       "standalone-scripts/lovable-dashboard/src/index.ts",
-      "standalone-scripts/lovable-dashboard/src/macro-sync.ts",
       "standalone-scripts/lovable-dashboard/src/nav-controls.ts",
       "standalone-scripts/lovable-dashboard/src/search-bar.ts",
       "standalone-scripts/lovable-dashboard/src/workspace-dictionary.ts",
