@@ -29,7 +29,7 @@
 
 ## Timezone
 
-- **Hardcoded timezone (any form):** Never write `Asia/Kuala_Lumpur`, `Kuala Lumpur`, `Malaysia` as a project timezone, `(UTC+8)` as a canonical tag, or any other fixed IANA zone / city label in code, specs, audits, plans, READMEs, comments, logs, or memory. All render-time formatting MUST use the user's local timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone`. Store timestamps as UTC ISO-8601. See memory: `localization/timezone`.
+- **Hardcoded timezone (any form):** Never write fixed IANA zones, city labels, country labels, fixed offsets, or canonical timezone tags in code, specs, audits, plans, READMEs, comments, logs, or memory. UI formatting MUST use the user's local timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone`. Store timestamps as UTC ISO-8601. See memory: `localization/timezone`.
 
 ## UI
 

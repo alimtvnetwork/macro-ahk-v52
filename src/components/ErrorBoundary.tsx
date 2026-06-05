@@ -23,7 +23,7 @@ interface ErrorBoundaryState {
 /* ------------------------------------------------------------------ */
 
 /**
- * Catches render-time errors in any child tree and shows a developer-friendly
+ * Catches rendering errors in any child tree and shows a developer-friendly
  * error panel with a copyable stack trace instead of a blank page.
  */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
