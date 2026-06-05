@@ -101,6 +101,8 @@ jobs:
         run: node scripts/check-swallow-baseline-monotonic.mjs
       - name: Spec README structure gate
         run: node scripts/check-spec-readme-structure.mjs --strict
+      - name: Forbidden timezone tokens gate
+        run: node scripts/check-forbidden-timezones.mjs
       - name: Forbidden animation libraries gate
         run: node scripts/check-forbidden-anim-libs.mjs
       - name: Timer/observer teardown audit (advisory)
