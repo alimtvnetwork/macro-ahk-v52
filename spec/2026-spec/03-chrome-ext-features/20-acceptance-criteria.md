@@ -216,6 +216,7 @@ reason, and reason detail before the work is considered incomplete.
 - Step 14 — boot failure banner.
 - Step 19 — test matrix and static audits.
 - Sibling storage step 40 — storage-specific acceptance baseline.
+- Owner memory — [Verbose logging diagnostics](mem://standards/verbose-logging-and-failure-diagnostics).
 
 <!-- audit: determinism+pitfalls footer -->
 

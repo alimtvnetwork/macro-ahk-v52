@@ -59,4 +59,4 @@ Sign-off requires every box ticked.
 
 ---
 
-> Owner: see [Documentation standards](mem://workflow/documentation-standards) for the authoritative rule backing the MUST/SHALL statements in this file.
+> Owner: see [Documentation standards](mem://workflow/documentation-standards) and [Verbose logging diagnostics](mem://standards/verbose-logging-and-failure-diagnostics) for the authoritative rules backing the MUST/SHALL statements in this file.
