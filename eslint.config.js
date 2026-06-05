@@ -174,7 +174,7 @@ export default tseslint.config(
       "src/hooks/use-popup-actions.ts",
       "src/lib/__tests__/sqlite-bundle-contract.test.ts",
       "src/lib/__tests__/sqlite-bundle-roundtrip.test.ts",
-      "src/lib/developer-guide-bundle.ts",
+      
       "src/lib/keyword-event-chain-shortcuts.ts",
       "src/lib/step-executors.ts",
       "src/options/sections/ProjectEditor.tsx",
