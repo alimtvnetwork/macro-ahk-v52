@@ -39,9 +39,9 @@
  *   - Pure, sync, no DOM, no chrome.*.
  *   - Verbose flag is forwarded — it gates payload size only, never
  *     classification (LOG-2 in plan.md).
- *   - Sensitive masking: any `Vars` key matching the project-wide regex
- *     `/password|secret|token|otp|pin|cvv|ssn|credit/i` is masked to
- *     `***` regardless of the verbose flag, mirroring `form-snapshot.ts`.
+ *   - Sensitive masking: any `Vars`/`Row` key matching the project-wide
+ *     sensitive diagnostic matcher is masked as `***masked(len=<n>)***`
+ *     regardless of the verbose flag, mirroring `form-snapshot.ts`.
  *
  * Conformance:
  *   - mem://standards/verbose-logging-and-failure-diagnostics
@@ -61,19 +61,11 @@ import {
     type JsInlineContext,
     type JsInlineResult,
 } from "./js-step-sandbox";
+import { isSensitiveDiagnosticName, maskDiagnosticValue } from "./sensitive-diagnostics";
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
-
-/**
- * Single source of truth for sensitive-field masking — kept in lockstep
- * with `form-snapshot.ts` so a key like `password` is never accidentally
- * surfaced through one diagnostics path while masked in another.
- */
-const SENSITIVE_KEY_PATTERN = /password|secret|token|otp|pin|cvv|ssn|credit/i;
-
-const MASKED = "***";
 
 /** Phase under which JS-step failures are filed. JS steps only run during
  *  Replay — Record-phase JS validation goes through a different path. */
