@@ -12,6 +12,7 @@ const SOT_ARG = '--sot=';
 const DEFAULT_SOT_REL = '01-prompt-spec/reference/05-runtime-defaults.md';
 const SOT_LINK_TEXT = 'reference/05-runtime-defaults.md';
 const UNIT_CONSTANT_RE = /\b\d+(?:\.\d+)?\s*(?:ms|milliseconds?|s|sec(?:onds?)?|minutes?|hours?|days?|items?|rows?|entries?|tasks?|kib|mib|bytes?|retries?|attempts?|chars?)\b/i;
+const OPERATIONAL_KEYWORD_RE = /\b(?:default|timeout|cap|capacity|limit|budget|window|deadline|retry|retries|interval|ttl|truncate|lru|max|min|debounce|frame|quota)\b/i;
 const KEYWORD_RANGE_RE = /\b(?:default|timeout|cap|capacity|limit|budget|window|deadline|retry|retries|interval|ttl|truncate|lru|max|min)\b.*\b\d+\s*(?:\.\.|-|–)\s*\d+\b/i;
 const IDENTIFIER_CONSTANT_RE = /\b[a-zA-Z][\w]*(?:Ms|MS|Timeout|Limit|Cap|Size|Retries|Capacity)\b.*\b\d+\b/;
 const RUNTIME_CONSTANT_RE = /^\|\s*`([^`]+)`/gm;
@@ -76,8 +77,10 @@ function isSkippedPath(filePath, canonicalSotPath) {
 
 function isOperationalConstantLine(lineText) {
   const text = lineText.trim();
+  const hasUnitConstant = UNIT_CONSTANT_RE.test(text);
+  const hasOperationalKeyword = OPERATIONAL_KEYWORD_RE.test(text);
 
-  return UNIT_CONSTANT_RE.test(text) || KEYWORD_RANGE_RE.test(text) || IDENTIFIER_CONSTANT_RE.test(text);
+  return (hasUnitConstant && hasOperationalKeyword) || KEYWORD_RANGE_RE.test(text) || IDENTIFIER_CONSTANT_RE.test(text);
 }
 
 function hasSourceOfTruthBinding(lineText, constants) {
