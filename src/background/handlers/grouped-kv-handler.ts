@@ -39,9 +39,9 @@ function markDirty(): void {
 }
 
 export async function handleGkvGet(
-    msg: MessageRequest,
+    message: MessageRequest,
 ): Promise<{ value: string | null } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & { group?: unknown; key?: unknown };
+    const raw = message as MessageRequest & { group?: unknown; key?: unknown };
     const group = requireField(raw.group);
     const key = requireKey(raw.key);
     if (!group) return missingFieldError("group", "gkv:get");
@@ -60,9 +60,9 @@ export async function handleGkvGet(
 }
 
 export async function handleGkvSet(
-    msg: MessageRequest,
+    message: MessageRequest,
 ): Promise<{ isOk: true } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & { group?: unknown; key?: unknown; value?: unknown };
+    const raw = message as MessageRequest & { group?: unknown; key?: unknown; value?: unknown };
     const group = requireField(raw.group);
     const key = requireKey(raw.key);
     if (!group) return missingFieldError("group", "gkv:set");
@@ -80,9 +80,9 @@ export async function handleGkvSet(
 }
 
 export async function handleGkvDelete(
-    msg: MessageRequest,
+    message: MessageRequest,
 ): Promise<{ isOk: true } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & { group?: unknown; key?: unknown };
+    const raw = message as MessageRequest & { group?: unknown; key?: unknown };
     const group = requireField(raw.group);
     const key = requireKey(raw.key);
     if (!group) return missingFieldError("group", "gkv:delete");
@@ -95,9 +95,9 @@ export async function handleGkvDelete(
 }
 
 export async function handleGkvList(
-    msg: MessageRequest,
+    message: MessageRequest,
 ): Promise<{ entries: Array<{ key: string; value: string }> } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & { group?: unknown };
+    const raw = message as MessageRequest & { group?: unknown };
     const group = requireField(raw.group);
     if (!group) return missingFieldError("group", "gkv:list");
 
@@ -116,9 +116,9 @@ export async function handleGkvList(
 }
 
 export async function handleGkvClearGroup(
-    msg: MessageRequest,
+    message: MessageRequest,
 ): Promise<{ isOk: true } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & { group?: unknown };
+    const raw = message as MessageRequest & { group?: unknown };
     const group = requireField(raw.group);
     if (!group) return missingFieldError("group", "gkv:clearGroup");
 

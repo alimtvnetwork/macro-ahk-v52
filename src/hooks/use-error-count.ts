@@ -17,7 +17,93 @@ import { useEffect, useState, useCallback } from "react";
 import { sendMessage } from "@/lib/message-client";
 import { logError } from "./hook-logger";
 
-// eslint-disable-next-line max-lines-per-function -- hook with broadcast listener + visibility-aware polling fallback
+type ErrorCountBroadcast = { type?: string; count?: number } | null;
+type BroadcastMessageHandler = (message: ErrorCountBroadcast) => void;
+type RuntimeOnMessage = {
+  addListener: (handler: BroadcastMessageHandler) => void;
+  removeListener: (handler: BroadcastMessageHandler) => void;
+};
+type RuntimeLike = { onMessage?: RuntimeOnMessage };
+type RefreshErrorCount = () => Promise<void>;
+type CountSetter = (count: number) => void;
+
+function getRuntime(): RuntimeLike | undefined {
+  return typeof chrome !== "undefined" ? (chrome.runtime as RuntimeLike) : undefined;
+}
+
+function createBroadcastHandler(setCountValue: CountSetter): BroadcastMessageHandler {
+  return (message) => {
+    if (message?.type === "ERROR_COUNT_CHANGED") {
+      setCountValue(message.count ?? 0);
+    }
+  };
+}
+
+function attachBroadcastListener(runtime: RuntimeLike | undefined, handler: BroadcastMessageHandler): boolean {
+  if (!runtime?.onMessage) { return false; }
+  try {
+    runtime.onMessage.addListener(handler);
+    return true;
+  } catch (caught) {
+    logError("useErrorCount.attachBroadcast", "chrome.runtime.onMessage.addListener threw — extension context likely invalidated, falling back to polling", caught);
+    return false;
+  }
+}
+
+function detachBroadcastListener(runtime: RuntimeLike | undefined, handler: BroadcastMessageHandler): void {
+  try {
+    runtime?.onMessage?.removeListener(handler);
+  } catch (caught) {
+    logError("useErrorCount.detachBroadcast", "chrome.runtime.onMessage.removeListener threw — context already invalidated", caught);
+  }
+}
+
+function createPollingControls(refresh: RefreshErrorCount, pollIntervalMs: number, disabled: boolean) {
+  let pollId: ReturnType<typeof setInterval> | null = null;
+  const start = () => {
+    if (disabled || pollId !== null) { return; }
+    pollId = setInterval(() => void refresh(), pollIntervalMs);
+  };
+  const stop = () => {
+    if (pollId === null) { return; }
+    clearInterval(pollId);
+    pollId = null;
+  };
+  return { start, stop };
+}
+
+function bindVisibilityPolling(
+  pollingControls: ReturnType<typeof createPollingControls>,
+  refresh: RefreshErrorCount,
+  disabled: boolean,
+): () => void {
+  const handleVisibility = () => {
+    if (disabled || typeof document === "undefined") { return; }
+    if (document.hidden) { pollingControls.stop(); } else {
+      void refresh();
+      pollingControls.start();
+    }
+  };
+  if (typeof document !== "undefined") { document.addEventListener("visibilitychange", handleVisibility); }
+  if (typeof document === "undefined" || !document.hidden) { pollingControls.start(); }
+  return () => {
+    pollingControls.stop();
+    if (typeof document !== "undefined") { document.removeEventListener("visibilitychange", handleVisibility); }
+  };
+}
+
+function setupErrorCountSubscriptions(refresh: RefreshErrorCount, setCountValue: CountSetter, pollIntervalMs: number): () => void {
+  const runtime = getRuntime();
+  const broadcastHandler = createBroadcastHandler(setCountValue);
+  const listenerAttached = attachBroadcastListener(runtime, broadcastHandler);
+  const pollingControls = createPollingControls(refresh, pollIntervalMs, listenerAttached);
+  const cleanupPolling = bindVisibilityPolling(pollingControls, refresh, listenerAttached);
+  return () => {
+    cleanupPolling();
+    if (listenerAttached) { detachBroadcastListener(runtime, broadcastHandler); }
+  };
+}
+
 export function useErrorCount(pollIntervalMs = 30_000) {
   const [count, setCount] = useState(0);
 
@@ -33,88 +119,7 @@ export function useErrorCount(pollIntervalMs = 30_000) {
 
   useEffect(() => {
     void refresh();
-
-    // Real-time listener for ERROR_COUNT_CHANGED broadcasts
-    const runtime = (typeof chrome !== "undefined" ? chrome.runtime : undefined) as
-      | { onMessage?: { addListener: (handler: (msg: unknown) => void) => void; removeListener: (handler: (msg: unknown) => void) => void } }
-      | undefined;
-
-    const hasChromeRuntime = runtime?.onMessage !== undefined;
-    let listenerAttached = false;
-
-    const handleBroadcast = (
-      message: unknown,
-    ) => {
-      const msg = message as { type?: string; count?: number } | null;
-      const isErrorCountChange = msg?.type === "ERROR_COUNT_CHANGED";
-
-      if (isErrorCountChange) {
-        setCount(msg!.count ?? 0);
-      }
-    };
-
-    if (hasChromeRuntime) {
-      try {
-        runtime!.onMessage!.addListener(handleBroadcast);
-        listenerAttached = true;
-      } catch (caught) {
-        logError("useErrorCount.attachBroadcast", "chrome.runtime.onMessage.addListener threw — extension context likely invalidated, falling back to polling", caught);
-      }
-    }
-
-    // ── Polling fallback ───────────────────────────────────────────────
-    // Only runs when the broadcast listener is NOT attached. When the
-    // page is hidden, the timer is suspended and resumed on visibility.
-    let pollId: ReturnType<typeof setInterval> | null = null;
-    const pollingDisabled = listenerAttached;
-
-    const startPolling = () => {
-      if (pollingDisabled) { return; }
-      if (pollId !== null) { return; }
-      pollId = setInterval(() => void refresh(), pollIntervalMs);
-    };
-
-    const stopPolling = () => {
-      if (pollId !== null) {
-        clearInterval(pollId);
-        pollId = null;
-      }
-    };
-
-    const handleVisibility = () => {
-      if (pollingDisabled) { return; }
-      if (typeof document === "undefined") { return; }
-      if (document.hidden) {
-        stopPolling();
-      } else {
-        // Catch up on anything we missed while hidden, then resume polling.
-        void refresh();
-        startPolling();
-      }
-    };
-
-    if (typeof document !== "undefined") {
-      document.addEventListener("visibilitychange", handleVisibility);
-    }
-
-    // Kick off polling only if the page is currently visible (or there's
-    // no `document` to consult, e.g. SSR safety).
-    const isInitiallyVisible = typeof document === "undefined" || !document.hidden;
-    if (isInitiallyVisible) { startPolling(); }
-
-    return () => {
-      stopPolling();
-      if (typeof document !== "undefined") {
-        document.removeEventListener("visibilitychange", handleVisibility);
-      }
-      if (listenerAttached) {
-        try {
-          runtime!.onMessage!.removeListener(handleBroadcast);
-        } catch (caught) {
-          logError("useErrorCount.detachBroadcast", "chrome.runtime.onMessage.removeListener threw — context already invalidated", caught);
-        }
-      }
-    };
+    return setupErrorCountSubscriptions(refresh, setCount, pollIntervalMs);
   }, [refresh, pollIntervalMs]);
 
   return { count, refresh };

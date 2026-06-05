@@ -40,9 +40,9 @@ function markDirty(): void {
 }
 
 export async function handleKvGet(
-    msg: MessageRequest,
+    message: MessageRequest,
 ): Promise<{ value: string | null } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & { projectId?: unknown; key?: unknown };
+    const raw = message as MessageRequest & { projectId?: unknown; key?: unknown };
     const projectId = requireProjectId(raw.projectId);
     const key = requireKey(raw.key);
     if (!projectId) return missingFieldError("projectId", "kv:get");
@@ -60,9 +60,9 @@ export async function handleKvGet(
 }
 
 export async function handleKvSet(
-    msg: MessageRequest,
+    message: MessageRequest,
 ): Promise<{ isOk: true } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & { projectId?: unknown; key?: unknown; value?: unknown };
+    const raw = message as MessageRequest & { projectId?: unknown; key?: unknown; value?: unknown };
     const projectId = requireProjectId(raw.projectId);
     const key = requireKey(raw.key);
     if (!projectId) return missingFieldError("projectId", "kv:set");
@@ -81,9 +81,9 @@ export async function handleKvSet(
 }
 
 export async function handleKvDelete(
-    msg: MessageRequest,
+    message: MessageRequest,
 ): Promise<{ isOk: true } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & { projectId?: unknown; key?: unknown };
+    const raw = message as MessageRequest & { projectId?: unknown; key?: unknown };
     const projectId = requireProjectId(raw.projectId);
     const key = requireKey(raw.key);
     if (!projectId) return missingFieldError("projectId", "kv:delete");
@@ -96,9 +96,9 @@ export async function handleKvDelete(
 }
 
 export async function handleKvList(
-    msg: MessageRequest,
+    message: MessageRequest,
 ): Promise<{ entries: Array<{ key: string; value: string }> } | HandlerErrorResponse> {
-    const raw = msg as MessageRequest & { projectId?: unknown };
+    const raw = message as MessageRequest & { projectId?: unknown };
     const projectId = requireProjectId(raw.projectId);
     if (!projectId) return missingFieldError("projectId", "kv:list");
 

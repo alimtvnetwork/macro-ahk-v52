@@ -121,11 +121,9 @@ export default tseslint.config(
   // graduate off this list as their authored-source debt is cleaned.
   {
     files: [
-      "src/background/handlers/grouped-kv-handler.ts",
       "src/background/handlers/injection-handler.ts",
       "src/background/handlers/injection-namespace-bootstrap.ts",
       "src/background/handlers/injection-toast.ts",
-      "src/background/handlers/kv-handler.ts",
       "src/background/handlers/library-handler.ts",
       "src/background/handlers/logging-export-handler.ts",
       "src/background/handlers/logging-handler.ts",
@@ -210,7 +208,6 @@ export default tseslint.config(
       "src/content-scripts/xpath-recorder.ts",
       "src/hooks/__tests__/use-draggable.test.tsx",
       "src/hooks/use-draggable.ts",
-      "src/hooks/use-error-count.ts",
       "src/hooks/use-popup-actions.ts",
       "src/lib/__tests__/sqlite-bundle-contract.test.ts",
       "src/lib/__tests__/sqlite-bundle-roundtrip.test.ts",
