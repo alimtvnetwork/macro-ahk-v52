@@ -244,11 +244,12 @@ async function requestEndpointData(
             signal: controller.signal,
         });
     } catch (caughtError) {
-        clearTimeout(timer);
         const message = caughtError instanceof Error ? caughtError.message : String(caughtError);
         const isAbort = controller.signal.aborted;
         const reason = isAbort ? "EndpointTimeout" : "EndpointHttpError";
         throw new Error(`${reason}: ${message}`);
+    } finally {
+        clearTimeout(timer);
     }
 }
 
@@ -295,49 +296,5 @@ async function safeReadSnippet(response: Response): Promise<string> {
         const message = caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         return `<unreadable body: ${message}>`;
-    }
-}
-    clearTimeout(timer);
-
-    if (response.ok === false) {
-        const snippet = await safeReadSnippet(response);
-        throw new Error(
-            `EndpointHttpError: ${response.status} ${response.statusText} — ${snippet}`,
-        );
-    }
-
-    let payload: unknown;
-    try {
-        payload = await response.json();
-    } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        throw new Error(`EndpointParseError: ${msg}`);
-    }
-
-    if (Array.isArray(payload) === false) {
-        throw new Error("EndpointParseError: response must be a JSON array of objects");
-    }
-    const rows = payload as ReadonlyArray<unknown>;
-    if (rows.length === 0) {
-        throw new Error("EndpointParseError: response array is empty");
-    }
-
-    const columns = collectJsonColumns(rows);
-    const normalized = rows.map((r) => normalizeRow(r as Record<string, unknown>));
-
-    return {
-        DataSourceKindId: ExtendedDataSourceKindId.Endpoint,
-        Columns: columns,
-        RowCount: rows.length,
-        Rows: normalized,
-    };
-}
-
-async function safeReadSnippet(response: Response): Promise<string> {
-    try {
-        const text = await response.text();
-        return text.slice(0, 2048);
-    } catch {
-        return "<no body>";
     }
 }
