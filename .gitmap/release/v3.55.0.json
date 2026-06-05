@@ -1,0 +1,16 @@
+{
+  "version": "3.55.0",
+  "branch": "release/v3.55.0",
+  "sourceBranch": "main",
+  "commit": "df212d515c107975c3003845fee1b2a05ca988e2",
+  "tag": "v3.55.0",
+  "assets": [],
+  "changelog": [
+    "**Spec filename casing gate**: Renamed 20 uppercase `.md` files under `spec/21-app/05-prompts/`, `spec/21-app/05-prompts/macros/`, `spec/2026-spec/_quarantine/`, `spec/2026-spec/01-prompt-spec/`, and `spec/2026-spec/` to lowercase hyphen-case (e.g. `RELEASE-CHECKLIST.md` → `release-checklist.md`, `OWNERS.md` → `owners.md`). Updated every cross-reference under `spec/` to match.",
+    "Version bump: 3.54.0 → 3.55.0 across `manifest.json`, `src/shared/constants.ts`, `version.json`, all standalone-script `instruction.ts` / `shared-state.ts` files, and root `readme.md` pinned-version snippets."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-05T20:11:54Z",
+  "isLatest": false
+}
