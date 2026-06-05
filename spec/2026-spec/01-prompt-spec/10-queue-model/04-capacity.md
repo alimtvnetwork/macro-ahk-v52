@@ -61,3 +61,19 @@ Numeric defaults referenced in this file are canonical in [Runtime Defaults](../
 - The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+<!-- audit: inline-types -->
+
+## Type & Schema (canonical)
+
+```json
+{
+  "$id": "QueueCapacity",
+  "type": "object",
+  "required": ["maxItems","maxAgeMs"],
+  "properties": {
+    "maxItems": { "const": 3 },
+    "maxAgeMs": { "const": 5000 },
+    "overflowPolicy": { "enum": ["reject-new","drop-oldest"], "default":"reject-new" }
+  }
+}
+```

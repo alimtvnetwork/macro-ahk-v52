@@ -57,3 +57,19 @@ Drag-and-drop in the queue panel calls `moveTo(id, newIndex)`. Keyboard shortcut
 - The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+<!-- audit: inline-types -->
+
+## Type & Schema (canonical)
+
+```json
+{
+  "$id": "QueueOrdering",
+  "type": "object",
+  "description": "Ordering key MUST be (createdAt ASC, id ASC). Ties resolved by id lex order.",
+  "properties": {
+    "primaryKey":   { "const": "createdAt" },
+    "tieBreaker":   { "const": "id" },
+    "direction":    { "enum":["asc"] }
+  }
+}
+```

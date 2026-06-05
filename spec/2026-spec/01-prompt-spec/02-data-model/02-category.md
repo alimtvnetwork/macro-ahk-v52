@@ -64,3 +64,30 @@ step, while still letting integrators curate a primary set.
 - The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+<!-- audit: inline-types -->
+
+## Type & Schema (canonical)
+
+```typescript
+interface PromptCategory {
+  id: string;            // ULID
+  slug: string;          // kebab-case, unique
+  label: string;         // 1..40 chars
+  order: number;         // integer >= 0, ascending in UI
+}
+```
+
+```json
+{
+  "$id": "PromptCategory",
+  "type": "object",
+  "required": ["id","slug","label","order"],
+  "properties": {
+    "id":    { "type":"string", "pattern":"^[0-9A-HJKMNP-TV-Z]{26}$" },
+    "slug":  { "type":"string", "pattern":"^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength":40 },
+    "label": { "type":"string", "minLength":1, "maxLength":40 },
+    "order": { "type":"integer", "minimum":0 }
+  },
+  "additionalProperties": false
+}
+```

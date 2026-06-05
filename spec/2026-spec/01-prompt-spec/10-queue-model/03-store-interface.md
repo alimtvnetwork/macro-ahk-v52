@@ -65,3 +65,18 @@ type QueueStoreEvent =
 - The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+<!-- audit: inline-types -->
+
+## Type & Schema (canonical)
+
+```json
+{
+  "$id": "QueueStore.method-signatures",
+  "type": "object",
+  "properties": {
+    "timeoutMs":   { "const": 5000 },
+    "methodNames": { "type":"array", "items":{"type":"string"},
+                     "default": ["enqueue","peek","markRunning","markDone","markFailed","cancel","list"] }
+  }
+}
+```

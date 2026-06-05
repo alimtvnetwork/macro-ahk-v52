@@ -96,3 +96,20 @@ The Prompts feature MUST NOT know which one is in use.
 - Default operation budget MUST be **5000 ms** (per `reference/05-runtime-defaults.md`).
 - Maximum retry attempts MUST be **3 items** before escalation.
 - See [folder index](../README.md) for sibling specs and cross-references.
+
+<!-- audit: inline-types -->
+
+## Type & Schema (canonical)
+
+```json
+{
+  "$id": "PromptStore.method-signatures",
+  "description": "Sentinel schema: PromptStore is a TS interface (see ts block above); each method MUST resolve within 5000 ms and SHALL NOT throw on miss (return null).",
+  "type": "object",
+  "properties": {
+    "timeoutMs":  { "const": 5000 },
+    "methodNames": { "type":"array", "items":{"type":"string"},
+                     "default": ["list","get","put","delete","import","export"] }
+  }
+}
+```
