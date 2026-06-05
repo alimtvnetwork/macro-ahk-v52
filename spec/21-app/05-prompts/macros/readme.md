@@ -1,6 +1,6 @@
 # Prompt Macros — Spec Index
 **Updated:** 2026-06-02
-**Status:** ✅ v2.0 complete. Audited readiness **100 / 100** (`READINESS-SCORE-v2.md`). See `../README.md` (root index) and `../IMPLEMENTATION-CHECKLIST.md` for the blind-AI runbook.
+**Status:** ✅ v2.0 complete. Audited readiness **100 / 100** (`readiness-score-v2.md`). See `../README.md` (root index) and `../IMPLEMENTATION-CHECKLIST.md` for the blind-AI runbook.
 A **Macro** is an ordered, declarative chain of typed prompt steps that the
 extension auto-executes: it injects prompts, drives the `next` loop, runs
 audits, writes gap analyses under `spec/audit/<runId>/`, and loops until a

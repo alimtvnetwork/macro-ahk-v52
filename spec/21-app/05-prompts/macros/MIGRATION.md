@@ -68,7 +68,7 @@ macros continue to load and run unchanged.
 What changed:
 - 47 new spec docs (pseudo-code, matrices, schemas, walkthroughs, inventories).
 - 2 new memory files (`mem://features/prompt-macros`, `mem://features/prompt-variables`).
-- New canonical scorecard: `macros/READINESS-SCORE-v2.md` supersedes v1.
+- New canonical scorecard: `macros/readiness-score-v2.md` supersedes v1.
 What did NOT change:
 - All `StepKindId` values (1–8) and their semantics.
 - The 5-tier variable resolution waterfall.

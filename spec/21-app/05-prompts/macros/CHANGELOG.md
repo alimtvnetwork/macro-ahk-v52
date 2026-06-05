@@ -19,7 +19,7 @@ Dates in **the user's local timezone**. Format: [Keep a Changelog](https://keepa
 ## [2.0.0] — 2026-06-02 (blind-AI upgrade)
 ### Added (47 new spec docs + 2 memory files)
 - `README.md`, `GLOSSARY.md`, `IMPLEMENTATION-CHECKLIST.md`, `BLIND-AI-SMOKE-TEST.md` at the prompts root.
-- `macros/SCHEMA-INDEX.md`, `macros/EDGE-CASES.md`, `macros/READINESS-SCORE-v2.md`.
+- `macros/SCHEMA-INDEX.md`, `macros/EDGE-CASES.md`, `macros/readiness-score-v2.md`.
 - **5 JSON schemas** (draft-2020-12): `json/10`–`14` for MacroDefinition, RunState, AuditOutput, MacroEvent, PromptInfo.
 - **7 engine pseudo-code appendices**: `engine/10`–`16` (runner, interpolator, score-parser, watchdog, audit-writer, message-contract, runtime-defaults).
 - **6 variable references**: `variables/10`–`15` (BNF, waterfall, coercion, sensitive, built-ins, examples).
