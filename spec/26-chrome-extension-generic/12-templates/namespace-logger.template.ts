@@ -48,8 +48,10 @@ const consoleSink: LogSink = {
             case "info": console.log(head, tail ?? ""); break;
             case "warn": console.warn(head, tail ?? ""); break;
             case "error":
-            // eslint-disable-next-line no-restricted-syntax -- template: this IS the namespace Logger implementation; console.error is the terminal sink
-            case "fatal": console.error(head, tail ?? ""); break;
+            case "fatal":
+                // eslint-disable-next-line no-restricted-syntax -- template: this IS the namespace Logger implementation; console.error is the terminal sink
+                console.error(head, tail ?? "");
+                break;
         }
     },
 };
