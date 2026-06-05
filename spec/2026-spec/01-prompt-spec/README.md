@@ -80,3 +80,11 @@
 - Default operation budget MUST be **5000 ms** (per `reference/05-runtime-defaults.md`).
 - Maximum retry attempts MUST be **3 items** before escalation.
 - See [folder index](../README.md) for sibling specs and cross-references.
+
+## Acceptance
+
+- [ ] Every sibling `*.md` listed below this index also declares its own `## Acceptance` block (verified by `scripts/audit/check-acceptance.mjs`).
+- [ ] All relative links in this file resolve (verified by `scripts/audit/check-dangling-links.mjs`).
+- [ ] No operational numeric constant is hardcoded here without binding to `reference/05-runtime-defaults.md` (verified by `scripts/audit/check-must-constants.mjs --strict`).
+- [ ] Composite audit score for this folder is `100 / 100` (verified by `scripts/audit/audit-scan.py`).
+
