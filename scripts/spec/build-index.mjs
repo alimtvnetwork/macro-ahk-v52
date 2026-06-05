@@ -37,7 +37,6 @@ const files = walk(ROOT)
   .sort((a, b) => a.path.localeCompare(b.path));
 
 const index = {
-  generatedAt: new Date().toISOString(),
   root: ROOT,
   fileCount: files.length,
   files,
