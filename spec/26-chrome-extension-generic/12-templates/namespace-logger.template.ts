@@ -48,6 +48,7 @@ const consoleSink: LogSink = {
             case "info": console.log(head, tail ?? ""); break;
             case "warn": console.warn(head, tail ?? ""); break;
             case "error":
+            // eslint-disable-next-line no-restricted-syntax -- template: this IS the namespace Logger implementation; console.error is the terminal sink
             case "fatal": console.error(head, tail ?? ""); break;
         }
     },
@@ -135,8 +136,7 @@ interface RootNamespaceShape {
 }
 
 declare global {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    interface Window { ["<ROOT_NAMESPACE>"]?: RootNamespaceShape & Record<string, any>; }
+    interface Window { ["<ROOT_NAMESPACE>"]?: RootNamespaceShape & Record<string, unknown>; }
 }
 
 export function attachToRootNamespace(): void {
