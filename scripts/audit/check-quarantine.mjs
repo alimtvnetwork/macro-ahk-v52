@@ -37,7 +37,8 @@ function listMarkdown(directoryPath) {
 }
 
 function isPolicyFile(path) {
-  return path.endsWith(`${SPEC_ROOT.split('/').pop()}/README.md`) || path.endsWith('/_quarantine/README.md');
+  const lower = path.toLowerCase();
+  return lower.endsWith(`${SPEC_ROOT.split('/').pop().toLowerCase()}/readme.md`) || lower.endsWith('/_quarantine/readme.md');
 }
 
 const failures = [];
