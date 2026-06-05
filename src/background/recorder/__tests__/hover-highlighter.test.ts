@@ -81,11 +81,11 @@ describe("nthAncestor", () => {
 
 describe("describeElement", () => {
     it("formats tag, id, classes, and depth chip", () => {
-        const el = document.createElement("button");
-        el.id = "submit";
-        el.className = "btn primary large";
-        expect(describeElement(el, 0)).toBe("button#submit.btn.primary.large");
-        expect(describeElement(el, 2)).toBe("button#submit.btn.primary.large  · depth +2");
+        const element = document.createElement("button");
+        element.id = "submit";
+        element.className = "btn primary large";
+        expect(describeElement(element, 0)).toBe("button#submit.btn.primary.large");
+        expect(describeElement(element, 2)).toBe("button#submit.btn.primary.large  · depth +2");
     });
 });
 
