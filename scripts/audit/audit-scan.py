@@ -7,7 +7,8 @@ For each .md file under a folder, compute a score (0-100) over 5 dims:
 Heuristics (transparent, not perfect — flagged in report):
   clarity:    >=200 words +15, has H1 +5, has H2 sections >=3 +5
   determinism: contains MUST/SHALL/MUST NOT/exactly/at least N +15;
-              contains numeric constants (\\d+\\s*(ms|s|min|MB|chars|items|%)) +10
+              contains numeric constants (\\d+\\s*(ms|s|min|MB|chars|items|%)) +10;
+              caps at full credit when MUST/SHALL rules cite mem:// or runtime defaults
   acceptance: contains 'Acceptance' or 'AC-' or '- [ ]' or 'pass when' +20
               (partial 10 if only 'should')
   cross_refs: all relative .md links resolve +15; -5 per dangling (min 0)
