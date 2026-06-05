@@ -149,13 +149,7 @@ function buildOpenLovableTabInfo(args: {
     const tabId = typeof t.id === "number" ? t.id : null;
     const record = tabId !== null ? injections[tabId] : undefined;
     const probePayload = probe.payload;
-
-    let projectId: string | null = record?.projectId ?? null;
-    let bindingSource: OpenLovableTabInfo["bindingSource"] = record !== undefined ? "injection" : "none";
-    if (projectId === null && probePayload && typeof probePayload.projectId === "string" && probePayload.projectId !== "") {
-        projectId = probePayload.projectId;
-        bindingSource = "probe";
-    }
+    const { projectId, bindingSource } = resolveProjectBinding(record, probePayload);
 
     const projectName = projectId !== null ? (projectNameById.get(projectId) ?? null) : null;
     const matchedRule = resolveMatchedRule({
