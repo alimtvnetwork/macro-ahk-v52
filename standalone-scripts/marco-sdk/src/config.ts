@@ -42,9 +42,9 @@ export function createConfigApi(): ConfigApi {
  * Called internally when a CONFIG_CHANGED event is received from the relay.
  */
 export function notifyConfigChange(key: string, value: unknown): void {
-    for (const cb of changeListeners) {
+    for (const listener of changeListeners) {
         try {
-            cb(key, value);
+            listener(key, value);
         } catch (caught) {
             NamespaceLogger.error("notifyConfigChange", `Config-change listener threw for key="${key}" — listener will continue receiving events but this callback's failure was non-fatal`, caught);
         }

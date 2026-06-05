@@ -215,7 +215,7 @@ export default tseslint.config(
       "src/options/sections/ProjectEditor.tsx",
       "src/options/sections/ProjectsSection.tsx",
       "src/pages/Options.tsx",
-      "src/shared/http-fail-fast.ts",
+      
       "src/test/regression/injection-pipeline.test.ts",
       "src/test/regression/injection-result-builder.test.ts",
       "src/test/regression/recorder-xpath-batch.test.ts",
@@ -313,7 +313,7 @@ export default tseslint.config(
       "standalone-scripts/macro-controller/src/ui/section-open-tabs.ts",
       "standalone-scripts/macro-controller/src/ui/settings-tab-panels.ts",
       "standalone-scripts/macro-controller/src/ui/settings-ui.ts",
-      "standalone-scripts/macro-controller/src/ui/skeleton.ts",
+      
       "standalone-scripts/macro-controller/src/ui/summary-bar/component.ts",
       "standalone-scripts/macro-controller/src/ui/task-next-ui.ts",
       "standalone-scripts/macro-controller/src/ui/ui-status-renderer.ts",
@@ -331,7 +331,7 @@ export default tseslint.config(
       "standalone-scripts/macro-controller/src/ws-name-matching.ts",
       "standalone-scripts/macro-controller/src/xpath-utils.ts",
       "standalone-scripts/macro-controller/tests/e2e/credit-totals/run-credit-totals-e2e.test.ts",
-      "standalone-scripts/marco-sdk/src/config.ts",
+      
       "standalone-scripts/marco-sdk/src/logger.ts",
       "standalone-scripts/marco-sdk/src/notify.ts",
       "standalone-scripts/marco-sdk/src/prompts.ts",
