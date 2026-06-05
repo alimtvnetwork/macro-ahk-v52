@@ -215,7 +215,7 @@ export default tseslint.config(
       "src/options/sections/ProjectEditor.tsx",
       "src/options/sections/ProjectsSection.tsx",
       "src/pages/Options.tsx",
-      "src/shared/http-fail-fast.ts",
+      
       "src/test/regression/injection-pipeline.test.ts",
       "src/test/regression/injection-result-builder.test.ts",
       "src/test/regression/recorder-xpath-batch.test.ts",
