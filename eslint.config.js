@@ -121,9 +121,6 @@ export default tseslint.config(
   // graduate off this list as their authored-source debt is cleaned.
   {
     files: [
-      "src/background/injection-diagnostics.ts",
-      "src/background/manifest-seeder.ts",
-      "src/background/marco-sdk-template.ts",
       "src/background/message-registry.ts",
       "src/background/project-namespace-builder.ts",
       "src/background/project-query-builder.ts",

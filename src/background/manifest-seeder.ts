@@ -242,9 +242,9 @@ async function seedScriptsFromManifest(
                     }
                 }
             } catch (err) {
-                const msg = `[seedScriptsFromManifest] Failed to seed script ${scriptDef.File} for ${project.Name}: ${err}`;
-                errors.push(msg);
-                logBgWarnError(BgLogTag.MANIFEST_SEEDER, msg);
+                const seedErrorMessage = `[seedScriptsFromManifest] Failed to seed script ${scriptDef.File} for ${project.Name}: ${err}`;
+                errors.push(seedErrorMessage);
+                logBgWarnError(BgLogTag.MANIFEST_SEEDER, seedErrorMessage);
             }
         }
     }
@@ -404,11 +404,11 @@ async function seedConfigsFromManifest(
                     }
                 }
             } catch (err) {
-                const msg = `[seedConfigsFromManifest→fetchConfigJson] Failed to seed config ${configDef.File} for ${project.Name}: ${err}`;
-                errors.push(msg);
+                const seedErrorMessage = `[seedConfigsFromManifest→fetchConfigJson] Failed to seed config ${configDef.File} for ${project.Name}: ${err}`;
+                errors.push(seedErrorMessage);
                 // Use warn instead of error — config fetch failures are non-fatal
                 // (hardcoded defaults are used) and should not inflate the error table
-                logBgWarnError(BgLogTag.MANIFEST_SEEDER, msg);
+                logBgWarnError(BgLogTag.MANIFEST_SEEDER, seedErrorMessage);
             }
         }
     }
@@ -507,21 +507,13 @@ export async function seedProjectsFromManifest(
     const initial: StoredProject[] = Array.isArray(result[STORAGE_KEY_ALL_PROJECTS])
         ? result[STORAGE_KEY_ALL_PROJECTS]
         : [];
+    const seedableProjects = getSeedableManifestProjects(manifest);
 
     // Migration guard (Issue 119 Step 7): collapse duplicate ids, drop
     // legacy slug-collisions in favour of the canonical SeedId, and bump
     // schemaVersion on stale records. Runs before upsert so the diff
     // loop sees a clean baseline.
-    const canonicalIds = new Set(
-        manifest.Projects
-            .filter((p) => p.SeedOnInstall && !PROJECT_OWNED_BY_DEFAULT_SEEDER.has(p.Name))
-            .map((p) => p.SeedId),
-    );
-    const canonicalSlugs = new Map(
-        manifest.Projects
-            .filter((p) => p.SeedOnInstall && !PROJECT_OWNED_BY_DEFAULT_SEEDER.has(p.Name))
-            .map((p) => [p.Name, p.SeedId]),
-    );
+    const { canonicalIds, canonicalSlugs } = buildCanonicalProjectMaps(seedableProjects);
     const { migrated, projects: stored } = migrateLegacyProjectRecords(
         initial,
         canonicalIds,
@@ -531,33 +523,16 @@ export async function seedProjectsFromManifest(
     let seeded = 0;
     const errors: string[] = [];
 
-    for (const project of manifest.Projects) {
-        if (!project.SeedOnInstall) continue;
-        if (PROJECT_OWNED_BY_DEFAULT_SEEDER.has(project.Name)) continue;
-
+    for (const project of seedableProjects) {
         try {
-            const canonical = buildStoredProjectFromSeed(project);
-            const idx = stored.findIndex((p) => p.id === canonical.id);
-
-            if (idx === -1) {
-                console.log("[manifest-seeder:projects] + INSERT %s (id=%s)", project.Name, canonical.id);
-                stored.push(canonical);
-                changed = true;
-                seeded++;
-            } else if (!isStoredProjectEquivalent(stored[idx], canonical)) {
-                console.log("[manifest-seeder:projects] ↻ REFRESH %s (id=%s)", project.Name, canonical.id);
-                stored[idx] = {
-                    ...canonical,
-                    createdAt: stored[idx].createdAt,
-                    settings: { ...canonical.settings, ...stored[idx].settings },
-                };
+            if (upsertManifestProject(project, stored)) {
                 changed = true;
                 seeded++;
             }
         } catch (err) {
-            const msg = `[seedProjectsFromManifest] Failed to seed project ${project.Name}: ${err}`;
-            errors.push(msg);
-            logBgWarnError(BgLogTag.MANIFEST_SEEDER, msg);
+            const seedErrorMessage = `[seedProjectsFromManifest] Failed to seed project ${project.Name}: ${err}`;
+            errors.push(seedErrorMessage);
+            logBgWarnError(BgLogTag.MANIFEST_SEEDER, seedErrorMessage);
         }
     }
 
@@ -566,6 +541,44 @@ export async function seedProjectsFromManifest(
     }
 
     return { seeded, errors, migrated };
+}
+
+function getSeedableManifestProjects(manifest: SeedManifest): SeedProjectEntry[] {
+    return manifest.Projects.filter(
+        (project) => project.SeedOnInstall && !PROJECT_OWNED_BY_DEFAULT_SEEDER.has(project.Name),
+    );
+}
+
+function buildCanonicalProjectMaps(
+    projects: SeedProjectEntry[],
+): { canonicalIds: Set<string>; canonicalSlugs: Map<string, string> } {
+    return {
+        canonicalIds: new Set(projects.map((project) => project.SeedId)),
+        canonicalSlugs: new Map(projects.map((project) => [project.Name, project.SeedId])),
+    };
+}
+
+function upsertManifestProject(project: SeedProjectEntry, stored: StoredProject[]): boolean {
+    const canonical = buildStoredProjectFromSeed(project);
+    const idx = stored.findIndex((storedProject) => storedProject.id === canonical.id);
+
+    if (idx === -1) {
+        console.log("[manifest-seeder:projects] + INSERT %s (id=%s)", project.Name, canonical.id);
+        stored.push(canonical);
+        return true;
+    }
+
+    if (isStoredProjectEquivalent(stored[idx], canonical)) {
+        return false;
+    }
+
+    console.log("[manifest-seeder:projects] ↻ REFRESH %s (id=%s)", project.Name, canonical.id);
+    stored[idx] = {
+        ...canonical,
+        createdAt: stored[idx].createdAt,
+        settings: { ...canonical.settings, ...stored[idx].settings },
+    };
+    return true;
 }
 
 /**
@@ -635,23 +648,6 @@ export function migrateLegacyProjectRecords(
 /** Builds a canonical `StoredProject` from a manifest project entry. */
 export function buildStoredProjectFromSeed(project: SeedProjectEntry): StoredProject {
     const now = new Date().toISOString();
-    const targetUrls: UrlRule[] = (project.TargetUrls ?? []).map((t) => ({
-        pattern: t.Pattern,
-        matchType: t.MatchType,
-    }));
-
-    const scripts: ScriptEntry[] = project.Scripts.map((s) => ({
-        path: s.SeedId,
-        order: s.Order,
-        runAt: s.RunAt,
-        configBinding: s.ConfigBinding ? resolveConfigSeedId(s.ConfigBinding, project) : undefined,
-        description: s.Description || project.Description,
-    }));
-
-    const configs: ConfigEntry[] = project.Configs.map((c) => ({
-        path: c.SeedId,
-        description: c.Description,
-    }));
 
     return {
         id: project.SeedId,
@@ -660,28 +656,60 @@ export function buildStoredProjectFromSeed(project: SeedProjectEntry): StoredPro
         name: project.DisplayName || project.Name,
         version: project.Version,
         description: project.Description,
-        targetUrls,
-        scripts,
-        configs,
-        cookies: (project.Cookies ?? []).map((c) => ({
-            cookieName: c.CookieName,
-            url: c.Url,
-            role: c.Role === "other" ? "custom" : c.Role,
-            description: c.Description,
-        })),
-        settings: {
-            onlyRunAsDependency: project.Settings?.OnlyRunAsDependency,
-            isolateScripts: project.Settings?.IsolateScripts,
-            logLevel: project.Settings?.LogLevel,
-            retryOnNavigate: project.Settings?.RetryOnNavigate,
-            chatBoxXPath: project.Settings?.ChatBoxXPath,
-            allowDynamicRequests: project.Settings?.AllowDynamicRequests,
-        },
-        dependencies: project.Dependencies.map((d) => ({ projectId: d, version: "*" })),
+        targetUrls: buildProjectTargetUrls(project),
+        scripts: buildProjectScripts(project),
+        configs: buildProjectConfigs(project),
+        cookies: buildProjectCookies(project),
+        settings: buildProjectSettings(project),
+        dependencies: project.Dependencies.map((dependency) => ({ projectId: dependency, version: "*" })),
         isGlobal: project.IsGlobal,
         isRemovable: project.IsRemovable,
         createdAt: now,
         updatedAt: now,
+    };
+}
+
+function buildProjectTargetUrls(project: SeedProjectEntry): UrlRule[] {
+    return (project.TargetUrls ?? []).map((targetUrl) => ({
+        pattern: targetUrl.Pattern,
+        matchType: targetUrl.MatchType,
+    }));
+}
+
+function buildProjectScripts(project: SeedProjectEntry): ScriptEntry[] {
+    return project.Scripts.map((script) => ({
+        path: script.SeedId,
+        order: script.Order,
+        runAt: script.RunAt,
+        configBinding: script.ConfigBinding ? resolveConfigSeedId(script.ConfigBinding, project) : undefined,
+        description: script.Description || project.Description,
+    }));
+}
+
+function buildProjectConfigs(project: SeedProjectEntry): ConfigEntry[] {
+    return project.Configs.map((config) => ({
+        path: config.SeedId,
+        description: config.Description,
+    }));
+}
+
+function buildProjectCookies(project: SeedProjectEntry): StoredProject["cookies"] {
+    return (project.Cookies ?? []).map((cookie) => ({
+        cookieName: cookie.CookieName,
+        url: cookie.Url,
+        role: cookie.Role === "other" ? "custom" : cookie.Role,
+        description: cookie.Description,
+    }));
+}
+
+function buildProjectSettings(project: SeedProjectEntry): StoredProject["settings"] {
+    return {
+        onlyRunAsDependency: project.Settings?.OnlyRunAsDependency,
+        isolateScripts: project.Settings?.IsolateScripts,
+        logLevel: project.Settings?.LogLevel,
+        retryOnNavigate: project.Settings?.RetryOnNavigate,
+        chatBoxXPath: project.Settings?.ChatBoxXPath,
+        allowDynamicRequests: project.Settings?.AllowDynamicRequests,
     };
 }
 

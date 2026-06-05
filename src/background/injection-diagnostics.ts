@@ -122,7 +122,7 @@ export async function mirrorDiagnosticToTab(
 // eslint-disable-next-line max-lines-per-function
 export async function mirrorPipelineLogsToTab(
     tabId: number,
-    lines: Array<{ msg: string; level: "log" | "warn" | "error" | "__group__" | "__groupEnd__" }>,
+    lines: Array<{ "msg": string; level: "log" | "warn" | "error" | "__group__" | "__groupEnd__" }>,
     groupTitle?: string,
 ): Promise<void> {
     if (lines.length === 0) return;
@@ -131,7 +131,7 @@ export async function mirrorPipelineLogsToTab(
             target: { tabId },
             world: "MAIN",
             func: (
-                entries: Array<{ msg: string; level: string }>,
+                entries: Array<{ "msg": string; level: string }>,
                 title: string | undefined,
             // eslint-disable-next-line sonarjs/cognitive-complexity
             ) => {
@@ -150,7 +150,7 @@ export async function mirrorPipelineLogsToTab(
 
                 for (const entry of entries) {
                     if (entry.level === "__group__") {
-                        console.groupCollapsed(`%c${entry.msg}`, "color:#74c0fc;font-weight:bold");
+                        console.groupCollapsed(`%c${entry["msg"]}`, "color:#74c0fc;font-weight:bold");
                         continue;
                     }
                     if (entry.level === "__groupEnd__") {
@@ -163,9 +163,9 @@ export async function mirrorPipelineLogsToTab(
                             : entry.level === "warn" ? "color:#ffa94d"
                                 : "color:#adb5bd";
 
-                    if (entry.level === "error") console.error(`%c${entry.msg}`, lineColor);
-                    else if (entry.level === "warn") console.warn(`%c${entry.msg}`, lineColor);
-                    else console.log(`%c${entry.msg}`, lineColor);
+                    if (entry.level === "error") console.error(`%c${entry["msg"]}`, lineColor);
+                    else if (entry.level === "warn") console.warn(`%c${entry["msg"]}`, lineColor);
+                    else console.log(`%c${entry["msg"]}`, lineColor);
                 }
 
                 console.groupEnd();
