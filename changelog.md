@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.55.0] — 2026-06-05 Filename Casing Fix + Version Bump
+
+### Fixed
+- **Spec filename casing gate**: Renamed 20 uppercase `.md` files under `spec/21-app/05-prompts/`, `spec/21-app/05-prompts/macros/`, `spec/2026-spec/_quarantine/`, `spec/2026-spec/01-prompt-spec/`, and `spec/2026-spec/` to lowercase hyphen-case (e.g. `RELEASE-CHECKLIST.md` → `release-checklist.md`, `OWNERS.md` → `owners.md`). Updated every cross-reference under `spec/` to match.
+
+### Changed
+- Version bump: 3.54.0 → 3.55.0 across `manifest.json`, `src/shared/constants.ts`, `version.json`, all standalone-script `instruction.ts` / `shared-state.ts` files, and root `readme.md` pinned-version snippets.
+
+---
+
 ## [v3.54.0] — 2026-06-05 Version Bump
+
 
 ### Changed
 - Version bump: 3.53.0 → 3.54.0 across manifest, `src/shared/constants.ts`, `version.json`, and all standalone-script `instruction.ts` / `shared-state.ts` files.
