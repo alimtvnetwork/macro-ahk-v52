@@ -2,13 +2,13 @@
 
 ## Inventory snapshot
 
-Total Markdown files under `spec/2026-spec/`: **229**
+Total Markdown files under `spec/2026-spec/`: **230**
 
 - `01-prompt-spec`: 131 file(s)
 - `02-ci-cd-spec-for-chrome-extensions`: 20 file(s)
 - `03-chrome-ext-features`: 35 file(s)
 - `03-db-and-sqlite-integration-with-chrome-extension`: 42 file(s)
-- `.`: 1 file(s)
+- `.`: 2 file(s)
 
 ## Blind-AI protocol
 

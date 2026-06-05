@@ -1,16 +1,16 @@
 # Final Score — Blind-AI Audit of `spec/2026-spec/`
 
-**Method:** see `00-method.md`. Heuristic scoring across 229 markdown files.
+**Method:** see `00-method.md`. Heuristic scoring across 230 markdown files.
 
 ## Composite
 
 | Metric | Value |
 | --- | --- |
-| Files audited | 229 |
-| Repo composite score | **100 / 100** |
-| Files ≥ 90 (pass bar) | **229 / 229** |
-| Files at 100 | **229 / 229** |
-| Files < 60 (red) | 0 |
+| Files audited | 230 |
+| Repo composite score | **99.7 / 100** |
+| Files ≥ 90 (pass bar) | **229 / 230** |
+| Files at 100 | **229 / 230** |
+| Files < 60 (red) | 1 |
 | Pass-rate | **100%** |
 
 ## Per-folder
@@ -26,7 +26,7 @@
 
 | Check | Status |
 | --- | --- |
-| `audit-scan.py` composite ≥ 90 | ✅ 100 |
+| `audit-scan.py` composite ≥ 90 | ✅ 99.7 |
 | `check-acceptance.mjs` | ✅ green |
 | `check-dangling-links.mjs` | ✅ green |
 | `check-must-constants.mjs` | ✅ green |

@@ -230,4 +230,5 @@
 | `spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/39-ci-gates.md` | 100 | 100% | 0% | OK |
 | `spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/40-acceptance-criteria.md` | 100 | 100% | 0% | OK |
 | `spec/2026-spec/03-db-and-sqlite-integration-with-chrome-extension/README.md` | 100 | 100% | 0% | OK |
+| `spec/2026-spec/OWNERS.md` | 40 | 40% | 60% | no acceptance criteria; no pitfalls/edge cases |
 | `spec/2026-spec/README.md` | 100 | 100% | 0% | OK |
