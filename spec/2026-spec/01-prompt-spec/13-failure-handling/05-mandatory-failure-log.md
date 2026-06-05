@@ -49,6 +49,11 @@ Written via the host-supplied namespace logger (e.g. `host.logger.error(record)`
 
 The `reasonDetail` and any captured HTML / Text snippets respect the per-project `VerboseLogging` toggle: 120/240-char truncation when OFF, full content when ON. The structural fields (`selectorAttempts`, `variableContext`) are **not** gated — they are always full.
 
+## Pitfalls
+
+- **Silent-failure counter-example:** do not write `catch { return; }` or `catch { status = failed; }`; every catch MUST log through the namespace logger and surface the failure record to the queue UI.
+- **Code Red log-shape counter-example:** do not use empty arrays for missing diagnostics; use one synthetic entry with `reason` explaining why selector or variable context is unavailable.
+
 ## Acceptance
 
 - [ ] The implementation satisfies the `05 — Mandatory Failure Log` contract in this file and the folder-level acceptance target: every failure path emits the mandatory failure-log shape and user-visible feedback.

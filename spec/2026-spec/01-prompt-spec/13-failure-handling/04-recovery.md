@@ -35,6 +35,11 @@ QueueEngine.requeue(taskId): Promise<string>;  // returns new task id
 
 The only automatic recovery is the readiness-grace re-check inside `runOne` for `SubmitDisabled`. That re-check is **one attempt**, not a loop, and it consumes the task's `attemptCount` budget.
 
+## Pitfalls
+
+- **Silent-failure counter-example:** do not auto-retry a failed task in the background; recovery MUST be user-initiated except for the one-shot readiness re-check documented above.
+- **Code Red log-shape counter-example:** do not create a new requeued task without linking the previous failed task id in `ReasonDetail`; reviewers must be able to trace recovery to the original failure.
+
 ## Acceptance
 
 - [ ] The implementation satisfies the `04 — Recovery` contract in this file and the folder-level acceptance target: every failure path emits the mandatory failure-log shape and user-visible feedback.
