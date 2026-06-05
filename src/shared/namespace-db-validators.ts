@@ -15,7 +15,7 @@ export const RESERVED_PREFIX = 'System.';
 export class NamespaceValidationError extends Error {
   readonly code: string;
   constructor(code: string, message: string) {
-    super(message);
+    super(`[${code}] ${message}`);
     this.code = code;
     this.name = 'NamespaceValidationError';
   }

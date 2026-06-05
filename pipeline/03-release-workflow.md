@@ -197,5 +197,6 @@ MUST be reflected in this table (and is enforced by
 | `release-watcher.yml` | schedule + dispatch | Self-heals missing release tags from `.gitmap/` |
 | `spec-gates.yml` | pull_request | Enforces spec link checks and structural gates |
 | `spec-governance-quarterly.yml` | schedule | Quarterly spec drift / governance review |
+| `spec-audit.yml` | push + pull_request | Blind-AI spec audit (structure, links, drift) |
 | `ping.yml` | push | Canary that proves unfiltered `on: push` still fires |
 
