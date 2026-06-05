@@ -32,3 +32,9 @@
 - Spawn nested queues from its own output (would violate single-runner invariant).
 - Mutate the user's selected Next prompt.
 - Persist plan output anywhere — output lives only in the host's chat history.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

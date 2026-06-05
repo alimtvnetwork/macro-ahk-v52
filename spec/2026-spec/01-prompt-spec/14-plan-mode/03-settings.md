@@ -28,3 +28,9 @@ Single key `prompts.planSettings`. Schema-validated on load; corruption falls ba
 ## Per-host overrides
 
 Hosts may ship their own defaults by registering a `PlanDefaultsProvider` at boot. User edits always win over host defaults; user **reset** restores the host default, not the spec default.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

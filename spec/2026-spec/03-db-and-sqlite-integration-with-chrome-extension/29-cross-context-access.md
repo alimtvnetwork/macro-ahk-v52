@@ -140,3 +140,9 @@ Every bridge failure report must include `Reason`, `ReasonDetail`, `SelectorAtte
 - [step-27](./27-localstorage-usage.md) — page-origin access limits.
 - [step-30](./30-sdk-content-script-contract.md) — detailed SDK bridge contract.
 - [step-32](./32-error-routing.md) — routes failures into logs and panel surfaces.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../01-prompt-spec/reference/05-runtime-defaults.md). If a value differs, the SOT wins.

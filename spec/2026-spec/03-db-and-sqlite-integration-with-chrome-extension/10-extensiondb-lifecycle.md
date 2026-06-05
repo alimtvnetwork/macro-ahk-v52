@@ -166,3 +166,9 @@ export async function flushIfDirty(): Promise<void> {
 - Step 17 — `loadFromStorage` / `flushToStorage` (persistence backends).
 - Step 18 — flush strategy (debounce + `onSuspend`).
 - Step 34 — `BootFailureBanner` consumes init errors.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../01-prompt-spec/reference/05-runtime-defaults.md). If a value differs, the SOT wins.

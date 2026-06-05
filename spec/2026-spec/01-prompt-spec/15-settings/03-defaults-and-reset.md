@@ -41,3 +41,9 @@ const DEFAULTS: PromptsSettings = {
 ## Host overrides
 
 A host may register `SettingsDefaultsProvider` to ship custom defaults. User edits win over host defaults; reset restores the **host** default (not the spec default).
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

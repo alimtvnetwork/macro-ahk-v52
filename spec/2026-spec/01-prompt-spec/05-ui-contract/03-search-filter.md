@@ -51,3 +51,9 @@ summed.
 (T33) keeps the per-prompt cost bounded. Verbose-mode logging
 (`Project.VerboseLogging`) does not change matching — it only affects
 what gets persisted in logs.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

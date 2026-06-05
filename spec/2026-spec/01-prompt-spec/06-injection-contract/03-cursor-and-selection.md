@@ -73,3 +73,9 @@ After the paste, T49 confirms the text actually landed in the value /
 text content. A mismatch in `replace` mode often means the framework
 re-rendered between steps; the verification retries once (no
 backoff).
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

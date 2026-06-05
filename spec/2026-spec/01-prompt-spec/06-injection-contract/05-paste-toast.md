@@ -55,3 +55,9 @@ logging") is still emitted on every `warning` / `error` toast, with
 full `SelectorAttempts[]` / `VariableContext[]` per the project
 contract. The toast is the user-facing surface; the log is the
 operator-facing surface.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

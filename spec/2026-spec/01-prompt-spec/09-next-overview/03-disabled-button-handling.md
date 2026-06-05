@@ -29,3 +29,9 @@ interface ReadinessConfig {
 - `SubmitDisabled` — element present but `isReady` returned false on both attempts.
 
 Each failure MUST emit the mandatory failure log shape (`Reason`, `ReasonDetail`, `SelectorAttempts[]`).
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

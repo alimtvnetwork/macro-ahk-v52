@@ -366,3 +366,9 @@ Rules:
   full row and update repeat metadata.
 - Static audit: forbid bare `log()` and feature-local `console.log` error paths
   outside the centralized diagnostics mirror.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../01-prompt-spec/reference/05-runtime-defaults.md). If a value differs, the SOT wins.

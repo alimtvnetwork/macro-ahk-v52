@@ -97,3 +97,9 @@ master list lives in `140-integration-onboarding/` (created in Tasks 101–105).
 1. `00-overview.md` (this file)
 2. `01-plan-tasks-1-20.md` — what gets written in tasks 21–120
 3. Sections under `01-glossary/` … `170-adoption-checklist/` as they land
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](reference/05-runtime-defaults.md). If a value differs, the SOT wins.

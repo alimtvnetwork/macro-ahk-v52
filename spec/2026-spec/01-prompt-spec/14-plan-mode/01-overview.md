@@ -32,3 +32,9 @@ It is **not** a new engine. It is a configuration profile + a designated default
 - Distinct entry point in the UI (dedicated button + shortcut).
 - Distinct delay/observer defaults without polluting Next's settings.
 - Distinct telemetry bucket so observability can show plan-vs-next health separately (see Step 16).
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

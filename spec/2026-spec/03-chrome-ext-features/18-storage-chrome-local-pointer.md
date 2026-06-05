@@ -246,3 +246,9 @@ Guard failures must include exact path, missing requirement, `Reason`, and
 - Step 15 — floating panel small UI state.
 - Step 16 — SQLite source of truth for logs/errors/structured data.
 - Step 17 — IndexedDB cache lane for large rebuildable data.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../01-prompt-spec/reference/05-runtime-defaults.md). If a value differs, the SOT wins.

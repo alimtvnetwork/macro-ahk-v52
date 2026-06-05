@@ -17,3 +17,9 @@ Before any code lands, confirm every `???` from the integration questionnaire (T
 | Q8 | Settings storage backend (default `localStorage`) | Host integrator | ☐ |
 
 **Gate:** Do not start wire-up until every row is ticked. Selector drift detected later is treated as a host bug, not a spec bug.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

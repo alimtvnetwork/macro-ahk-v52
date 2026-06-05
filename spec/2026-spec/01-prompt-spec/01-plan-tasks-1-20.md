@@ -215,3 +215,9 @@ Each completed follow-up task increments a checkbox here:
 - [x] T106–T110 Test plan  *(2026-06-02)*
 - [x] T111–T115 Reference snippets  *(2026-06-02)*
 - [x] T116–T120 Adoption checklist  *(2026-06-02)*
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](reference/05-runtime-defaults.md). If a value differs, the SOT wins.
