@@ -16,3 +16,8 @@ Single source of truth for rules that recur across folders. Child specs MUST lin
 ## Enforcement
 
 `scripts/audit/check-cross-folder-owners.mjs` fails CI when a spec mentions an owned topic without a link to its owner mem:// URL. Run locally with `node scripts/audit/check-cross-folder-owners.mjs`.
+
+## Pitfalls
+
+- **Pitfall**: A spec restates the verbose-logging rule inline and drifts from the owner over time. **Counter-example**: paste a "MUST gate full payloads with verboseLogging" sentence without a link to `mem://standards/verbose-logging-and-failure-diagnostics` — the cross-folder owners check fails.
+- **Pitfall**: Confusing the *result* webhook with CI notification webhooks. **Counter-example**: applying `mem://constraints/webhook-fail-fast.md` to a Slack/email CI hook — wrong owner; CI hooks are owned by `mem://constraints/no-ci-notifications`.
