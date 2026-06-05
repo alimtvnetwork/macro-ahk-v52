@@ -121,7 +121,6 @@ export default tseslint.config(
   // graduate off this list as their authored-source debt is cleaned.
   {
     files: [
-      "src/background/recorder/__tests__/xpath-of-element.test.ts",
       "src/background/recorder/condition-evaluator.ts",
       "src/background/recorder/data-source-parsers.ts",
       "src/background/recorder/drift-element-diff.ts",

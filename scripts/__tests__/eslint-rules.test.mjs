@@ -160,6 +160,7 @@ test('id-denylist fully applies to cleaned XPath source files', async () => {
 test('id-denylist fully applies to newly graduated 0.8 cleanup files', async () => {
     const cleanedFiles = [
         'src/background/auth-health-handler.ts',
+        'src/background/recorder/__tests__/xpath-of-element.test.ts',
         'src/background/recorder/condition-step.ts',
         'src/background/first-attach-toast.ts',
         'src/background/sw-shims.ts',
