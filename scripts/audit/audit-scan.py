@@ -15,7 +15,7 @@ Heuristics (transparent, not perfect — flagged in report):
 
 Outputs JSON of per-file rows.
 """
-import re, sys, json, os
+import argparse, json, re, sys
 from pathlib import Path
 
 LINK_RE = re.compile(r'\[[^\]]+\]\(([^)\s#]+)(?:#[^)]*)?\)')
@@ -101,12 +101,25 @@ def strip_code(txt: str) -> str:
     return INLINE_CODE_RE.sub('', without_fences)
 
 def main():
-    folder = Path(sys.argv[1])
+    args = parse_args()
+    folder = Path(args.folder)
     root = Path('spec/2026-spec')
     rows = []
     for p in sorted(folder.rglob('*.md')):
         rows.append(score_file(p, root))
-    print(json.dumps(rows, indent=2))
+    output = json.dumps(rows, indent=2)
+    if args.output:
+        Path(args.output).write_text(output + '\n', encoding='utf-8')
+        return
+
+    print(output)
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Score blind-AI implementability for markdown specs.')
+    parser.add_argument('folder')
+    parser.add_argument('--output')
+
+    return parser.parse_args()
 
 if __name__ == '__main__':
     main()
