@@ -8,7 +8,7 @@ type: workflow
 
 **Status:** ✅ Done
 **Scope:** Standalone CI preflight script — no extension code, no version bump.
-**Files touched:** 3 (`scripts/check-no-pnpm-dlx-less.mjs`, `scripts/check-no-pnpm-dlx-less.readme.md` (new), `readme.txt`)
+**Files touched:** 3 (`scripts/check-no-pnpm-dlx-less.mjs`, `scripts/check-no-pnpm-dlx-less-readme.md` (new), `readme.txt`)
 
 ## Iteration log
 
@@ -21,7 +21,7 @@ type: workflow
 | 5 | `readme.txt` milestone marker updated to `let's start now 21-Apr-2026 5:52 PM` | Direct write |
 | 6 | `offendingCommand` (≤1000-char full whitespace-normalised snippet) + `offendingCommandTruncated`; legacy `matchedToken` (≤120) preserved for back-compat | JSON envelope smoke test on long single-line + multi-line continuation offenders |
 | 7 | 9 tricky quoting/escaping regression fixtures (nested `bash -c`, escaped `\"`, mixed quotes, prose-collision launcher, payload-spanning POSIX continuations) + `expectedOffendingColumns` runner support | Self-test 61/61 |
-| 8 | `scripts/check-no-pnpm-dlx-less.readme.md` JSON-schema reference (envelopes, Hit shape, exit codes, jq snippet) | Created |
+| 8 | `scripts/check-no-pnpm-dlx-less-readme.md` JSON-schema reference (envelopes, Hit shape, exit codes, jq snippet) | Created |
 | 9 | 6 multi-line quoted / backtick fixtures + **universal caret-integrity check** on every fixture's hits via `toJsonHit` projection | Self-test 67/67 + real-repo scan clean |
 
 ## Final state

@@ -8,7 +8,7 @@
 # Communication Protocol:
 # If the `testing_agent` is available, main agent should delegate all testing tasks to it.
 #
-# You have access to a file called `test_result.md`. This file contains the complete testing state
+# You have access to a file called `test-result.md`. This file contains the complete testing state
 # and history, and is the primary means of communication between main and the testing agent.
 #
 # Main and testing agents must follow this exact format to maintain testing data. 
@@ -63,7 +63,7 @@
 # Protocol Guidelines for Main agent
 #
 # 1. Update Test Result File Before Testing:
-#    - Main agent must always update the `test_result.md` file before calling the testing agent
+#    - Main agent must always update the `test-result.md` file before calling the testing agent
 #    - Add implementation details to the status_history
 #    - Set `needs_retesting` to true for tasks that need testing
 #    - Update the `test_plan` section to guide testing priorities
@@ -88,9 +88,9 @@
 #      - Specific test scenarios to focus on
 #      - Any known issues or edge cases to verify
 #
-# 5. Call the testing agent with specific instructions referring to test_result.md
+# 5. Call the testing agent with specific instructions referring to test-result.md
 #
-# IMPORTANT: Main agent must ALWAYS update test_result.md BEFORE calling the testing agent, as it relies on this file to understand what to test next.
+# IMPORTANT: Main agent must ALWAYS update test-result.md BEFORE calling the testing agent, as it relies on this file to understand what to test next.
 
 #====================================================================================================
 # END - Testing Protocol - DO NOT EDIT OR REMOVE THIS SECTION

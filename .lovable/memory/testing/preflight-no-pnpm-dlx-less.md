@@ -17,7 +17,7 @@ type: feature
 | Path | Role |
 |---|---|
 | `scripts/check-no-pnpm-dlx-less.mjs` | The preflight guard (executable, Node 18+, no deps). |
-| `scripts/check-no-pnpm-dlx-less.readme.md` | JSON-schema reference for CI tooling. |
+| `scripts/check-no-pnpm-dlx-less-readme.md` | JSON-schema reference for CI tooling. |
 
 ## CLI surface
 
@@ -62,7 +62,7 @@ matchWindow: { text, caret }
 - `rule.id` is stable; `rule.label`/`description` are human-facing and may be reworded.
 - New fields may be **added** without bumping `version`. Removal or type change → `version: 2`.
 
-Full schema lives in `scripts/check-no-pnpm-dlx-less.readme.md`, including a copy-pasteable `jq`-based CI validation snippet.
+Full schema lives in `scripts/check-no-pnpm-dlx-less-readme.md`, including a copy-pasteable `jq`-based CI validation snippet.
 
 ## Fixture suite (current count: 67)
 
@@ -118,7 +118,7 @@ The original line is **always** kept as a candidate, so any pattern that matched
 | 4 | `--scan-dir <path>` / `--scan-dir=<path>` flag, exit code `2` on usage errors. |
 | 5 | `offendingCommand` (≤1000-char full snippet) + `offendingCommandTruncated`; legacy `matchedToken` (≤120) preserved. |
 | 6 | 9 tricky quoting/escaping fixtures + `expectedOffendingColumns` runner support. |
-| 7 | `scripts/check-no-pnpm-dlx-less.readme.md` JSON-schema reference. |
+| 7 | `scripts/check-no-pnpm-dlx-less-readme.md` JSON-schema reference. |
 | 8 | 6 multi-line/backtick fixtures + universal caret-integrity check via `toJsonHit` projection. |
 
 ## Stability guarantees for CI tooling
