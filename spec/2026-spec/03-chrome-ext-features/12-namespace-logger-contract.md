@@ -30,7 +30,11 @@ popup, options, isolated content scripts, and MAIN-world page runtime.
    PascalCase keys and frontend camelCase keys to avoid blank log rows.
 7. **No swallowed catches.** Every `catch` must either call the correct logger
    with Code Red context or rethrow to a boundary that does.
-8. **Logger failure must not recurse.** If persistence fails, emit through the
+8. **Namespace limits are enforced.** `System.*` is reserved for logger/runtime
+   internals; `Injection.*`, `Status.*`, `Storage.*`, `Replay.*`, `Recorder.*`,
+   and `Reload.*` are feature domains. A build may define at most 25 top-level
+   domains, enforced by `scripts/audit-namespaces.mjs`.
+9. **Logger failure must not recurse.** If persistence fails, emit through the
    logger's recursion-guarded fallback once and return a typed failure. Do not
    recursively call the same failing logger path.
 
@@ -52,7 +56,7 @@ Examples:
 - `Replay.VariableFailed`
 - `Recorder.SelectorFailed`
 - `Storage.KeyMissing`
-- `Logger.PersistenceFailed`
+- `System.Logger.PersistenceFailed`
 
 Rules:
 
