@@ -30,6 +30,7 @@
 | `check-acceptance.mjs` | ✅ green |
 | `check-dangling-links.mjs` | ✅ green |
 | `check-must-constants.mjs` | ✅ green |
+| `check-must-memory-refs.mjs` | ✅ green |
 | `check-pitfalls.mjs` | ✅ green |
 
 ## Remaining headroom

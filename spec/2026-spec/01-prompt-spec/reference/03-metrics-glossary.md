@@ -46,3 +46,6 @@ All metrics MUST be emitted via the event bus per `16-observability/03-metrics.m
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+---
+
+> Owner: see [Session logging system](mem://architecture/session-logging-system) for the authoritative rule backing the MUST/SHALL statements in this file.

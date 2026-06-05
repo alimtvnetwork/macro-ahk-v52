@@ -23,6 +23,7 @@ node scripts/audit/check-acceptance.mjs
 node scripts/audit/check-dangling-links.mjs
 node scripts/audit/check-constant-divergence.mjs
 node scripts/audit/check-must-constants.mjs
+node scripts/audit/check-must-memory-refs.mjs
 node scripts/audit/check-pitfalls.mjs
 ```
 

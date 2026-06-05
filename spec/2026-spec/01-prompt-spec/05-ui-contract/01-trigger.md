@@ -68,3 +68,6 @@ Default recommendation: **floating-button + host-api**.
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+---
+
+> Owner: see [Selector standards](mem://ui/selector-standards) for the authoritative rule backing the MUST/SHALL statements in this file.

@@ -87,3 +87,6 @@ every extension README so users learn the flow once.
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+---
+
+> Owner: see [Versioning policy](mem://workflow/versioning-policy) for the authoritative rule backing the MUST/SHALL statements in this file.

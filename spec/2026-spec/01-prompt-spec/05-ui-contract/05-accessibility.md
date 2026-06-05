@@ -77,3 +77,7 @@ the host).
 - ❌ Showing "no results" only when the user pauses typing. ✅ Update synchronously after debounce.
 - ❌ Mouse hover auto-selects a row. ✅ Hover highlights only; selection requires click or `Enter`.
 - ❌ Tooltip rendered with a hardcoded timezone. ✅ Use `Intl.DateTimeFormat().resolvedOptions().timeZone`.
+
+---
+
+> Owner: see [Selector standards](mem://ui/selector-standards) for the authoritative rule backing the MUST/SHALL statements in this file.

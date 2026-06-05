@@ -43,3 +43,6 @@ spec is complete; this is the follow-on punch-list.
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+---
+
+> Owner: see [Error logging requirements](mem://standards/error-logging-requirements.md) for the authoritative rule backing the MUST/SHALL statements in this file.

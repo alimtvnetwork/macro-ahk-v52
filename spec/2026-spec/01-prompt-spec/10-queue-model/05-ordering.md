@@ -73,3 +73,7 @@ Drag-and-drop in the queue panel calls `moveTo(id, newIndex)`. Keyboard shortcut
   }
 }
 ```
+
+---
+
+> Owner: see [Data storage layers](mem://architecture/data-storage-layers) for the authoritative rule backing the MUST/SHALL statements in this file.

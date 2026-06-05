@@ -11,6 +11,7 @@ const ACCEPTANCE_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-acceptance.mjs
 const LINKS_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-dangling-links.mjs');
 const CONSTANT_DIVERGENCE_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-constant-divergence.mjs');
 const PITFALLS_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-pitfalls.mjs');
+const MEMORY_REFS_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-must-memory-refs.mjs');
 
 function createRoot() {
   return mkdtempSync(join(tmpdir(), 'spec-audit-checks-'));
@@ -172,6 +173,40 @@ test('pitfalls checker fails when no pitfall keyword present', () => {
     const result = runScript(PITFALLS_SCRIPT, rootPath);
     assert.equal(result.status, 1);
     assert.match(result.stderr, /missing pitfalls/);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('memory-refs checker passes when MUST file cites a mem:// owner', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, '01-demo/01-good.md', '# Good\n\nThe loader MUST cache results.\n\n> Owner: see [docs](mem://standards/loader).\n');
+    const result = runScript(MEMORY_REFS_SCRIPT, rootPath);
+    assert.equal(result.status, 0, result.stderr);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('memory-refs checker fails when MUST file lacks a mem:// owner', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, '01-demo/01-bad.md', '# Bad\n\nThe loader MUST cache results.\n');
+    const result = runScript(MEMORY_REFS_SCRIPT, rootPath);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /mem:\/\/ owner reference/);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('memory-refs checker ignores MUST words inside code fences', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, '01-demo/01-fenced.md', '# Fenced\n\n```\nlog: MUST retry\n```\n');
+    const result = runScript(MEMORY_REFS_SCRIPT, rootPath);
+    assert.equal(result.status, 0, result.stderr);
   } finally {
     rmSync(rootPath, { recursive: true, force: true });
   }

@@ -83,3 +83,7 @@ Numeric defaults referenced in this file are canonical in [Runtime Defaults](../
 - ❌ Treating an empty editor as "paste succeeded". ✅ Verify by reading text length pre/post.
 - ❌ Swallowing `Reason="PasteMismatch"` to keep the UI quiet. ✅ Surface via toast + Logger.error.
 - ❌ Retrying paste with a different strategy on failure. ✅ Fail fast; ask user to retry manually (no-retry policy).
+
+---
+
+> Owner: see [Script injection lifecycle](mem://architecture/script-injection-lifecycle) for the authoritative rule backing the MUST/SHALL statements in this file.

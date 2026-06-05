@@ -63,3 +63,6 @@ PromptsFeature.bootstrap({ host: myHostOverrides });
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+---
+
+> Owner: see [Verbose logging toggle](mem://features/verbose-logging-toggle) for the authoritative rule backing the MUST/SHALL statements in this file.

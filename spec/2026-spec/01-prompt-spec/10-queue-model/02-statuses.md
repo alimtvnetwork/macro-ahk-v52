@@ -73,3 +73,7 @@ pending ─► processing ─► completed
   "description": "Closed enum; transitions: queued -> running -> (done|failed|cancelled). Backwards transitions are forbidden."
 }
 ```
+
+---
+
+> Owner: see [Data storage layers](mem://architecture/data-storage-layers) for the authoritative rule backing the MUST/SHALL statements in this file.

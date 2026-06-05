@@ -61,3 +61,6 @@ Cross-refs: `10-queue-model/`, `11-queue-lifecycle/`, `13-failure-handling/05-ma
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+---
+
+> Owner: see [Type safety standards](mem://architecture/type-safety-standards) for the authoritative rule backing the MUST/SHALL statements in this file.

@@ -69,3 +69,6 @@ Return `{ start: el.selectionStart ?? 0, end: el.selectionEnd ?? 0 }`.
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+---
+
+> Owner: see [Platform adapter pattern](mem://architecture/platform-adapter-pattern) for the authoritative rule backing the MUST/SHALL statements in this file.

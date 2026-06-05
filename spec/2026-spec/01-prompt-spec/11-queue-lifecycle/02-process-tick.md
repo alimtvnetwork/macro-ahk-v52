@@ -73,3 +73,6 @@ When `document.hidden`, the loop continues but the **delay engine** may extend i
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+---
+
+> Owner: see [No-retry policy](mem://constraints/no-retry-policy) for the authoritative rule backing the MUST/SHALL statements in this file.

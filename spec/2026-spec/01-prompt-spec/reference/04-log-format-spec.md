@@ -35,3 +35,6 @@ Sensitive values are masked at the emitter, never at the sink.
 - Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+---
+
+> Owner: see [Verbose logging & failure diagnostics](mem://standards/verbose-logging-and-failure-diagnostics) for the authoritative rule backing the MUST/SHALL statements in this file.
