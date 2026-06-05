@@ -48,12 +48,12 @@ declare global {
      * ============================================================= */
 
     interface RiseupAsiaLogger {
-        error(fn: string, msg: string, error?: CaughtError): void;
-        warn(fn: string, msg: string): void;
-        info(fn: string, msg: string): void;
-        debug(fn: string, msg: string): void;
-        console(fn: string, msg: string, ...args: RiseupAsiaLogArg[]): void;
-        stackTrace(fn: string, msg: string, error?: CaughtError): void;
+        error(scope: string, message: string, error?: CaughtError): void;
+        warn(scope: string, message: string): void;
+        info(scope: string, message: string): void;
+        debug(scope: string, message: string): void;
+        console(scope: string, message: string, ...args: RiseupAsiaLogArg[]): void;
+        stackTrace(scope: string, message: string, error?: CaughtError): void;
     }
 
     /* ============================================================= *
