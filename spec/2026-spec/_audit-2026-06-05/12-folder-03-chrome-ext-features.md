@@ -3,9 +3,9 @@
 | Metric | Value |
 | --- | --- |
 | Files audited | 35 |
-| Mean score | 99.9 / 100 |
-| Implementable % (weighted by file) | 99.9% |
-| Failure % | 0.1% |
+| Mean score | 100 / 100 |
+| Implementable % (weighted by file) | 100% |
+| Failure % | 0% |
 | Files below pass bar (<60) | 0 |
 | Files at/above target (>=90) | 35 |
 | Dangling relative-link refs | 0 |
@@ -17,7 +17,6 @@
 
 | Path | Score | Impl% | Top Blocker |
 | --- | --- | --- | --- |
-| `03-chrome-ext-features/18-storage-chrome-local-pointer.md` | 95 | 95% | OK |
 | `03-chrome-ext-features/01-purpose-and-scope.md` | 100 | 100% | OK |
 | `03-chrome-ext-features/02-manifest-v3-foundations.md` | 100 | 100% | OK |
 | `03-chrome-ext-features/03-folder-and-file-layout.md` | 100 | 100% | OK |
@@ -32,6 +31,7 @@
 | `03-chrome-ext-features/12-namespace-logger-contract.md` | 100 | 100% | OK |
 | `03-chrome-ext-features/13-error-routing-and-panel.md` | 100 | 100% | OK |
 | `03-chrome-ext-features/14-boot-failure-banner.md` | 100 | 100% | OK |
+| `03-chrome-ext-features/15-floating-in-page-panel.md` | 100 | 100% | OK |
 
 ## Top 10 files (model exemplars)
 

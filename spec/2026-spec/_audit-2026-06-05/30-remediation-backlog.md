@@ -9,14 +9,14 @@
 - `node scripts/audit/check-must-memory-refs.mjs` → every MUST/SHALL spec cites a `mem://` owner.
 - `node scripts/audit/check-quarantine.mjs` → every quarantined draft declares a Graduation Plan.
 - `node scripts/audit/check-pitfalls.mjs` → every source spec includes a pitfall/counter-example signal.
+- `node scripts/audit/check-score-floor.mjs` → every source spec scores ≥100 and composite stays ≥99.5.
 - `node scripts/audit/render-reports.mjs` → this audit directory is reproducible from current scores.
 
 ## Remaining machine-check hooks
 
-1. Add a score-floor checker that fails when any source file scores <100 or composite <99.5.
-2. Add a score snapshot lock at `_audit-2026-06-05/scores.snapshot.json`.
-3. Add no-bare-fetch and footer-lint guards for new prose.
-4. Wire every audit check into `.github/workflows/spec-audit.yml`.
+1. Add a score snapshot lock at `_audit-2026-06-05/scores.snapshot.json`.
+2. Add no-bare-fetch and footer-lint guards for new prose.
+3. Wire every audit check into `.github/workflows/spec-audit.yml`.
 
 ## Remaining qualitative work
 

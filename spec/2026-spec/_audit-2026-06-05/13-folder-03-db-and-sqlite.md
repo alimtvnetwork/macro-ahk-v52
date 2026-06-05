@@ -3,9 +3,9 @@
 | Metric | Value |
 | --- | --- |
 | Files audited | 42 |
-| Mean score | 97.6 / 100 |
-| Implementable % (weighted by file) | 97.6% |
-| Failure % | 2.4% |
+| Mean score | 100 / 100 |
+| Implementable % (weighted by file) | 100% |
+| Failure % | 0% |
 | Files below pass bar (<60) | 0 |
 | Files at/above target (>=90) | 42 |
 | Dangling relative-link refs | 0 |
@@ -17,26 +17,28 @@
 
 | Path | Score | Impl% | Top Blocker |
 | --- | --- | --- | --- |
-| `03-db-and-sqlite-integration-with-chrome-extension/00-forty-planning-steps.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/01-purpose-and-mindset.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/19-backup-and-export.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/20-query-helpers.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/21-indexeddb-when-to-choose.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/22-indexeddb-wrapper-pattern.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/24-indexeddb-invalidation.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/25-chrome-storage-local-usage.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/26-chrome-storage-local-quota.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/27-localstorage-usage.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/28-cross-version-storage-migration.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/30-sdk-content-script-contract.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/31-error-model.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/32-error-routing.md` | 95 | 95% | OK |
-| `03-db-and-sqlite-integration-with-chrome-extension/33-errors-panel-ui-hookup.md` | 95 | 95% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/00-forty-planning-steps.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/01-purpose-and-mindset.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/02-four-tier-storage-decision-matrix.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/03-quota-persistence-eviction.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/04-choose-a-tier-flowchart.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/05-mv3-constraints.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/06-folder-and-file-layout.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/07-required-packages-and-no-remote-fetch.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/08-bundling-sql-wasm.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/09-initializing-sql-js.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/10-extensiondb-lifecycle.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/11-schema-declaration-pattern.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/12-schema-versioning-and-deployments.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/13-migration-runner-pattern.md` | 100 | 100% | OK |
+| `03-db-and-sqlite-integration-with-chrome-extension/14-per-namespace-db-pattern.md` | 100 | 100% | OK |
 
 ## Top 10 files (model exemplars)
 
 | Path | Score | Impl% |
 | --- | --- | --- |
+| `03-db-and-sqlite-integration-with-chrome-extension/00-forty-planning-steps.md` | 100 | 100% |
+| `03-db-and-sqlite-integration-with-chrome-extension/01-purpose-and-mindset.md` | 100 | 100% |
 | `03-db-and-sqlite-integration-with-chrome-extension/02-four-tier-storage-decision-matrix.md` | 100 | 100% |
 | `03-db-and-sqlite-integration-with-chrome-extension/03-quota-persistence-eviction.md` | 100 | 100% |
 | `03-db-and-sqlite-integration-with-chrome-extension/04-choose-a-tier-flowchart.md` | 100 | 100% |
@@ -45,8 +47,6 @@
 | `03-db-and-sqlite-integration-with-chrome-extension/07-required-packages-and-no-remote-fetch.md` | 100 | 100% |
 | `03-db-and-sqlite-integration-with-chrome-extension/08-bundling-sql-wasm.md` | 100 | 100% |
 | `03-db-and-sqlite-integration-with-chrome-extension/09-initializing-sql-js.md` | 100 | 100% |
-| `03-db-and-sqlite-integration-with-chrome-extension/10-extensiondb-lifecycle.md` | 100 | 100% |
-| `03-db-and-sqlite-integration-with-chrome-extension/11-schema-declaration-pattern.md` | 100 | 100% |
 
 ## All dangling links
 

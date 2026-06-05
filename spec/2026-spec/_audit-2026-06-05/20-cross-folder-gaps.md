@@ -6,10 +6,10 @@ Synthesised from `01-aggregate-scoreboard.md`. Numbers are generated from `scrip
 
 | Folder | Files | Mean Score | <60 | ≥90 | Missing Pitfalls |
 | --- | --- | --- | --- | --- | --- |
-| `01-prompt-spec` | 131 | 97.8 | 0 | 131 | 0 |
-| `02-ci-cd-spec-for-chrome-extensions` | 20 | 97.5 | 0 | 20 | 0 |
-| `03-chrome-ext-features` | 35 | 99.9 | 0 | 35 | 0 |
-| `03-db-and-sqlite-integration-with-chrome-extension` | 42 | 97.6 | 0 | 42 | 0 |
+| `01-prompt-spec` | 131 | 100 | 0 | 131 | 0 |
+| `02-ci-cd-spec-for-chrome-extensions` | 20 | 100 | 0 | 20 | 0 |
+| `03-chrome-ext-features` | 35 | 100 | 0 | 35 | 0 |
+| `03-db-and-sqlite-integration-with-chrome-extension` | 42 | 100 | 0 | 42 | 0 |
 
 ## Pattern-level gaps
 

@@ -3,9 +3,9 @@
 | Metric | Value |
 | --- | --- |
 | Files audited | 131 |
-| Mean score | 97.8 / 100 |
-| Implementable % (weighted by file) | 97.8% |
-| Failure % | 2.2% |
+| Mean score | 100 / 100 |
+| Implementable % (weighted by file) | 100% |
+| Failure % | 0% |
 | Files below pass bar (<60) | 0 |
 | Files at/above target (>=90) | 131 |
 | Dangling relative-link refs | 0 |
@@ -17,21 +17,21 @@
 
 | Path | Score | Impl% | Top Blocker |
 | --- | --- | --- | --- |
-| `01-prompt-spec/01-glossary/03-non-goals.md` | 95 | 95% | OK |
-| `01-prompt-spec/02-hardening-backlog.md` | 95 | 95% | OK |
-| `01-prompt-spec/03-prompt-source-format/03-prompt-md.md` | 95 | 95% | OK |
-| `01-prompt-spec/04-loader-contract/01-loader-interface.md` | 95 | 95% | OK |
-| `01-prompt-spec/04-loader-contract/02-cache-rules.md` | 95 | 95% | OK |
-| `01-prompt-spec/05-ui-contract/01-trigger.md` | 95 | 95% | OK |
-| `01-prompt-spec/05-ui-contract/02-dropdown-shape.md` | 95 | 95% | OK |
-| `01-prompt-spec/05-ui-contract/03-search-filter.md` | 95 | 95% | OK |
-| `01-prompt-spec/05-ui-contract/04-keyboard.md` | 95 | 95% | OK |
-| `01-prompt-spec/07-editor-adapters/02-contenteditable.md` | 95 | 95% | OK |
-| `01-prompt-spec/07-editor-adapters/03-textarea.md` | 95 | 95% | OK |
-| `01-prompt-spec/08-save-create-edit/02-edit-prompt.md` | 95 | 95% | OK |
-| `01-prompt-spec/08-save-create-edit/03-delete-and-archive.md` | 95 | 95% | OK |
-| `01-prompt-spec/08-save-create-edit/04-duplicate-and-import.md` | 95 | 95% | OK |
-| `01-prompt-spec/08-save-create-edit/05-editor-ux.md` | 95 | 95% | OK |
+| `01-prompt-spec/00-overview.md` | 100 | 100% | OK |
+| `01-prompt-spec/01-glossary/01-terms.md` | 100 | 100% | OK |
+| `01-prompt-spec/01-glossary/02-actors.md` | 100 | 100% | OK |
+| `01-prompt-spec/01-glossary/03-non-goals.md` | 100 | 100% | OK |
+| `01-prompt-spec/01-glossary/04-vocabulary-banlist.md` | 100 | 100% | OK |
+| `01-prompt-spec/01-plan-tasks-1-20.md` | 100 | 100% | OK |
+| `01-prompt-spec/02-data-model/01-prompt.md` | 100 | 100% | OK |
+| `01-prompt-spec/02-data-model/02-category.md` | 100 | 100% | OK |
+| `01-prompt-spec/02-data-model/03-store-interface.md` | 100 | 100% | OK |
+| `01-prompt-spec/02-data-model/04-id-and-slug-rules.md` | 100 | 100% | OK |
+| `01-prompt-spec/02-data-model/05-json-schema.md` | 100 | 100% | OK |
+| `01-prompt-spec/02-hardening-backlog.md` | 100 | 100% | OK |
+| `01-prompt-spec/03-prompt-source-format/01-folder-layout.md` | 100 | 100% | OK |
+| `01-prompt-spec/03-prompt-source-format/02-info-json.md` | 100 | 100% | OK |
+| `01-prompt-spec/03-prompt-source-format/03-prompt-md.md` | 100 | 100% | OK |
 
 ## Top 10 files (model exemplars)
 
@@ -40,13 +40,13 @@
 | `01-prompt-spec/00-overview.md` | 100 | 100% |
 | `01-prompt-spec/01-glossary/01-terms.md` | 100 | 100% |
 | `01-prompt-spec/01-glossary/02-actors.md` | 100 | 100% |
+| `01-prompt-spec/01-glossary/03-non-goals.md` | 100 | 100% |
 | `01-prompt-spec/01-glossary/04-vocabulary-banlist.md` | 100 | 100% |
 | `01-prompt-spec/01-plan-tasks-1-20.md` | 100 | 100% |
 | `01-prompt-spec/02-data-model/01-prompt.md` | 100 | 100% |
 | `01-prompt-spec/02-data-model/02-category.md` | 100 | 100% |
 | `01-prompt-spec/02-data-model/03-store-interface.md` | 100 | 100% |
 | `01-prompt-spec/02-data-model/04-id-and-slug-rules.md` | 100 | 100% |
-| `01-prompt-spec/02-data-model/05-json-schema.md` | 100 | 100% |
 
 ## All dangling links
 
