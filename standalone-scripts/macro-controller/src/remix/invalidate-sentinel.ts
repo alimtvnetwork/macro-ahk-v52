@@ -53,9 +53,9 @@ export interface InvalidateSentinelResult {
 function removeDomSentinel(): boolean {
     try {
         if (typeof document === 'undefined') return false;
-        const el = document.getElementById(MARCO_SENTINEL_DOM_ID);
-        if (!el) return false;
-        el.remove();
+        const element = document.getElementById(MARCO_SENTINEL_DOM_ID);
+        if (!element) return false;
+        element.remove();
         return true;
     } catch (err: unknown) {
         logError('SentinelInvalidate',
