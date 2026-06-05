@@ -16,7 +16,7 @@ This audit (`_audit-2026-06-05/`) is **content-quality** focused (blind-AI imple
 The root report does NOT measure:
 
 1. Per-file `## Acceptance` presence — **181 files fail** (verified by `scripts/audit/check-acceptance.mjs`).
-2. Dangling relative links — **156 broken links** (verified by `scripts/audit/check-dangling-links.mjs`).
+2. Dangling relative links — **106 broken links** (post code-fence strip; was 156) (verified by `scripts/audit/check-dangling-links.mjs`).
 3. Numeric-constant SOT binding.
 4. Pitfalls / counter-examples coverage.
 5. Blind-AI implementability score per file.

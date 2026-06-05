@@ -5,7 +5,7 @@ Ranked by expected score lift. Each step names the target, the exact patch patte
 ## Current machine signals
 
 - `node scripts/audit/check-acceptance.mjs` → **181** files currently fail the `## Acceptance` contract.
-- `node scripts/audit/check-dangling-links.mjs` → **156** dangling relative links currently fail.
+- `node scripts/audit/check-dangling-links.mjs` → **106** dangling (was 156 before code-fence false-positives were stripped, 2026-06-05) relative links currently fail.
 - `node scripts/audit/check-must-constants.mjs` → **82** operational numeric constant lines currently fail SOT binding.
 - `node --test scripts/__tests__/check-must-constants.test.mjs scripts/__tests__/spec-audit-checks.test.mjs` → checker self-tests pass.
 
@@ -54,7 +54,7 @@ Ranked by expected score lift. Each step names the target, the exact patch patte
 26. **Target:** `scripts/audit/check-acceptance.mjs`. **Patch:** keep the checker plus fixture tests in `scripts/__tests__/spec-audit-checks.test.mjs`. **Proof:** `node --test scripts/__tests__/spec-audit-checks.test.mjs` passes.
 27. **Target:** `scripts/audit/check-dangling-links.mjs`. **Patch:** keep the checker plus pass/fail link fixtures in `scripts/__tests__/spec-audit-checks.test.mjs`. **Proof:** same test command passes.
 28. **Target:** `scripts/audit/check-must-constants.mjs`. **Patch:** bind operational numeric constants to `01-prompt-spec/reference/05-runtime-defaults.md` or `mem://...`; keep fixture tests in `scripts/__tests__/check-must-constants.test.mjs`. **Proof:** `node --test scripts/__tests__/check-must-constants.test.mjs` passes.
-29. **Target:** `.github/workflows/spec-audit.yml`. **Patch:** run all three audit scripts on `push` and `pull_request`; keep it as an audit workflow until the 181/156/82 open failures are remediated, then make it a hard gate. **Proof:** the `spec-audit` workflow appears in PR checks.
+29. **Target:** `.github/workflows/spec-audit.yml`. **Patch:** run all three audit scripts on `push` and `pull_request`; keep it as an audit workflow until the 172/106/82 open failures are remediated, then make it a hard gate. **Proof:** the `spec-audit` workflow appears in PR checks.
 30. **Target:** `/tmp/audit_scan.py` promotion. **Patch:** move the scorer into `scripts/audit/audit-scan.py`, add `scores.json` output, and update `README.md` reproduction commands to repo-local paths. **Proof:** `python3 scripts/audit/audit-scan.py spec/2026-spec` regenerates the same composite within ±1 point.
 
 ## Deferred
