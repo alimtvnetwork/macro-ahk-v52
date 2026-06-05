@@ -74,17 +74,17 @@ describe("buildJsStepVariableContext", () => {
         expect(vars.every((v) => v.FailureDetail === null)).toBe(true);
     });
 
-    it("masks sensitive keys (password, token, otp, …) with *** in both Vars and Row", () => {
+    it("masks sensitive keys with length-preserving placeholders in both Vars and Row", () => {
         const ctx: JsInlineContext = {
             Vars: { Password: "p4ssw0rd", AuthToken: "abc.def.ghi", Email: "x@y.z" },
             Row: { OTP: "123456", CreditCard: "4111-1111-1111-1111" },
         };
         const vars = buildJsStepVariableContext(ctx);
         const byName = new Map(vars.map((v) => [v.Name, v.ResolvedValue]));
-        expect(byName.get("Password")).toBe("***");
-        expect(byName.get("AuthToken")).toBe("***");
-        expect(byName.get("OTP")).toBe("***");
-        expect(byName.get("CreditCard")).toBe("***");
+        expect(byName.get("Password")).toBe("***masked(len=8)***");
+        expect(byName.get("AuthToken")).toBe("***masked(len=11)***");
+        expect(byName.get("OTP")).toBe("***masked(len=6)***");
+        expect(byName.get("CreditCard")).toBe("***masked(len=19)***");
         // Non-sensitive Email passes through.
         expect(byName.get("Email")).toBe("x@y.z");
     });
