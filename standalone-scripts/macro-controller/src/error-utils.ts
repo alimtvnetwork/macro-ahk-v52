@@ -6,10 +6,10 @@
  * is available, falling back to direct console output with the same prefix.
  *
  * Available helpers:
- * - `logError(fn, msg, error?)` — Hard errors → Logger.error()
- * - `logDebug(fn, msg)` — Low-priority diagnostics → Logger.debug()
- * - `logConsole(fn, msg, ...args)` — General output → Logger.console()
- * - `logStackTrace(fn, msg, error?)` — Always captures stack → Logger.stackTrace()
+ * - `logError(scope, message, error?)` — Hard errors → Logger.error()
+ * - `logDebug(scope, message)` — Low-priority diagnostics → Logger.debug()
+ * - `logConsole(scope, message, ...args)` — General output → Logger.console()
+ * - `logStackTrace(scope, message, error?)` — Always captures stack → Logger.stackTrace()
  *
  * @see spec/21-app/02-features/macro-controller/ts-migration-v2/08-error-logging-and-type-safety.md
  */
@@ -35,21 +35,21 @@ function getLogger(): RiseupAsiaMacroExtNamespace['Logger'] | undefined {
 }
 
 /** Build the standard log prefix. */
-function prefix(fn: string): string {
-  return '[RiseupAsia] [' + fn + '] ';
+function prefix(scope: string): string {
+  return '[RiseupAsia] [' + scope + '] ';
 }
 
 /**
  * Structured error logging — delegates to RiseupAsiaMacroExt.Logger.error().
  *
- * @param fn - Function or module name for context
- * @param msg - Human-readable error description
+ * @param scope - Function or module name for context
+ * @param message - Human-readable error description
  * @param error - Optional caught error value (stack trace extracted if Error)
  */
-export function logError(fn: string, msg: string, error?: unknown): void {
+export function logError(scope: string, message: string, error?: unknown): void {
   const logger = getLogger();
-  if (logger) { logger.error(fn, msg, error); return; }
-  const base = prefix(fn) + msg;
+  if (logger) { logger.error(scope, message, error); return; }
+  const base = prefix(scope) + message;
   if (error !== undefined) { console.error(base, error); } else { console.error(base); }
 }
 
@@ -57,40 +57,40 @@ export function logError(fn: string, msg: string, error?: unknown): void {
  * Structured debug logging — delegates to RiseupAsiaMacroExt.Logger.debug().
  * Use for low-priority diagnostics, intentional fallbacks, and verbose tracing.
  *
- * @param fn - Function or module name for context
- * @param msg - Human-readable debug message
+ * @param scope - Function or module name for context
+ * @param message - Human-readable debug message
  */
-export function logDebug(fn: string, msg: string): void {
+export function logDebug(scope: string, message: string): void {
   const logger = getLogger();
-  if (logger) { logger.debug(fn, msg); return; }
-  console.debug(prefix(fn) + msg);
+  if (logger) { logger.debug(scope, message); return; }
+  console.debug(prefix(scope) + message);
 }
 
 /**
  * Structured warn logging — delegates to RiseupAsiaMacroExt.Logger.warn().
  * Use for recoverable fallbacks where the system continues but something unexpected happened.
  *
- * @param fn - Function or module name for context
- * @param msg - Human-readable warning message
+ * @param scope - Function or module name for context
+ * @param message - Human-readable warning message
  */
-export function logWarn(fn: string, msg: string): void {
+export function logWarn(scope: string, message: string): void {
   const logger = getLogger();
-  if (logger) { logger.warn(fn, msg); return; }
-  console.warn(prefix(fn) + msg);
+  if (logger) { logger.warn(scope, message); return; }
+  console.warn(prefix(scope) + message);
 }
 
 /**
  * General-purpose structured console output — delegates to RiseupAsiaMacroExt.Logger.console().
  * Use for runtime observations, data dumps, or verbose tracing.
  *
- * @param fn - Function or module name for context
- * @param msg - Human-readable message
+ * @param scope - Function or module name for context
+ * @param message - Human-readable message
  * @param args - Additional values to log (objects, arrays, etc.)
  */
-export function logConsole(fn: string, msg: string, ...args: unknown[]): void {
+export function logConsole(scope: string, message: string, ...args: unknown[]): void {
   const logger = getLogger();
-  if (logger) { logger.console(fn, msg, ...(args as Parameters<typeof logger.console>[2][])); return; }
-  const base = prefix(fn) + msg;
+  if (logger) { logger.console(scope, message, ...(args as Parameters<typeof logger.console>[2][])); return; }
+  const base = prefix(scope) + message;
   if (args.length > 0) { console.log(base, ...args); } else { console.log(base); }
 }
 
@@ -99,14 +99,14 @@ export function logConsole(fn: string, msg: string, ...args: unknown[]): void {
  * Always captures a full call stack, even when no Error is provided.
  * Use for tracing execution flow, diagnosing call chains, or debugging.
  *
- * @param fn - Function or module name for context
- * @param msg - Human-readable message
+ * @param scope - Function or module name for context
+ * @param message - Human-readable message
  * @param error - Optional error; its stack is used if provided, otherwise a fresh stack is captured
  */
-export function logStackTrace(fn: string, msg: string, error?: unknown): void {
+export function logStackTrace(scope: string, message: string, error?: unknown): void {
   const logger = getLogger();
-  if (logger) { logger.stackTrace(fn, msg, error); return; }
-  const base = prefix(fn) + msg;
+  if (logger) { logger.stackTrace(scope, message, error); return; }
+  const base = prefix(scope) + message;
   const stack = (error instanceof Error && error.stack) ? error.stack : new Error().stack || '';
   console.error(base + '\n' + stack);
 }
