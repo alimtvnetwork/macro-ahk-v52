@@ -131,13 +131,13 @@ interface MarcoSDK {
   prompts?: MarcoSDKPromptsApi;
   utils?: {
     withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T>;
-    withRetry<T>(fn: () => Promise<T>, options: Record<string, unknown>): Promise<T>;
+    withRetry<T>(task: () => Promise<T>, options: Record<string, unknown>): Promise<T>;
     createConcurrencyLock<T>(): unknown;
     delay(ms: number): Promise<void>;
     pollUntil<T>(condition: () => T | null | undefined | false, options?: Record<string, unknown>): Promise<T | null>;
     waitForElement(options: Record<string, unknown>): Promise<Element | null>;
-    debounce<A extends unknown[]>(fn: (...args: A) => void, ms: number): (...args: A) => void;
-    throttle<A extends unknown[]>(fn: (...args: A) => void, ms: number): (...args: A) => void;
+    debounce<A extends unknown[]>(handler: (...args: A) => void, ms: number): (...args: A) => void;
+    throttle<A extends unknown[]>(handler: (...args: A) => void, ms: number): (...args: A) => void;
     safeJsonParse<T>(json: string, fallback: T): T;
     formatDuration(ms: number): string;
     uid(prefix?: string): string;
