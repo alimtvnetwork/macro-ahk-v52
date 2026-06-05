@@ -42,6 +42,8 @@ Per-folder audit file structure: front-matter (folder path, file count, aggregat
 
 ## The 30 Steps
 
+**Execution progress:** Steps 1–3 complete. Next execution starts at Step 4.
+
 1. Inventory `spec/2026-spec/` — list every `.md`, count files per subfolder, snapshot tree to `00-method.md`.
 2. Lock the rubric (5 dims, weights, pass bar = 90) and the blind-AI protocol into `00-method.md`.
 3. Create `_audit-2026-06-05/` skeleton with all 9 placeholder files above.
