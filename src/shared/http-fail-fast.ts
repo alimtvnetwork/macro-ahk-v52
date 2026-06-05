@@ -137,7 +137,7 @@ export class HttpFailFastError extends Error {
  *
  * Returns the response for fluent chaining.
  */
-export const httpFailFast = async (response: Response, ctx: HttpCallContext): Promise<Response> => {
+export const httpFailFast = async (response: Response, context: HttpCallContext): Promise<Response> => {
     if (isOk(response.status)) return response;
 
     let bodySnippet: string | null = null;
@@ -150,8 +150,8 @@ export const httpFailFast = async (response: Response, ctx: HttpCallContext): Pr
 
     throw new HttpFailFastError({
         status: response.status,
-        method: ctx.method,
-        url: ctx.url,
+        method: context.method,
+        url: context.url,
         bodySnippet,
         reason: reasonForStatus(response.status),
     });
