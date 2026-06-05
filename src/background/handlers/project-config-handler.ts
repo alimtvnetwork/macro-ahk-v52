@@ -26,8 +26,8 @@ interface ConfigMsg extends MessageRequest {
     valueType?: string;
 }
 
-export async function handleProjectConfigRead(msg: MessageRequest): Promise<{ isOk: boolean; rows?: ReturnType<typeof readConfigFromDb>; errorMessage?: string }> {
-    const m = msg as ConfigMsg;
+export async function handleProjectConfigRead(payload: MessageRequest): Promise<{ isOk: boolean; rows?: ReturnType<typeof readConfigFromDb>; errorMessage?: string }> {
+    const m = payload as ConfigMsg;
     if (!m.project) return { isOk: false, errorMessage: "Missing project slug" };
 
     const mgr = await initProjectDb(m.project, CONFIG_TABLES_SCHEMA);
@@ -35,8 +35,8 @@ export async function handleProjectConfigRead(msg: MessageRequest): Promise<{ is
     return { isOk: true, rows };
 }
 
-export async function handleProjectConfigUpdate(msg: MessageRequest): Promise<{ isOk: boolean; errorMessage?: string }> {
-    const m = msg as ConfigMsg;
+export async function handleProjectConfigUpdate(payload: MessageRequest): Promise<{ isOk: boolean; errorMessage?: string }> {
+    const m = payload as ConfigMsg;
     if (!m.project || !m.section || !m.key)
         return { isOk: false, errorMessage: "Missing project, section, or key" };
 
@@ -45,8 +45,8 @@ export async function handleProjectConfigUpdate(msg: MessageRequest): Promise<{ 
     return { isOk: ok };
 }
 
-export async function handleProjectConfigReconstruct(msg: MessageRequest): Promise<{ isOk: boolean; config?: ReturnType<typeof reconstructConfigFromDb>; errorMessage?: string }> {
-    const m = msg as ConfigMsg;
+export async function handleProjectConfigReconstruct(payload: MessageRequest): Promise<{ isOk: boolean; config?: ReturnType<typeof reconstructConfigFromDb>; errorMessage?: string }> {
+    const m = payload as ConfigMsg;
     if (!m.project) return { isOk: false, errorMessage: "Missing project slug" };
 
     const mgr = await initProjectDb(m.project, CONFIG_TABLES_SCHEMA);

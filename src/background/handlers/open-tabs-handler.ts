@@ -241,13 +241,13 @@ async function probeTabWorkspace(tabId: number | null): Promise<ProbeResult> {
         }
         return { payload: r.payload ?? null, error: null, reason: null, reasonDetail: null };
     } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
+        const payload = e instanceof Error ? e.message : String(e);
         // "Could not establish connection. Receiving end does not exist." is the
         // expected case when the controller isn't injected yet — classify separately
         // so it isn't conflated with genuine SDK exceptions.
-        const isNoReceiver = /receiving end does not exist|could not establish connection/i.test(msg);
+        const isNoReceiver = /receiving end does not exist|could not establish connection/i.test(payload);
         const reason: ProbeFailureReason = isNoReceiver ? "NoReceiver" : "Exception";
-        return emitProbeFailure(tabId, reason, msg);
+        return emitProbeFailure(tabId, reason, payload);
     }
 }
 
