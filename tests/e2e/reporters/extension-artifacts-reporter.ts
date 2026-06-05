@@ -184,6 +184,7 @@ function safeWrite(file: string, content: string | Buffer) {
   try {
     fs.writeFileSync(file, content);
   } catch (err) {
+    // eslint-disable-next-line no-restricted-syntax -- test reporter: no namespace Logger available in Playwright runner context
     console.error(`[extension-artifacts-reporter] write failed: ${file} — ${(err as Error).message}`);
   }
 }

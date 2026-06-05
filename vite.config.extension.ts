@@ -400,6 +400,7 @@ function copyPrompts(): Plugin {
                 }
             } catch (e) {
                 // HARD fail — missing prompts blocks the extension at runtime.
+                // eslint-disable-next-line no-restricted-syntax -- vite build plugin: no namespace Logger in Node build context
                 console.error("[copy-prompts] FATAL:", e);
                 throw e;
             }
@@ -540,6 +541,7 @@ function copyProjectScripts(): Plugin {
                 );
             } catch (e) {
                 // HARD fail — missing seed-manifest blocks the background seeder.
+                // eslint-disable-next-line no-restricted-syntax -- vite build plugin: no namespace Logger in Node build context
                 console.error("[copy-project-scripts] seed-manifest.json FATAL:", e);
                 throw e;
             }

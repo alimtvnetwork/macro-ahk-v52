@@ -23,37 +23,32 @@
  *
  * Real `http(s)://` URLs always return false, even on the host root.
  */
+const NEW_TAB_PREFIXES = [
+    "chrome://newtab",
+    "chrome://new-tab-page",
+    "chrome-search://local-ntp",
+    "edge://newtab",
+    "brave://newtab",
+    "opera://startpage",
+];
+
+function matchesPrefix(lower: string, prefix: string): boolean {
+    return lower === prefix
+        || lower.startsWith(`${prefix}/`)
+        || lower.startsWith(`${prefix}?`)
+        || lower.startsWith(`${prefix}#`);
+}
+
 export function isNewTabOrBlankUrl(url: string | undefined | null): boolean {
-    const isMissing = url === undefined || url === null || url === "";
-    if (isMissing) {
+    if (url === undefined || url === null || url === "") {
         return true;
     }
-
     const lower = url.trim().toLowerCase();
-
     if (lower === "") {
         return true;
     }
-
-    // about:blank with optional /, ?query, #hash
-    if (lower === "about:blank" || lower.startsWith("about:blank?") || lower.startsWith("about:blank#") || lower.startsWith("about:blank/")) {
+    if (matchesPrefix(lower, "about:blank")) {
         return true;
     }
-
-    const NEW_TAB_PREFIXES = [
-        "chrome://newtab",
-        "chrome://new-tab-page",
-        "chrome-search://local-ntp",
-        "edge://newtab",
-        "brave://newtab",
-        "opera://startpage",
-    ];
-
-    for (const prefix of NEW_TAB_PREFIXES) {
-        if (lower === prefix || lower.startsWith(`${prefix}/`) || lower.startsWith(`${prefix}?`) || lower.startsWith(`${prefix}#`)) {
-            return true;
-        }
-    }
-
-    return false;
+    return NEW_TAB_PREFIXES.some((prefix) => matchesPrefix(lower, prefix));
 }
