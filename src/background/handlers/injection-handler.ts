@@ -74,36 +74,36 @@ export async function handleInjectScripts(
     const pipelineStart = performance.now();
     const timings: Record<string, number> = {};
 
-    const time = async <T>(label: string, fn: () => Promise<T>): Promise<T> => {
+    const time = async <T>(label: string, operation: () => Promise<T>): Promise<T> => {
         const start = performance.now();
-        const result = await fn();
+        const result = await operation();
         timings[label] = Math.round((performance.now() - start) * 10) / 10;
         return result;
     };
 
-    const msg = message as MessageRequest & {
+    const injectRequest = message as MessageRequest & {
         tabId: number;
         scripts: ScriptEntry[];
         forceReload?: boolean;
         launchSource?: InjectionLaunchSource;
     };
 
-    const isForceRun = msg.forceReload === true;
-    const launchSource: InjectionLaunchSource = msg.launchSource === "passive" ? "passive" : "manual";
+    const isForceRun = injectRequest.forceReload === true;
+    const launchSource: InjectionLaunchSource = injectRequest.launchSource === "passive" ? "passive" : "manual";
 
     // ── Early guard: skip injection on restricted URLs (chrome://, edge://, about:, etc.) ──
     try {
-        const tab = await chrome.tabs.get(msg.tabId);
+        const tab = await chrome.tabs.get(injectRequest.tabId);
         const tabUrl = tab.url ?? "";
         if (/^(chrome|edge|brave|opera|about|devtools|chrome-extension):\/\//i.test(tabUrl)) {
-            console.warn("[injection] BLOCKED — cannot inject into restricted URL: %s (tabId=%d)", tabUrl, msg.tabId);
+            console.warn("[injection] BLOCKED — cannot inject into restricted URL: %s (tabId=%d)", tabUrl, injectRequest.tabId);
             // v2.197.0: Field name corrected from `success` → `isSuccess` to
             // match the InjectionResult type used everywhere else in the
             // handler (see lines 181, 233, 491). The cast was masking the
             // typo, so callers (incl. e2e-script-injection) saw `undefined`
             // instead of `false` and asserted against the wrong field.
             return {
-                results: (msg.scripts as Array<{ id?: string }>).map((s) => ({
+                results: (injectRequest.scripts as Array<{ id?: string }>).map((s) => ({
                     scriptId: s.id ?? "unknown",
                     isSuccess: false,
                     errorMessage: `Cannot inject into restricted URL: ${tabUrl}`,
@@ -112,17 +112,17 @@ export async function handleInjectScripts(
             };
         }
     } catch (tabErr) {
-        console.warn("[injection] BLOCKED — tab %d is inaccessible (closed or discarded): %s", msg.tabId, (tabErr as Error).message);
+        console.warn("[injection] BLOCKED — tab %d is inaccessible (closed or discarded): %s", injectRequest.tabId, (tabErr as Error).message);
         return { results: [], inlineSyntaxErrorDetected: false };
     }
 
-    console.log("[injection] ── PIPELINE START ── tabId=%d, raw scripts=%d, forceReload=%s, launchSource=%s", msg.tabId, msg.scripts.length, isForceRun, launchSource);
+    console.log("[injection] ── PIPELINE START ── tabId=%d, raw scripts=%d, forceReload=%s, launchSource=%s", injectRequest.tabId, injectRequest.scripts.length, isForceRun, launchSource);
 
     // Show loading spinner toast at start of injection
     const toastEnabledEarly = await isInjectionToastEnabled();
     if (toastEnabledEarly) {
-        void showInjectionLoadingToast(msg.tabId, msg.scripts.length).catch((toastErr) => {
-            logBgWarnError(BgLogTag.INJECTION, `showInjectionLoadingToast failed (tab ${msg.tabId}, ${msg.scripts.length} scripts) — UI cosmetic only, pipeline continues`, toastErr);
+        void showInjectionLoadingToast(injectRequest.tabId, injectRequest.scripts.length).catch((toastErr) => {
+            logBgWarnError(BgLogTag.INJECTION, `showInjectionLoadingToast failed (tab ${injectRequest.tabId}, ${injectRequest.scripts.length} scripts) — UI cosmetic only, pipeline continues`, toastErr);
         });
     }
 
@@ -135,12 +135,12 @@ export async function handleInjectScripts(
     if (isForceRun) {
         console.log(
             "[injection:syntax-preflight] SKIPPED — forceReload=true, syntax preflight bypassed (raw scripts=%d)",
-            msg.scripts.length,
+            injectRequest.scripts.length,
         );
     }
-    const hasInlineSyntaxError = !isForceRun && requestHasInlineSyntaxError(msg.scripts as InjectionRequestScript[]);
+    const hasInlineSyntaxError = !isForceRun && requestHasInlineSyntaxError(injectRequest.scripts as InjectionRequestScript[]);
     const inlineSyntaxFailures = hasInlineSyntaxError
-        ? collectInlineSyntaxFailures(msg.scripts as InjectionRequestScript[])
+        ? collectInlineSyntaxFailures(injectRequest.scripts as InjectionRequestScript[])
         : [];
     if (hasInlineSyntaxError) {
         await cacheDelete(PIPELINE_CACHE_CATEGORY, PIPELINE_CACHE_KEY);
@@ -157,7 +157,7 @@ export async function handleInjectScripts(
     // shadows a new request — including bad-syntax requests that would
     // otherwise be reported as failures (see e2e syntax-error test).
     if (!isForceRun && !hasInlineSyntaxError) {
-        const requestedFingerprint = buildRequestFingerprint(msg.scripts as Array<Partial<InjectableScript> & { path?: string }>);
+        const requestedFingerprint = buildRequestFingerprint(injectRequest.scripts as Array<Partial<InjectableScript> & { path?: string }>);
         const cachedPayload = await time("cache_gate", () =>
             cacheGet<PipelineCachePayload>(PIPELINE_CACHE_CATEGORY, PIPELINE_CACHE_KEY));
         const cachedFingerprint = cachedPayload?.requestFingerprint ?? "";
@@ -170,7 +170,7 @@ export async function handleInjectScripts(
             console.log("[injection] CACHE HIT — skipping Stages 0–3, using cached payload (%d chars, %d scripts) in %.1fms",
                 cachedPayload.code.length, cachedPayload.scriptMeta.length, timings["cache_gate"]);
             // Jump directly to Stage 2 (env prep) + Stage 4 (execute) with cached payload
-            return await executeCachedPayload(msg.tabId, cachedPayload, pipelineStart, timings, time);
+            return await executeCachedPayload(injectRequest.tabId, cachedPayload, pipelineStart, timings, time);
         }
         if (cachedPayload && !cacheMatchesRequest) {
             await cacheDelete(PIPELINE_CACHE_CATEGORY, PIPELINE_CACHE_KEY);
@@ -189,16 +189,16 @@ export async function handleInjectScripts(
     const didReseedBuiltins = await time("stage0_guard", () => ensureBuiltinScriptsExist(allProjects));
     if (didReseedBuiltins) {
         await mirrorDiagnosticToTab(
-            msg.tabId,
+            injectRequest.tabId,
             "[builtin-guard] Missing built-in scripts were detected and reseeded from manifest",
             "warn",
         );
     }
 
     // Stage 0: Dependency resolution — prepend dependency project scripts
-    const scriptsWithDeps = await time("stage0_deps", () => prependDependencyScripts(msg.scripts, allProjects));
+    const scriptsWithDeps = await time("stage0_deps", () => prependDependencyScripts(injectRequest.scripts, allProjects));
     console.log("[injection] 0/4 DEPS     — %d scripts after dependency resolution (was %d)",
-        scriptsWithDeps.length, msg.scripts.length);
+        scriptsWithDeps.length, injectRequest.scripts.length);
 
     // Stage 1: Resolve
     const { prepared: preparedScripts, skipped: skippedScripts } = await time("stage1_resolve", () =>
@@ -225,16 +225,16 @@ export async function handleInjectScripts(
     }));
     const preflightFailureResults = [...inlineSyntaxFailures, ...skipResults];
 
-    await mirrorSkippedResultsToTab(msg.tabId, preflightFailureResults);
+    await mirrorSkippedResultsToTab(injectRequest.tabId, preflightFailureResults);
 
     if (sorted.length === 0) {
         const totalMs = Math.round((performance.now() - pipelineStart) * 10) / 10;
         console.log("[injection] ── PIPELINE END (empty) ── total=%.1fms breakdown=%s",
             totalMs, JSON.stringify(timings));
-        void mirrorPipelineLogsToTab(msg.tabId, [
-            { msg: `[Marco] ── INJECTION PIPELINE (empty) ── 0 scripts resolved, ${preflightFailureResults.length} skipped/failed, ${totalMs}ms`, level: "warn" },
+        void mirrorPipelineLogsToTab(injectRequest.tabId, [
+            { "msg": `[Marco] ── INJECTION PIPELINE (empty) ── 0 scripts resolved, ${preflightFailureResults.length} skipped/failed, ${totalMs}ms`, level: "warn" },
             ...preflightFailureResults.map((r) => ({
-                msg: `[Marco]   ⏭ ${r.scriptName ?? r.scriptId} — ${r.errorMessage ?? r.skipReason ?? "skipped"}`,
+                "msg": `[Marco]   ⏭ ${r.scriptName ?? r.scriptId} — ${r.errorMessage ?? r.skipReason ?? "skipped"}`,
                 level: "warn" as const,
             })),
         ], `⚠️ Marco Injection — 0 scripts (${totalMs}ms)`);
@@ -246,9 +246,9 @@ export async function handleInjectScripts(
 
     // ✅ 15.5: Parallelize independent stages 1.5, 2a, 2b
     await time("stage1_5_2a_2b_parallel", () => Promise.all([
-        bootstrapNamespaceRoot(msg.tabId),
-        ensureRelayInjected(msg.tabId),
-        seedTokensIntoTab(msg.tabId),
+        bootstrapNamespaceRoot(injectRequest.tabId),
+        ensureRelayInjected(injectRequest.tabId),
+        seedTokensIntoTab(injectRequest.tabId),
     ]));
     console.log("[injection] 2/4 SEED     — bootstrap+relay+token completed in %.1fms", timings["stage1_5_2a_2b_parallel"]);
 
@@ -259,14 +259,14 @@ export async function handleInjectScripts(
     const scriptInjectStart = performance.now();
     const nsInjectStart = performance.now();
     const [execResults] = await time("stage3_4_5_parallel", () => Promise.all([
-        injectAllScripts(msg.tabId, filteredPreparedScripts, launchSource, isForceRun).then(r => {
+        injectAllScripts(injectRequest.tabId, filteredPreparedScripts, launchSource, isForceRun).then(r => {
             timings["stage3_4_scripts"] = Math.round((performance.now() - scriptInjectStart) * 10) / 10;
             return r;
         }),
-        injectSettingsNamespace(msg.tabId, allProjects).then(() => {
+        injectSettingsNamespace(injectRequest.tabId, allProjects).then(() => {
             timings["stage5a_settings"] = Math.round((performance.now() - nsInjectStart) * 10) / 10;
         }),
-        injectProjectNamespaces(msg.tabId, allProjects).then(() => {
+        injectProjectNamespaces(injectRequest.tabId, allProjects).then(() => {
             timings["stage5b_namespaces"] = Math.round((performance.now() - nsInjectStart) * 10) / 10;
         }),
     ]));
@@ -290,42 +290,42 @@ export async function handleInjectScripts(
     );
 
     // ── Mirror full pipeline summary to tab console (visible in DevTools) ──
-    type PipelineLine = { msg: string; level: "log" | "warn" | "error" | "__group__" | "__groupEnd__" };
+    type PipelineLine = { "msg": string; level: "log" | "warn" | "error" | "__group__" | "__groupEnd__" };
     const pipelineLines: PipelineLine[] = [
         // ── Stage Summary sub-group ──
-        { msg: `📊 Stage Summary (${totalMs}ms)`, level: "__group__" },
-        { msg: `0/4 DEPS      ${scriptsWithDeps.length} scripts (${msg.scripts.length} raw + deps)`, level: "log" },
-        { msg: `1/4 RESOLVE   ${sorted.length} resolved, ${preflightFailureResults.length} skipped/failed (${(timings["stage1_resolve"] ?? 0)}ms)`, level: "log" },
-        { msg: `2/4 SEED      bootstrap+relay+token (${(timings["stage1_5_2a_2b_parallel"] ?? 0)}ms)`, level: "log" },
-        { msg: `3/4 BATCH     ${sorted.length} scripts combined (${(timings["stage3_4_scripts"] ?? 0)}ms)`, level: "log" },
-        { msg: `4/4 EXECUTE   ✅ ${successCount} succeeded, ${failCount} failed, ${preflightFailureResults.length} skipped/failed`, level: successCount > 0 ? "log" : "warn" },
-        { msg: `TOTAL ${totalMs}ms — scripts:${(timings["stage3_4_scripts"] ?? 0)}ms | ns:${(timings["stage5a_settings"] ?? 0)}ms+${(timings["stage5b_namespaces"] ?? 0)}ms`, level: "log" },
-        { msg: "", level: "__groupEnd__" },
+        { "msg": `📊 Stage Summary (${totalMs}ms)`, level: "__group__" },
+        { "msg": `0/4 DEPS      ${scriptsWithDeps.length} scripts (${injectRequest.scripts.length} raw + deps)`, level: "log" },
+        { "msg": `1/4 RESOLVE   ${sorted.length} resolved, ${preflightFailureResults.length} skipped/failed (${(timings["stage1_resolve"] ?? 0)}ms)`, level: "log" },
+        { "msg": `2/4 SEED      bootstrap+relay+token (${(timings["stage1_5_2a_2b_parallel"] ?? 0)}ms)`, level: "log" },
+        { "msg": `3/4 BATCH     ${sorted.length} scripts combined (${(timings["stage3_4_scripts"] ?? 0)}ms)`, level: "log" },
+        { "msg": `4/4 EXECUTE   ✅ ${successCount} succeeded, ${failCount} failed, ${preflightFailureResults.length} skipped/failed`, level: successCount > 0 ? "log" : "warn" },
+        { "msg": `TOTAL ${totalMs}ms — scripts:${(timings["stage3_4_scripts"] ?? 0)}ms | ns:${(timings["stage5a_settings"] ?? 0)}ms+${(timings["stage5b_namespaces"] ?? 0)}ms`, level: "log" },
+        { "msg": "", level: "__groupEnd__" },
 
         // ── Per-Script Results sub-group ──
-        { msg: `📜 Per-Script Results (${execResults.length + preflightFailureResults.length})`, level: "__group__" },
+        { "msg": `📜 Per-Script Results (${execResults.length + preflightFailureResults.length})`, level: "__group__" },
     ];
 
     for (const r of execResults) {
         const icon = r.isSuccess ? "✅" : "❌";
         const via = r.injectionPath ? ` via ${r.injectionPath}` : "";
         pipelineLines.push({
-            msg: `${icon} ${r.scriptName ?? r.scriptId} (${r.durationMs ?? 0}ms${via})`,
+            "msg": `${icon} ${r.scriptName ?? r.scriptId} (${r.durationMs ?? 0}ms${via})`,
             level: r.isSuccess ? "log" : "error",
         });
     }
     for (const r of preflightFailureResults) {
         pipelineLines.push({
-            msg: `⏭ ${r.scriptName ?? r.scriptId} — ${r.errorMessage ?? r.skipReason ?? "skipped"}`,
+            "msg": `⏭ ${r.scriptName ?? r.scriptId} — ${r.errorMessage ?? r.skipReason ?? "skipped"}`,
             level: "warn",
         });
     }
 
-    pipelineLines.push({ msg: "", level: "__groupEnd__" });
+    pipelineLines.push({ "msg": "", level: "__groupEnd__" });
 
     // Fire-and-forget: don't block pipeline on tab mirroring
     const groupIcon = failCount > 0 ? "❌" : "✅";
-    void mirrorPipelineLogsToTab(msg.tabId, pipelineLines, `${groupIcon} Marco Injection — ${successCount}/${execResults.length} scripts (${totalMs}ms)`);
+    void mirrorPipelineLogsToTab(injectRequest.tabId, pipelineLines, `${groupIcon} Marco Injection — ${successCount}/${execResults.length} scripts (${totalMs}ms)`);
 
     // Performance budget alert — configurable via Settings > Injection Budget
     let budgetMs = 500;
@@ -339,7 +339,7 @@ export async function handleInjectScripts(
             `PERFORMANCE BUDGET EXCEEDED — ${totalMs}ms (budget: ${budgetMs}ms) breakdown=${JSON.stringify(timings)}`,
         );
         void mirrorDiagnosticToTab(
-            msg.tabId,
+            injectRequest.tabId,
             `[Marco] ⚠️ PERFORMANCE BUDGET EXCEEDED — ${totalMs}ms (budget: ${budgetMs}ms)`,
             "warn",
         );
@@ -351,26 +351,26 @@ export async function handleInjectScripts(
     const lastSuccess = execResults.find((r) => r.isSuccess);
     const lastSuccessPath = lastSuccess?.injectionPath;
     const lastDomTarget = lastSuccess?.domTarget;
-    recordInjection(msg.tabId, sorted, lastSuccessPath, lastDomTarget, totalMs, budgetMs);
+    recordInjection(injectRequest.tabId, sorted, lastSuccessPath, lastDomTarget, totalMs, budgetMs);
 
     // ── Post-injection verification — confirm globals actually landed in MAIN world ──
     if (successCount > 0) {
-        void verifyPostInjectionGlobals(msg.tabId).catch((verifyErr) => {
-            logBgWarnError(BgLogTag.INJECTION, `verifyPostInjectionGlobals scheduling failed (tab ${msg.tabId}) — verification skipped, pipeline already succeeded`, verifyErr);
+        void verifyPostInjectionGlobals(injectRequest.tabId).catch((verifyErr) => {
+            logBgWarnError(BgLogTag.INJECTION, `verifyPostInjectionGlobals scheduling failed (tab ${injectRequest.tabId}) — verification skipped, pipeline already succeeded`, verifyErr);
         });
     }
 
     // ── Show injection toasts if enabled ──
     const toastEnabled = await isInjectionToastEnabled();
     if (toastEnabled && successCount > 0) {
-        void showInjectionToastInTab(msg.tabId, successCount, execResults.length, totalMs).catch((toastErr) => {
-            logBgWarnError(BgLogTag.INJECTION, `showInjectionToastInTab (success) failed (tab ${msg.tabId}) — UI cosmetic only`, toastErr);
+        void showInjectionToastInTab(injectRequest.tabId, successCount, execResults.length, totalMs).catch((toastErr) => {
+            logBgWarnError(BgLogTag.INJECTION, `showInjectionToastInTab (success) failed (tab ${injectRequest.tabId}) — UI cosmetic only`, toastErr);
         });
     }
     if (toastEnabled && failCount > 0) {
         const failedNames = execResults.filter(r => !r.isSuccess).map(r => r.scriptName ?? r.scriptId);
-        void showInjectionFailureToastInTab(msg.tabId, failedNames, failCount, execResults.length, totalMs).catch((toastErr) => {
-            logBgWarnError(BgLogTag.INJECTION, `showInjectionFailureToastInTab failed (tab ${msg.tabId}, ${failCount} failed scripts) — UI cosmetic only`, toastErr);
+        void showInjectionFailureToastInTab(injectRequest.tabId, failedNames, failCount, execResults.length, totalMs).catch((toastErr) => {
+            logBgWarnError(BgLogTag.INJECTION, `showInjectionFailureToastInTab failed (tab ${injectRequest.tabId}, ${failCount} failed scripts) — UI cosmetic only`, toastErr);
         });
     }
 
@@ -389,7 +389,7 @@ async function executeCachedPayload(
     cached: PipelineCachePayload,
     pipelineStart: number,
     timings: Record<string, number>,
-    time: <T>(label: string, fn: () => Promise<T>) => Promise<T>,
+    time: <T>(label: string, operation: () => Promise<T>) => Promise<T>,
 ): Promise<InjectScriptsResponse> {
     const allProjects = await time("readAllProjects", () =>
         readAllProjects().catch(() => [] as StoredProject[]));
@@ -435,15 +435,15 @@ async function executeCachedPayload(
         successCount, results.length, totalMs, JSON.stringify(timings));
 
     // Post-pipeline: mirror, budget, verification, toast
-    type PipelineLine = { msg: string; level: "log" | "warn" | "error" | "__group__" | "__groupEnd__" };
+    type PipelineLine = { "msg": string; level: "log" | "warn" | "error" | "__group__" | "__groupEnd__" };
     const pipelineLines: PipelineLine[] = [
-        { msg: `📊 Cached Pipeline (${totalMs}ms)`, level: "__group__" },
-        { msg: `CACHE HIT — skipped Stages 0–3`, level: "log" },
-        { msg: `2/4 SEED      ${(timings["stage2_env_prep"] ?? 0)}ms`, level: "log" },
-        { msg: `4/4 EXECUTE   ✅ ${successCount} scripts via ${execResult.path} (${execMs}ms)`, level: "log" },
-        { msg: `5/5 NS        ${(timings["stage5_ns"] ?? 0)}ms`, level: "log" },
-        { msg: `TOTAL ${totalMs}ms`, level: "log" },
-        { msg: "", level: "__groupEnd__" },
+        { "msg": `📊 Cached Pipeline (${totalMs}ms)`, level: "__group__" },
+        { "msg": `CACHE HIT — skipped Stages 0–3`, level: "log" },
+        { "msg": `2/4 SEED      ${(timings["stage2_env_prep"] ?? 0)}ms`, level: "log" },
+        { "msg": `4/4 EXECUTE   ✅ ${successCount} scripts via ${execResult.path} (${execMs}ms)`, level: "log" },
+        { "msg": `5/5 NS        ${(timings["stage5_ns"] ?? 0)}ms`, level: "log" },
+        { "msg": `TOTAL ${totalMs}ms`, level: "log" },
+        { "msg": "", level: "__groupEnd__" },
     ];
     void mirrorPipelineLogsToTab(tabId, pipelineLines, `✅ Marco Injection (cached) — ${successCount} scripts (${totalMs}ms)`);
 
@@ -606,13 +606,13 @@ async function ensureRelayInjected(tabId: number): Promise<void> {
 export async function handleGetTabInjections(
     message: MessageRequest,
 ): Promise<{ injections: Record<number, unknown> }> {
-    const msg = message as MessageRequest & { tabId: number };
+    const injectionRequest = message as MessageRequest & { tabId: number };
     const allInjections = getTabInjections();
-    const hasTabId = msg.tabId !== undefined;
+    const hasTabId = injectionRequest.tabId !== undefined;
 
     if (hasTabId) {
-        const tabRecord = allInjections[msg.tabId] ?? null;
-        return { injections: { [msg.tabId]: tabRecord } };
+        const tabRecord = allInjections[injectionRequest.tabId] ?? null;
+        return { injections: { [injectionRequest.tabId]: tabRecord } };
     }
 
     return { injections: allInjections };
@@ -671,18 +671,18 @@ async function verifyPostInjectionGlobals(tabId: number): Promise<void> {
         const allOk = r.marcoSdk && r.extRoot && r.mcClass && r.mcInstance && r.uiContainer;
         const status = allOk ? "✅ VERIFIED" : "⚠️ INCOMPLETE";
 
-        const lines: Array<{ msg: string; level: "log" | "warn" | "error" }> = [
-            { msg: `window.marco (SDK)           : ${r.marcoSdk ? "✅" : "❌"}`, level: r.marcoSdk ? "log" : "error" },
-            { msg: `window.RiseupAsiaMacroExt     : ${r.extRoot ? "✅" : "❌"}`, level: r.extRoot ? "log" : "error" },
-            { msg: `window.MacroController (class): ${r.mcClass ? "✅" : "❌"}`, level: r.mcClass ? "log" : "error" },
-            { msg: `api.mc (singleton instance)   : ${r.mcInstance ? "✅" : "❌"}`, level: r.mcInstance ? "log" : "warn" },
-            { msg: `#macro-loop-container (UI)    : ${r.uiContainer ? "✅" : "❌"}`, level: r.uiContainer ? "log" : "warn" },
-            { msg: `[data-marco-injected] marker  : ${r.markerEl ? "✅" : "⚠️ (not required)"}`, level: "log" },
+        const lines: Array<{ "msg": string; level: "log" | "warn" | "error" }> = [
+            { "msg": `window.marco (SDK)           : ${r.marcoSdk ? "✅" : "❌"}`, level: r.marcoSdk ? "log" : "error" },
+            { "msg": `window.RiseupAsiaMacroExt     : ${r.extRoot ? "✅" : "❌"}`, level: r.extRoot ? "log" : "error" },
+            { "msg": `window.MacroController (class): ${r.mcClass ? "✅" : "❌"}`, level: r.mcClass ? "log" : "error" },
+            { "msg": `api.mc (singleton instance)   : ${r.mcInstance ? "✅" : "❌"}`, level: r.mcInstance ? "log" : "warn" },
+            { "msg": `#macro-loop-container (UI)    : ${r.uiContainer ? "✅" : "❌"}`, level: r.uiContainer ? "log" : "warn" },
+            { "msg": `[data-marco-injected] marker  : ${r.markerEl ? "✅" : "⚠️ (not required)"}`, level: "log" },
         ];
 
         if (!allOk) {
-            lines.push({ msg: `── Stack at verification point ──`, level: "warn" });
-            lines.push({ msg: r.verifyStack, level: "warn" });
+            lines.push({ "msg": `── Stack at verification point ──`, level: "warn" });
+            lines.push({ "msg": r.verifyStack, level: "warn" });
         }
 
         void mirrorPipelineLogsToTab(tabId, lines, `${status} Post-Injection Verification`);

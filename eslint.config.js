@@ -121,9 +121,6 @@ export default tseslint.config(
   // graduate off this list as their authored-source debt is cleaned.
   {
     files: [
-      "src/background/handlers/injection-handler.ts",
-      "src/background/handlers/injection-namespace-bootstrap.ts",
-      "src/background/handlers/injection-toast.ts",
       "src/background/handlers/library-handler.ts",
       "src/background/handlers/logging-export-handler.ts",
       "src/background/handlers/logging-handler.ts",

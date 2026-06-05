@@ -13,6 +13,8 @@ import { logCaughtError, BgLogTag } from "../bg-logger";
 import { EXTENSION_VERSION } from "../../shared/constants";
 import { handleGetSettings } from "./settings-handler";
 
+const TOAST_EXIT_TRANSFORM = "translateY(8px) scale(0.96)";
+
 /** Checks whether the injection toast setting is enabled. */
 export async function isInjectionToastEnabled(): Promise<boolean> {
     try {
@@ -38,21 +40,20 @@ export async function showInjectionToastInTab(
             target: { tabId },
             world: "MAIN",
             // eslint-disable-next-line max-lines-per-function
-            func: (ok: number, total: number, ms: number, version: string) => {
-                const msg = `✅ Marco v${version} — ${ok}/${total} scripts injected (${ms}ms)`;
+            func: (ok: number, total: number, ms: number, version: string, exitTransform: string) => {
+                const toastMessage = `✅ Marco v${version} — ${ok}/${total} scripts injected (${ms}ms)`;
 
                 const loader = document.getElementById("__marco-inject-toast-loading");
-                // eslint-disable-next-line sonarjs/no-duplicate-string
                 let loaderTimer: ReturnType<typeof setTimeout> | null = null;
                 if (loader) {
                     loader.style.opacity = "0";
-                    loader.style.transform = "translateY(8px) scale(0.96)";
+                    loader.style.transform = exitTransform;
                     loaderTimer = setTimeout(() => { loaderTimer = null; loader.remove(); }, 300);
                 }
 
                 const m = (window as unknown as Record<string, Record<string, ((...args: unknown[]) => void)>>).marco;
                 if (m?.notify?.success) {
-                    try { m.notify.success(msg, { duration: 4000 }); return; } catch (sdkErr) { console.debug("[Marco] SDK toast.success failed, falling through to DOM toast:", sdkErr); }
+                    try { m.notify.success(toastMessage, { duration: 4000 }); return; } catch (sdkErr) { console.debug("[Marco] SDK toast.success failed, falling through to DOM toast:", sdkErr); }
                 }
 
                 const CONTAINER_ID = "__marco-inject-toast";
@@ -115,7 +116,7 @@ export async function showInjectionToastInTab(
                 const dismiss = () => {
                     if (dismissTimer !== null) { clearTimeout(dismissTimer); dismissTimer = null; }
                     toast.style.opacity = "0";
-                    toast.style.transform = "translateY(8px) scale(0.96)";
+                    toast.style.transform = exitTransform;
                     removeTimer = setTimeout(cleanup, 350);
                 };
 
@@ -132,7 +133,7 @@ export async function showInjectionToastInTab(
                 window.addEventListener("pagehide", cleanup, { once: true });
                 dismissTimer = setTimeout(dismiss, 4000);
             },
-            args: [successCount, totalCount, Math.round(durationMs), EXTENSION_VERSION],
+            args: [successCount, totalCount, Math.round(durationMs), EXTENSION_VERSION, TOAST_EXIT_TRANSFORM],
         });
     } catch (toastError) {
         logCaughtError(BgLogTag.INJECTION, "showInjectionToastInTab failed", toastError);
@@ -155,21 +156,21 @@ export async function showInjectionFailureToastInTab(
             target: { tabId },
             world: "MAIN",
             // eslint-disable-next-line max-lines-per-function
-            func: (names: string[], failed: number, total: number, ms: number, version: string) => {
+            func: (names: string[], failed: number, total: number, ms: number, version: string, exitTransform: string) => {
                 const nameList = names.length <= 3 ? names.join(", ") : names.slice(0, 3).join(", ") + ` +${names.length - 3} more`;
-                const msg = `❌ Marco v${version} — ${failed}/${total} scripts failed (${ms}ms)\n${nameList}`;
+                const toastMessage = `❌ Marco v${version} — ${failed}/${total} scripts failed (${ms}ms)\n${nameList}`;
 
                 const loader = document.getElementById("__marco-inject-toast-loading");
                 let loaderTimer: ReturnType<typeof setTimeout> | null = null;
                 if (loader) {
                     loader.style.opacity = "0";
-                    loader.style.transform = "translateY(8px) scale(0.96)";
+                    loader.style.transform = exitTransform;
                     loaderTimer = setTimeout(() => { loaderTimer = null; loader.remove(); }, 300);
                 }
 
                 const m = (window as unknown as Record<string, Record<string, ((...args: unknown[]) => void)>>).marco;
                 if (m?.notify?.error) {
-                    try { m.notify.error(msg, { duration: 6000 }); return; } catch (sdkErr) { console.debug("[Marco] SDK toast.error failed, falling through to DOM toast:", sdkErr); }
+                    try { m.notify.error(toastMessage, { duration: 6000 }); return; } catch (sdkErr) { console.debug("[Marco] SDK toast.error failed, falling through to DOM toast:", sdkErr); }
                 }
 
                 const CONTAINER_ID = "__marco-inject-toast";
@@ -229,6 +230,7 @@ export async function showInjectionFailureToastInTab(
 
                 let dismissTimer: ReturnType<typeof setTimeout> | null = null;
                 let removeTimer: ReturnType<typeof setTimeout> | null = null;
+                // eslint-disable-next-line sonarjs/no-identical-functions
                 const cleanup = () => {
                     if (loaderTimer !== null) { clearTimeout(loaderTimer); loaderTimer = null; }
                     if (dismissTimer !== null) { clearTimeout(dismissTimer); dismissTimer = null; }
@@ -244,7 +246,7 @@ export async function showInjectionFailureToastInTab(
                 const dismiss = () => {
                     if (dismissTimer !== null) { clearTimeout(dismissTimer); dismissTimer = null; }
                     toast.style.opacity = "0";
-                    toast.style.transform = "translateY(8px) scale(0.96)";
+                    toast.style.transform = exitTransform;
                     removeTimer = setTimeout(cleanup, 350);
                 };
 
@@ -261,7 +263,7 @@ export async function showInjectionFailureToastInTab(
                 window.addEventListener("pagehide", cleanup, { once: true });
                 dismissTimer = setTimeout(dismiss, 6000);
             },
-            args: [failedNames, failCount, totalCount, Math.round(durationMs), EXTENSION_VERSION],
+            args: [failedNames, failCount, totalCount, Math.round(durationMs), EXTENSION_VERSION, TOAST_EXIT_TRANSFORM],
         });
     } catch (toastError) {
         logCaughtError(BgLogTag.INJECTION, "showInjectionFailureToastInTab failed", toastError);
@@ -278,7 +280,7 @@ export async function showInjectionLoadingToast(tabId: number, scriptCount: numb
             target: { tabId },
             world: "MAIN",
             // eslint-disable-next-line max-lines-per-function
-            func: (count: number, version: string) => {
+            func: (count: number, version: string, exitTransform: string) => {
                 const CONTAINER_ID = "__marco-inject-toast";
                 let container = document.getElementById(CONTAINER_ID);
                 if (!container) {
@@ -344,12 +346,12 @@ export async function showInjectionLoadingToast(tabId: number, scriptCount: numb
                     dismissTimer = null;
                     if (toast.parentNode) {
                         toast.style.opacity = "0";
-                        toast.style.transform = "translateY(8px) scale(0.96)";
+                        toast.style.transform = exitTransform;
                         removeTimer = setTimeout(cleanup, 350);
                     }
                 }, 10000);
             },
-            args: [scriptCount, EXTENSION_VERSION],
+            args: [scriptCount, EXTENSION_VERSION, TOAST_EXIT_TRANSFORM],
         });
     } catch (e) {
         logCaughtError(BgLogTag.INJECTION, "showInjectionLoadingToast failed", e);
