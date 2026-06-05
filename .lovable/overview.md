@@ -3,7 +3,7 @@
 **Owner:** Riseup Asia LLC
 **Current version:** v2.166.0
 **Stack:** Chrome Extension MV3 (TypeScript), Vite, sql.js (WASM), React 18 (preview UI only)
-**Timezone (canonical):** Asia/Kuala_Lumpur (UTC+8)
+**Timezone:** User's local timezone (resolved at render time via `Intl.DateTimeFormat().resolvedOptions().timeZone`). Never hardcode a zone.
 
 ## What it is
 
