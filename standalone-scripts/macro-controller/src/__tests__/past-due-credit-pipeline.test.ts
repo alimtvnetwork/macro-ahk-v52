@@ -19,7 +19,7 @@
  *   - Invariant: row with status pill ⇒ no EXPIRED tier badge
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { calculateProZeroCreditSummary } from '../pro-zero/pro-zero-credit-calculator';
 import { CreditGrantType } from '../pro-zero/credit-grant-type';
 import type { CreditBalanceResponseTyped } from '../pro-zero/credit-balance-response-typed';
