@@ -671,18 +671,18 @@ async function verifyPostInjectionGlobals(tabId: number): Promise<void> {
         const allOk = r.marcoSdk && r.extRoot && r.mcClass && r.mcInstance && r.uiContainer;
         const status = allOk ? "✅ VERIFIED" : "⚠️ INCOMPLETE";
 
-        const lines: Array<{ msg: string; level: "log" | "warn" | "error" }> = [
-            { msg: `window.marco (SDK)           : ${r.marcoSdk ? "✅" : "❌"}`, level: r.marcoSdk ? "log" : "error" },
-            { msg: `window.RiseupAsiaMacroExt     : ${r.extRoot ? "✅" : "❌"}`, level: r.extRoot ? "log" : "error" },
-            { msg: `window.MacroController (class): ${r.mcClass ? "✅" : "❌"}`, level: r.mcClass ? "log" : "error" },
-            { msg: `api.mc (singleton instance)   : ${r.mcInstance ? "✅" : "❌"}`, level: r.mcInstance ? "log" : "warn" },
-            { msg: `#macro-loop-container (UI)    : ${r.uiContainer ? "✅" : "❌"}`, level: r.uiContainer ? "log" : "warn" },
-            { msg: `[data-marco-injected] marker  : ${r.markerEl ? "✅" : "⚠️ (not required)"}`, level: "log" },
+        const lines: Array<{ "msg": string; level: "log" | "warn" | "error" }> = [
+            { "msg": `window.marco (SDK)           : ${r.marcoSdk ? "✅" : "❌"}`, level: r.marcoSdk ? "log" : "error" },
+            { "msg": `window.RiseupAsiaMacroExt     : ${r.extRoot ? "✅" : "❌"}`, level: r.extRoot ? "log" : "error" },
+            { "msg": `window.MacroController (class): ${r.mcClass ? "✅" : "❌"}`, level: r.mcClass ? "log" : "error" },
+            { "msg": `api.mc (singleton instance)   : ${r.mcInstance ? "✅" : "❌"}`, level: r.mcInstance ? "log" : "warn" },
+            { "msg": `#macro-loop-container (UI)    : ${r.uiContainer ? "✅" : "❌"}`, level: r.uiContainer ? "log" : "warn" },
+            { "msg": `[data-marco-injected] marker  : ${r.markerEl ? "✅" : "⚠️ (not required)"}`, level: "log" },
         ];
 
         if (!allOk) {
-            lines.push({ msg: `── Stack at verification point ──`, level: "warn" });
-            lines.push({ msg: r.verifyStack, level: "warn" });
+            lines.push({ "msg": `── Stack at verification point ──`, level: "warn" });
+            lines.push({ "msg": r.verifyStack, level: "warn" });
         }
 
         void mirrorPipelineLogsToTab(tabId, lines, `${status} Post-Injection Verification`);
