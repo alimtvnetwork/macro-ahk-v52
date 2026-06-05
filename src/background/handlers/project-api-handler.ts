@@ -58,8 +58,8 @@ interface ProjectApiMessage {
 /*  Handler                                                            */
 /* ------------------------------------------------------------------ */
 
-export async function handleProjectApi(msg: ProjectApiMessage): Promise<Record<string, unknown>> {
-    const m = msg as ProjectApiMessage;
+export async function handleProjectApi(payload: ProjectApiMessage): Promise<Record<string, unknown>> {
+    const m = payload as ProjectApiMessage;
     const slug = requireSlug(m.project);
     const endpoint = requireField(m.endpoint);
     const method = (typeof m.method === "string" && m.method.length > 0

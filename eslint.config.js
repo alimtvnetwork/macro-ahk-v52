@@ -121,9 +121,6 @@ export default tseslint.config(
   // graduate off this list as their authored-source debt is cleaned.
   {
     files: [
-      "src/background/handlers/open-tabs-handler.ts",
-      "src/background/handlers/project-api-handler.ts",
-      "src/background/handlers/project-config-handler.ts",
       "src/background/handlers/prompt-chain-handler.ts",
       "src/background/handlers/prompt-handler.ts",
       

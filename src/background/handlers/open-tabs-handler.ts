@@ -123,48 +123,72 @@ export async function handleGetOpenLovableTabs(): Promise<OpenLovableTabsRespons
         tabs.map((t) => probeTabWorkspace(typeof t.id === "number" ? t.id : null)),
     );
 
-    const out: OpenLovableTabInfo[] = tabs.map((t, i) => {
-        const tabId = typeof t.id === "number" ? t.id : null;
-        const record = tabId !== null ? injections[tabId] : undefined;
-        const probe = probeResults[i];
-        const probePayload = probe.payload;
-
-        // Project ID resolution priority: injection record → probe-reported projectId.
-        let projectId: string | null = record?.projectId ?? null;
-        let bindingSource: OpenLovableTabInfo["bindingSource"] = record !== undefined ? "injection" : "none";
-        if (projectId === null && probePayload && typeof probePayload.projectId === "string" && probePayload.projectId !== "") {
-            projectId = probePayload.projectId;
-            bindingSource = "probe";
-        }
-
-        const projectName = projectId !== null ? (projectNameById.get(projectId) ?? null) : null;
-        const matchedRule = resolveMatchedRule({
-            url: t.url ?? "",
-            projectId,
-            project: projectId !== null ? (projectById.get(projectId) ?? null) : null,
-            injectionMatchedRuleId: record?.matchedRuleId ?? null,
-        });
-
-        return {
-            tabId,
-            title: t.title ?? "",
-            url: t.url ?? "",
-            active: t.active === true,
-            windowFocused: focusedWindow !== null && t.windowId === focusedWindow,
-            projectId,
-            projectName,
-            bindingSource,
-            detectedWorkspaceName: probePayload?.workspaceName?.trim() || null,
-            detectedWorkspaceId: probePayload?.workspaceId?.trim() || null,
-            detectedWorkspaceSource: probePayload?.source ?? null,
-            probeError: probe.error,
-            probeFailureReason: probe.reason,
-            probeFailureReasonDetail: probe.reasonDetail,
-            matchedRule,
-        };
-    });
+    const out: OpenLovableTabInfo[] = tabs.map((t, i) =>
+        buildOpenLovableTabInfo({
+            tab: t,
+            probe: probeResults[i],
+            injections,
+            projectNameById,
+            projectById,
+            focusedWindow,
+        }),
+    );
 
     return { tabs: out, capturedAt: new Date().toISOString() };
+}
+
+function buildOpenLovableTabInfo(args: {
+    tab: chrome.tabs.Tab;
+    probe: ProbeOutcome;
+    injections: Record<number, TabInjectionRecord>;
+    projectNameById: Map<string, string>;
+    projectById: Map<string, StoredProject>;
+    focusedWindow: number | null;
+}): OpenLovableTabInfo {
+    const { tab: t, probe, injections, projectNameById, projectById, focusedWindow } = args;
+    const tabId = typeof t.id === "number" ? t.id : null;
+    const record = tabId !== null ? injections[tabId] : undefined;
+    const probePayload = probe.payload;
+    const { projectId, bindingSource } = resolveProjectBinding(record, probePayload);
+
+    const projectName = projectId !== null ? (projectNameById.get(projectId) ?? null) : null;
+    const matchedRule = resolveMatchedRule({
+        url: t.url ?? "",
+        projectId,
+        project: projectId !== null ? (projectById.get(projectId) ?? null) : null,
+        injectionMatchedRuleId: record?.matchedRuleId ?? null,
+    });
+
+    return {
+        tabId,
+        title: t.title ?? "",
+        url: t.url ?? "",
+        active: t.active === true,
+        windowFocused: focusedWindow !== null && t.windowId === focusedWindow,
+        projectId,
+        projectName,
+        bindingSource,
+        detectedWorkspaceName: probePayload?.workspaceName?.trim() || null,
+        detectedWorkspaceId: probePayload?.workspaceId?.trim() || null,
+        detectedWorkspaceSource: probePayload?.source ?? null,
+        probeError: probe.error,
+        probeFailureReason: probe.reason,
+        probeFailureReasonDetail: probe.reasonDetail,
+        matchedRule,
+    };
+}
+
+function resolveProjectBinding(
+    record: TabInjectionRecord | undefined,
+    probePayload: ProbeOutcome["payload"],
+): { projectId: string | null; bindingSource: OpenLovableTabInfo["bindingSource"] } {
+    let projectId: string | null = record?.projectId ?? null;
+    let bindingSource: OpenLovableTabInfo["bindingSource"] = record !== undefined ? "injection" : "none";
+    if (projectId === null && probePayload && typeof probePayload.projectId === "string" && probePayload.projectId !== "") {
+        projectId = probePayload.projectId;
+        bindingSource = "probe";
+    }
+    return { projectId, bindingSource };
 }
 
 /**
@@ -241,13 +265,13 @@ async function probeTabWorkspace(tabId: number | null): Promise<ProbeResult> {
         }
         return { payload: r.payload ?? null, error: null, reason: null, reasonDetail: null };
     } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
+        const payload = e instanceof Error ? e.message : String(e);
         // "Could not establish connection. Receiving end does not exist." is the
         // expected case when the controller isn't injected yet — classify separately
         // so it isn't conflated with genuine SDK exceptions.
-        const isNoReceiver = /receiving end does not exist|could not establish connection/i.test(msg);
+        const isNoReceiver = /receiving end does not exist|could not establish connection/i.test(payload);
         const reason: ProbeFailureReason = isNoReceiver ? "NoReceiver" : "Exception";
-        return emitProbeFailure(tabId, reason, msg);
+        return emitProbeFailure(tabId, reason, payload);
     }
 }
 
