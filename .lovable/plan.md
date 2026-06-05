@@ -2,7 +2,7 @@
 
 **Created:** 2026-06-05
 **Type:** Tooling / CI check correction
-**Trigger:** Checker correctly enforces "no hardcoded timezone", but flags the spec/memory documentation that *teaches* the rule using `Asia/Kuala_Lumpur` as the explicit ❌ counter-example. Code is correct; the test/checker is over-broad. Fix the checker, not the docs.
+**Trigger:** Checker correctly enforces "no hardcoded timezone", but flags the spec/memory documentation that *teaches* the rule using `Asia/Kuala_Lumpur` as the explicit ❌ counter-example. Code is correct; the test/checker is over-broad. Fix the checker, not the docs. <!-- allow-timezone-example -->
 
 ## Root cause
 
