@@ -208,7 +208,6 @@ export default tseslint.config(
       "standalone-scripts/macro-controller/src/__tests__/plan-task-ui.test.ts",
       "standalone-scripts/macro-controller/src/__tests__/project-name-dropdown.test.ts",
       "standalone-scripts/macro-controller/src/__tests__/selected-workspaces-store.test.ts",
-      "standalone-scripts/macro-controller/src/__tests__/settings-credit-fetch-delay.test.ts",
       "standalone-scripts/macro-controller/src/__tests__/user-gesture-guard.test.ts",
       "standalone-scripts/macro-controller/src/__tests__/ws-credit-sort-filter.test.ts",
       "standalone-scripts/macro-controller/src/__tests__/ws-members-mutations-bulk.test.ts",

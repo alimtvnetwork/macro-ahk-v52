@@ -16,8 +16,8 @@ beforeEach(function () {
         storage: {
             local: {
                 get: (key: string) => Promise.resolve({ [key]: storage[key] }),
-                set: (obj: Record<string, unknown>) => {
-                    Object.assign(storage, obj);
+                set: (entries: Record<string, unknown>) => {
+                    Object.assign(storage, entries);
                     return Promise.resolve();
                 },
             },
