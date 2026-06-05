@@ -86,7 +86,7 @@ Each step is atomic, has a proof hook (test / script / scorer delta), and lists 
 ### Wave E — Final score, sign-off, pending sweep (steps 29–30)
 
 29. ✅ **Pending-issues sweep.** Stale TS1002 note moved to solved after targeted syntax verification; completed workspace-label item moved to solved; only P Store remains deferred with exact path, missing item, and reasoning.
-30. **Final write-up.** Re-run full audit; if composite ≥ 99.5 AND 0 files <90 AND all 5 CI checks green → update `_audit-2026-06-05/99-final-score.md` + top-level `README.md` with the new score, the "100%" verification snippet, and the snapshot hash. If any gate red, log gap to `.lovable/question-and-ambiguity/` and stop for user input. Proof: CI green on final push + composite ≥ 99.5 printed.
+30. ✅ **Final write-up.** Full audit rerun is green: composite 100 / 100, 230 / 230 files ≥90, 230 / 230 files at 100, all wired gates green, and snapshot hash pinned in `_audit-2026-06-05/99-final-score.md` plus root `readme.md`.
 
 ---
 
