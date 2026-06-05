@@ -51,7 +51,7 @@
 | 44 | `macros/examples/10-end-to-end-walkthrough.md` | happy path |
 | 45 | `macros/examples/11-recovery-walkthrough.md` | SW restart |
 | 46 | `macros/examples/12-failure-walkthrough.md` | loop overflow |
-| 47 | `macros/READINESS-SCORE-v2.md` | honest 100 |
+| 47 | `macros/readiness-score-v2.md` | honest 100 |
 | 48 | `99-spec-issues/104-50-step-upgrade-manifest.md` | this file |
 | 49 | `99-spec-issues/105-final-100-scorecard.md` | final scorecard |
 | 50 | `mem://audits/spec-prompt-macros` + `mem://workflow/readiness-reports` | memory updates (R1–R3 + status) |

@@ -29,7 +29,7 @@ The `spec/` tree was restructured from an ad-hoc layout (with 5 duplicate-prefix
 | 6 | Consolidate `22-app-issues/` | 99 + 4 files merged with `legacy-` prefix |
 | 7 | Root governance | `00-overview.md` + `99-consistency-report.md` created; legacy index/plan archived |
 | 8 | Cross-reference repair | 337 path rewrites across 199 files |
-| 9 | Memory & policy sync | `mem://index` updated; `mem://architecture/spec-tree-v3.2.0-layout` written |
+| 9 | Memory & policy sync | `mem://index` updated; `mem://architecture/spec-tree-v3-2-0-layout` written |
 | 10 | Final validation | (pending) |
 
 ## Recovery notes
@@ -38,7 +38,7 @@ Lovable's auto-cleanup process repeatedly reverted folder moves between phases (
 
 ## Replacement map
 
-See `mem://architecture/spec-tree-v3.2.0-layout` for the authoritative old→new path table.
+See `mem://architecture/spec-tree-v3-2-0-layout` for the authoritative old→new path table.
 
 ## Files
 
@@ -48,5 +48,5 @@ See `mem://architecture/spec-tree-v3.2.0-layout` for the authoritative old→new
 | Original `spec-index.md` | `spec/99-archive/governance-history/spec-index.md` |
 | Original `spec-reorganization-plan.md` | `spec/99-archive/governance-history/spec-reorganization-plan.md` |
 | Live phase tracker | `.lovable/spec-reorganization-plan-2026-04-22.md` |
-| Memory layout doc | `.lovable/memory/architecture/spec-tree-v3.2.0-layout.md` |
+| Memory layout doc | `.lovable/memory/architecture/spec-tree-v3-2-0-layout.md` |
 | Final audit | `spec/validation-reports/2026-04-22-reorganization-audit.md` (Phase 10) |

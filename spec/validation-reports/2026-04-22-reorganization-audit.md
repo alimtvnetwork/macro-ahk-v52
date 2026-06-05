@@ -106,7 +106,7 @@ Slots **13, 15, 16, 18, 19, 20** are vacant by design — reserved for future co
   - `spec/99-archive/**` — frozen historical content
   - `spec/99-archive/governance-history/spec-reorganization-plan.md` — the legacy plan
   - `.lovable/spec-reorganization-plan-2026-04-22.md` — live tracker (documents old→new)
-  - `.lovable/memory/architecture/spec-tree-v3.2.0-layout.md` — authoritative migration table
+  - `.lovable/memory/architecture/spec-tree-v3-2-0-layout.md` — authoritative migration table
   - `.gitmap/release/v*.json` — immutable release-history snapshots
 
 ---
@@ -117,7 +117,7 @@ During execution, Lovable's auto-cleanup process repeatedly reverted folder move
 
 **Mitigation applied:** Every phase began with a state-verification step (`ls spec/`) and re-executed any reverted moves before doing new work. Phase 10 included a final cleanup sweep that caught 356 reverted edits.
 
-**Going forward:** If the structure regresses, run the snippet stored at `/tmp/phase10-cleanup.sh` (or recreate it from the migration map in `mem://architecture/spec-tree-v3.2.0-layout`).
+**Going forward:** If the structure regresses, run the snippet stored at `/tmp/phase10-cleanup.sh` (or recreate it from the migration map in `mem://architecture/spec-tree-v3-2-0-layout`).
 
 ---
 
@@ -168,7 +168,7 @@ These items are not part of the reorganization but were surfaced during it:
 - Spec authoring guide: [`/spec/01-spec-authoring-guide/`](../01-spec-authoring-guide/00-overview.md)
 - Migration record: [`/spec/99-archive/governance-history/2026-04-22-reorganization-plan.md`](../99-archive/governance-history/2026-04-22-reorganization-plan.md)
 - Live phase tracker: `.lovable/spec-reorganization-plan-2026-04-22.md`
-- Memory layout doc: `.lovable/memory/architecture/spec-tree-v3.2.0-layout.md`
+- Memory layout doc: `.lovable/memory/architecture/spec-tree-v3-2-0-layout.md`
 
 ---
 
