@@ -6,8 +6,8 @@ type: feature
 
 # Session 2026-04-23 — TS Migration V2 Cleared (v2.225.0)
 
-> Asia/Kuala_Lumpur. Closes the entire TS Migration V2 backlog and stabilizes
-> the time-sensitive snapshot test suite.
+> Closes the entire TS Migration V2 backlog and stabilizes the time-sensitive
+> snapshot test suite.
 
 ## Tasks completed
 

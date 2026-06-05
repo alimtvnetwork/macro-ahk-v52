@@ -1,7 +1,7 @@
 # Spec Reorganization — Final Audit Report
 
 **Audit ID:** `2026-04-22-reorganization-audit`  
-**Generated:** 2026-04-22 (Asia/Kuala_Lumpur)  
+**Generated:** 2026-04-22  
 **Authority:** Spec Authoring Guide v3.2.0  
 **Live tracker:** `.lovable/spec-reorganization-plan-2026-04-22.md`  
 **Migration record:** `spec/99-archive/governance-history/2026-04-22-reorganization-plan.md`

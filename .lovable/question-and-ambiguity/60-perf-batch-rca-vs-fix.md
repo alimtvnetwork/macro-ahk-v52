@@ -1,6 +1,6 @@
 # Ambiguity 60 — PERF batch: write RCAs only vs. land code fixes
 
-**Date:** 2026-06-03 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-03
 **Context:** User requested "next 10 with proper reasoning". 7 of the 10 candidate items are PERF-1..PERF-5/7/8 from `plan.md`. The plan section explicitly says **"Do not touch yet — user asked to record findings only. Each PERF-* item gets its own RCA file in `spec/22-app-issues/` before code changes."**
 
 ## Options

@@ -1,6 +1,6 @@
 # Spec-Tree Numbering Collision Scan
 
-**Generated:** 2026-04-22 (Asia/Kuala_Lumpur)
+**Generated:** 2026-04-22
 **Scope:** Entire `spec/` tree (excluding `99-archive/`)
 **Trigger:** Post-renumbering verification after resolving 6 duplicate-prefix collisions in `spec/22-app-issues/`
 

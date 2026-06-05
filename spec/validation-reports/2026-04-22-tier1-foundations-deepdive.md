@@ -1,6 +1,6 @@
 # Spec Deep-Dive — Tier 1 (Foundations 01–20)
 
-**Generated:** 2026-04-22 (Asia/Kuala_Lumpur)
+**Generated:** 2026-04-22
 **Scope:** `spec/01-*` through `spec/20-*` only
 **Methodology:** Folder-by-folder check against the **new structural rules** locked in 2026-04-22:
 - Slots 01–20 = **foundations only** (universal, project-agnostic)

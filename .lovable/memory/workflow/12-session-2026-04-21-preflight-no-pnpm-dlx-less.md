@@ -18,7 +18,7 @@ type: workflow
 | 2 | `--json` output mode added (envelope + per-hit fields) | Real-repo + synthetic JSON smoke test |
 | 3 | Per-physical-line reporting (was: one hit per logical line) | New fixtures asserting `expectedHitCount` + `expectedOffendingLines` |
 | 4 | `--scan-dir <path>` / `--scan-dir=<path>` flag; exit code `2` on usage errors | Manual JSON+human invocations against `/tmp` fixtures |
-| 5 | `readme.txt` milestone marker updated to `let's start now 21-Apr-2026 5:52 PM` (Asia/Kuala_Lumpur) | Direct write |
+| 5 | `readme.txt` milestone marker updated to `let's start now 21-Apr-2026 5:52 PM` | Direct write |
 | 6 | `offendingCommand` (≤1000-char full whitespace-normalised snippet) + `offendingCommandTruncated`; legacy `matchedToken` (≤120) preserved for back-compat | JSON envelope smoke test on long single-line + multi-line continuation offenders |
 | 7 | 9 tricky quoting/escaping regression fixtures (nested `bash -c`, escaped `\"`, mixed quotes, prose-collision launcher, payload-spanning POSIX continuations) + `expectedOffendingColumns` runner support | Self-test 61/61 |
 | 8 | `scripts/check-no-pnpm-dlx-less.readme.md` JSON-schema reference (envelopes, Hit shape, exit codes, jq snippet) | Created |

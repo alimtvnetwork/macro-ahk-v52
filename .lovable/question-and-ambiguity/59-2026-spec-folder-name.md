@@ -1,6 +1,6 @@
 # 59 — `2026-spec/` folder name finalization
 
-**Date:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Date:** 2026-06-02
 
 ## Ambiguity
 
