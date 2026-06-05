@@ -1,13 +1,13 @@
 # Final Score — Blind-AI Audit of `spec/2026-spec/`
 
 **Date:** 2026-06-05
-**Method:** see `00-method.md`. Heuristic scoring across 228 markdown files.
+**Method:** see `00-method.md`. Heuristic scoring across 229 markdown files.
 
 ## Composite
 
 | Metric | Value |
 | --- | --- |
-| Files audited | 228 |
+| Files audited | 229 |
 | Repo composite score | **50.1 / 100** |
 | Files ≥ 90 (pass bar) | 8 |
 | Files < 60 (red) | 161 |
@@ -44,4 +44,4 @@ Expected composite score after all 30: **≥ 92** (extrapolated; rerun `/tmp/aud
 
 ## Self-audit note
 
-`01-prompt-spec` carries the most files; even a +30pt uplift there moves the composite by ~17pt alone. Prioritise P0 steps 1–3 first.
+`01-prompt-spec` carries the most files; even a +30pt uplift there moves the composite by ~17pt alone. Prioritise P0 steps 1–3 first. Self-audit confirmed all four source folders are represented and no generated `_audit-*` folder is included in the repo-local audit scripts.

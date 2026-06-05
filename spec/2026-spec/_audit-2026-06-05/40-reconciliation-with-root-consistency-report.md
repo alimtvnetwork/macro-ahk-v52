@@ -15,7 +15,7 @@ This audit (`_audit-2026-06-05/`) is **content-quality** focused (blind-AI imple
 
 The root report does NOT measure:
 
-1. Per-file `## Acceptance` presence — **180/228 files fail** (verified by `scripts/audit/check-acceptance.mjs`).
+1. Per-file `## Acceptance` presence — **181 files fail** (verified by `scripts/audit/check-acceptance.mjs`).
 2. Dangling relative links — **156 broken links** (verified by `scripts/audit/check-dangling-links.mjs`).
 3. Numeric-constant SOT binding.
 4. Pitfalls / counter-examples coverage.
@@ -39,4 +39,4 @@ This addendum is **not** auto-applied — root report is owned by the consistenc
 ## Action items added to `30-remediation-backlog.md`
 
 - Step 26 (this reconciliation) — **done**.
-- New machine checks (steps 26–30 in backlog) are landed at `scripts/audit/check-acceptance.mjs` and `scripts/audit/check-dangling-links.mjs`. They report CODE-RED with exact path + missing item + reason per `mem://standards/error-logging-requirements`.
+- New machine checks (steps 26–29 in backlog) are landed at `scripts/audit/check-acceptance.mjs`, `scripts/audit/check-dangling-links.mjs`, `scripts/audit/check-must-constants.mjs`, and `.github/workflows/spec-audit.yml`. They report CODE-RED with exact path + missing item + reason per `mem://standards/error-logging-requirements`.
