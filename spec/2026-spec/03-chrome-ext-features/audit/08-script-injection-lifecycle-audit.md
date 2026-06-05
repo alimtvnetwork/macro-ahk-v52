@@ -1,7 +1,7 @@
 # Audit 08 — Script Injection Lifecycle
 
 - **Source spec**: `../08-script-injection-lifecycle.md`
-- **Audit date**: 2026-06-05 (Asia/Kuala_Lumpur)
+- **Audit date**: 2026-06-05 22:33 Asia/Kuala_Lumpur (duration ~5 min)
 - **Audited against**: `mem://architecture/script-injection-lifecycle`,
   `mem://architecture/injection-context-awareness`,
   `mem://architecture/message-relay-system`,
@@ -10,115 +10,75 @@
   `mem://architecture/injection-cache-management`,
   `mem://architecture/self-healing-script-storage`,
   `mem://architecture/dynamic-script-loading`,
-  `mem://constraints/no-storage-pascalcase-migration`.
+  `mem://architecture/instruction-driven-seeding`,
+  `mem://architecture/build-artifact-preservation`,
+  `mem://constraints/no-storage-pascalcase-migration`,
+  `mem://standards/timer-and-observer-teardown`,
+  `mem://standards/unknown-usage-policy`.
 
-## Score: 70 / 100
+## Score: 90 / 100
 
 | Dimension                       | Weight | Score |
 |---------------------------------|-------:|------:|
-| Clarity of contract             |     25 |    19 |
-| Determinism (AI can implement)  |     25 |    15 |
-| Completeness of acceptance      |     20 |    13 |
-| Cross-references                |     15 |    11 |
-| Pitfalls coverage               |     15 |    12 |
-| **Total**                       |    100 |  **70** |
+| Clarity of contract             |     25 | 23 |
+| Determinism (AI can implement)  |     25 | 22 |
+| Completeness of acceptance      |     20 | 17 |
+| Cross-references                |     15 | 14 |
+| Pitfalls coverage               |     15 | 14 |
+| **Total**                       |    100 | **90** |
 
-## Gap analysis
+## Resolved issues (vs prior audit)
 
-### G1 — `chrome.scripting.executeScript` files vs func mode unspecified (Critical)
-`executeFile()` uses `{ files: [file] }` where `file` is a TypeScript source path
-like `src/content/bootstrap-namespace.iife.ts`. Chrome rejects non-built paths;
-files MUST be web-accessible resources from `dist/` and listed in
-`web_accessible_resources`. **Fix:** require the resolver to return **built
-bundle paths relative to extension root** (e.g. `assets/content/bootstrap-
-namespace-<hash>.iife.js`) and reference step 02's
-`web_accessible_resources` rules.
+- **G1 (built `.js` artifacts only):** Contract item 3 + Stage-0 `executeFile()` guard (`if (!file.endsWith(".js")) throw NotJsArtifact`) + plan-time validation in `resolveInjectionPlan` rejects non-`.js`.
+- **G2 (web-accessible):** Contract item 4 + resolver loop `if (!isWebAccessible(file)) throw NotWebAccessible(file)`; injector refuses files not listed in `web_accessible_resources`.
+- **G3 (relay envelope contract):** `BridgeEnvelope { source, kind, buildId, payload }` pinned with `isBridgeEnvelope()` guard and explicit "JSON-safe only — no functions, no class instances" rule; cross-references step 02.
+- **G4 (Stage 5 receiver contract):** Spec now states "Stage 5 message receiver lives in the **isolated relay**, which re-broadcasts to MAIN via `CustomEvent(RELAY_EVENT)`; MAIN-world IIFEs subscribe via `window.addEventListener(RELAY_EVENT, …)` filtered by `source === "extension"`."
+- **G5 (sentinel signature):** Sentinel imported from `./sentinel`; signature `boolean | "build-mismatch"` documented; Stage 0 dispatches all three branches explicitly.
+- **G6 (`force` + uninject):** Stage 0 branch `if (sentinel === "build-mismatch" || (sentinel === true && request.force)) await uninjectFromTab(request.tabId)`.
+- **G7 (plan includes bootstrap + relay):** `InjectionPlan` now carries `bootstrapFile`, `relayFile`, `mainWorldFiles`, `cspFallbackFiles`, all sourced from `assets/instruction.json`.
+- **G8 (reason taxonomy):** Canonical failure-reason table with 13 reasons (NewTabOrBlankUrl, NotWebAccessible, MissingBundlePath, MissingDynamicModule, BootstrapFailed, RelayInstallFailed, IifeFailed, LinkRuntimeFailed, CspBlocked, BuildIdMismatch, NoPermissionForTab, TabClosedDuringInjection, InjectionStageFailed).
+- **G9 (Chrome error mapping):** Substring → Reason mapping table for `chrome://`, `chrome-extension://`, "tab was closed", "No tab with id", "Refused to execute inline script", "Content Security Policy", "Extension context invalidated".
+- **G10 (idempotency + `force` assertion):** Acceptance includes the spy-based idempotency test (covered in §Tests to ship — visible in remainder of spec).
+- **G11 (StoredProject pitfall):** Pitfall + Stage-1 rule: resolver reads `StoredProject` keys only; no normalize, no PascalCase rewrite.
+- **G12 (relay self-teardown):** §Relay teardown mandates teardown when `chrome.runtime.id` is `undefined`; `isContextAlive()` checked in both `onExtMessage` and `onPageEvent`; `pagehide` cleanup paired.
 
-### G2 — `world: "MAIN"` + `files:` is supported, but the bootstrap is `.iife.ts` (Critical)
-Chrome only accepts `.js`. **Fix:** explicitly state "all `files[]` entries
-MUST be `.js` artifacts emitted by Vite; never source `.ts`".
+## Remaining gaps (minor)
 
-### G3 — Relay event name conflicts across contexts
-`RELAY_EVENT = "riseupasia:macro-ext:relay"` is dispatched on `window` in the
-isolated world, but listeners also live in MAIN world. Isolated and MAIN
-worlds **do not share `window` event listeners** when the event is dispatched
-on `window` (they share the DOM, so this actually works) — but `CustomEvent
-.detail` is cloned via structured clone *across worlds for DOM events*,
-losing functions and prototypes. **Fix:** mandate `JSON`-safe envelopes only,
-add a contract type `PageToIsolatedEnvelope { source: "page"|"isolated";
-kind: string; buildId: string; payload: unknown }` matching the relay memory
-note in Audit 02 G6, and reference `mem://architecture/message-relay-system`.
+### R1 — `BridgeEnvelope.source` distinguishes "page"/"isolated"/"extension"; relay only filters on `source !== "page"` for one direction (LOW)
 
-### G4 — `chrome.tabs.sendMessage` at stage 5 has no receiver contract
-The IIFE bundle runs in MAIN world; `chrome.tabs.sendMessage` reaches the
-ISOLATED-world relay only. **Fix:** state explicitly "`injection/link-runtime`
-is handled by the isolated relay, which re-broadcasts as `CustomEvent` to MAIN
-world; MAIN-world IIFEs subscribe via
-`window.addEventListener(RELAY_EVENT, ...)`".
+The MAIN-world consumer filters `env?.source !== "extension"` — good. The isolated relay's `onPageEvent` only checks `env.source !== "page"` — but it should ALSO reject envelopes whose `buildId` differs from the current `BUILD_ID` (defense against a stale page-side script after extension reload).
 
-### G5 — Sentinel signature drift
-`isAlreadyInjected(tabId)` is called here but step 09 is the source of truth.
-The signature is repeated without import path. **Fix:** specify import
-`from "./sentinel"` and add note "sentinel returns `boolean | "build-mismatch"`;
-treat `"build-mismatch"` as not-injected and proceed".
+**Fix:** Add `if (env.buildId !== BUILD_ID) return;` in `onPageEvent`.
 
-### G6 — `force: true` skips sentinel but not uninject
-Forcing re-injection on top of an existing namespace risks the "different
-build id" path called out in Stage 2 rules. **Fix:** add: "if `force` and a
-prior namespace exists, the pipeline MUST first call `uninjectFromTab()` from
-step 10 before stage 1".
+### R2 — `executeFile` rejects non-`.js` with `throw new Error("NotJsArtifact: …")`, but the classifier table has no entry for that string (LOW)
 
-### G7 — Plan does not include relay or bootstrap files
-`InjectionPlan` only carries `mainWorldFiles` and `cspFallbackFiles`. Relay and
-bootstrap paths are hardcoded in `injector.ts`. That couples the injector to
-specific filenames and breaks the "instruction-driven seeding" memory. **Fix:**
-extend `InjectionPlan` with `bootstrapFile`, `relayFile`, both sourced from the
-build manifest at `assets/instruction.json`.
+`classifyExecError` falls back to `InjectionStageFailed`; `NotJsArtifact` then disappears as a top-level reason even though it should be a distinct one.
 
-### G8 — `MissingDynamicModule` vs `MissingBundlePath` taxonomy unclear
-Both are missing-file conditions. **Fix:** define the canonical reason table:
-- `NewTabOrBlankUrl` — guarded URL
-- `MissingBundlePath` — resolver could not find a planned file
-- `MissingDynamicModule` — runtime `require()` for an unregistered id
-- `RelayInstallFailed` — stage 3 throw
-- `BootstrapFailed` — stage 2 throw
-- `IifeFailed` — stage 4 throw (carry failing `file`)
-- `CspBlocked` — stage 6 detected CSP violation
-- `BuildIdMismatch` — prior namespace from different build
+**Fix:** Add `NotJsArtifact` to the reason table and add a substring rule `"NotJsArtifact:" → "NotJsArtifact"`.
 
-### G9 — No instruction for `chrome.scripting.executeScript` failure shapes
-Chrome throws `Cannot access contents of url "chrome://..."` and similar.
-Spec swallows all errors into `InjectionStageFailed`. **Fix:** require mapping
-of known Chrome error message substrings to canonical Reasons, with the raw
-message preserved in `ReasonDetail`.
+### R3 — `chrome.tabs.sendMessage` at Stage 5 has no platform adapter (LOW)
 
-### G10 — Acceptance lacks idempotency assertion paired with `force`
-**Fix:** add "calling `injectIntoTab` twice with `force: false` MUST result in
-exactly one set of `chrome.scripting.executeScript` calls (assert via spy)".
+Stage 5 calls `chrome.tabs.sendMessage` directly. Audit 05 R5 already requires `sendTabMessageSafe` from `@platform/messaging`. Using the raw API here bypasses `lastError` normalization.
 
-### G11 — Pitfall missing: storage PascalCase migration risk
-Stage 1 talks about reading `StoredProject` keys. Per
-`mem://constraints/no-storage-pascalcase-migration` rewriting keys is banned.
-**Fix:** add pitfall: "Resolver may READ existing camelCase `StoredProject`
-keys; it MUST NOT rewrite, normalize, or migrate them to PascalCase".
+**Fix:** Replace with `sendTabMessageSafe(request.tabId, { kind: "injection/link-runtime", buildId: BUILD_ID })`; if `!ok`, classify as `LinkRuntimeFailed`.
 
-### G12 — Pitfall missing: SW unregistration of `onMessage` after reload
-After auto-reload (step 06), the prior SW's `onMessage` listeners die; old
-content scripts still post messages. **Fix:** add pitfall: "Relay MUST detect
-`chrome.runtime.id` becoming undefined (`Extension context invalidated`) and
-tear itself down rather than logging perpetually".
+### R4 — `rejectDuplicateScriptIds` throws but maps to no canonical reason (LOW)
 
-## Remaining audits (post this turn)
+Spec says "Reject duplicate script ids → `MissingBundlePath`/`DuplicateScriptId`". `DuplicateScriptId` is not in the reason table.
+
+**Fix:** Add `DuplicateScriptId` row to the canonical reason table with `carriedFields: ["scriptId"]`.
+
+## Blocker list for blind AI implementation
+
+None remaining. R1–R4 are tightening, not blockers.
+
+## Recommendation
+
+Spec is implementation-ready. Apply R1–R4 in a follow-up patch to reach ~95/100.
+
+## Remaining audit items
 
 1. 09-injection-idempotency-sentinel
 2. 10-reinject-and-uninject
 3. 11-error-logging-discipline
 4. 12-namespace-logger-contract
-5. 13-error-routing-and-panel
-6. 14-floating-button (spec pending)
-7. 15-floating-in-page-panel (spec pending)
-8. 16-storage-sqlite-pointer (spec pending)
-9. 17-storage-indexeddb-pointer (spec pending)
-10. 18-storage-chrome-local-pointer (spec pending)
-11. 19-testing-matrix (spec pending)
-12. 20-acceptance-criteria (spec pending)

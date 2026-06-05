@@ -1,126 +1,78 @@
 # Audit 07 — Status and Health Panel
 
 - **Source spec**: `../07-status-and-health-panel.md`
-- **Audit date**: 2026-06-05 (Asia/Kuala_Lumpur)
+- **Audit date**: 2026-06-05 22:28 Asia/Kuala_Lumpur (duration ~5 min)
 - **Audited against**: `mem://standards/timer-and-observer-teardown`,
   `mem://constraints/no-retry-policy`,
   `mem://standards/error-logging-via-namespace-logger.md`,
   `mem://features/new-tab-no-url-guard`,
-  `mem://standards/verbose-logging-and-failure-diagnostics`,
-  `mem://preferences/dark-only-theme`.
+  `mem://preferences/dark-only-theme`,
+  `mem://architecture/injection-cache-management`,
+  `mem://architecture/data-storage-layers`.
 
-## Score: 72 / 100
+## Score: 91 / 100
 
 | Dimension                       | Weight | Score |
 |---------------------------------|-------:|------:|
-| Clarity of contract             |     25 |    19 |
-| Determinism (AI can implement)  |     25 |    16 |
-| Completeness of acceptance      |     20 |    14 |
-| Cross-references                |     15 |    11 |
-| Pitfalls coverage               |     15 |    12 |
-| **Total**                       |    100 |  **72** |
+| Clarity of contract             |     25 | 23 |
+| Determinism (AI can implement)  |     25 | 23 |
+| Completeness of acceptance      |     20 | 18 |
+| Cross-references                |     15 | 13 |
+| Pitfalls coverage               |     15 | 14 |
+| **Total**                       |    100 | **91** |
 
-## Gap analysis
+## Resolved issues (vs prior audit)
 
-### G1 — `useStatusSnapshot` initial state is `/* initial */` placeholder (Critical)
-The hook returns `useState<StatusSnapshot>(/* initial */)`. An AI implementing
-this blindly will either pass `undefined` (runtime crash on `snap.tab.state`) or
-invent a shape. **Fix:** specify the exact initial snapshot constant:
+- **G1 (placeholder initial state):** `INITIAL_SNAPSHOT` constant defined in `types.ts` with explicit `worker/tab/errors/heartbeatIso` fields; `heartbeatIso = new Date(0).toISOString()` renders as `"never"`.
+- **G2 (Rules of Hooks):** Split into `<PreviewPanel/>` and `<LivePanel/>` sibling components; top-level `StatusPanel` only branches on `isExtensionPopup()` — no hook called before the branch.
+- **G3 (missing primitives):** `Row`, `Pill`, `RelativeTime`, `VersionBadge` listed in the **Internal components** table with props; `tone()` + `toneClass()` defined with full tone-class map.
+- **G4 (`buildId` provenance):** Probe handler intentionally omits `buildId`; hook always overrides with `BUILD_ID` from `@shared/constants`; documented as a defense against stale SW replies.
+- **G5 (timer leak):** Hook uses `AbortController` + `setTimeout` + `try { … } finally { clearTimeout(t); }`.
+- **G6 (dedup scope):** "Session = one SW lifetime" pinned; `dedupSet()` stored on `globalThis.__statusProbeDedup`, reinitialized on cold SW start.
+- **G7 (dark-only):** `CLASS` map uses semantic tokens (`bg-success/15 text-success`, `bg-destructive/15 text-destructive`); acceptance includes lint rule `no-raw-palette-colors`.
+- **G8 (routing):** `HashRouter` pinned; `useOpenErrorsPanel()` exported from `src/popup/routes.ts`; no raw `href="#/..."` anchors.
+- **G9 (`countErrorsSince` source):** Reads `error_events` from session SQLite (step 16); on failure returns 0 + one `ErrorStoreUnavailable` Code Red per SW lifetime via `writeCodeRedOnce`.
+- **G10 (heartbeat thresholds):** `heartbeatTone()` defined — >10 s `warning`, >30 s `danger` and forces `HeartbeatStale` Code Red.
+- **G11 (perf budget):** Acceptance now includes `StatusPanel.perf.test.tsx` (first paint <50 ms, snapshot <300 ms).
+- **G12 (stale-SW pitfall):** "Trusting `reply.buildId`" listed in Pitfalls and asserted in `useStatusSnapshot.buildId.test.ts`.
 
-```ts
-const INITIAL_SNAPSHOT: StatusSnapshot = {
-  buildId: BUILD_ID,
-  worker: { state: "sleeping" },
-  tab:    { state: "n/a" },
-  errors: { last24h: 0 },
-  heartbeatIso: new Date(0).toISOString(),
-};
-```
+## Remaining gaps (minor)
 
-### G2 — Conditional Hooks violation (Critical, blocks build)
-`StatusPanel` early-returns before `useStatusSnapshot()`, violating the React
-Rules of Hooks. The component will fail lint (`react-hooks/rules-of-hooks`) and
-crash on environment toggles. **Fix:** call the hook first, then branch on
-`isExtensionPopup()`; or split into `<PreviewPanel/>` and `<LivePanel/>`
-sibling components rendered by a thin wrapper.
+### R1 — `sendRuntimeMessageSafe` `{ signal }` option not in step 03's adapter contract (LOW)
 
-### G3 — `tone()` and `Pill`/`Row`/`RelativeTime`/`VersionBadge` not defined
-Reference component imports four UI primitives and one helper that have no
-contract. **Fix:** add an "Internal components" subsection listing each
-component's props and the tone mapping table: `alive|injected|connected →
-success`, `sleeping|not-injected → muted`, `error|disconnected → danger`,
-`n/a → neutral`.
+The hook passes `{ signal: ctrl.signal }` to `sendRuntimeMessageSafe`. Step 03 owns that signature. If the adapter ignores `signal`, the timeout becomes advisory only (state still updates to `worker.error` because of the `AbortError` reject, but the in-flight `sendMessage` is not actually cancelled).
 
-### G4 — Probe handler returns plain object, not `{ worker, tab, errors, heartbeatIso, buildId }` matching `StatusSnapshot`
-The handler omits `buildId`; the hook patches it client-side. That works but is
-undocumented. **Fix:** state explicitly that `buildId` is client-injected from
-`@shared/constants` and never trusted from the SW reply (defends against stale
-SW after reload — important per memory: build-aware cache invalidation).
+**Fix:** Add a note: "Step 03 MUST accept `{ signal? }` and short-circuit on abort." Add adapter test.
 
-### G5 — `Promise.race` with `setTimeout` leaks the timer
-The losing branch never clears the timer; on a slow SW reply the timer fires
-into a stale closure. **Fix:** wrap with an `AbortController` and clear the
-timeout in a `finally`:
+### R2 — `chrome.runtime.lastError` not surfaced by reply shape (LOW)
 
-```ts
-const ctrl = new AbortController();
-const t = setTimeout(() => ctrl.abort("probe-timeout"), TIMEOUT_MS);
-try { ... } finally { clearTimeout(t); }
-```
+`reply.reason` is read but `SendMessageResult` shape (owned by step 03) is not pinned here. Risk: a blind implementer may forget to populate `reason` on the timeout/abort path.
 
-### G6 — Code-Red dedup key is under-specified
-"Deduped by `(probeName, reason)` per session" — but session boundary is
-undefined for a popup (open/close? SW lifetime? day?). **Fix:** define session
-as "one SW lifetime" and store the dedup set in
-`globalThis.__statusProbeDedup` inside the SW module; reset on SW startup.
+**Fix:** One-line cross-ref pinning `{ ok, reason?, data? }` shape, matching audit 05 R2.
 
-### G7 — Dark-only theme not enforced in tokens
-Component uses `bg-background`, `text-muted-foreground` — good — but `tone()`
-is undefined and could leak raw colors (`text-red-500`). **Fix:** require
-semantic tone classes (`bg-destructive/15 text-destructive`, `bg-success/15
-text-success`) and forbid Tailwind palette colors per
-`mem://preferences/dark-only-theme`.
+### R3 — Sticky footer + 5–6 rows can overflow the popup's 600 px max-height (LOW)
 
-### G8 — `openErrorsPanel` not defined; routing contract missing
-The Errors row uses `onClick={openErrorsPanel}` with no import. The detail
-link uses `href="#/popup/details"` — hash routing is not declared anywhere in
-the popup. **Fix:** specify the popup router (hash vs memory router) and
-export `openErrorsPanel()` from `src/popup/routes.ts` returning
-`navigate("/errors")`.
+No `max-height` or `overflow-y` on the `<section>`. Long error tooltips can push the footer offscreen.
 
-### G9 — `countErrorsSince` source not specified
-SQLite? IndexedDB? `chrome.storage.local`? Per
-`mem://architecture/data-storage-layers` errors live in SQLite. **Fix:** state
-"reads `error_events` table from session SQLite (step 16); falls back to `0`
-with `Reason="ErrorStoreUnavailable"` Code Red on schema-missing".
+**Fix:** Add `max-h-[560px] overflow-y-auto` on the panel, keep `<footer>` `sticky bottom-0`.
 
-### G10 — Heartbeat freshness threshold missing
-The row shows `3s ago` but never says when it turns red. **Fix:** add: heartbeat
-> 10 s old → tone `warning`; > 30 s → tone `danger` + force one `worker:
-error` Code Red.
+### R4 — Heartbeat tone re-evaluation runs only on probe tick (LOW)
 
-### G11 — Acceptance lacks a perf budget
-"Render within 300 ms of popup open" appears once but no test asserts it.
-**Fix:** add acceptance "`StatusPanel.perf.test.tsx` asserts first paint
-< 50 ms with mocked probe and full snapshot < 300 ms".
+`heartbeatTone()` is computed inside `tick()`. Between ticks (2 s), a stale heartbeat will not retint until the next probe arrives. Acceptable, but tests should assert tinting based on the rendered `<RelativeTime/>` clock, not the snapshot field.
 
-### G12 — Missing pitfall: probe answers from a stale SW after auto-reload
-Per `mem://architecture/injection-cache-management`, build-id mismatch must
-invalidate. **Fix:** add pitfall: "If `reply.buildId !== BUILD_ID` (when ever
-included), discard the snapshot and surface `worker: error` with
-`Reason="BuildIdMismatch"`".
+**Fix:** Move the tone forcing into a `useEffect` keyed on `Date.now() / 1000` or compute live inside `<RelativeTime/>`.
 
-## Remaining audits (post this turn)
+## Blocker list for blind AI implementation
+
+None remaining. R1–R4 are polish, not blockers.
+
+## Recommendation
+
+Spec is implementation-ready. Apply R1–R4 in a follow-up patch to reach ~95/100.
+
+## Remaining audit items
 
 1. 09-injection-idempotency-sentinel
 2. 10-reinject-and-uninject
 3. 11-error-logging-discipline
 4. 12-namespace-logger-contract
-5. 13-error-routing-and-panel
-6. 14-floating-button (spec pending)
-7. 15-floating-in-page-panel (spec pending)
-8. 16-storage-sqlite-pointer (spec pending)
-9. 17-storage-indexeddb-pointer (spec pending)
-10. 18-storage-chrome-local-pointer (spec pending)
-11. 19-testing-matrix (spec pending)
-12. 20-acceptance-criteria (spec pending)
