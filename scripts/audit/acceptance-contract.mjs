@@ -1,7 +1,7 @@
 const FENCE_RE = /```[\s\S]*?```/g;
 const INLINE_CODE_RE = /`[^`\n]*`/g;
 const ACCEPTANCE_HEADING_RE = /^##\s+Acceptance\b/m;
-const ACCEPTANCE_SECTION_RE = /^##\s+Acceptance\b[\s\S]*?(?=^##\s+|\s*$)/m;
+const NEXT_H2_RE = /^##\s+/gm;
 const CHECKBOX_BULLET_RE = /^\s*- \[[ x]\]\s+\S/m;
 
 export const ACCEPTANCE_EXEMPT_RE = /(^|\/)(README|00-overview|00-method|GLOSSARY|ACCEPTANCE-MATRIX|IMPLEMENTATION-CHECKLIST|BLIND-AI-SMOKE-TEST)\.md$/i;
@@ -27,5 +27,14 @@ function stripMarkdownCode(text) {
 }
 
 function getAcceptanceSection(text) {
-  return text.match(ACCEPTANCE_SECTION_RE)?.[0] ?? '';
+  const match = text.match(ACCEPTANCE_HEADING_RE);
+  if (match?.index === undefined) {
+    return '';
+  }
+
+  NEXT_H2_RE.lastIndex = match.index + match[0].length;
+  const nextMatch = NEXT_H2_RE.exec(text);
+  const endIndex = nextMatch?.index ?? text.length;
+
+  return text.slice(match.index, endIndex);
 }
