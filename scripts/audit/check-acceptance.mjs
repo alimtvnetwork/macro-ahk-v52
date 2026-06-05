@@ -10,11 +10,11 @@
  * files matching /(^|\/)(README|00-overview|00-method)\.md$/ are exempt.
  */
 import { readFileSync } from 'node:fs';
+import { ACCEPTANCE_EXEMPT_RE, getAcceptanceFailure } from './acceptance-contract.mjs';
 import { DEFAULT_SPEC_ROOT, listMarkdownFiles } from './spec-file-list.mjs';
 
 const ROOT_ARG = '--root=';
 const SPEC_ROOT = getArg(ROOT_ARG, DEFAULT_SPEC_ROOT);
-const EXEMPT = /(^|\/)(README|00-overview|00-method|GLOSSARY|ACCEPTANCE-MATRIX|IMPLEMENTATION-CHECKLIST|BLIND-AI-SMOKE-TEST)\.md$/i;
 
 function getArg(prefix, fallback) {
   return process.argv.find((value) => value.startsWith(prefix))?.slice(prefix.length) ?? fallback;
@@ -22,14 +22,13 @@ function getArg(prefix, fallback) {
 
 const failures = [];
 for (const path of listMarkdownFiles(SPEC_ROOT)) {
-  if (EXEMPT.test(path)) continue;
+  if (ACCEPTANCE_EXEMPT_RE.test(path)) continue;
   const txt = readFileSync(path, 'utf8');
-  const hasHeading = /^##\s+Acceptance\b/m.test(txt);
-  const hasBullet = /^\s*- \[[ x]\]\s+\S/m.test(txt);
-  if (!hasHeading || !hasBullet) {
+  const missingItem = getAcceptanceFailure(txt);
+  if (missingItem !== '') {
     failures.push({
       path,
-      missing: !hasHeading ? '## Acceptance heading' : 'machine-checkable bullet (- [ ])',
+      missing: missingItem,
       reason: 'Blind-AI spec contract: every file MUST declare acceptance criteria the AI can self-verify.',
     });
   }
