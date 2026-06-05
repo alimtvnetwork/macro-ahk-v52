@@ -223,7 +223,7 @@ After G1–G10 are patched: **~6%**.
 3. **G6** — Token/PAT guidance in §25 (10 min).
 4. **G9** — SHA-pinning rule in §22a (15 min).
 5. **G7** — Full PowerShell installer in §19a (45 min).
-6. **G4** — `PREV_TAG` exact command in §16 (10 min). ✅ PATCHED 2026-06-04
+6. **G4** — `PREV_TAG` exact command in §16. ✅ PATCHED
 7. **G3**, **G5**, **G8**, **G10** — sweep in one follow-up pass. ✅ PATCHED 2026-06-04
 
 After this patch pass, re-score: **92/100 AI-proof**.
