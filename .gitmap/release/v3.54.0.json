@@ -13,5 +13,7 @@
   "isDraft": false,
   "isPreRelease": false,
   "createdAt": "2026-06-05T19:19:03Z",
-  "isLatest": false
+  "isLatest": false,
+  "recoveryRequested": "2026-06-05T20:00:00Z",
+  "recoveryReason": "Release v3.54.0 published with no built assets — re-trigger release-watcher to rebuild and upload via recover-latest-release-assets pipeline."
 }
