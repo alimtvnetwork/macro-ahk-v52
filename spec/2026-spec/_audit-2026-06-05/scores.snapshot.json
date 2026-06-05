@@ -1,4 +1,7 @@
 {
+  "generatedAt": "2026-06-05",
+  "specRoot": "spec/2026-spec",
+  "minComposite": 100,
   "files": {
     "01-prompt-spec/00-overview.md": 100,
     "01-prompt-spec/01-glossary/01-terms.md": 100,
@@ -110,12 +113,12 @@
     "01-prompt-spec/BLIND-AI-SMOKE-TEST.md": 100,
     "01-prompt-spec/GLOSSARY.md": 100,
     "01-prompt-spec/IMPLEMENTATION-CHECKLIST.md": 100,
-    "01-prompt-spec/README.md": 100,
     "01-prompt-spec/pseudocode/01-loader-runner.md": 100,
     "01-prompt-spec/pseudocode/02-queue-engine.md": 100,
     "01-prompt-spec/pseudocode/03-delay-engine.md": 100,
     "01-prompt-spec/pseudocode/04-paste-strategies.md": 100,
     "01-prompt-spec/pseudocode/05-failure-router.md": 100,
+    "01-prompt-spec/readme.md": 100,
     "01-prompt-spec/reference/01-edge-cases.md": 100,
     "01-prompt-spec/reference/02-failure-reason-codes.md": 100,
     "01-prompt-spec/reference/03-metrics-glossary.md": 100,
@@ -149,8 +152,8 @@
     "02-ci-cd-spec-for-chrome-extensions/16-hardening-addenda.md": 100,
     "02-ci-cd-spec-for-chrome-extensions/17-final-auditor-score.md": 100,
     "02-ci-cd-spec-for-chrome-extensions/99-consistency-report.md": 100,
-    "02-ci-cd-spec-for-chrome-extensions/README.md": 100,
     "02-ci-cd-spec-for-chrome-extensions/audit.md": 100,
+    "02-ci-cd-spec-for-chrome-extensions/readme.md": 100,
     "03-chrome-ext-features/01-purpose-and-scope.md": 100,
     "03-chrome-ext-features/02-manifest-v3-foundations.md": 100,
     "03-chrome-ext-features/03-folder-and-file-layout.md": 100,
@@ -171,7 +174,6 @@
     "03-chrome-ext-features/18-storage-chrome-local-pointer.md": 100,
     "03-chrome-ext-features/19-testing-matrix.md": 100,
     "03-chrome-ext-features/20-acceptance-criteria.md": 100,
-    "03-chrome-ext-features/README.md": 100,
     "03-chrome-ext-features/audit/01-purpose-and-scope-audit.md": 100,
     "03-chrome-ext-features/audit/02-manifest-v3-foundations-audit.md": 100,
     "03-chrome-ext-features/audit/03-folder-and-file-layout-audit.md": 100,
@@ -186,7 +188,9 @@
     "03-chrome-ext-features/audit/12-namespace-logger-contract-audit.md": 100,
     "03-chrome-ext-features/audit/13-error-routing-and-panel-audit.md": 100,
     "03-chrome-ext-features/audit/14-boot-failure-banner-audit.md": 100,
+    "03-chrome-ext-features/readme.md": 100,
     "03-db-and-sqlite-integration-with-chrome-extension/00-forty-planning-steps.md": 100,
+    "03-db-and-sqlite-integration-with-chrome-extension/01-forty-planning-steps.md": 100,
     "03-db-and-sqlite-integration-with-chrome-extension/01-purpose-and-mindset.md": 100,
     "03-db-and-sqlite-integration-with-chrome-extension/02-four-tier-storage-decision-matrix.md": 100,
     "03-db-and-sqlite-integration-with-chrome-extension/03-quota-persistence-eviction.md": 100,
@@ -227,11 +231,8 @@
     "03-db-and-sqlite-integration-with-chrome-extension/38-testing.md": 100,
     "03-db-and-sqlite-integration-with-chrome-extension/39-ci-gates.md": 100,
     "03-db-and-sqlite-integration-with-chrome-extension/40-acceptance-criteria.md": 100,
-    "03-db-and-sqlite-integration-with-chrome-extension/README.md": 100,
+    "03-db-and-sqlite-integration-with-chrome-extension/readme.md": 100,
     "OWNERS.md": 100,
-    "README.md": 100
-  },
-  "generatedAt": "2026-06-05",
-  "minComposite": 100.0,
-  "specRoot": "spec/2026-spec"
+    "readme.md": 100
+  }
 }
