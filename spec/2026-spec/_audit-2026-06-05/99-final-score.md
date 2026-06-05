@@ -40,6 +40,28 @@
 | `no-bare-fetch.mjs` | ✅ green |
 | `check-footer-lint.mjs` | ✅ green |
 
+## 100% verification snippet
+
+```bash
+node scripts/audit/render-reports.mjs
+python3 scripts/audit/audit-scan.py spec/2026-spec --output=/tmp/scores.json
+node scripts/audit/check-acceptance.mjs
+node scripts/audit/check-dangling-links.mjs
+node scripts/audit/check-constant-divergence.mjs
+node scripts/audit/check-must-constants.mjs
+node scripts/audit/check-must-memory-refs.mjs
+node scripts/audit/check-cross-folder-owners.mjs
+node scripts/audit/check-quarantine.mjs
+node scripts/audit/check-pitfalls.mjs
+node scripts/audit/check-score-floor.mjs
+node scripts/audit/check-score-snapshot.mjs
+node scripts/lint/no-bare-fetch.mjs
+node scripts/audit/check-footer-lint.mjs
+sha256sum spec/2026-spec/_audit-2026-06-05/scores.snapshot.json
+```
+
+Snapshot hash: `b79ef8f879b41da70a4d78b4b34bc558f843656a2c6fd7466d6098daf2b52c03`
+
 ## Remaining headroom
 
-Only final full audit verification and tag snapshot remain.
+None. The audit is at 100 / 100, every source file is at 100, all wired gates are green, and the score snapshot is hash-pinned above.

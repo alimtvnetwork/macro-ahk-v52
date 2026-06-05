@@ -19,4 +19,4 @@
 
 ## Remaining qualitative work
 
-1. Run final full audit verification and tag snapshot.
+_None. Final full audit verification is complete and pinned by the snapshot hash in `99-final-score.md`._
