@@ -1,6 +1,6 @@
 # PERF-8 — Toast `queueDrainTimer` ticks forever when SDK never injects
 
-**Severity:** 🟡 MEDIUM · **Filed:** 2026-06-03 (Asia/Kuala_Lumpur) · **Owner:** macro-controller toast
+**Severity:** 🟡 MEDIUM · **Filed:** 2026-06-03 () · **Owner:** macro-controller toast
 
 ## Symptom
 On a non-target tab `getNotify()` always returns `null`. `drainQueue()` early-returns without stopping the timer, so `TOAST_QUEUE_POLL_MS` keeps firing indefinitely.

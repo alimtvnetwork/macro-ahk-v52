@@ -43,7 +43,7 @@ Reuse the existing modal shell pattern from `projects-modal.ts` (same backdrop, 
 │                                                  │
 │  ┌──── Free Daily Credits ────┐                 │
 │  │  Today remaining: 3 / 5    │   (per-account) │
-│  │  Resets at: 00:00 MYT      │                 │
+│  │  Resets at: 00:00      │                 │
 │  └────────────────────────────┘                 │
 │                                                  │
 │  ┌──── Per-Workspace Breakdown ────┐            │
@@ -68,7 +68,7 @@ The numbers MUST be computed by a new pure function `aggregateCreditTotals(works
 | **Total grant this cycle** | `total_granted` (pro_0) OR `subscription_limit` (other plans) | SUM |
 | **Free daily — today remaining** | `daily_remaining` from `grant_type_balances.daily` | MAX across workspaces (free daily is per-account, not per-workspace; if multiple values disagree we take the highest as the most fresh) |
 | **Free daily — cap** | constant `5` | n/a |
-| **Resets at** | next 00:00 in `Asia/Kuala_Lumpur` (Core: project timezone) | computed |
+| **Resets at** | next 00:00 in `` (Core: project timezone) | computed |
 
 **Plan-specific gotcha (Issue 114):** for `pro_0` we MUST use the `total_*` fields, not the `subscription_*` aggregates. The classifier in `credit-parser.ts` already exposes `isPro0(workspace)` — reuse it; do NOT re-derive.
 
@@ -85,7 +85,7 @@ If a workspace row is missing a field, exclude it from that bucket sum and surfa
 | `standalone-scripts/macro-controller/src/credit-totals.ts` | NEW — pure aggregator `aggregateCreditTotals()` + types |
 | `standalone-scripts/macro-controller/src/ui/credit-totals-modal.ts` | NEW — modal renderer (shell copied from `projects-modal.ts`) |
 | `standalone-scripts/macro-controller/src/ui/menu-builder.ts` | EDIT — add `createMenuItem('💰', 'Credit Totals', …)` after Projects |
-| `standalone-scripts/macro-controller/src/__tests__/credit-totals.test.ts` | NEW — Vitest for aggregator (≥6 cases: empty, pro_0-only, mixed, missing fields, daily MAX, reset time MYT) |
+| `standalone-scripts/macro-controller/src/__tests__/credit-totals.test.ts` | NEW — Vitest for aggregator (≥6 cases: empty, pro_0-only, mixed, missing fields, daily MAX, reset time) |
 | `standalone-scripts/macro-controller/src/__tests__/credit-totals-modal.test.ts` | NEW — render snapshot + refresh-button wiring |
 | `standalone-scripts/macro-controller/changelog.md` | EDIT — v3.14.0 entry |
 | `changelog.md` (root) | EDIT — v3.14.0 entry |
@@ -111,7 +111,7 @@ Low — additive only. Worst case: aggregator returns 0s if no workspaces cached
 The user will type `next` after each task. Each task ships with its own tests (per `mem://preferences/test-with-features`).
 
 1. **Task 1 — Aggregator core**
-   Create `credit-totals.ts` with `aggregateCreditTotals(workspaces, now)` returning `{ used, remaining, granted, freeDailyRemaining, freeDailyCap, resetAtMyt, missingCount }`. Write `credit-totals.test.ts` (≥6 cases).
+   Create `credit-totals.ts` with `aggregateCreditTotals(workspaces, now)` returning `{ used, remaining, granted, freeDailyRemaining, freeDailyCap, resetAtLocal, missingCount }`. Write `credit-totals.test.ts` (≥6 cases).
 
 2. **Task 2 — Modal shell**
    Create `credit-totals-modal.ts` exporting `showCreditTotalsModal()`. Copy modal chrome from `projects-modal.ts`. Render three summary cards + per-workspace table using the aggregator. Add `credit-totals-modal.test.ts` for render + close behavior.

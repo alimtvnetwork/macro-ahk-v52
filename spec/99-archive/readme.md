@@ -1,6 +1,6 @@
 # 99-archive — Retired & Duplicate Specs
 
-> **Created:** 2026-04-22 (Asia/Kuala_Lumpur)
+> **Created:** 2026-04-22 ()
 > **Purpose:** Historical preservation of folders retired during the spec reorganization defined in `.lovable/spec-reorganization-plan-2026-04-22.md`.
 > **Rule:** Read-only. Do **NOT** edit, modify, or reference these folders from active specs. They exist solely for audit/history.
 

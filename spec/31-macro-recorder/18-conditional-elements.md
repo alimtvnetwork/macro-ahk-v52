@@ -1,6 +1,6 @@
 # 18 — Conditional Elements & Auto-Detect Branching
 
-> Status: **Draft v1** (2026-04-26, Asia/Kuala_Lumpur)
+> Status: **Draft v1** (2026-04-26)
 > Owner: Macro Recorder
 > Related: `06-xpath-capture-engine.md`, `09-step-persistence-and-replay.md`,
 > `12-record-replay-e2e-contract.md`, `16-step-group-library.md`,

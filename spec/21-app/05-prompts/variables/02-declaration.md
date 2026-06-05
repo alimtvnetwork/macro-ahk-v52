@@ -1,6 +1,6 @@
 # Variable Declaration — `info.json` Schema
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02 ()
 
 Each prompt or macro-prompt declares its variables in its `info.json`
 `Variables[]` array. The array MAY be empty (prompt has no placeholders) or

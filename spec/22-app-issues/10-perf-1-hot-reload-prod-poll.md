@@ -1,6 +1,6 @@
 # PERF-1 — Hot-reload polls `build-meta.json` every 1 s in PRODUCTION
 
-**Severity:** 🔴 CRITICAL · **Filed:** 2026-06-03 (Asia/Kuala_Lumpur) · **Owner:** background SW
+**Severity:** 🔴 CRITICAL · **Filed:** 2026-06-03 () · **Owner:** background SW
 
 ## Symptom
 Service worker never reaches idle suspension; battery drain on laptops; one `fetch()`+`JSON.parse()` every second per browser session.

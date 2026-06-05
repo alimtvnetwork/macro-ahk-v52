@@ -1,6 +1,6 @@
 # Variable-Input Dialog — Inline Form Spec
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02 ()
 
 When a macro step is about to execute and at least one of its declared
 variables is **required** and **unresolved** through tiers 1–4 of the

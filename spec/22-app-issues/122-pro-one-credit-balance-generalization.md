@@ -1,7 +1,7 @@
 # Issue 122 — Generalize `/credit-balance` to pro_1 (and all paid plans)
 
 > **Status**: Spec Ready · awaiting implementation approval
-> **Created**: 2026-05-29 (Asia/Kuala_Lumpur)
+> **Created**: 2026-05-29 ()
 > **Author**: Macro Controller
 > **Supersedes**: ambiguity log `.lovable/question-and-ambiguity/122-pro1-total-calculation.md`
 > **Related**:

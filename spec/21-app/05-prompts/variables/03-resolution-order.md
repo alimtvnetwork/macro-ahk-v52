@@ -1,6 +1,6 @@
 # Variable Resolution — 5-Tier Waterfall
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02 ()
 
 When the engine renders a prompt body, every `{{ Name }}` placeholder is
 resolved by walking five tiers in order. The first tier that yields a value

@@ -1,6 +1,6 @@
 # PERF-7 — `usePopupData` 30 s poll fans out 4 messages even when hidden
 
-**Severity:** 🟡 MEDIUM · **Filed:** 2026-06-03 (Asia/Kuala_Lumpur) · **Owner:** popup hooks
+**Severity:** 🟡 MEDIUM · **Filed:** 2026-06-03 () · **Owner:** popup hooks
 
 ## Symptom
 Detached-popup window kept open in a background monitor fires `GET_STATUS`, `GET_HEALTH_STATUS`, `GET_ACTIVE_PROJECT`, `GET_ACTIVE_ERRORS` every 30 s with no `document.hidden` gate.
