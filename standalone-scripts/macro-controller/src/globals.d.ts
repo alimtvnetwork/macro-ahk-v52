@@ -14,8 +14,8 @@ declare global {
 
 interface XPathUtilsAPI {
   version: string;
-  setLogger: (info: (fn: string, msg: string) => void, sub: (fn: string, msg: string) => void, warn: (fn: string, msg: string) => void) => void;
-  reactClick: (el: Element, xpath?: string) => void;
+  setLogger: (info: (scope: string, message: string) => void, sub: (scope: string, message: string) => void, warn: (scope: string, message: string) => void) => void;
+  reactClick: (target: Element, xpath?: string) => void;
 }
 
 interface MarcoSDKPromptEntry {
