@@ -49,8 +49,8 @@ export async function bootstrapNamespaceRoot(tabId: number): Promise<void> {
         });
         console.log("[injection:bootstrap] ✅ RiseupAsiaMacroExt root bootstrapped in MAIN world (tab %d)", tabId);
     } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        logCaughtError(BgLogTag.INJECTION_BOOTSTRAP, `CRITICAL — Failed to bootstrap namespace\n  Path: chrome.scripting.executeScript → tabId=${tabId}, world=MAIN\n  Missing: window.RiseupAsiaMacroExt root namespace object\n  Reason: ${msg} — chrome.scripting.executeScript itself was blocked (not CSP — likely tab closed or restricted page)`, err);
+        const reasonMessage = err instanceof Error ? err.message : String(err);
+        logCaughtError(BgLogTag.INJECTION_BOOTSTRAP, `CRITICAL — Failed to bootstrap namespace\n  Path: chrome.scripting.executeScript → tabId=${tabId}, world=MAIN\n  Missing: window.RiseupAsiaMacroExt root namespace object\n  Reason: ${reasonMessage} — chrome.scripting.executeScript itself was blocked (not CSP — likely tab closed or restricted page)`, err);
         transitionHealth("DEGRADED", "RiseupAsiaMacroExt MAIN world bootstrap failed");
 
         try {
