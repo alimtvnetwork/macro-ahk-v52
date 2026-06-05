@@ -310,18 +310,18 @@ export async function handleInjectScripts(
         const icon = r.isSuccess ? "✅" : "❌";
         const via = r.injectionPath ? ` via ${r.injectionPath}` : "";
         pipelineLines.push({
-            msg: `${icon} ${r.scriptName ?? r.scriptId} (${r.durationMs ?? 0}ms${via})`,
+            "msg": `${icon} ${r.scriptName ?? r.scriptId} (${r.durationMs ?? 0}ms${via})`,
             level: r.isSuccess ? "log" : "error",
         });
     }
     for (const r of preflightFailureResults) {
         pipelineLines.push({
-            msg: `⏭ ${r.scriptName ?? r.scriptId} — ${r.errorMessage ?? r.skipReason ?? "skipped"}`,
+            "msg": `⏭ ${r.scriptName ?? r.scriptId} — ${r.errorMessage ?? r.skipReason ?? "skipped"}`,
             level: "warn",
         });
     }
 
-    pipelineLines.push({ msg: "", level: "__groupEnd__" });
+    pipelineLines.push({ "msg": "", level: "__groupEnd__" });
 
     // Fire-and-forget: don't block pipeline on tab mirroring
     const groupIcon = failCount > 0 ? "❌" : "✅";
@@ -435,15 +435,15 @@ async function executeCachedPayload(
         successCount, results.length, totalMs, JSON.stringify(timings));
 
     // Post-pipeline: mirror, budget, verification, toast
-    type PipelineLine = { msg: string; level: "log" | "warn" | "error" | "__group__" | "__groupEnd__" };
+    type PipelineLine = { "msg": string; level: "log" | "warn" | "error" | "__group__" | "__groupEnd__" };
     const pipelineLines: PipelineLine[] = [
-        { msg: `📊 Cached Pipeline (${totalMs}ms)`, level: "__group__" },
-        { msg: `CACHE HIT — skipped Stages 0–3`, level: "log" },
-        { msg: `2/4 SEED      ${(timings["stage2_env_prep"] ?? 0)}ms`, level: "log" },
-        { msg: `4/4 EXECUTE   ✅ ${successCount} scripts via ${execResult.path} (${execMs}ms)`, level: "log" },
-        { msg: `5/5 NS        ${(timings["stage5_ns"] ?? 0)}ms`, level: "log" },
-        { msg: `TOTAL ${totalMs}ms`, level: "log" },
-        { msg: "", level: "__groupEnd__" },
+        { "msg": `📊 Cached Pipeline (${totalMs}ms)`, level: "__group__" },
+        { "msg": `CACHE HIT — skipped Stages 0–3`, level: "log" },
+        { "msg": `2/4 SEED      ${(timings["stage2_env_prep"] ?? 0)}ms`, level: "log" },
+        { "msg": `4/4 EXECUTE   ✅ ${successCount} scripts via ${execResult.path} (${execMs}ms)`, level: "log" },
+        { "msg": `5/5 NS        ${(timings["stage5_ns"] ?? 0)}ms`, level: "log" },
+        { "msg": `TOTAL ${totalMs}ms`, level: "log" },
+        { "msg": "", level: "__groupEnd__" },
     ];
     void mirrorPipelineLogsToTab(tabId, pipelineLines, `✅ Marco Injection (cached) — ${successCount} scripts (${totalMs}ms)`);
 
