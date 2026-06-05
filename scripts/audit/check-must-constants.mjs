@@ -13,16 +13,18 @@ const STRICT_ARG = '--strict';
 const REPORT_ARG = '--report';
 const DEFAULT_SOT_REL = '01-prompt-spec/reference/05-runtime-defaults.md';
 const SOT_LINK_TEXT = 'reference/05-runtime-defaults.md';
-const UNIT_CONSTANT_RE = /\b\d+(?:\.\d+)?\s*(?:ms|milliseconds?|s|sec(?:onds?)?|minutes?|hours?|days?|items?|rows?|entries?|tasks?|kib|mib|bytes?|retries?|attempts?|chars?)\b/i;
-const OPERATIONAL_KEYWORD_RE = /\b(?:default|timeout|cap|capacity|limit|budget|window|deadline|retry|retries|interval|ttl|truncate|lru|max|min|debounce|frame|quota)\b/i;
-const KEYWORD_RANGE_RE = /\b(?:default|timeout|cap|capacity|limit|budget|window|deadline|retry|retries|interval|ttl|truncate|lru|max|min)\b.*\b\d+\s*(?:\.\.|-|–)\s*\d+\b/i;
+const NUMERIC_VALUE = String.raw`(?:\d{1,3}(?:[ _]\d{3})+|\d+(?:_\d+)*)(?:\.\d+)?`;
+const UNIT_CONSTANT_RE = new RegExp(String.raw`\b${NUMERIC_VALUE}\s*(?:ms|milliseconds?|s|sec(?:onds?)?|minutes?|hours?|days?|items?|rows?|entries?|tasks?|kib|mib|bytes?|retries?|attempts?|chars?)\b`, 'i');
+const OPERATIONAL_KEYWORD_RE = /\b(?:default|timeout|cap|capacity|limit|budget|window|deadline|retry|retries|interval|ttl|truncate|lru|debounce|frame|quota)\b/i;
+const MAX_MIN_UNIT_RE = new RegExp(String.raw`\b(?:max|min)\s+${NUMERIC_VALUE}\s*(?:ms|milliseconds?|s|sec(?:onds?)?|minutes?|hours?|days?|items?|rows?|entries?|tasks?|kib|mib|bytes?|retries?|attempts?|chars?)\b`, 'i');
+const KEYWORD_RANGE_RE = new RegExp(String.raw`\b(?:default|timeout|cap|capacity|limit|budget|window|deadline|retry|retries|interval|ttl|truncate|lru|max|min)\b.*\b${NUMERIC_VALUE}\s*(?:\.\.|-|–)\s*${NUMERIC_VALUE}\b`, 'i');
 const IDENTIFIER_CONSTANT_RE = /\b[A-Z][A-Z0-9_]*(?:_MS|_TIMEOUT|_LIMIT|_CAP|_SIZE|_RETRIES|_CAPACITY|_BYTES|_DAYS|_ITEMS|_ATTEMPTS)\b.*\b\d+\b/;
 const RUNTIME_CONSTANT_RE = /^\|\s*`([^`]+)`/gm;
 const RUNTIME_ROW_RE = /^\|\s*`([^`]+)`\s*\|\s*([^|]+)\|\s*([^|]+)\|/gm;
-const NUMBER_RE = /\b\d(?:[\d_ ]*\d)?(?:\.\d+)?\b/g;
-const UNIT_VALUE_RE = /\b(\d(?:[\d_ ]*\d)?(?:\.\d+)?)\s*(ms|milliseconds?|s|sec(?:onds?)?|minutes?|hours?|days?|items?|rows?|entries?|tasks?|kib|mib|bytes?|retries?|attempts?|chars?)\b/gi;
-const RANGE_VALUE_RE = /\b(\d(?:[\d_ ]*\d)?(?:\.\d+)?)\s*(?:\.\.|-|–)\s*(\d(?:[\d_ ]*\d)?(?:\.\d+)?)\b/g;
-const KEYWORD_NUMBER_RE = /\b(?:default|timeout|cap|capacity|limit|budget|window|deadline|retry|retries|interval|ttl|truncate|lru|max|min|debounce|frame|quota)\b[^\n|`]*?\b(\d(?:[\d_ ]*\d)?(?:\.\d+)?)\b/gi;
+const NUMBER_RE = new RegExp(String.raw`\b${NUMERIC_VALUE}\b`, 'g');
+const UNIT_VALUE_RE = new RegExp(String.raw`\b(${NUMERIC_VALUE})\s*(ms|milliseconds?|s|sec(?:onds?)?|minutes?|hours?|days?|items?|rows?|entries?|tasks?|kib|mib|bytes?|retries?|attempts?|chars?)\b`, 'gi');
+const RANGE_VALUE_RE = new RegExp(String.raw`\b(${NUMERIC_VALUE})\s*(?:\.\.|-|–)\s*(${NUMERIC_VALUE})\b`, 'g');
+const KEYWORD_NUMBER_RE = new RegExp(String.raw`\b(?:default|timeout|cap|capacity|limit|budget|window|deadline|retry|retries|interval|ttl|truncate|lru|max|min|debounce|frame|quota)\b[^\n|` + '`' + String.raw`]*?\b(${NUMERIC_VALUE})\b`, 'gi');
 
 const specRoot = getArg(ROOT_ARG, DEFAULT_SPEC_ROOT);
 const sotPath = resolve(specRoot, getArg(SOT_ARG, DEFAULT_SOT_REL));
@@ -84,25 +86,26 @@ function scanFile(filePath, canonicalSotPath, defaults, strictMode) {
   }
 
   const fileText = readFileSync(filePath, 'utf8');
+  const hasFileBinding = hasFileLevelSotBinding(fileText, defaults.constants);
   // File-level binding: if the file as a whole cites the SOT (link or
   // mem:// rule) OR names any canonical constant, every operational
   // number in that file is considered bound. This avoids per-line noise
   // while still flagging files that never reference the SOT.
-  if (hasFileLevelSotBinding(fileText, defaults.constants) && !strictMode) {
+  if (hasFileBinding && !strictMode) {
     return [];
   }
 
   return fileText.split(/\r?\n/).flatMap((line, index) => {
-    return scanLine(filePath, line, index + 1, defaults);
+    return scanLine(filePath, line, index + 1, defaults, hasFileBinding);
   });
 }
 
-function scanLine(filePath, lineText, lineNumber, defaults) {
+function scanLine(filePath, lineText, lineNumber, defaults, hasFileBinding) {
   if (!isOperationalConstantLine(lineText)) {
     return [];
   }
 
-  if (hasSourceOfTruthBinding(lineText, defaults)) {
+  if (hasSourceOfTruthBinding(lineText, defaults, hasFileBinding)) {
     return [];
   }
 
@@ -120,17 +123,30 @@ function isSkippedPath(filePath, canonicalSotPath) {
 }
 
 function isOperationalConstantLine(lineText) {
-  const text = lineText.trim();
+  const text = stripNonOperationalTokens(lineText.trim());
   const hasUnitConstant = UNIT_CONSTANT_RE.test(text);
   const hasOperationalKeyword = OPERATIONAL_KEYWORD_RE.test(text);
 
-  return (hasUnitConstant && hasOperationalKeyword) || KEYWORD_RANGE_RE.test(text) || IDENTIFIER_CONSTANT_RE.test(text);
+  return (hasUnitConstant && hasOperationalKeyword) || MAX_MIN_UNIT_RE.test(text) || KEYWORD_RANGE_RE.test(text) || IDENTIFIER_CONSTANT_RE.test(text);
 }
 
-function hasSourceOfTruthBinding(lineText, defaults) {
+function stripNonOperationalTokens(lineText) {
+  return lineText.replace(/\b[A-Z]+-[a-z]+-\d+(?:\.\.\d+)?\b/g, '');
+}
+
+function hasSourceOfTruthBinding(lineText, defaults, hasFileBinding) {
   return lineText.includes(SOT_LINK_TEXT) || lineText.includes('mem://') || defaults.constants.some((constantName) => {
     return lineText.includes(constantName);
-  });
+  }) || hasRuntimeNumberBinding(lineText, defaults.numbers, hasFileBinding);
+}
+
+function hasRuntimeNumberBinding(lineText, runtimeNumbers, hasFileBinding) {
+  if (!hasFileBinding) {
+    return false;
+  }
+
+  const lineNumbers = extractLineNumbers(lineText);
+  return lineNumbers.length > 0 && lineNumbers.every((value) => runtimeNumbers.has(value));
 }
 
 function extractRuntimeNumbers(text) {

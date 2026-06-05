@@ -41,9 +41,9 @@ summed.
 
 ## Performance budget
 
-- Catalogue size ≤ 1 000 prompts: synchronous filter on every keystroke.
-- Catalogue size > 1 000: debounce keystrokes by 80 ms; never block
-  longer than 16 ms per frame.
+- Catalogue size ≤ `SEARCH_CATALOGUE_LARGE_ITEMS` prompts: synchronous filter on every keystroke.
+- Catalogue size > `SEARCH_CATALOGUE_LARGE_ITEMS`: debounce keystrokes by `SEARCH_DEBOUNCE_MS`; never block
+  longer than `FRAME_BUDGET_MS` per frame.
 
 ## Body-search and verbose mode
 
