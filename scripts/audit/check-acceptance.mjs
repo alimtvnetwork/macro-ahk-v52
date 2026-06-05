@@ -10,23 +10,18 @@
  * files matching /(^|\/)(README|00-overview|00-method)\.md$/ are exempt.
  */
 import { readFileSync } from 'node:fs';
-import { globSync } from 'node:fs';
-import { execSync } from 'node:child_process';
+import { DEFAULT_SPEC_ROOT, listMarkdownFiles } from './spec-file-list.mjs';
 
-const SPEC_ROOT = 'spec/2026-spec';
+const ROOT_ARG = '--root=';
+const SPEC_ROOT = getArg(ROOT_ARG, DEFAULT_SPEC_ROOT);
 const EXEMPT = /(^|\/)(README|00-overview|00-method|GLOSSARY|ACCEPTANCE-MATRIX|IMPLEMENTATION-CHECKLIST|BLIND-AI-SMOKE-TEST)\.md$/i;
 
-function listMd() {
-  // node 22 globSync; fallback to shell find for older nodes
-  try {
-    return globSync(`${SPEC_ROOT}/**/*.md`);
-  } catch {
-    return execSync(`find ${SPEC_ROOT} -type f -name '*.md'`).toString().trim().split('\n');
-  }
+function getArg(prefix, fallback) {
+  return process.argv.find((value) => value.startsWith(prefix))?.slice(prefix.length) ?? fallback;
 }
 
 const failures = [];
-for (const path of listMd()) {
+for (const path of listMarkdownFiles(SPEC_ROOT)) {
   if (EXEMPT.test(path)) continue;
   const txt = readFileSync(path, 'utf8');
   const hasHeading = /^##\s+Acceptance\b/m.test(txt);
