@@ -63,3 +63,7 @@ If `prompt.body` contains `???`, after successful insert the adapter MUST place 
 - Default operation budget MUST be **5000 ms** (per `reference/05-runtime-defaults.md`).
 - Maximum retry attempts MUST be **3 items** before escalation.
 - See [folder index](../README.md) for sibling specs and cross-references.
+
+## Owners
+
+Verbose logging gate + failure-log schema owner: `mem://standards/verbose-logging-and-failure-diagnostics` (see also `mem://features/verbose-logging-toggle`). Do not restate the rule — link to the owner.

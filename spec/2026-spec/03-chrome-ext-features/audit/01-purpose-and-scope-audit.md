@@ -125,3 +125,7 @@ Keep this file as the canonical folder index. The remaining risk is only that
 - The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
+
+## Owners
+
+Verbose logging gate + failure-log schema owner: `mem://standards/verbose-logging-and-failure-diagnostics` (see also `mem://features/verbose-logging-toggle`). Do not restate the rule — link to the owner.
