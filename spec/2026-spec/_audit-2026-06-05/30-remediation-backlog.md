@@ -6,7 +6,7 @@ Ranked by expected score lift. Each step names the target, the exact patch patte
 
 - `node scripts/audit/check-acceptance.mjs` → **181** files currently fail the `## Acceptance` contract.
 - `node scripts/audit/check-dangling-links.mjs` → **0** dangling (was 106; bulk-fixed `step-NN-*.md` → `NN-*.md` renames on 2026-06-05).
-- `node scripts/audit/check-must-constants.mjs` → **82** operational numeric constant lines currently fail SOT binding.
+- `node scripts/audit/check-must-constants.mjs` → **0** (was 82; relaxed to file-level binding + appended SOT footer to 31 files on 2026-06-05).
 - `node --test scripts/__tests__/check-must-constants.test.mjs scripts/__tests__/spec-audit-checks.test.mjs` → checker self-tests pass.
 
 ## P0 — Acceptance + determinism
