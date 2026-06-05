@@ -304,7 +304,7 @@ export default tseslint.config(
       "standalone-scripts/payment-banner-hider/src/index.ts",
       "standalone-scripts/payment-banner-hider/src/smoke-test.ts",
       "standalone-scripts/types/project-namespace-shape.d.ts",
-      "standalone-scripts/types/riseup-namespace.d.ts",
+      
       "tests/e2e/cold-start.spec.ts",
       "tests/e2e/e2e-02-project-crud.spec.ts",
       "tests/e2e/e2e-21-xpath-capture.spec.ts",
