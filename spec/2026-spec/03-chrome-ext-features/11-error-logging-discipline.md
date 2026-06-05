@@ -109,11 +109,18 @@ import { BUILD_ID } from "@shared/constants";
 import { Logger } from "@shared/logger";
 
 export function logCodeRedFailure(event: Omit<CodeRedLogEvent, "level" | "buildId" | "occurredAtIso">): void {
+  let occurredAtIso = "1970-01-01T00:00:00.000Z";
+  try {
+    occurredAtIso = new Date().toISOString();
+  } catch {
+    occurredAtIso = "1970-01-01T00:00:00.000Z";
+  }
+
   Logger.error(event.namespace, {
     ...event,
     level: "error",
     buildId: BUILD_ID,
-    occurredAtIso: new Date().toISOString(),
+    occurredAtIso,
     SelectorAttempts: event.SelectorAttempts ?? [],
     VariableContext: event.VariableContext ?? [],
   });
@@ -125,6 +132,7 @@ Rules:
 - Callers must pass designed typed values. Do not accept arbitrary error shapes.
 - The helper may normalize empty arrays, but callers still own meaningful
   `ReasonDetail` text.
+- The helper owns verbose-gate truncation/masking and timestamp fallback.
 - The helper must not throw. If persistence fails, mirror to DevTools and return
   a typed logging failure to the caller's diagnostics sink.
 
@@ -189,7 +197,7 @@ logCodeRedFailure({
   triggerSource: "replay-step",
   SelectorAttempts: [
     {
-      id: "primary-data-testid",
+      attemptId: "primary-data-testid",
       strategy: "data-testid",
       expression: "[data-testid='submit']",
       matched: false,
@@ -240,8 +248,9 @@ logCodeRedFailure({
 
 Variable rules:
 
-- Sensitive values must be masked before logging.
-- If verbose logging is off, truncate long strings using the existing limits.
+- Sensitive values are masked by the helper as `***masked(len=<n>)***`.
+- If verbose logging is off, truncate normal text to 120 chars and long
+  HTML/log fields to 240 chars.
 - If value type cannot be derived, log `type="unresolved"` and explain why in
   `reason`.
 
@@ -272,7 +281,8 @@ Rules:
 
 - For `chrome-extension://` fetches, log the full absolute URL.
 - For `chrome.storage.local`, log the exact key.
-- For SQLite, log namespace, database name, table name, and statement purpose.
+- For SQLite, use `sqlite://<dbName>/<table>#<statementPurpose>` such as
+  `sqlite://session/error_events#insertCodeRed`.
 - Never log private tokens or bearer values.
 
 ## DevTools mirroring
