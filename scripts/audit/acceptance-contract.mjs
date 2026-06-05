@@ -1,7 +1,7 @@
 const FENCE_RE = /```[\s\S]*?```/g;
 const INLINE_CODE_RE = /`[^`\n]*`/g;
 const ACCEPTANCE_HEADING_RE = /^##\s+Acceptance\b/m;
-const ACCEPTANCE_SECTION_RE = /^##\s+Acceptance\b[\s\S]*?(?=^##\s+|\z)/m;
+const ACCEPTANCE_SECTION_RE = /^##\s+Acceptance\b[\s\S]*?(?=^##\s+|\s*$)/m;
 const CHECKBOX_BULLET_RE = /^\s*- \[[ x]\]\s+\S/m;
 
 export const ACCEPTANCE_EXEMPT_RE = /(^|\/)(README|00-overview|00-method|GLOSSARY|ACCEPTANCE-MATRIX|IMPLEMENTATION-CHECKLIST|BLIND-AI-SMOKE-TEST)\.md$/i;

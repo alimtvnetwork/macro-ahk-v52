@@ -13,13 +13,6 @@ const CHECK_COMMAND = 'node scripts/audit/check-acceptance.mjs --root=spec/2026-
 const SPEC_ROOT = getArg(ROOT_ARG, DEFAULT_SPEC_ROOT);
 const isApply = process.argv.includes(APPLY_ARG);
 
-const changed = listMarkdownFiles(SPEC_ROOT).flatMap((filePath) => processFile(filePath));
-
-process.stdout.write(`[backfill-acceptance] ${isApply ? 'updated' : 'would update'} ${changed.length} file(s)\n`);
-for (const filePath of changed) {
-  process.stdout.write(`  - ${filePath}\n`);
-}
-
 function processFile(filePath) {
   if (ACCEPTANCE_EXEMPT_RE.test(filePath)) {
     return [];
@@ -125,3 +118,10 @@ const DEFAULT_CONTEXT = {
   summary: 'the local spec contract remains implementable without unstated context',
   proof: 'node scripts/audit/check-dangling-links.mjs',
 };
+
+const changed = listMarkdownFiles(SPEC_ROOT).flatMap((filePath) => processFile(filePath));
+
+process.stdout.write(`[backfill-acceptance] ${isApply ? 'updated' : 'would update'} ${changed.length} file(s)\n`);
+for (const filePath of changed) {
+  process.stdout.write(`  - ${filePath}\n`);
+}
