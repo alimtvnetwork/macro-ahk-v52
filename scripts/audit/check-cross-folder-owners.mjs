@@ -12,7 +12,7 @@ const ROOT = getArg(ROOT_ARG, 'spec/2026-spec');
 const RULES = [
   {
     topic: 'verbose-logging',
-    trigger: /\b(verbose logging|VerboseLogging)\b/,
+    trigger: /\b(verbose logging|VerboseLogging)\b/i,
     owners: [
       'mem://standards/verbose-logging-and-failure-diagnostics',
       'mem://features/verbose-logging-toggle',
