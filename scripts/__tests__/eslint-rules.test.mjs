@@ -165,6 +165,7 @@ test('id-denylist fully applies to newly graduated 0.8 cleanup files', async () 
         'src/background/first-attach-toast.ts',
         'src/background/sw-shims.ts',
         'src/components/automation/AutomationView.tsx',
+        'src/components/options/api-explorer/types.ts',
         'src/lib/open-extension-options.ts',
         'standalone-scripts/macro-controller/src/gitsync/disconnect-repo.ts',
         'standalone-scripts/macro-controller/src/log-activity-ui.ts',

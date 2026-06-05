@@ -52,9 +52,9 @@ export function toEndpointPath(type: string): string {
 }
 
 /** Convert keys of an object to PascalCase for display */
-export function toPascalCaseKeys(obj: Record<string, unknown>): Record<string, unknown> {
+export function toPascalCaseKeys(source: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(obj)) {
+  for (const [key, value] of Object.entries(source)) {
     const pascal = key.replace(/(^|_)(\w)/g, (_, _p, c) => c.toUpperCase());
     if (value && typeof value === "object" && !Array.isArray(value)) {
       result[pascal] = toPascalCaseKeys(value as Record<string, unknown>);
