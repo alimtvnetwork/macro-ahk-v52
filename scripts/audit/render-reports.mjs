@@ -52,14 +52,15 @@ function getFolderName(path) {
 }
 
 function createReports(items, groupedRows) {
+  const folderReports = getSourceFolderNames(groupedRows).map((folder, index) => {
+    return [getFolderReportName(index, folder), renderFolder(groupedRows.get(folder) ?? [], folder)];
+  });
+
   return [
     ['README.md', renderIndex(items, groupedRows)],
     ['00-method.md', renderMethod(items, groupedRows)],
     ['01-aggregate-scoreboard.md', renderScoreboard(items)],
-    ['10-folder-01-prompt-spec.md', renderFolder(groupedRows.get('01-prompt-spec') ?? [], '01-prompt-spec')],
-    ['11-folder-02-ci-cd.md', renderFolder(groupedRows.get('02-ci-cd-spec-for-chrome-extensions') ?? [], '02-ci-cd-spec-for-chrome-extensions')],
-    ['12-folder-03-chrome-ext-features.md', renderFolder(groupedRows.get('03-chrome-ext-features') ?? [], '03-chrome-ext-features')],
-    ['13-folder-03-db-and-sqlite.md', renderFolder(groupedRows.get('03-db-and-sqlite-integration-with-chrome-extension') ?? [], '03-db-and-sqlite-integration-with-chrome-extension')],
+    ...folderReports,
     ['20-cross-folder-gaps.md', renderCrossFolderGaps(groupedRows)],
     ['30-remediation-backlog.md', renderBacklog()],
     ['40-reconciliation-with-root-consistency-report.md', renderReconciliation(groupedRows)],
@@ -197,7 +198,16 @@ function getSourceFolderNames(groupedRows) {
 }
 
 function getFolderReportName(index) {
-  return `${String(index + 10).padStart(2, '0')}-folder-${index === 1 ? '02-ci-cd' : index === 2 ? '03-chrome-ext-features' : index === 3 ? '03-db-and-sqlite' : '01-prompt-spec'}.md`;
+  const folderAliases = new Map([
+    ['01-prompt-spec', '01-prompt-spec'],
+    ['02-ci-cd-spec-for-chrome-extensions', '02-ci-cd'],
+    ['03-chrome-ext-features', '03-chrome-ext-features'],
+    ['03-db-and-sqlite-integration-with-chrome-extension', '03-db-and-sqlite'],
+  ]);
+  const folder = arguments[1];
+  const name = folderAliases.get(folder) ?? folder;
+
+  return `${String(index + 10).padStart(2, '0')}-folder-${name}.md`;
 }
 
 function formatNumber(value) {
