@@ -3,7 +3,9 @@
 **Date:** 2026-06-02
 **Task:** T76
 
-## Default: **7000 ms** (window 5000–10000 ms)
+## Default source of truth
+
+Implementations MUST use `DELAY_MS` from [Runtime Defaults](../reference/05-runtime-defaults.md) as the base delay. Settings validation MUST clamp delay input to the `DELAY_MS` range in that same table; prose examples in this file are non-authoritative when they differ from the table.
 
 ```ts
 const DELAY_DEFAULTS = {
@@ -17,7 +19,7 @@ const DELAY_DEFAULTS = {
 
 - **< 5s** races common host autosave/streaming finalisers — submit click can land before the previous reply settles.
 - **> 10s** wastes user time on simple prompts; perceived latency dominates.
-- **7s** is the median observed "fully idle" point across the reference corpus.
+- The configured `DELAY_MS` default is the observed "fully idle" baseline for the reference corpus.
 
 ## Where the delay sits
 
@@ -25,7 +27,7 @@ Between iterations: `submit → observer.Idle → delay → next insertText`. It
 
 ## Validation
 
-Settings UI must clamp user input to `[1000, 60000]` and surface a warning outside `[5000, 10000]`. Below 5s risks host throttling; above 10s degrades UX.
+Settings UI MUST clamp user input to the `DELAY_MS` range in [Runtime Defaults](../reference/05-runtime-defaults.md) and MUST surface a warning when the value leaves the recommended host-idle window. Below the recommended window risks host throttling; above it degrades UX.
 
 ## Acceptance
 

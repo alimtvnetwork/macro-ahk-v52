@@ -3,9 +3,11 @@
 **Date:** 2026-06-02
 **Task:** T79
 
-## Default: **skip the delay before the first task** (`skipFirst: true`)
+## Default source of truth
 
-The user just clicked "Run" — making them wait 7s before anything visible happens feels broken.
+Implementations MUST use `SKIP_FIRST_DELAY` from [Runtime Defaults](../reference/05-runtime-defaults.md). When it is true, the engine skips the delay before the first task in a drain cycle.
+
+The user just clicked "Run" — making them wait for `DELAY_MS` before anything visible happens feels broken.
 
 ```ts
 let firstTaskDone = false;
@@ -34,3 +36,9 @@ async function maybeDelay(cfg: DelayConfig): Promise<void> {
 
 - [ ] The implementation satisfies the `04 — Skip First` contract in this file and the folder-level acceptance target: default delay, settings, jitter, skip-first, and pause semantics use runtime defaults.
 - [ ] Verification passes when `UT-delay-001..006` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

@@ -36,6 +36,11 @@ If the host omits a hook, the engine falls back to:
 
 All subscriptions return a disposer. Engine disposal calls every disposer, registers `pagehide` cleanup per the project Timer & Observer Teardown rule.
 
+## Pitfalls
+
+- **Silent-failure counter-example:** do not let a detector throw and continue the queue; detector errors MUST become a typed failure with the hook name in `ReasonDetail`.
+- **Code Red log-shape counter-example:** do not record `watchInterruption failed` without selector details; selector-based detectors MUST populate `SelectorAttempts[]`, and non-selector detectors MUST add a synthetic `null` selector reason.
+
 ## Acceptance
 
 - [ ] The implementation satisfies the `02 — Detection Hooks` contract in this file and the folder-level acceptance target: every failure path emits the mandatory failure-log shape and user-visible feedback.

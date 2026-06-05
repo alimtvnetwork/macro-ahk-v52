@@ -45,6 +45,11 @@ type FailureReason =
 
 Note: per the No-Retry rule, severity does **not** trigger retries. It only drives toast tone and whether the queue auto-pauses.
 
+## Pitfalls
+
+- **Silent-failure counter-example:** do not collapse `SubmitMissing`, `SubmitDisabled`, and `TargetDetached` into `Unknown`; each has a distinct UI recovery path and selector-attempt evidence.
+- **Code Red log-shape counter-example:** do not emit only `{ reason: "Unknown" }`; every failure MUST include `Reason`, `ReasonDetail`, `SelectorAttempts[]`, and `VariableContext[]` per `05-mandatory-failure-log.md`.
+
 ## Acceptance
 
 - [ ] The implementation satisfies the `01 — Failure Categories` contract in this file and the folder-level acceptance target: every failure path emits the mandatory failure-log shape and user-visible feedback.

@@ -15,7 +15,7 @@ Heuristics (transparent, not perfect — flagged in report):
 
 Outputs JSON of per-file rows.
 """
-import re, sys, json, os
+import argparse, json, re, sys
 from pathlib import Path
 
 LINK_RE = re.compile(r'\[[^\]]+\]\(([^)\s#]+)(?:#[^)]*)?\)')
@@ -44,7 +44,7 @@ def score_file(p: Path, root: Path):
                   + (10 if num_hits >= 2 else (5 if num_hits >= 1 else 0))
     determinism = min(25, determinism)
 
-    rel_path = str(p.relative_to(root))
+    rel_path = str(p.resolve().relative_to(root))
     if ACCEPTANCE_EXEMPT_RE.search(rel_path):
         acceptance = 20
     elif ACC_RE.search(txt):
@@ -101,12 +101,40 @@ def strip_code(txt: str) -> str:
     return INLINE_CODE_RE.sub('', without_fences)
 
 def main():
-    folder = Path(sys.argv[1])
-    root = Path('spec/2026-spec')
+    args = parse_args()
+    folder = Path(args.folder)
+    root = resolve_spec_root(folder)
     rows = []
-    for p in sorted(folder.rglob('*.md')):
+    for p in iter_markdown_files(folder):
         rows.append(score_file(p, root))
-    print(json.dumps(rows, indent=2))
+    output = json.dumps(rows, indent=2)
+    if args.output:
+        Path(args.output).write_text(output + '\n', encoding='utf-8')
+        return
+
+    print(output)
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Score blind-AI implementability for markdown specs.')
+    parser.add_argument('folder')
+    parser.add_argument('--output')
+
+    return parser.parse_args()
+
+def resolve_spec_root(folder: Path) -> Path:
+    resolved = folder.resolve()
+    candidates = [resolved, *resolved.parents]
+    for candidate in candidates:
+        if candidate.name == '2026-spec':
+            return candidate
+
+    return Path('spec/2026-spec')
+
+def iter_markdown_files(folder: Path):
+    return sorted(path for path in folder.rglob('*.md') if is_scored_path(path))
+
+def is_scored_path(path: Path) -> bool:
+    return not any(part.startswith('_audit-') for part in path.parts)
 
 if __name__ == '__main__':
     main()

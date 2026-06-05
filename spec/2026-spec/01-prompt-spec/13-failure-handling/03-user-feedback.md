@@ -29,6 +29,11 @@
 
 Clicking a failed row opens a detail drawer showing the full `FailureRecord` (Reason, ReasonDetail, SelectorAttempts, VariableContext, timestamps). Verbose payloads are gated by the project's verbose-logging toggle.
 
+## Pitfalls
+
+- **Silent-failure counter-example:** do not show only a toast and then discard the failure; the failed queue row MUST retain the complete `FailureRecord` for inspection.
+- **Code Red log-shape counter-example:** do not truncate structural diagnostics when verbose logging is off; only captured HTML/Text snippets are gated, while `SelectorAttempts[]` and `VariableContext[]` remain complete.
+
 ## Acceptance
 
 - [ ] The implementation satisfies the `03 — User Feedback` contract in this file and the folder-level acceptance target: every failure path emits the mandatory failure-log shape and user-visible feedback.

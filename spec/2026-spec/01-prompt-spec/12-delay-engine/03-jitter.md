@@ -3,7 +3,9 @@
 **Date:** 2026-06-02
 **Task:** T78
 
-## Default: **±20 %** symmetric jitter
+## Default source of truth
+
+Implementations MUST use `JITTER_MS` from [Runtime Defaults](../reference/05-runtime-defaults.md) for timing variance. When a percentage UI is exposed, it MUST serialize back to a bounded delay delta that never exceeds the `JITTER_MS` range.
 
 ```ts
 function effectiveDelay(cfg: DelayConfig): number {
@@ -14,7 +16,7 @@ function effectiveDelay(cfg: DelayConfig): number {
 }
 ```
 
-For `baseMs = 7000, jitterPct = 0.2` → uniform in `[5600, 8400]`.
+For example, a host may display variance as a percentage, but the stored runtime value MUST remain derived from `JITTER_MS` and the configured `DELAY_MS` base.
 
 ## Why
 
@@ -23,11 +25,11 @@ For `baseMs = 7000, jitterPct = 0.2` → uniform in `[5600, 8400]`.
 
 ## Bounds
 
-Even with jitter, the resulting delay is clamped to `[1000, 60000]` to honour the validation rule in `01-default.md`.
+Even with jitter, the resulting delay is clamped to the `DELAY_MS` range in [Runtime Defaults](../reference/05-runtime-defaults.md) to honour the validation rule in `01-default.md`.
 
 ## Disabling
 
-`jitterPct: 0` produces a deterministic delay — useful for tests. The settings UI exposes a checkbox "Add timing variance" wired to `0.2` / `0`.
+`jitterPct: 0` produces a deterministic delay — useful for tests. The settings UI exposes a checkbox "Add timing variance" wired to `JITTER_MS` or zero.
 
 ## RNG
 

@@ -55,7 +55,7 @@ Ranked by expected score lift. Each step names the target, the exact patch patte
 27. **Target:** `scripts/audit/check-dangling-links.mjs`. **Patch:** keep the checker plus pass/fail link fixtures in `scripts/__tests__/spec-audit-checks.test.mjs`. **Proof:** same test command passes.
 28. **Target:** `scripts/audit/check-must-constants.mjs`. **Patch:** bind operational numeric constants to `01-prompt-spec/reference/05-runtime-defaults.md` or `mem://...`; keep fixture tests in `scripts/__tests__/check-must-constants.test.mjs`. **Proof:** `node --test scripts/__tests__/check-must-constants.test.mjs` passes.
 29. **Done:** `.github/workflows/spec-audit.yml` runs all three audit scripts on `push` and `pull_request` as hard gates. **Proof:** no `continue-on-error` remains on the audit steps.
-30. **Target:** `/tmp/audit_scan.py` promotion. **Patch:** move the scorer into `scripts/audit/audit-scan.py`, add `scores.json` output, and update `README.md` reproduction commands to repo-local paths. **Proof:** `python3 scripts/audit/audit-scan.py spec/2026-spec` regenerates the same composite within ±1 point.
+30. **Done:** scorer lives at `scripts/audit/audit-scan.py`, supports `--output=<scores.json>`, skips generated `_audit-*` folders, and README reproduction uses repo-local commands. **Proof:** `python3 scripts/audit/audit-scan.py spec/2026-spec --output=/tmp/scores.json` writes 229 score rows.
 
 ## Deferred
 
