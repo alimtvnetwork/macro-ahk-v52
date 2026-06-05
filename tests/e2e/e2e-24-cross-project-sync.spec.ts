@@ -75,15 +75,15 @@ async function seedCrossProjectSyncState(context: BrowserContext): Promise<void>
   ];
   // Wait for chrome.storage to be available in the service worker context.
   // On cold start, the SW may evaluate before chrome.* APIs are exposed.
-  await serviceWorker.evaluate(async () => {
-    const deadline = Date.now() + 10_000;
-    while (Date.now() < deadline) {
+  const deadline = Date.now() + 10_000;
+  while (Date.now() < deadline) {
+    const ready = await serviceWorker.evaluate(() => {
       const c = (globalThis as { chrome?: { storage?: { local?: unknown } } }).chrome;
-      if (c?.storage?.local) return;
-      await new Promise((r) => setTimeout(r, 100));
-    }
-    throw new Error('chrome.storage.local unavailable in service worker after 10s');
-  });
+      return Boolean(c?.storage?.local);
+    });
+    if (ready) break;
+    await new Promise((r) => setTimeout(r, 100));
+  }
   await serviceWorker.evaluate(
     async ({ onboardingKey, seededProjects }) => {
       await chrome.storage.local.set({
