@@ -58,11 +58,11 @@ beforeEach(() => {
 
 describe("buildJsStepVariableContext", () => {
     it("explodes Vars and Row into deterministic alphabetical VariableContext entries", () => {
-        const ctx: JsInlineContext = {
+        const context: JsInlineContext = {
             Vars: { Zeta: "z", Alpha: "a" },
             Row: { Email: "alice@example.com", Age: "33" },
         };
-        const vars = buildJsStepVariableContext(ctx);
+        const vars = buildJsStepVariableContext(context);
         expect(vars.map((v) => `${v.Source}:${v.Name}`)).toEqual([
             "Vars:Alpha",
             "Vars:Zeta",
@@ -75,11 +75,11 @@ describe("buildJsStepVariableContext", () => {
     });
 
     it("masks sensitive keys with length-preserving placeholders in both Vars and Row", () => {
-        const ctx: JsInlineContext = {
+        const context: JsInlineContext = {
             Vars: { Password: "p4ssw0rd", AuthToken: "abc.def.ghi", Email: "x@y.z" },
             Row: { OTP: "123456", CreditCard: "4111-1111-1111-1111" },
         };
-        const vars = buildJsStepVariableContext(ctx);
+        const vars = buildJsStepVariableContext(context);
         const byName = new Map(vars.map((v) => [v.Name, v.ResolvedValue]));
         expect(byName.get("Password")).toBe("***masked(len=8)***");
         expect(byName.get("AuthToken")).toBe("***masked(len=11)***");
@@ -203,7 +203,7 @@ describe("buildJsStepFailureReport schema parity", () => {
 /* ================================================================== */
 
 describe("Verbose toggle never alters JS-step classification", () => {
-    const ctx: JsInlineContext = {
+    const context: JsInlineContext = {
         Vars: { TenantId: "acme", Password: "p4ssw0rd" },
         Row: { Email: "alice@example.com" },
     };
@@ -213,7 +213,7 @@ describe("Verbose toggle never alters JS-step classification", () => {
         return buildJsStepFailureReport({
             Body: "throw new Error('nope');",
             Error: new JsExecError("InlineJs execution failed: nope"),
-            Context: ctx,
+            Context: context,
             LogLines: [longLog],
             SourceFile: SOURCE_FILE,
             Verbose: verbose,
@@ -283,11 +283,11 @@ describe("formatFailureReport for JS-step reports", () => {
 /* ================================================================== */
 
 describe("runJsStepWithDiagnostics", () => {
-    const ctx: JsInlineContext = { Vars: { A: "1" }, Row: null };
+    const context: JsInlineContext = { Vars: { A: "1" }, Row: null };
 
     it("returns IsOk: true with the sandbox result on success", async () => {
         const fakeResult: JsInlineResult = { ReturnValue: 42, LogLines: [], DurationMs: 3 };
-        const outcome = await runJsStepWithDiagnostics("ignored", ctx, {
+        const outcome = await runJsStepWithDiagnostics("ignored", context, {
             SourceFile: SOURCE_FILE,
             Run: async () => fakeResult,
         });
@@ -298,7 +298,7 @@ describe("runJsStepWithDiagnostics", () => {
     });
 
     it("returns IsOk: false with a canonical FailureReport on throw — never re-throws", async () => {
-        const outcome = await runJsStepWithDiagnostics("throw new Error('boom');", ctx, {
+        const outcome = await runJsStepWithDiagnostics("throw new Error('boom');", context, {
             SourceFile: SOURCE_FILE,
             Verbose: false,
             Now: FIXED_NOW,
