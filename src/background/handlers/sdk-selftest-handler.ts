@@ -123,9 +123,9 @@ interface SdkSelfTestReportRequest {
  * surface can't corrupt the popup's view of the existing four.
  */
 export async function handleSdkSelfTestReport(
-    msg: MessageRequest,
+    payload: MessageRequest,
 ): Promise<OkResponse | { isOk: false; errorMessage: string }> {
-    const raw = msg as MessageRequest & SdkSelfTestReportRequest;
+    const raw = payload as MessageRequest & SdkSelfTestReportRequest;
     const surface = typeof raw.surface === "string" ? raw.surface : "";
     if (!VALID_SURFACES.includes(surface as Surface)) {
         return {

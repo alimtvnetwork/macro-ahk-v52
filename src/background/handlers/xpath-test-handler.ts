@@ -18,7 +18,7 @@ import type { MessageRequest } from "../../shared/messages";
 export async function handleTestXPath(
     message: MessageRequest,
 ): Promise<{ found: number; error?: string }> {
-    const msg = message as MessageRequest & { xpath: string };
+    const payload = message as MessageRequest & { xpath: string };
     const tabId = await getActiveTabId();
     const isMissingTab = tabId === null;
 
@@ -26,7 +26,7 @@ export async function handleTestXPath(
         return { found: 0, error: "No active tab found" };
     }
 
-    return evaluateXPathInTab(tabId, msg.xpath);
+    return evaluateXPathInTab(tabId, payload.xpath);
 }
 
 /** Gets the active tab ID. */

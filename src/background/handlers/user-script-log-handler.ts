@@ -78,8 +78,8 @@ export async function handleUserScriptLog(
         return { isOk: true };
     }
 
-    const msg = message as MessageRequest & { payload: UserScriptLogPayload };
-    const payload = msg.payload;
+    const logRequest = message as MessageRequest & { payload: UserScriptLogPayload };
+    const payload = logRequest.payload;
     const sanitizedMetadata = redactSensitiveMetadata(payload.metadata);
 
     await insertUserScriptLogRow(payload, sanitizedMetadata);
@@ -197,12 +197,12 @@ function redactSensitiveMetadata(metadata: string | null): string | null {
 
 /** Recursively redacts sensitive keys in an object. */
 function redactObject(
-    obj: Record<string, unknown>,
+    metadataRecord: Record<string, unknown>,
 ): Record<string, unknown> {
     const result: Record<string, unknown> = {};
 
-    for (const key of Object.keys(obj)) {
-        const value = obj[key];
+    for (const key of Object.keys(metadataRecord)) {
+        const value = metadataRecord[key];
         const isSensitiveKey = SENSITIVE_KEY_PATTERN.test(key);
         const isStringValue = typeof value === "string";
 

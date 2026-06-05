@@ -121,9 +121,6 @@ export default tseslint.config(
   // graduate off this list as their authored-source debt is cleaned.
   {
     files: [
-      "src/background/handlers/sdk-selftest-handler.ts",
-      "src/background/handlers/user-script-log-handler.ts",
-      "src/background/handlers/xpath-test-handler.ts",
       "src/background/injection-diagnostics.ts",
       "src/background/manifest-seeder.ts",
       "src/background/marco-sdk-template.ts",
