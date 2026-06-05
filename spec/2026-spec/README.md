@@ -1,16 +1,58 @@
-# 2026 Spec — grouping folder
+# 2026 Spec — Root Index
 
-This folder groups all 2026-dated specs. Each spec lives in its own
-numbered subfolder.
+This folder is the entry point for every 2026-dated product, extension, storage,
+and delivery specification. A blind AI agent MUST start here, choose exactly one
+folder below, then follow that folder's README and child `*.md` contracts before
+editing implementation code. This file is intentionally a navigation contract,
+not a replacement for the child specs.
 
-## Contents
+## Current Spec Folders
 
-- [`01-prompt-spec/`](./01-prompt-spec/) — Prompt Library + Next/Plan
-  automation loop spec (host-agnostic). 120 tasks, 6/6 lint gates green.
-- [`02-ci-cd-spec-for-chrome-extensions/`](./02-ci-cd-spec-for-chrome-extensions/) — generic Manifest V3 CI/CD and release-hardening spec, merged/indexed from `../12-cicd-pipeline-workflows/`.
+- [`01-prompt-spec/`](./01-prompt-spec/) — Prompt Library plus Next/Plan
+  automation loop contracts: prompt source shape, queue lifecycle, delay engine,
+  injection behavior, settings, observability, onboarding, tests, and adoption
+  checklist.
+- [`02-ci-cd-spec-for-chrome-extensions/`](./02-ci-cd-spec-for-chrome-extensions/) —
+  Manifest V3 CI/CD and release-hardening contracts: probing, build enumeration,
+  artifact packaging, release assets, no committed ZIP files, installation docs,
+  troubleshooting, acceptance criteria, and hardening addenda.
+- [`03-chrome-ext-features/`](./03-chrome-ext-features/) — Runtime Chrome
+  extension feature contracts: Manifest V3 foundations, reload flows, status and
+  health panels, script injection lifecycle, namespace logger, idempotency,
+  reinjection, error routing, and the floating in-page panel.
+- [`03-db-and-sqlite-integration-with-chrome-extension/`](./03-db-and-sqlite-integration-with-chrome-extension/) —
+  storage and SQLite integration contracts: storage-tier decision matrix, quota
+  behavior, MV3 constraints, bundled `sql-wasm`, namespace database pattern,
+  IndexedDB fallback rules, chrome.storage.local usage, error model, logging
+  tables, tests, and acceptance criteria.
 
-Add future 2026 specs as `NN-name/` siblings (`03-`, `04-`, …) and link
-them here.
+## Selection Rules
+
+- If the task changes prompt insertion, prompt management, queueing, delay,
+  settings, or prompt observability, implement against
+  [`01-prompt-spec/`](./01-prompt-spec/).
+- If the task changes builds, release workflows, package validation, installer
+  behavior, or artifact publishing, implement against
+  [`02-ci-cd-spec-for-chrome-extensions/`](./02-ci-cd-spec-for-chrome-extensions/).
+- If the task changes visible extension behavior, page injection, status panels,
+  reload controls, or runtime error display, implement against
+  [`03-chrome-ext-features/`](./03-chrome-ext-features/).
+- If the task changes SQLite, IndexedDB, chrome.storage.local persistence,
+  namespace databases, quotas, export, or log retention, implement against
+  [`03-db-and-sqlite-integration-with-chrome-extension/`](./03-db-and-sqlite-integration-with-chrome-extension/).
+
+## Authoring Rules
+
+- New specs MUST be added as `NN-name/` siblings using the next unused ordinal;
+  do not reuse an existing prefix even when legacy folders already share one.
+- Each new folder MUST include a README, a machine-checkable `## Acceptance`
+  section, at least one concrete `Pitfalls` or `Counter-example` section, and
+  relative links to every child contract that an implementer must read.
+- Operational numeric defaults MUST bind to
+  [`01-prompt-spec/reference/05-runtime-defaults.md`](01-prompt-spec/reference/05-runtime-defaults.md)
+  instead of being invented in prose.
+- Cross-folder behavior MUST name one owner spec and link to it; duplicate rule
+  copies are allowed only as summaries that defer to the owner.
 
 <!-- audit: determinism+pitfalls footer -->
 
