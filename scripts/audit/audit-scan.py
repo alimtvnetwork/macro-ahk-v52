@@ -103,7 +103,7 @@ def strip_code(txt: str) -> str:
 def main():
     args = parse_args()
     folder = Path(args.folder)
-    root = Path('spec/2026-spec')
+    root = resolve_spec_root(folder)
     rows = []
     for p in sorted(folder.rglob('*.md')):
         rows.append(score_file(p, root))
@@ -120,6 +120,15 @@ def parse_args():
     parser.add_argument('--output')
 
     return parser.parse_args()
+
+def resolve_spec_root(folder: Path) -> Path:
+    resolved = folder.resolve()
+    candidates = [resolved, *resolved.parents]
+    for candidate in candidates:
+        if candidate.name == '2026-spec':
+            return candidate
+
+    return Path('spec/2026-spec')
 
 if __name__ == '__main__':
     main()
