@@ -39,7 +39,7 @@ export async function showInjectionToastInTab(
             world: "MAIN",
             // eslint-disable-next-line max-lines-per-function
             func: (ok: number, total: number, ms: number, version: string) => {
-                const msg = `✅ Marco v${version} — ${ok}/${total} scripts injected (${ms}ms)`;
+                const toastMessage = `✅ Marco v${version} — ${ok}/${total} scripts injected (${ms}ms)`;
 
                 const loader = document.getElementById("__marco-inject-toast-loading");
                 // eslint-disable-next-line sonarjs/no-duplicate-string
@@ -52,7 +52,7 @@ export async function showInjectionToastInTab(
 
                 const m = (window as unknown as Record<string, Record<string, ((...args: unknown[]) => void)>>).marco;
                 if (m?.notify?.success) {
-                    try { m.notify.success(msg, { duration: 4000 }); return; } catch (sdkErr) { console.debug("[Marco] SDK toast.success failed, falling through to DOM toast:", sdkErr); }
+                    try { m.notify.success(toastMessage, { duration: 4000 }); return; } catch (sdkErr) { console.debug("[Marco] SDK toast.success failed, falling through to DOM toast:", sdkErr); }
                 }
 
                 const CONTAINER_ID = "__marco-inject-toast";
@@ -157,7 +157,7 @@ export async function showInjectionFailureToastInTab(
             // eslint-disable-next-line max-lines-per-function
             func: (names: string[], failed: number, total: number, ms: number, version: string) => {
                 const nameList = names.length <= 3 ? names.join(", ") : names.slice(0, 3).join(", ") + ` +${names.length - 3} more`;
-                const msg = `❌ Marco v${version} — ${failed}/${total} scripts failed (${ms}ms)\n${nameList}`;
+                const toastMessage = `❌ Marco v${version} — ${failed}/${total} scripts failed (${ms}ms)\n${nameList}`;
 
                 const loader = document.getElementById("__marco-inject-toast-loading");
                 let loaderTimer: ReturnType<typeof setTimeout> | null = null;
@@ -169,7 +169,7 @@ export async function showInjectionFailureToastInTab(
 
                 const m = (window as unknown as Record<string, Record<string, ((...args: unknown[]) => void)>>).marco;
                 if (m?.notify?.error) {
-                    try { m.notify.error(msg, { duration: 6000 }); return; } catch (sdkErr) { console.debug("[Marco] SDK toast.error failed, falling through to DOM toast:", sdkErr); }
+                    try { m.notify.error(toastMessage, { duration: 6000 }); return; } catch (sdkErr) { console.debug("[Marco] SDK toast.error failed, falling through to DOM toast:", sdkErr); }
                 }
 
                 const CONTAINER_ID = "__marco-inject-toast";
