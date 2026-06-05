@@ -22,6 +22,8 @@ jobs:
         run: node scripts/audit/check-constant-divergence.mjs
       - name: MUST owner memory refs
         run: node scripts/audit/check-must-memory-refs.mjs
+      - name: Cross-folder owner refs
+        run: node scripts/audit/check-cross-folder-owners.mjs
       - name: Quarantine graduation plans
         run: node scripts/audit/check-quarantine.mjs
       - name: Pitfalls coverage
