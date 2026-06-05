@@ -1,6 +1,6 @@
 # PERF-3 — Auth-diag 10 s interval stacks on section re-mount
 
-**Severity:** 🟠 HIGH · **Filed:** 2026-06-03 (Asia/Kuala_Lumpur) · **Owner:** macro-controller UI
+**Severity:** 🟠 HIGH · **Filed:** 2026-06-03 () · **Owner:** macro-controller UI
 
 ## Symptom
 Each diagnostics-section mount adds another `setInterval(refresh, 10_000)`. The in-callback visibility guard prevents work but does NOT stop the timer or release closure-held DOM refs → memory leak across re-mounts.

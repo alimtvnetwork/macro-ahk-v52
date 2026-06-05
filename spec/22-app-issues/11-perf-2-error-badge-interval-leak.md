@@ -1,6 +1,6 @@
 # PERF-2 — Error-badge interval leaks on every panel re-bootstrap
 
-**Severity:** 🟠 HIGH · **Filed:** 2026-06-03 (Asia/Kuala_Lumpur) · **Owner:** macro-controller UI
+**Severity:** 🟠 HIGH · **Filed:** 2026-06-03 () · **Owner:** macro-controller UI
 
 ## Symptom
 After N SPA navigations / redocks / theme swaps, N concurrent 5 s intervals each write to the same `#error-badge` DOM node. Stacked closures hold orphaned panel refs → memory leak.

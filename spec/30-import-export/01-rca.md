@@ -2,7 +2,7 @@
 
 **Status**: Spec — pending review.
 **Owner**: Marco extension.
-**Last updated**: 2026-04-24 (Asia/Kuala_Lumpur).
+**Last updated**: 2026-04-24 ().
 **Related docs**: `02-erd.md` (schema + flow diagrams), `03-test-plan.md` (e2e plan).
 
 ---

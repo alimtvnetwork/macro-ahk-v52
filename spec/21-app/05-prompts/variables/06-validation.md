@@ -1,6 +1,6 @@
 # Variable Validation & Failure-Log Shape
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02 ()
 
 Two distinct validation phases run:
 

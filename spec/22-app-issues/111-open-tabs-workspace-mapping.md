@@ -3,7 +3,7 @@
 **Spec ID:** `spec/22-app-issues/111-open-tabs-workspace-mapping.md`
 **Status:** ✅ Complete (hardened 2026-05-25)
 **Owner:** Macro Controller + Extension Background
-**Created:** 2026-04-27 (Asia/Kuala_Lumpur)
+**Created:** 2026-04-27 ()
 **Related memory:** `mem://features/macro-controller/open-tabs-workspace-mapping`
 **Related code:**
 - `src/background/handlers/open-tabs-handler.ts`

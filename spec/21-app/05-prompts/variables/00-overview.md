@@ -1,6 +1,6 @@
 # Variables — Overview
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02 ()
 
 ## Why variables exist
 

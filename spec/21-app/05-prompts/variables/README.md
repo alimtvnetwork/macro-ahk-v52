@@ -1,6 +1,6 @@
 # Variables & Templating — Spec Index
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02 ()
 
 Prompt bodies are **templates**: any `{{ VarName }}` placeholder is resolved
 against a 5-tier waterfall before the prompt is injected. Variables are the

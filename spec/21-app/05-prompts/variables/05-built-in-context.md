@@ -1,6 +1,6 @@
 # Built-in Run Context
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02 ()
 
 Tier 3 of the resolution waterfall is the **run context** — a fixed set of
 engine-managed variables every macro can reference without declaring them.
@@ -11,7 +11,7 @@ of these names fails schema validation with `Reason="ReservedVariable"`.
 
 | Name          | Type    | When set                              | Value                                                       |
 |---------------|---------|---------------------------------------|-------------------------------------------------------------|
-| `RunId`       | string  | `RunStarted`                          | `<macroSlug>-<yyyymmdd>-<HHmmss>` (Asia/Kuala_Lumpur)       |
+| `RunId`       | string  | `RunStarted`                          | `<macroSlug>-<yyyymmdd>-<HHmmss>` ()       |
 | `Now`         | string  | re-computed at every step             | ISO 8601 with `+08:00` offset, second precision             |
 | `LoopCount`   | integer | `RunStarted = 0`; incremented on every `loop-if` match | current loop iteration (0 on first pass) |
 | `LastScore`   | integer | `null` until first `audit` / `final-audit` succeeds | most recent parsed score, 0–100         |
@@ -36,7 +36,7 @@ of these names fails schema validation with `Reason="ReservedVariable"`.
 ## `Now` precision and timezone
 
 - Format: `YYYY-MM-DDTHH:mm:ss±HH:MM` (ISO 8601 with explicit offset).
-- Timezone: **Asia/Kuala_Lumpur** (`mem://localization/timezone`),
+- Timezone: **** (`mem://localization/timezone`),
   always `+08:00`.
 - Re-computed at the start of each step's render pass — two placeholders in
   the same body see the same value, but a later step may see a later value.

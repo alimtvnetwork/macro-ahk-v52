@@ -3,7 +3,7 @@
 **ID**: `workspace-status-tooltip`
 **Status**: 📋 Planning (no code yet — awaiting `next`)
 **Severity**: High (UX clarity + credit math correctness)
-**Date**: 2026-04-22 (Asia/Kuala_Lumpur)
+**Date**: 2026-04-22 ()
 **Target Version**: 2.209.0+
 **Owner Files**:
 - `standalone-scripts/macro-controller/src/ws-list-renderer.ts` (UI: name row, status pill, tooltip)

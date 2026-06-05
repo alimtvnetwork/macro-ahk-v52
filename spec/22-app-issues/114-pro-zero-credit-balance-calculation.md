@@ -3,7 +3,7 @@
 **Spec ID:** `spec/22-app-issues/114-pro-zero-credit-balance-calculation.md`
 **Status:** Draft (awaiting `next` to implement, one step at a time)
 **Owner:** Macro Controller
-**Created:** 2026-05-25 (Asia/Kuala_Lumpur)
+**Created:** 2026-05-25 ()
 **Target version:** `v3.11.0` (minor bump from current `v3.10.0`)
 **Related spec:** `spec/22-app-issues/110-macro-controller-pro-zero-credit-balance.md`
 **Related memory:** `mem://features/macro-controller/pro-zero-credit-balance` (to be updated on Step 5)

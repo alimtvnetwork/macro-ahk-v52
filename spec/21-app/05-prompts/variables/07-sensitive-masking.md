@@ -1,6 +1,6 @@
 # Sensitive Variable Masking
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02 ()
 
 A variable declared with `Sensitive: true` is treated as a secret. Its
 **resolved value is never persisted, logged, displayed, or exported in

@@ -1,6 +1,6 @@
 # Variable Types — Supported `Type` Values & Coercion
 
-**Created:** 2026-06-02 (Asia/Kuala_Lumpur)
+**Created:** 2026-06-02 ()
 
 Six `Type` values are supported. Anything else fails schema validation with
 `Reason="MacroSchemaViolation"`.

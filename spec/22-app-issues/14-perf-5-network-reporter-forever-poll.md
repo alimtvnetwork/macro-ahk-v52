@@ -1,6 +1,6 @@
 # PERF-5 — `network-reporter` flush interval ticks forever on every tab
 
-**Severity:** 🟠 HIGH · **Filed:** 2026-06-03 (Asia/Kuala_Lumpur) · **Owner:** content-scripts
+**Severity:** 🟠 HIGH · **Filed:** 2026-06-03 () · **Owner:** content-scripts
 
 ## Symptom
 Content script matches `<all_urls>`. `setInterval(flushBuffer, FLUSH_INTERVAL_MS)` (line 300, armed at module top-level line 305) runs forever per tab — no `clearInterval`, no visibility gate, no idle backoff. Forgotten background tabs accumulate CPU + serialization cost.

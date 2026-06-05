@@ -1,6 +1,6 @@
 # 17 — Hover Highlighter, Data Source Controller, and Endpoint I/O
 
-> Status: **Draft v1** (2026-04-26, Asia/Kuala_Lumpur)
+> Status: **Draft v1** (2026-04-26)
 > Owner: Macro Recorder
 > Related: `06-xpath-capture-engine.md`, `07-data-source-drop-zone.md`,
 > `09-step-persistence-and-replay.md`, `11-inline-javascript-step.md`,

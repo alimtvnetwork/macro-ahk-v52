@@ -1,6 +1,6 @@
 # PERF-4 — Redock observer leaves orphan `pollUntil` after teardown
 
-**Severity:** 🟠 HIGH · **Filed:** 2026-06-03 (Asia/Kuala_Lumpur) · **Owner:** macro-controller UI
+**Severity:** 🟠 HIGH · **Filed:** 2026-06-03 () · **Owner:** macro-controller UI
 
 ## Symptom
 `resetRedockState()` does not cancel the active poll. Orphan interval keeps ticking for up to `pollMs × maxAttempts` (minutes) per re-bootstrap.
