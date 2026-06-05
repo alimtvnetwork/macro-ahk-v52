@@ -144,11 +144,11 @@ export function AutomationView() {
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail as { message: string; level: string };
-      const fn = detail.level === "error" ? toast.error
+      const notify = detail.level === "error" ? toast.error
         : detail.level === "warning" ? toast.warning
         : detail.level === "success" ? toast.success
         : toast.info;
-      fn(detail.message);
+      notify(detail.message);
     };
     window.addEventListener("automation-notify", handler);
     return () => window.removeEventListener("automation-notify", handler);
