@@ -227,7 +227,6 @@ export default tseslint.config(
       "standalone-scripts/macro-controller/src/credit-poll-events.ts",
       "standalone-scripts/macro-controller/src/dom-cache.ts",
       "standalone-scripts/macro-controller/src/dom-helpers.ts",
-      "standalone-scripts/macro-controller/src/error-utils.ts",
       "standalone-scripts/macro-controller/src/gitsync/progress-probe.ts",
       "standalone-scripts/macro-controller/src/globals.d.ts",
       "standalone-scripts/macro-controller/src/logging.ts",
