@@ -1,7 +1,7 @@
 # Audit 10 — Re-inject and Uninject
 
 - **Source spec**: `../10-reinject-and-uninject.md`
-- **Audit date**: 2026-06-05 (Asia/Kuala_Lumpur)
+- **Audit date**: 2026-06-05 07:35 Asia/Kuala_Lumpur (duration ~6 min)
 - **Audited against**: `mem://architecture/script-injection-lifecycle`,
   `mem://standards/timer-and-observer-teardown`,
   `mem://architecture/message-relay-system`,
@@ -9,126 +9,107 @@
   `mem://constraints/no-retry-policy`,
   `mem://architecture/dynamic-script-loading`,
   `mem://architecture/extension-error-management`,
-  `mem://standards/verbose-logging-and-failure-diagnostics`.
+  `mem://standards/verbose-logging-and-failure-diagnostics`,
+  `mem://standards/unknown-usage-policy`.
 
-## Score: 73 / 100
+## Score: 88 / 100
 
 | Dimension                       | Weight | Score |
 |---------------------------------|-------:|------:|
-| Clarity of contract             |     25 |    19 |
-| Determinism (AI can implement)  |     25 |    17 |
-| Completeness of acceptance      |     20 |    14 |
-| Cross-references                |     15 |    11 |
-| Pitfalls coverage               |     15 |    12 |
-| **Total**                       |    100 |  **73** |
+| Clarity of contract             |     25 | 22 |
+| Determinism (AI can implement)  |     25 | 21 |
+| Completeness of acceptance      |     20 | 18 |
+| Cross-references                |     15 | 13 |
+| Pitfalls coverage               |     15 | 14 |
+| **Total**                       |    100 | **88** |
 
-## Gap analysis
+## Root cause
 
-### G1 — `executeTeardown(tabId, "runtime"|"relay"|"panel"|"styles")` has no contract (Critical)
-The function is called four times with hand-typed string discriminators and is
-never defined. AI implementers will invent four different signatures. **Fix:**
-specify:
+The previous audit was stale. It still treated the step as missing the teardown
+contract, callback-failure escalation, ack ordering, relay-last ordering,
+force-inject precondition, stale-build UI behavior, outcome discriminators,
+static force-callsite audit, verbose-gated diagnostics, context-invalidation
+handling, and idempotency tests. The current source spec now resolves those
+items, but it still has a few cross-step and type-level drifts that would trip
+a blind implementation.
 
-```ts
-type TeardownDomain = "runtime" | "relay" | "panel" | "styles";
+## Resolved issues (vs prior audit)
 
-export async function executeTeardown(
-  tabId: number,
-  domain: TeardownDomain,
-): Promise<{ ran: string[]; failed: { id: string; reason: string }[] }>;
-```
+- **G1 (`executeTeardown` contract):** §`executeTeardown` now pins `TeardownDomain`, `TeardownExecResult`, MAIN-world `chrome.scripting.executeScript`, and `RiseupAsiaMacroExt.Runtime.runTeardown(domain)` behavior.
+- **G2 (per-callback failures):** §Teardown failure escalation requires any `failed[]` entry to return `ok:false`, `Reason="TeardownCallbackFailed"`, and failed ids in `reasonDetail`, blocking sentinel clear and re-inject.
+- **G3 (`EVT_BEFORE_UNINJECT` race):** §Broadcast ack rule waits up to 500 ms for `EVT_BEFORE_UNINJECT_ACK`; timeout is a warn diagnostic and proceeds without retry or Code Red.
+- **G4 (`EVT_AFTER_UNINJECT` after relay teardown):** Step ordering keeps relay teardown last, and acceptance requires `EVT_AFTER_UNINJECT` via direct MAIN-world `executeScript`, not `chrome.tabs.sendMessage`.
+- **G5 (`force:true` bypass):** §Force-inject precondition requires the injector to re-probe after mutex acquisition and return `ForceInjectPreconditionFailed` without executing scripts if the sentinel remains.
+- **G6 (stale-build trigger):** UI behavior maps matching build to `Re-inject` / `Uninject`, stale build to `Re-inject` only, and `Inject` on stale to `UseReinjectForStaleBuild`.
+- **G7 (`removedScriptIds: []` ambiguity):** `UninjectOutcome = "already-clean" | "cleaned"` lets UI distinguish no-op cleanup from a real removal.
+- **G8 (teardown SDK surface):** Step 10 restates that `registerTeardown` / `runTeardown` are owned by Step 08 MAIN-world runtime and every timer/listener/observer must register teardown.
+- **G9 (auto-injector force ban):** `scripts/audit-force-inject-callers.mjs` is specified and acceptance requires only allowlisted `force:true` callsites.
+- **G10 (verbose-gated teardown diagnostics):** Contract item 13 and acceptance cap `reasonDetail` at 240 chars unless verbose logging is ON, with full stack in `error_events.detail_full`.
+- **G11 (context invalidation):** Contract item 12 and tests map `Extension context invalidated` to terminal `ExtensionContextInvalidated`, no retry, no Code Red.
+- **G12 (double-uninject idempotency):** `uninjector-idempotent.test.ts` is listed; second call returns `ok:true`, `outcome:"already-clean"`.
 
-Implementation: `chrome.scripting.executeScript({ world: "MAIN", func, args:
-[domain] })` calls `RiseupAsiaMacroExt.Runtime.runTeardown(domain)` which
-iterates the registered callbacks in reverse order, catches per-callback
-errors, and returns the per-id ran/failed list.
+## Remaining gaps
 
-### G2 — Teardown per-callback failures silently pass (Critical)
-`uninjectFromTab` awaits `executeTeardown(...)` but never inspects the
-returned `failed[]`. A panel-teardown callback throws → `failed:
-[{id:"panel-shadow-root", reason:"..."}]` → outer try doesn't catch → uninject
-returns `ok:true`. **Fix:** spec rule: "if any domain returns `failed.length >
-0`, the uninject result is `ok:false` with `step=<domain>-teardown`,
-`reason="TeardownCallbackFailed"`, and `reasonDetail` enumerating failed ids".
+### R1 — `style-teardown` vs `styles-teardown` type drift (HIGH)
 
-### G3 — `EVT_BEFORE_UNINJECT` broadcast race with `runtime-teardown`
-The broadcast goes via ISOLATED-world relay (per step 08); the very next step
-tears down that relay's runtime registrations. If teardown runs in the MAIN
-world before the relay forwards the event, the page never sees the broadcast.
-**Fix:** add ordering rule: "broadcast MUST resolve (awaited round-trip ack)
-before `runtime-teardown` begins; ack timeout is 500 ms, single-shot, then
-proceed with `Reason='BroadcastAckTimeout'` warning (not Code Red)".
+`TeardownStep` defines `"style-teardown"`, but the loop uses domain `"styles"`
+and derives `step = `${d}-teardown``, producing `"styles-teardown"`. This
+will either fail strict typing or force an unsafe cast that hides the mismatch.
 
-### G4 — `relay-teardown` removes the channel needed for `EVT_AFTER_UNINJECT`
-Step order: `relay-teardown` (step 4) → `sentinel-clear` (step 8) →
-`broadcast-after-uninject` (step 9) via `chrome.tabs.sendMessage` — which
-**requires** the relay to still be installed. **Fix:** either (a) defer
-relay-teardown to AFTER `broadcast-after-uninject`, or (b) make
-`EVT_AFTER_UNINJECT` a direct MAIN-world `chrome.scripting.executeScript`
-dispatch instead of `chrome.tabs.sendMessage`. Recommend (b) for symmetry
-with sentinel ops.
+**Fix:** Rename the union member to `"styles-teardown"` or change
+`TeardownDomain` to singular `"style"`; prefer `"styles-teardown"` because the
+domain is already `"styles"` throughout the spec.
 
-### G5 — `force: true` bypass not enforced in `injectIntoTab`
-Step 08's `injectIntoTab` accepts `force` but the `force === true` code path
-is implicit. **Fix:** add explicit rule in step 08 (and reference here): "when
-`force === true`, injector MUST first assert `sentinel.injected === false`
-(post-uninject postcondition). If sentinel is still present, return
-`Reason='ForceInjectPreconditionFailed'` and do NOT executeScript."
+### R2 — Stale-build ownership still conflicts with Step 08 / Step 09 (MEDIUM)
 
-### G6 — Re-inject does not include the originally requested `force` cascade
-`reinjectIntoTab` always passes `force: true` to the second phase. That's
-correct, but does not document **how a stale-build sentinel becomes the trigger
-source**. **Fix:** add: "Status panel maps `Sentinel.StaleBuild` →
-`Re-inject` button (not `Inject`); pressing `Inject` when stale is a user
-error and returns `Reason='UseReinjectForStaleBuild'`".
+Step 10 says stale build is resolved only by explicit re-inject and normal
+`Inject` must return `UseReinjectForStaleBuild`. Step 08's current Stage 0
+snippet still auto-calls `uninjectFromTab()` on `"build-mismatch"`.
 
-### G7 — `removedScriptIds: []` on no-sentinel path is misleading
-When `!sentinel.injected`, uninject returns `ok:true, removedScriptIds:[]`. UI
-will say "Uninjected 0 scripts". **Fix:** add `outcome:
-"already-clean"|"cleaned"` discriminator to `UninjectSuccess` so the UI can
-render "Nothing to uninject" vs "Removed N scripts".
+**Fix:** Align Step 08 with Step 10: a non-force injection seeing
+`"build-mismatch"` should return a typed user-error result, while
+`reinjectIntoTab()` owns uninject-then-force.
 
-### G8 — `registerTeardown` not in step 08 namespace/runtime contract
-`RiseupAsiaMacroExt.Runtime.registerTeardown()` is invented here but the
-SDK surface is owned by step 08 (Stage 5 — script-to-script communication).
-**Fix:** move the `registerTeardown` / `runTeardown` API into step 08's
-namespace SDK section and cross-link from here.
+### R3 — UI force allowlist contradicts the single-background-entry contract (MEDIUM)
 
-### G9 — Auto-injector `force:false` not enforced statically
-Spec says "Auto-injection must not use force" but no lint/audit script is
-named. **Fix:** add `scripts/audit-force-inject-callers.mjs` that greps for
-`force: true` and asserts the callsite is one of `reinjector.ts`,
-`status-panel.tsx`, `options-debug-panel.tsx`. Reference
-`mem://constraints/no-retry-policy` reuse pattern.
+The audit script allowlist includes `StatusPanel.tsx` and `DebugPanel.tsx`, but
+Contract item 1 says popup/options/content must not perform teardown or force
+injection directly. Allowlisting UI files for literal `force:true` invites a
+second injection entry path.
 
-### G10 — Verbose-logging gate not applied to teardown diagnostics
-A failed teardown can have a long error message + stack. Per
-`mem://standards/verbose-logging-and-failure-diagnostics` the full stack is
-gated behind per-project `VerboseLogging`. **Fix:** acceptance "teardown
-failure `reasonDetail` is truncated to 240 chars unless `VerboseLogging` is
-ON; full stack lives in SQLite `error_events.detail_full`".
+**Fix:** Restrict literal `force:true` to `src/background/injection/reinjector.ts`.
+UI should send `MSG_REINJECT_TAB`; the background reinjector alone adds force.
 
-### G11 — Missing pitfall: extension context invalidation mid-uninject
-After step 06 auto-reload, `chrome.runtime.id` becomes undefined mid-uninject.
-`chrome.tabs.sendMessage` then throws `Extension context invalidated`. **Fix:**
-pitfall + handler: catch and map to `Reason='ExtensionContextInvalidated'`,
-treat as terminal (no retry, no Code Red — expected during reload).
+### R4 — `executeTeardown` snippet uses explicit `unknown` (LOW)
 
-### G12 — Acceptance lacks idempotency test for double-uninject
-Per step's own rule "teardown callbacks are idempotent", but no test asserts
-calling `uninjectFromTab` twice in sequence both return `ok:true`. **Fix:**
-add `uninjector-idempotent.test.ts` — second call returns `ok:true,
-outcome:"already-clean", removedScriptIds:[]`.
+The inline MAIN-world type uses `runTeardown?: (x: string) => unknown`, which
+conflicts with the project rule forbidding explicit `unknown` outside
+`CaughtError` patterns.
 
-## Remaining audits (post this turn)
+**Fix:** Introduce a local serializable teardown-return type for the injected
+function and avoid `unknown` in the snippet.
+
+### R5 — `clearInjectionSentinel()` assumes `documentElement` exists (LOW)
+
+The clear helper directly calls `root.removeAttribute(...)`. Probe handles
+absent roots, but clear does not show an absent-root path or mapped
+`sentinel-clear` failure detail.
+
+**Fix:** Add an absent-root guard in the serialized function and map it to a
+typed `sentinel-clear` failure with Code Red shape.
+
+## Blocker list for blind AI implementation
+
+R1 is the only near-blocker because it creates a concrete type/string mismatch.
+R2–R5 are consistency hardening items.
+
+## Recommendation
+
+Spec 10 is mostly implementation-ready. Fix R1 immediately, then align the
+stale-build and force-callsite ownership with Steps 08 / 09 before coding the
+runtime.
+
+## Remaining audit items
 
 1. 11-error-logging-discipline
 2. 12-namespace-logger-contract
-3. 13-error-routing-and-panel
-4. 14-floating-button (spec pending)
-5. 15-floating-in-page-panel (spec pending)
-6. 16-storage-sqlite-pointer (spec pending)
-7. 17-storage-indexeddb-pointer (spec pending)
-8. 18-storage-chrome-local-pointer (spec pending)
-9. 19-testing-matrix (spec pending)
-10. 20-acceptance-criteria (spec pending)
