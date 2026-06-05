@@ -35,9 +35,9 @@ function mount(onPhase?: (p: RecordingPhase) => void): RecorderToolbarHandle {
 }
 
 function btn(h: RecorderToolbarHandle, action: "start" | "pause" | "resume" | "stop"): HTMLButtonElement {
-    const el = h.Root.querySelector<HTMLButtonElement>(`button[data-action="${action}"]`);
-    if (el === null) { throw new Error(`button[data-action="${action}"] not found`); }
-    return el;
+    const element = h.Root.querySelector<HTMLButtonElement>(`button[data-action="${action}"]`);
+    if (element === null) { throw new Error(`button[data-action="${action}"] not found`); }
+    return element;
 }
 
 describe("RecorderToolbar (Shadow-Root)", () => {
