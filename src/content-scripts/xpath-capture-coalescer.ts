@@ -31,7 +31,7 @@ export interface CapturePayload {
     readonly [key: string]: unknown;
 }
 
-type SendFn = (msg: unknown) => Promise<unknown>;
+type SendFn = (message: unknown) => Promise<unknown>;
 
 interface CoalescerState {
     queue: CapturePayload[];
@@ -46,15 +46,15 @@ const state: CoalescerState = {
 };
 
 /** Default sender — chrome.runtime.sendMessage wrapped in a Promise. */
-function defaultSend(msg: unknown): Promise<unknown> {
-    return chrome.runtime.sendMessage(msg);
+function defaultSend(message: unknown): Promise<unknown> {
+    return chrome.runtime.sendMessage(message);
 }
 
 let sendImpl: SendFn = defaultSend;
 
 /** Test seam — swap the underlying transport. */
-export function __setSendForTests(fn: SendFn | null): void {
-    sendImpl = fn ?? defaultSend;
+export function __setSendForTests(sender: SendFn | null): void {
+    sendImpl = sender ?? defaultSend;
 }
 
 /** Test seam — reset all internal state. */
