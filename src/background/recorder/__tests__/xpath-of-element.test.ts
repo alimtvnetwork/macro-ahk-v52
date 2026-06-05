@@ -19,8 +19,8 @@ describe("xpathOfElement", () => {
 
     it("uses id shortcut when id is unique in the document", () => {
         document.body.innerHTML = `<div><button id="go">Go</button></div>`;
-        const el = document.getElementById("go");
-        expect(xpathOfElement(el)).toBe("//*[@id='go']");
+        const buttonElement = document.getElementById("go");
+        expect(xpathOfElement(buttonElement)).toBe("//*[@id='go']");
     });
 
     it("falls back to positional path when id is duplicated", () => {
@@ -52,16 +52,16 @@ describe("xpathOfElement", () => {
 
     it("respects UseIdShortcut=false", () => {
         document.body.innerHTML = `<button id="go">Go</button>`;
-        const el = document.getElementById("go");
-        const path = xpathOfElement(el, { UseIdShortcut: false });
+        const buttonElement = document.getElementById("go");
+        const path = xpathOfElement(buttonElement, { UseIdShortcut: false });
         expect(path).not.toBe("//*[@id='go']");
         expect(path).toMatch(/\/button\[1\]$/);
     });
 
     it("walks up to the html root for elements without ids", () => {
         document.body.innerHTML = `<section><p><a>x</a></p></section>`;
-        const a = document.querySelector("a")!;
-        const path = xpathOfElement(a);
+        const anchorElement = document.querySelector("a")!;
+        const path = xpathOfElement(anchorElement);
         expect(path).toMatch(/^\/html\/body\[\d+\]\/section\[1\]\/p\[1\]\/a\[1\]$/);
     });
 });
