@@ -1,6 +1,6 @@
 # Spec Folder Reorganization Plan — 2026-04-22
 
-> Created **2026-04-22 (Asia/Kuala_Lumpur)**.
+> Created **2026-04-22**.
 > Source of truth: `spec/01-spec-authoring-guide/01-folder-structure.md` (v3.2.0).
 > Execution mode: **phase-by-phase** — one phase per "next" instruction.
 > Roadmap (`.lovable/plan.md`) is unchanged; this file tracks only the reorganization work.

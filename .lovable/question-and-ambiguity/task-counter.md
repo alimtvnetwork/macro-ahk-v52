@@ -9,7 +9,7 @@ Append one row per completed task while the window is open. When the
 running count reaches **40**, normal question-asking resumes and a
 closing summary is added at the bottom of this file.
 
-Timestamps use **Asia/Kuala_Lumpur** per `mem://localization/timezone`.
+Timestamps use user local timezone per `mem://localization/timezone`.
 
 ## Log
 
