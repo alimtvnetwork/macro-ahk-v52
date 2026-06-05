@@ -13,6 +13,8 @@ const CONSTANT_DIVERGENCE_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-const
 const PITFALLS_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-pitfalls.mjs');
 const MEMORY_REFS_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-must-memory-refs.mjs');
 const SCORE_FLOOR_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-score-floor.mjs');
+const NO_BARE_FETCH_SCRIPT = resolve(TEST_DIR, '..', 'lint', 'no-bare-fetch.mjs');
+const FOOTER_LINT_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-footer-lint.mjs');
 
 function createRoot() {
   return mkdtempSync(join(tmpdir(), 'spec-audit-checks-'));
@@ -316,6 +318,52 @@ test('score-snapshot checker fails when a tracked file is deleted', () => {
     const result = spawnSync(process.execPath, [SNAPSHOT_SCRIPT, `--root=${rootPath}`, `--snapshot=${snapshotPath}`], { encoding: 'utf8' });
     assert.equal(result.status, 1);
     assert.match(result.stderr, /removed or renamed/);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('no-bare-fetch checker fails on unguarded fetch call', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, 'src/bad.ts', 'export async function load(): Promise<Response> {\n  return fetch("/api");\n}\n');
+    const result = spawnSync(process.execPath, [NO_BARE_FETCH_SCRIPT, `--root=${rootPath}`], { encoding: 'utf8' });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /bare fetch\(\) violation/);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('no-bare-fetch checker passes with documented allow comment', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, 'src/good.ts', 'export async function load(): Promise<Response> {\n  // no-bare-fetch-allow: caller checks response.ok immediately.\n  return fetch("/api");\n}\n');
+    const result = spawnSync(process.execPath, [NO_BARE_FETCH_SCRIPT, `--root=${rootPath}`], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('footer-lint checker passes known audit footer markers', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, '01-demo/good.md', '# Good\n\n<!-- audit: determinism+pitfalls footer -->\n\n## Determinism (MUST)\n\nRules are deterministic.\n\n## Pitfalls / Counter-examples\n\n- Pitfall: drift.\n\n<!-- audit: uplift-to-100 footer -->\n\n## Audit Anchors (source-of-truth)\n\n- See [related](./good.md).\n');
+    const result = runScript(FOOTER_LINT_SCRIPT, rootPath);
+    assert.equal(result.status, 0, result.stderr);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('footer-lint checker fails when marker promise is missing', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, '01-demo/bad.md', '# Bad\n\n<!-- audit: determinism+pitfalls footer -->\n\nNo promised sections.\n');
+    const result = runScript(FOOTER_LINT_SCRIPT, rootPath);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /FooterLintMissingPromisedSection/);
   } finally {
     rmSync(rootPath, { recursive: true, force: true });
   }

@@ -13,12 +13,15 @@
  * Exit 0 = clean. Exit 1 = violation(s) found.
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { resolve, join, extname } from "node:path";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { dirname, resolve, join, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(fileURLToPath(import.meta.url), "../../..");
+const ROOT_ARG = "--root=";
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const ROOT = resolve(getArg(ROOT_ARG, resolve(SCRIPT_DIR, "../..")));
 const EXT_ALLOWLIST = new Set([".ts", ".tsx", ".js", ".mjs"]);
+const ALLOW_COMMENT_RX = /no-bare-fetch-allow:\s+\S/;
 
 // ---------------------------------------------------------------------------
 // Whitelist: files where fetch calls are known-safe (legacy or by-design).
@@ -79,7 +82,14 @@ const FILE_WHITELIST = new Map([
 // Helpers
 // ---------------------------------------------------------------------------
 
+function getArg(prefix, fallback) {
+    return process.argv.find((value) => value.startsWith(prefix))?.slice(prefix.length) ?? fallback;
+}
+
 function walk(dir, files = []) {
+    if (!existsSync(dir)) {
+        return files;
+    }
     for (const entry of readdirSync(dir)) {
         const abs = join(dir, entry);
         const s = statSync(abs);
@@ -96,7 +106,12 @@ function walk(dir, files = []) {
 }
 
 function relPath(absPath) {
-    return absPath.replace(ROOT + "/", "");
+    return absPath.startsWith(ROOT + "/") ? absPath.slice(ROOT.length + 1) : absPath;
+}
+
+function getScanRoots() {
+    const preferredRoots = [join(ROOT, "src"), join(ROOT, "standalone-scripts")].filter((path) => existsSync(path));
+    return preferredRoots.length === 0 ? [ROOT] : preferredRoots;
 }
 
 function isGlobalFetch(line) {
@@ -145,14 +160,18 @@ function hasGuardNearby(lines, fetchIdx) {
     return false;
 }
 
+function hasDocumentedAllowComment(lines, fetchIdx) {
+    const current = lines[fetchIdx] ?? "";
+    const previous = lines[fetchIdx - 1] ?? "";
+    return ALLOW_COMMENT_RX.test(current) || ALLOW_COMMENT_RX.test(previous);
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
 const violations = [];
-const srcFiles = walk(join(ROOT, "src"));
-const standaloneFiles = walk(join(ROOT, "standalone-scripts"));
-const allFiles = [...srcFiles, ...standaloneFiles];
+const allFiles = getScanRoots().flatMap((path) => walk(path));
 
 for (const abs of allFiles) {
     const rel = relPath(abs);
@@ -178,6 +197,7 @@ for (const abs of allFiles) {
 
         if (!isGlobalFetch(line)) continue;
         if (isInsideStringOrComment(line, inJsDoc)) continue;
+        if (hasDocumentedAllowComment(lines, i)) continue;
 
         // Already guarded?
         if (hasGuardNearby(lines, i)) continue;
