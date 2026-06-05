@@ -36,3 +36,9 @@ interface PromptDraft {
 - Invalidate the `"prompts:all"` cache.
 - Fire `PromptStoreEvent { kind: "created", slug }`.
 - Return the new fully-resolved `Prompt`.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

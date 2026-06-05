@@ -38,3 +38,9 @@ const interruptionBanner = ???; // HOST: interruption / "return to chat" banner
 ## Pause semantics
 
 `Interrupted` puts the queue into `hold` status (not `failed`) so the user can resolve and resume manually. `Timeout` and signal failures escalate to `failed` per `100-failure-handling/`.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

@@ -32,3 +32,9 @@ Even with jitter, the resulting delay is clamped to `[1000, 60000]` to honour th
 ## RNG
 
 `Math.random()` is sufficient; jitter is not security-sensitive. No `crypto.getRandomValues` required.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

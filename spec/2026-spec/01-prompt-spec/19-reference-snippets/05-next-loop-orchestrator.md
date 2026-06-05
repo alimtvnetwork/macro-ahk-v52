@@ -62,3 +62,9 @@ export function createNextLoop(host: NextLoopHost, store: any /* QueueStore */) 
 - Orchestrator stays small; all decisions delegated to the host hooks and adapters.
 - Errors are strings → engine maps to `Reason` codes in the failure log.
 - 999 cap matches Q7.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

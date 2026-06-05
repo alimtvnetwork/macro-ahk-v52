@@ -22,3 +22,9 @@ words MUST use the meaning given here.
 | **InterruptionSignal** | Any DOM/state cue the HostApp shows when a previous turn must be acknowledged (e.g. "return to chat" banner). Located via Q3; pauses the queue when detected. |
 | **EditorKind** | One of `textarea`, `contenteditable`, `prosemirror`, `lexical`, `monaco`, `other`. Determines which paste adapter is used (see `06-injection-contract/adapters/`). |
 | **VerboseMode** | Off by default; when on, full prompt body + full DOM snapshot are recorded in logs. |
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

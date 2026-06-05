@@ -38,3 +38,8 @@ seq 2 "$probe_max" | xargs -P "$concurrency" -I{} -t bash -c '
 The same algorithm is used during release publication to verify every required
 asset URL returns `200` before flipping `draft: false`.
 
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../01-prompt-spec/reference/05-runtime-defaults.md). If a value differs, the SOT wins.

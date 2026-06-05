@@ -48,3 +48,9 @@ edits prompt files outside the app.
 The cache holds at most one `Prompt[]` (typically < 100 records,
 each < 64 KiB body — see T33). Total cap ~6 MiB worst case; no
 eviction policy needed.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

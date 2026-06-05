@@ -25,3 +25,9 @@
 | `18-test-plan/` | Test inventories present; fixtures discoverable | meta-check |
 | `19-reference-snippets/` | All snippets typecheck | `typecheck-spec-snippets.mjs` |
 | `20-adoption-checklist/` | Pre-flight + go-live + handoff documented | meta-check |
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](reference/05-runtime-defaults.md). If a value differs, the SOT wins.

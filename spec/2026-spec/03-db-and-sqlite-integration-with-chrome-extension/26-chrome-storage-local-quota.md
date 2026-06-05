@@ -226,3 +226,9 @@ Every error must include `Path`, `Missing`, `Reason`, `ReasonDetail`, `Key`, `Va
 - [step-25](./25-chrome-storage-local-usage.md) — Allowed key and payload lane
 - [step-31](./31-error-model.md) — Shared `QuotaError` shape
 - [step-39](./39-ci-gates.md) — Storage policy CI checks
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../01-prompt-spec/reference/05-runtime-defaults.md). If a value differs, the SOT wins.

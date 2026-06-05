@@ -135,3 +135,9 @@ Acceptance failures must be logged with exact path, missing item, reason, and re
 - [step-37](./37-strictly-avoid.md) — no-go patterns.
 - [step-38](./38-testing.md) — required tests.
 - [step-39](./39-ci-gates.md) — required CI gates.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../01-prompt-spec/reference/05-runtime-defaults.md). If a value differs, the SOT wins.

@@ -24,3 +24,9 @@ interface CapacityConfig {
 ## UI guidance
 
 When the user enters a count `> maxQueueSize - currentPending`, the input MUST surface inline: *"Only X slots available (cap 999)"*. No silent truncation.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

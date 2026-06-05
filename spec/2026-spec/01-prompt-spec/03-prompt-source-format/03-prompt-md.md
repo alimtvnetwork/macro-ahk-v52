@@ -38,3 +38,9 @@ Next,
 
 List remaining tasks; do one at a time. Today is {{date}}.
 ```
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

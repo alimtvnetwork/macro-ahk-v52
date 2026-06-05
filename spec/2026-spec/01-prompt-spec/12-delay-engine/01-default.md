@@ -26,3 +26,9 @@ Between iterations: `submit → observer.Idle → delay → next insertText`. It
 ## Validation
 
 Settings UI must clamp user input to `[1000, 60000]` and surface a warning outside `[5000, 10000]`. Below 5s risks host throttling; above 10s degrades UX.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../reference/05-runtime-defaults.md). If a value differs, the SOT wins.

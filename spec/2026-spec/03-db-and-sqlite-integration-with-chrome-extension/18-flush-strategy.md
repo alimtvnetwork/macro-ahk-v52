@@ -118,3 +118,9 @@ export async function flushAllProjectDbs(): Promise<void> {
 - [step-26](./26-chrome-storage-local-quota.md) — Quota
 - [step-29](./29-cross-context-access.md) — `onSuspend` and cross-context drain
 - Core: no-retry policy, Code-Red logging, namespaced logger
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../01-prompt-spec/reference/05-runtime-defaults.md). If a value differs, the SOT wins.

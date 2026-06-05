@@ -104,3 +104,9 @@ Manual Chrome E2E is allowed for this project. Run it for implementation close-o
 - [step-31](./31-error-model.md) — diagnostic field tests.
 - [step-39](./39-ci-gates.md) — CI enforcement.
 - Core memory: test-with-features; manual Chrome E2E ban lifted.
+
+---
+
+<!-- audit: numeric constants source-of-truth -->
+
+Numeric defaults referenced in this file are canonical in [Runtime Defaults](../01-prompt-spec/reference/05-runtime-defaults.md). If a value differs, the SOT wins.

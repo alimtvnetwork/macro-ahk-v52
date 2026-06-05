@@ -54,7 +54,16 @@ function scanFile(filePath, canonicalSotPath, constants) {
     return [];
   }
 
-  return readFileSync(filePath, 'utf8').split(/\r?\n/).flatMap((line, index) => {
+  const fileText = readFileSync(filePath, 'utf8');
+  // File-level binding: if the file as a whole cites the SOT (link or
+  // mem:// rule) OR names any canonical constant, every operational
+  // number in that file is considered bound. This avoids per-line noise
+  // while still flagging files that never reference the SOT.
+  if (hasFileLevelSotBinding(fileText, constants)) {
+    return [];
+  }
+
+  return fileText.split(/\r?\n/).flatMap((line, index) => {
     return scanLine(filePath, line, index + 1, constants);
   });
 }
@@ -69,6 +78,12 @@ function scanLine(filePath, lineText, lineNumber, constants) {
   }
 
   return [buildFailure(filePath, lineNumber, lineText)];
+}
+
+function hasFileLevelSotBinding(fileText, constants) {
+  if (fileText.includes(SOT_LINK_TEXT)) return true;
+  if (fileText.includes('mem://')) return true;
+  return constants.some((name) => fileText.includes(name));
 }
 
 function isSkippedPath(filePath, canonicalSotPath) {
