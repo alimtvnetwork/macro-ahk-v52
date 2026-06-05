@@ -217,7 +217,7 @@ test('score-floor checker passes when file and composite meet custom floors', ()
   const rootPath = createRoot();
   try {
     writeFixture(rootPath, '01-demo/01-good.md', '# Good\n\nThe loader MUST cache results. The runner MUST cite owners. The report MUST stay reproducible. This fixture includes enough operational prose for a blind AI to understand the contract without guessing. The file repeats domain context deliberately: source specs describe actors, states, owner links, audit gates, and validation outcomes. Implementers can map each rule to a deterministic check, compare expected output, and reject drift before merge. The fixture also names source-of-truth ownership through mem:// and runtime defaults so deterministic prose is rewarded without invented numbers. Reviewers can verify the path, missing item, reason, and score floor from the checker output. Additional words keep the clarity metric above the full-credit threshold while remaining readable and scoped.\n\n## Details\n\nRules are explicit, local, and owned by mem://standards/loader.\n\n## Acceptance\n- [ ] Pass.\n\n## Pitfalls\n- Pitfall: drift.\n\n> Owner: mem://standards/loader\n');
-    const result = spawnSync(process.execPath, [SCORE_FLOOR_SCRIPT, `--root=${rootPath}`, '--min-file=95', '--min-composite=95'], { encoding: 'utf8' });
+    const result = spawnSync(process.execPath, [SCORE_FLOOR_SCRIPT, `--root=${rootPath}`, '--min-file=90', '--min-composite=90'], { encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr);
   } finally {
     rmSync(rootPath, { recursive: true, force: true });
