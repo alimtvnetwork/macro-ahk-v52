@@ -97,3 +97,7 @@ No workflow edits required.
 | CI fails "zip committed" | Binary tracked in git | `git rm --cached **/*.zip`, add to `.gitignore` |
 | `manifest.version` ≠ tag | Forgot to bump | Bump manifest, re-tag |
 
+## Acceptance
+
+- [ ] The implementation satisfies the `13 — Failure Handling, Checklists, Rollback & Troubleshooting` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

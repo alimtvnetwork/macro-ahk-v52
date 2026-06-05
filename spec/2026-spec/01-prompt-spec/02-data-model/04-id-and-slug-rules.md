@@ -67,6 +67,11 @@ SHOULD auto-derive a slug:
 Auto-derivation is a UI convenience; the canonical slug always comes
 from the saved record.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `T29 · id and slug rules` contract in this file and the folder-level acceptance target: Prompt, PromptCategory, and PromptStore contracts hold across storage implementations.
+- [ ] Verification passes when `UT-data-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

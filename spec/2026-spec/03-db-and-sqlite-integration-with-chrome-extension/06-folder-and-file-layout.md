@@ -103,6 +103,9 @@ The agent must create files in this order so each step compiles against the prev
 
 ## Acceptance for this step
 
+- [ ] The implementation satisfies the `Step 06 — Folder and File Layout` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 - `tree src/background src/shared/storage public/assets` matches the layout above (file names may differ if a step has not been
   reached yet; folders must exist).
 - `rg "indexedDB\.open|chrome\.storage\.local\." src --glob '!src/shared/storage/**'` returns zero hits.

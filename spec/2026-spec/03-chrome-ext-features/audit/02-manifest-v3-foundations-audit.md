@@ -106,3 +106,8 @@ as pending.
 8. 10-reinject-and-uninject
 9. 11-error-logging-discipline
 10. 12-namespace-logger-contract
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Audit 02 — 02-manifest-v3-foundations.md` contract in this file and the folder-level acceptance target: each audit finding remains traceable to a feature spec and a verification hook.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

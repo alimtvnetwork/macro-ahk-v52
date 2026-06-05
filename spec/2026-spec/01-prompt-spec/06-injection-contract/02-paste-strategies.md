@@ -53,3 +53,8 @@ path uses a **synthesised** `DataTransfer`, not the real clipboard.
 Given the same `(target, text, mode)`, the strategy MUST be a pure
 function of inputs. No reads from `Date.now()` or random; no implicit
 retries.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T47 · Paste strategies` contract in this file and the folder-level acceptance target: all supported paste strategies inject and verify prompt text without corrupting selection state.
+- [ ] Verification passes when `UT-inject-001..008 and E2E-inject-001..004` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

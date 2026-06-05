@@ -25,3 +25,8 @@ The session log already indexes by `at`; an additional index on `(kind, at)` kee
 ## Privacy
 
 Rollups expose only counts and durations. The raw event log is local-only and respects the 7-day prune.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — Metrics & Aggregations` contract in this file and the folder-level acceptance target: events, metrics, debug panel rows, and diagnostics exports follow the observability schema.
+- [ ] Verification passes when `UT-obs-001..008` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

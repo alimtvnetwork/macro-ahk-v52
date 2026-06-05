@@ -87,3 +87,8 @@ The 4 latent content points that the 300 audit warned would surface under strict
 - `302-gap-closure-30-step-proof.md` — structural gap closure
 - `README.md` — master index with all new subtrees
 - `ACCEPTANCE-MATRIX.md` — folder ↔ test-id binding
+
+## Acceptance
+
+- [ ] The implementation satisfies the `303 — 30-Step Content Uplift Manifest` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

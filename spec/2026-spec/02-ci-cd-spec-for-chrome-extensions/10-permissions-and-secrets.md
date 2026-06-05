@@ -46,3 +46,7 @@ For REST-created releases, use exactly one of these deterministic designs:
 Never name this secret after a repository, user, or organization. Never use a
 classic broad PAT unless fine-grained tokens are unavailable.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `10 — Permissions, Secrets & Token Policy` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

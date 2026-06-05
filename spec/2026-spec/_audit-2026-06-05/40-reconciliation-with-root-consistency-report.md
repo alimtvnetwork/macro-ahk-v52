@@ -15,13 +15,13 @@ This audit (`_audit-2026-06-05/`) is **content-quality** focused (blind-AI imple
 
 The root report does NOT measure:
 
-1. Per-file `## Acceptance` presence — **181 files fail** (verified by `scripts/audit/check-acceptance.mjs`).
-2. Dangling relative links — **0 broken links** (was 106; bulk-fixed 134 stale `step-` prefix links across 29 files) (post code-fence strip; was 156) (verified by `scripts/audit/check-dangling-links.mjs`).
-3. Numeric-constant SOT binding.
+1. Per-file `## Acceptance` presence — **0 files fail** (was 172; verified by `scripts/audit/check-acceptance.mjs`).
+2. Dangling relative links — **0 broken links** (was 106; bulk-fixed stale `step-` prefix links) (verified by `scripts/audit/check-dangling-links.mjs`).
+3. Numeric-constant SOT binding — **0 files fail** (verified by `scripts/audit/check-must-constants.mjs`).
 4. Pitfalls / counter-examples coverage.
 5. Blind-AI implementability score per file.
 
-→ Root health score (98/100) reflects **folder hygiene**. Content health score (this audit) is **50.1/100** composite.
+→ Root health score (98/100) reflects **folder hygiene**. Content health score (this audit) is **65.1/100** composite.
 
 ## Recommended root-report addendum
 
@@ -29,10 +29,10 @@ Add a "Content Quality" column to the root inventory table:
 
 | Folder | Structure | Content Quality (blind-AI) |
 | --- | --- | --- |
-| `2026-spec/01-prompt-spec` | ✅ | 🔴 38.3 |
-| `2026-spec/02-ci-cd-…` | ✅ | 🟡 51.3 |
-| `2026-spec/03-chrome-ext-features` | ✅ | 🟢 81.2 |
-| `2026-spec/03-db-and-sqlite-…` | ✅ | 🟡 60.3 |
+| `2026-spec/01-prompt-spec` | ✅ | 🟡 60.0 |
+| `2026-spec/02-ci-cd-…` | ✅ | 🟡 61.0 |
+| `2026-spec/03-chrome-ext-features` | ✅ | 🟢 81.5 |
+| `2026-spec/03-db-and-sqlite-…` | ✅ | 🟡 69.4 |
 
 This addendum is **not** auto-applied — root report is owned by the consistency-report maintainer.
 

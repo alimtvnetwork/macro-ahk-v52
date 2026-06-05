@@ -18,6 +18,11 @@ Before any code lands, confirm every `???` from the integration questionnaire (T
 
 **Gate:** Do not start wire-up until every row is ticked. Selector drift detected later is treated as a host bug, not a spec bug.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `01 — Pre-flight checklist` contract in this file and the folder-level acceptance target: pre-flight, wire-up, go-live, worked example, and handoff steps stay complete.
+- [ ] Verification passes when `meta-check` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

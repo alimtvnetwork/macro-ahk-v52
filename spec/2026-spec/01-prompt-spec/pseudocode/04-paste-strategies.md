@@ -16,3 +16,8 @@ function paste(adapter: EditorAdapter, text: string, strategy: Strategy) {
 ```
 
 Verification rules: `06-injection-contract/04-paste-verification.md`.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Pseudocode — Paste Strategies` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

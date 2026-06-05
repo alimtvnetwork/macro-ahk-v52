@@ -84,3 +84,7 @@ function Resolve-OwnerRepo {
 
 §18 and §19 examples MUST source these helpers instead of `${OWNER:?}`.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `02 — Repo Discovery & Owner/Repo Resolution` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

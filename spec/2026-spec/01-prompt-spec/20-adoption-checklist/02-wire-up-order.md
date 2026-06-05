@@ -15,3 +15,8 @@
 10. **Observability** (`16-observability/`) — enable verbose toggle only after the loop is stable.
 
 Skipping a step is allowed only when its acceptance bullets in the matching folder are already covered by the host.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `02 — Recommended wire-up order` contract in this file and the folder-level acceptance target: pre-flight, wire-up, go-live, worked example, and handoff steps stay complete.
+- [ ] Verification passes when `meta-check` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

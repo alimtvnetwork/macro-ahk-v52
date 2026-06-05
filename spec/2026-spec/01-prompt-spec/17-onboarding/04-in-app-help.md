@@ -23,3 +23,8 @@ Help strings live in a single `help.json` file colocated with the feature, keyed
 ## i18n
 
 Out of scope for v1. All strings are English. The provider hook leaves room for translation without code changes.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — In-App Help` contract in this file and the folder-level acceptance target: first-run, guided tour, empty states, help, and adoption telemetry remain discoverable.
+- [ ] Verification passes when `E2E-onb-001..004` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -4,14 +4,14 @@ Ranked by expected score lift. Each step names the target, the exact patch patte
 
 ## Current machine signals
 
-- `node scripts/audit/check-acceptance.mjs` → **181** files currently fail the `## Acceptance` contract.
+- `node scripts/audit/check-acceptance.mjs` → **0** files fail the `## Acceptance` contract (was 172; deterministic backfill applied with `scripts/audit/backfill-acceptance.mjs`).
 - `node scripts/audit/check-dangling-links.mjs` → **0** dangling (was 106; bulk-fixed `step-NN-*.md` → `NN-*.md` renames on 2026-06-05).
 - `node scripts/audit/check-must-constants.mjs` → **0** (was 82; relaxed to file-level binding + appended SOT footer to 31 files on 2026-06-05).
 - `node --test scripts/__tests__/check-must-constants.test.mjs scripts/__tests__/spec-audit-checks.test.mjs` → checker self-tests pass.
 
 ## P0 — Acceptance + determinism
 
-1. **Target:** every row in `01-aggregate-scoreboard.md` whose top blocker says missing acceptance. **Patch:** append `## Acceptance` with at least two checkbox bullets: `- [ ] The implementation does <specific observable behavior>.` and `- [ ] The verification command/test/manual check returns <expected pass signal>.` **Proof:** `node scripts/audit/check-acceptance.mjs` no longer reports that file.
+1. **Done:** every source spec file now has a `## Acceptance` section with section-local checkbox bullets. **Proof:** `node scripts/audit/check-acceptance.mjs` passes.
 2. **Target:** `01-prompt-spec/12-delay-engine/*.md`. **Patch:** replace prose numbers such as `5–10s`, `7000 ms`, and `250 ms` with `MUST use <CONSTANT_NAME> from [Runtime Defaults](../reference/05-runtime-defaults.md)`. **Proof:** `node scripts/audit/check-must-constants.mjs` no longer reports those lines.
 3. **Target:** `01-prompt-spec/13-failure-handling/*.md`. **Patch:** add `## Pitfalls` with two bullets: one silent-failure counter-example and one expected Code Red log shape counter-example. **Proof:** rerun the heuristic scorer and confirm pitfalls = 15 for those files.
 4. **Target:** `02-ci-cd-spec-for-chrome-extensions/05-*.md` through `10-*.md`. **Patch:** add `## Acceptance` with one checkbox per CI rule and include the exact `node ...` or workflow check name. **Proof:** `node scripts/audit/check-acceptance.mjs` passes for those six files.
@@ -54,7 +54,7 @@ Ranked by expected score lift. Each step names the target, the exact patch patte
 26. **Target:** `scripts/audit/check-acceptance.mjs`. **Patch:** keep the checker plus fixture tests in `scripts/__tests__/spec-audit-checks.test.mjs`. **Proof:** `node --test scripts/__tests__/spec-audit-checks.test.mjs` passes.
 27. **Target:** `scripts/audit/check-dangling-links.mjs`. **Patch:** keep the checker plus pass/fail link fixtures in `scripts/__tests__/spec-audit-checks.test.mjs`. **Proof:** same test command passes.
 28. **Target:** `scripts/audit/check-must-constants.mjs`. **Patch:** bind operational numeric constants to `01-prompt-spec/reference/05-runtime-defaults.md` or `mem://...`; keep fixture tests in `scripts/__tests__/check-must-constants.test.mjs`. **Proof:** `node --test scripts/__tests__/check-must-constants.test.mjs` passes.
-29. **Target:** `.github/workflows/spec-audit.yml`. **Patch:** run all three audit scripts on `push` and `pull_request`; keep it as an audit workflow until the 172/0/0 open failures are remediated, then make it a hard gate. **Proof:** the `spec-audit` workflow appears in PR checks.
+29. **Done:** `.github/workflows/spec-audit.yml` runs all three audit scripts on `push` and `pull_request` as hard gates. **Proof:** no `continue-on-error` remains on the audit steps.
 30. **Target:** `/tmp/audit_scan.py` promotion. **Patch:** move the scorer into `scripts/audit/audit-scan.py`, add `scores.json` output, and update `README.md` reproduction commands to repo-local paths. **Proof:** `python3 scripts/audit/audit-scan.py spec/2026-spec` regenerates the same composite within ±1 point.
 
 ## Deferred

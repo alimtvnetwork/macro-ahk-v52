@@ -16,3 +16,7 @@ Part of [`spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/`](./README.md).
 - **Release artifact** — any file uploaded to a GitHub Release page.
 - **Unpacked load** — installing a directory via `chrome://extensions`.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `14 — Glossary` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

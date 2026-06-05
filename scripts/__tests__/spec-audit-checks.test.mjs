@@ -47,6 +47,18 @@ test('acceptance checker fails without checkbox bullet', () => {
   }
 });
 
+test('acceptance checker ignores checkbox bullets outside acceptance section', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, '01-demo/01-stray.md', '# Stray\n\n- [ ] Intro checkbox.\n\n## Acceptance\nPlain prose only.\n');
+    const result = runScript(ACCEPTANCE_SCRIPT, rootPath);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /machine-checkable bullet/);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
 test('dangling-link checker passes when relative markdown link resolves', () => {
   const rootPath = createRoot();
   try {

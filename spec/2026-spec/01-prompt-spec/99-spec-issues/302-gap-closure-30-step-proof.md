@@ -120,3 +120,8 @@ The gap that produced the 88/100 score was **purely structural** (folder numberi
 ---
 
 **Canonical path note (appended 2026-06-03):** This proof now lives at `spec/2026-spec/01-prompt-spec/99-spec-issues/302-gap-closure-30-step-proof.md` after the 2026-06-03 spec reorganization (`spec/01-prompt-spec-2026/` → `spec/2026-spec/01-prompt-spec/`). All earlier references to `spec/01-prompt-spec-2026/99-spec-issues/302-…` should be read as pointing here.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Gap-Closure Proof — 88 → 100 (30-step audit)` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

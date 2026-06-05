@@ -16,4 +16,7 @@ After G1–G25 are patched verbatim:
 > exit-code, secret-provisioning, branch-protection, and release-watcher
 > self-heal contracts are now canonical in the primary copy-paste path).
 
+## Acceptance
 
+- [ ] The implementation satisfies the `17 — Final Auditor Score` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -33,6 +33,11 @@ Even with jitter, the resulting delay is clamped to `[1000, 60000]` to honour th
 
 `Math.random()` is sufficient; jitter is not security-sensitive. No `crypto.getRandomValues` required.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — Jitter` contract in this file and the folder-level acceptance target: default delay, settings, jitter, skip-first, and pause semantics use runtime defaults.
+- [ ] Verification passes when `UT-delay-001..006` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

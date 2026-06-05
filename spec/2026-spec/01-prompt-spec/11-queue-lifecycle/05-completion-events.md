@@ -42,3 +42,8 @@ Multiple observers are supported; delivery order is registration order. Throwing
 ## Mandatory failure payload
 
 `onTaskFailed` receives the task with its `failure: FailureRecord` populated per Core memory (Reason + ReasonDetail + SelectorAttempts + VariableContext). See `100-failure-handling/05-mandatory-failure-log.md`.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `05 — Completion Events` contract in this file and the folder-level acceptance target: enqueue, tick, retry, hold, cancel, pause, and completion events follow the queue lifecycle.
+- [ ] Verification passes when `UT-lifecycle-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

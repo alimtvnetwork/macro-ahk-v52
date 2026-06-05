@@ -29,3 +29,8 @@ interface QueuedTask {
 ## Serialization
 
 When persisted (optional), tasks are JSON; `PromptContext` MUST be JSON-safe (no functions, no DOM refs).
+
+## Acceptance
+
+- [ ] The implementation satisfies the `01 — Queue Task Shape` contract in this file and the folder-level acceptance target: queued task shape, status transitions, capacity, storage, and ordering are enforced.
+- [ ] Verification passes when `UT-queue-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

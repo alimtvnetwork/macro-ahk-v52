@@ -181,3 +181,7 @@ a.click(); URL.revokeObjectURL(a.href);
 - SHA-256 matches `checksums.txt`.
 - All asset URLs return `200` (probed before flipping draft → published).
 
+## Acceptance
+
+- [ ] The implementation satisfies the `09 — Release Artifacts & Verification` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

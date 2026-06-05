@@ -50,3 +50,8 @@ Each step has a matching `step-NN-*.md` file. The numbering is stable; do not re
 38. Testing: in-memory sql.js, `fake-indexeddb`, vitest setup, fixture seeding.
 39. CI gates: schema diff guard, `no-bare-fetch` on `sql-wasm`, storage-audit script.
 40. Acceptance criteria and hand-off checklist for any AI implementer.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `01 — 40 Planning Steps` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

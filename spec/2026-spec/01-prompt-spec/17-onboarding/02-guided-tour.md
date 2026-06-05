@@ -26,3 +26,8 @@ Each step resolves its anchor via the same selector contract as the rest of the 
 ## Persistence per step
 
 Each completed step writes `prompts.onboarding.step<N> = true`. On reload, the tour resumes from the lowest incomplete step. Completing step 5 sets `completedV1 = true`.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `02 — Guided Tour Steps` contract in this file and the folder-level acceptance target: first-run, guided tour, empty states, help, and adoption telemetry remain discoverable.
+- [ ] Verification passes when `E2E-onb-001..004` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

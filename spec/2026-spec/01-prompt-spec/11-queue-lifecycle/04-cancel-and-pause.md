@@ -33,3 +33,8 @@ Defined in `09-next-overview/05-cancel.md`. Recap:
 ## Idempotency
 
 `pause`, `resumeLoop`, `cancelCurrent`, `cancelAll` are all idempotent — repeated calls after the queue is empty/idle are no-ops.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — Cancel & Pause` contract in this file and the folder-level acceptance target: enqueue, tick, retry, hold, cancel, pause, and completion events follow the queue lifecycle.
+- [ ] Verification passes when `UT-lifecycle-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -30,3 +30,8 @@
 ### Failure record (`13-failure-handling/`)
 - Builder produces non-empty `selectorAttempts` and `variableContext` for every reason — even when category is "n/a" the entry has `reason: null`.
 - Verbose toggle gates only the truncation, never structural fields.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `02 — Unit Test Targets` contract in this file and the folder-level acceptance target: test inventories, target lists, fixtures, and mocks remain discoverable by automation.
+- [ ] Verification passes when `meta-check` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

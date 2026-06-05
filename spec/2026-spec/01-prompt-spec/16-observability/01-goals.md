@@ -22,3 +22,8 @@
 - Zero network calls by default — local SQLite (per Core memory: Session Logging) only.
 - Verbose payloads gated by `debug.verboseLogging`.
 - No PII in metric values — slug + counts + durations only.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `01 — Observability Goals` contract in this file and the folder-level acceptance target: events, metrics, debug panel rows, and diagnostics exports follow the observability schema.
+- [ ] Verification passes when `UT-obs-001..008` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

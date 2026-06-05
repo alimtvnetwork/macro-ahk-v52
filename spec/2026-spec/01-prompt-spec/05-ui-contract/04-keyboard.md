@@ -54,3 +54,8 @@ Every interactive dropdown action MUST have a keyboard equivalent.
 
 ARIA roles, focus rings, and screen-reader announcements are defined
 in T45.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T44 · Keyboard contract` contract in this file and the folder-level acceptance target: trigger, dropdown, keyboard, search, and accessibility behavior remains user-verifiable.
+- [ ] Verification passes when `CT-ui-001..009 and E2E-ui-001..003` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -64,3 +64,8 @@ Hidden-default flags from the source install are NOT carried over.
 For a given input set, two consecutive exports MUST produce
 byte-identical archives **except** for `manifest.json → exportedAt`.
 This makes diffs reviewable.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T35 · Import / export zip format` contract in this file and the folder-level acceptance target: prompt source files round-trip through parse and emit without semantic drift.
+- [ ] Verification passes when `UT-source-001..008` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

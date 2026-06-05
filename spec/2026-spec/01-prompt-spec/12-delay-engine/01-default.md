@@ -27,6 +27,11 @@ Between iterations: `submit → observer.Idle → delay → next insertText`. It
 
 Settings UI must clamp user input to `[1000, 60000]` and surface a warning outside `[5000, 10000]`. Below 5s risks host throttling; above 10s degrades UX.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `01 — Default Delay` contract in this file and the folder-level acceptance target: default delay, settings, jitter, skip-first, and pause semantics use runtime defaults.
+- [ ] Verification passes when `UT-delay-001..006` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

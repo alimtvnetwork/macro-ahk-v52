@@ -139,3 +139,8 @@ canonical step-01 slugs:
 5. 18-storage-chrome-local-pointer
 6. 19-testing-matrix
 7. 20-acceptance-criteria
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Audit 13 — Error Routing and Errors Panel` contract in this file and the folder-level acceptance target: each audit finding remains traceable to a feature spec and a verification hook.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -141,6 +141,9 @@ documenting the split.
 
 ## Acceptance for this step
 
+- [ ] The implementation satisfies the `Step 14 — Per-Namespace DB Pattern` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 - `assertNamespace` rejects `recorder` (lowercase), `System.Foo` from non-system caller, `Foo_Bar` (underscore).
 - Inserting into a 26th namespace throws and is logged Code Red.
 - A handler reading namespace `X` never sees rows from namespace `Y` (test fixture verifies isolation).

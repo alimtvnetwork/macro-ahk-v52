@@ -52,6 +52,11 @@ summed.
 (`Project.VerboseLogging`) does not change matching — it only affects
 what gets persisted in logs.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `T43 · Search and filter` contract in this file and the folder-level acceptance target: trigger, dropdown, keyboard, search, and accessibility behavior remains user-verifiable.
+- [ ] Verification passes when `CT-ui-001..009 and E2E-ui-001..003` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

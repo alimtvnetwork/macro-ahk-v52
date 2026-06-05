@@ -55,3 +55,8 @@
 - Plan: `.lovable/plans/prompt-spec-2026-renumber-100.md` (STATUS = ✅ EXECUTED)
 - Snapshots: `.lovable/audits/2026-06-03-renumber/`
 - Memory: `mem://architecture/prompt-spec-2026-layout`
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Blind-AI Implementation Scorecard — spec/2026-spec/01-prompt-spec/ (POST-renumber, 2026-06-03)` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

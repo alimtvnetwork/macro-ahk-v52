@@ -33,6 +33,11 @@ It is **not** a new engine. It is a configuration profile + a designated default
 - Distinct delay/observer defaults without polluting Next's settings.
 - Distinct telemetry bucket so observability can show plan-vs-next health separately (see Step 16).
 
+## Acceptance
+
+- [ ] The implementation satisfies the `01 — Plan Mode Overview` contract in this file and the folder-level acceptance target: PlanLoop renders, queues, edits, and compares against NextLoop without autorun ambiguity.
+- [ ] Verification passes when `E2E-plan-001..003` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

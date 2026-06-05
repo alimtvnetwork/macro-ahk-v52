@@ -63,6 +63,11 @@ export function createNextLoop(host: NextLoopHost, store: any /* QueueStore */) 
 - Errors are strings → engine maps to `Reason` codes in the failure log.
 - 999 cap matches Q7.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `05 — Next-loop orchestrator reference` contract in this file and the folder-level acceptance target: reference snippets remain copyable and typecheck without hidden imports.
+- [ ] Verification passes when `typecheck-spec-snippets.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

@@ -16,3 +16,8 @@
 | `settings.reset` | counter | User-initiated resets |
 
 All metrics MUST be emitted via the event bus per `16-observability/03-metrics.md`.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Metrics Glossary` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

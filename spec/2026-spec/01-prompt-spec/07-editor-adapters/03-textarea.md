@@ -39,3 +39,8 @@ Return `el.value`.
 ## getCaret
 
 Return `{ start: el.selectionStart ?? 0, end: el.selectionEnd ?? 0 }`.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — Textarea / Input Adapter` contract in this file and the folder-level acceptance target: textarea, contenteditable, and rich-editor adapters expose the same injection contract.
+- [ ] Verification passes when `E2E-adapter-001..006` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

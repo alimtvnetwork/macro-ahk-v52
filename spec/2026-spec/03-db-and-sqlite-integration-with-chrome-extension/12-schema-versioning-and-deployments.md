@@ -132,6 +132,9 @@ function bootstrapDeployments(logsDb: SqlJsDatabase, errorsDb: SqlJsDatabase): v
 - Forgetting to bump `CURRENT_SCHEMA_VERSION` when adding a migration. Caught by `scripts/__tests__/schema-version-monotonic.test.mjs`
   (asserts the constant equals `Math.max(...MIGRATIONS.map(m => m.version))`).
 ## Acceptance for this step
+
+- [ ] The implementation satisfies the `Step 12 — Schema Versioning and the Deployments Table` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
 - `Deployments` table exists in both `logs.db` and `errors.db`.
 - `CURRENT_SCHEMA_VERSION` equals the highest `version` in the `MIGRATIONS` array (CI-checked).
 - `recordDeployment` writes both to the DB **and** updates `chrome.storage.local` atomically (DB first, storage second; if storage

@@ -55,3 +55,8 @@ Required regions of the open dropdown, top to bottom.
 
 - Visual theming (host chooses light/dark; this feature has no opinion).
 - Drag-and-drop reorder (future spec).
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T42 · Dropdown shape` contract in this file and the folder-level acceptance target: trigger, dropdown, keyboard, search, and accessibility behavior remains user-verifiable.
+- [ ] Verification passes when `CT-ui-001..009 and E2E-ui-001..003` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

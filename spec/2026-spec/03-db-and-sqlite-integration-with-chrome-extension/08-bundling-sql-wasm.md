@@ -148,6 +148,9 @@ test('public/assets/sql-wasm.wasm is present', () => {
 
 ## Acceptance for this step
 
+- [ ] The implementation satisfies the `Step 08 — Bundling sql-wasm.wasm` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 - `public/assets/sql-wasm.wasm` exists, size between ~600 KB and ~1.2 MB (release build).
 - `npm run build` produces `dist/assets/sql-wasm.wasm` of the same size.
 - `manifest.json` declares the asset under `web_accessible_resources`.

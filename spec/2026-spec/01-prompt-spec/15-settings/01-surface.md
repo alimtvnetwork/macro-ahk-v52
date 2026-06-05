@@ -28,3 +28,8 @@ All values JSON-validated on read; invalid blobs fall back to defaults with one 
 ## Live application
 
 Settings changes apply on save without reload. The queue engine reads settings lazily per tick, so an in-flight task uses the values it captured at enqueue; the **next** task picks up new values.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `01 — Settings Surface` contract in this file and the folder-level acceptance target: settings schema, defaults, reset, host overrides, and UX surface validate consistently.
+- [ ] Verification passes when `UT-settings-001..006` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

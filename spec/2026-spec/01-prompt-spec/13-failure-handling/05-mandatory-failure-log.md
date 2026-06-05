@@ -48,3 +48,8 @@ Written via the host-supplied namespace logger (e.g. `host.logger.error(record)`
 ## Verbose gate
 
 The `reasonDetail` and any captured HTML / Text snippets respect the per-project `VerboseLogging` toggle: 120/240-char truncation when OFF, full content when ON. The structural fields (`selectorAttempts`, `variableContext`) are **not** gated — they are always full.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `05 — Mandatory Failure Log` contract in this file and the folder-level acceptance target: every failure path emits the mandatory failure-log shape and user-visible feedback.
+- [ ] Verification passes when `UT-fail-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -28,3 +28,8 @@ Hard delete is forbidden for default prompts; user can only **reset** a default 
 
 - `{ kind: "archived", slug }` and `{ kind: "deleted", slug }`.
 - Cache invalidation as usual.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — Delete & Archive` contract in this file and the folder-level acceptance target: prompt create, edit, delete, duplicate, import, and archive flows are reversible and observable.
+- [ ] Verification passes when `UT-crud-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

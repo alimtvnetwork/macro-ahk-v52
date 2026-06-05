@@ -45,3 +45,8 @@ re-case them for their storage backend.
 Two `Prompt` records are considered the same logical prompt iff their
 `slug` matches (case-insensitive). `id` distinguishes physical rows;
 `slug` distinguishes logical identity.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T26 · Prompt shape` contract in this file and the folder-level acceptance target: Prompt, PromptCategory, and PromptStore contracts hold across storage implementations.
+- [ ] Verification passes when `UT-data-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

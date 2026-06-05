@@ -32,3 +32,8 @@ Same sinks as observability — SQLite by default, no network egress. Useful onl
 - No prompt slugs in onboarding events.
 - No host URLs.
 - Duration is a number; step indices are 1–5.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `05 — Adoption Telemetry` contract in this file and the folder-level acceptance target: first-run, guided tour, empty states, help, and adoption telemetry remain discoverable.
+- [ ] Verification passes when `E2E-onb-001..004` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

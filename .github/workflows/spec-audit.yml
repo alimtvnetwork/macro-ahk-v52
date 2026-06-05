@@ -14,10 +14,7 @@ jobs:
           node-version: '20'
       - name: Acceptance blocks
         run: node scripts/audit/check-acceptance.mjs
-        continue-on-error: true
       - name: Dangling links
         run: node scripts/audit/check-dangling-links.mjs
-        continue-on-error: true
       - name: Numeric constants source-of-truth
         run: node scripts/audit/check-must-constants.mjs
-        continue-on-error: true

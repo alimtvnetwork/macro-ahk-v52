@@ -44,3 +44,8 @@ type FailureReason =
 - **Per-task** (queue continues): everything else.
 
 Note: per the No-Retry rule, severity does **not** trigger retries. It only drives toast tone and whether the queue auto-pauses.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `01 — Failure Categories` contract in this file and the folder-level acceptance target: every failure path emits the mandatory failure-log shape and user-visible feedback.
+- [ ] Verification passes when `UT-fail-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

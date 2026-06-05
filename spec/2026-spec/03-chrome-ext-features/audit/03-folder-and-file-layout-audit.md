@@ -89,3 +89,8 @@ Keep this spec as the folder-layout contract. The remaining risk is enforcement 
 6. 10-reinject-and-uninject
 7. 11-error-logging-discipline
 8. 12-namespace-logger-contract
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Audit 03 — 03-folder-and-file-layout.md` contract in this file and the folder-level acceptance target: each audit finding remains traceable to a feature spec and a verification hook.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

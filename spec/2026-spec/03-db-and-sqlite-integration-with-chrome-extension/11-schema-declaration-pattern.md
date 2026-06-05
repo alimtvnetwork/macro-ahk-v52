@@ -127,6 +127,9 @@ export function rowToLog(r: Record<string, unknown>): LogRow {
 - `DEFAULT CURRENT_TIMESTAMP`. Pass timestamps from the caller (timezone the user's local timezone per core memory).
 - Mixing logs and errors tables into one physical DB. Keep `FULL_LOGS_SCHEMA` and `FULL_ERRORS_SCHEMA` separate (step 10).
 ## Acceptance for this step
+
+- [ ] The implementation satisfies the `Step 11 — Schema Declaration Pattern` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
 - `rg "CREATE TABLE" src --glob '!src/background/db-schemas.ts' --glob '!**/migration-v*-sql.ts'` returns zero hits.
 - `rg "[a-z]_[a-z]" src/background/db-schemas.ts` returns zero hits (no snake_case).
 - Every `CREATE TABLE` in `db-schemas.ts` has an `Id INTEGER PRIMARY KEY AUTOINCREMENT`.

@@ -54,3 +54,8 @@ export const contentEditableAdapter: EditorAdapter = {
 **Notes**
 - Tries the modern `beforeinput`/`InputEvent` path first; falls back to `execCommand` only when the editor cancels or ignores the event.
 - No retry loop — host engine handles fail-fast on `false` return.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — contenteditable adapter reference` contract in this file and the folder-level acceptance target: reference snippets remain copyable and typecheck without hidden imports.
+- [ ] Verification passes when `typecheck-spec-snippets.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

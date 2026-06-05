@@ -26,3 +26,8 @@ All tokens MUST be declared in `index.css` and consumed via Tailwind semantic cl
 | `--prompt-success/warning/danger` | Toast + status pill |
 
 Dark theme enforced (per Core memory). No light mode.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `CSS Tokens (HSL only)` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

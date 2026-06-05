@@ -33,6 +33,11 @@
 - Mutate the user's selected Next prompt.
 - Persist plan output anywhere — output lives only in the host's chat history.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — Plan vs Next Comparison` contract in this file and the folder-level acceptance target: PlanLoop renders, queues, edits, and compares against NextLoop without autorun ambiguity.
+- [ ] Verification passes when `E2E-plan-001..003` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

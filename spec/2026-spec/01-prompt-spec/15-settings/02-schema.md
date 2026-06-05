@@ -32,3 +32,8 @@ interface DebugSettings {
 ## Migrations
 
 Settings carry an implicit shape version via JSON-Schema validation. Forward-incompatible changes require a migration function `migrate(prev: JsonValue, fromVersion: number): PromptsSettings`. Missing migrations → reset to defaults with one error log.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `02 — Settings Schema` contract in this file and the folder-level acceptance target: settings schema, defaults, reset, host overrides, and UX surface validate consistently.
+- [ ] Verification passes when `UT-settings-001..006` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

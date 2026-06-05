@@ -35,3 +35,8 @@ Each combo asserts:
 - Mock idle observer to emit `Idle` after 50ms; queue of 5 tasks drains, all `completed`.
 - Observer emits `Interrupted` → task goes `hold`, queue pauses, `resumeAll` transitions back to `processing` without re-inject.
 - Observer emits `Timeout` → task `failed { IdleTimeout }`, queue continues with next task.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — Integration Tests` contract in this file and the folder-level acceptance target: test inventories, target lists, fixtures, and mocks remain discoverable by automation.
+- [ ] Verification passes when `meta-check` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -209,3 +209,7 @@ unless the host repo has a documented reason to pin an image. If pinned, use a
 supported image such as `ubuntu-24.04` and review it when GitHub announces image
 deprecation. Do not use deprecated runner labels.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `05 — Workflow Files, Triggers & Runtime Policy` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

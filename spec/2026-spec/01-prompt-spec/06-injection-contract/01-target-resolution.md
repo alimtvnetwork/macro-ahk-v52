@@ -75,3 +75,8 @@ If multiple ChatBoxes can coexist (e.g. tabbed conversations), the
 locator MAY return more than one match; the integrator passes an
 optional `anchorRect` to disambiguate (closest match wins). The
 ambiguity itself is **not** an error.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T46 · Target resolution` contract in this file and the folder-level acceptance target: all supported paste strategies inject and verify prompt text without corrupting selection state.
+- [ ] Verification passes when `UT-inject-001..008 and E2E-inject-001..004` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

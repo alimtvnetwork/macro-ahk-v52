@@ -43,3 +43,8 @@ sort final by (category, order, title)
 Default ids are deterministic across installs (`default-next-tasks`),
 but user records are created with fresh UUIDs. Slug is the only stable
 key both sides agree on.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T34 · Defaults vs user prompts — merge precedence` contract in this file and the folder-level acceptance target: prompt source files round-trip through parse and emit without semantic drift.
+- [ ] Verification passes when `UT-source-001..008` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -18,3 +18,8 @@ Single source of truth for every numeric constant in the spec. Implementation MU
 | `LOADER_CACHE_LRU_SIZE` | 64 | 16..256 | `04-loader-contract/02-cache-rules.md` |
 | `LOG_TRUNCATE_HTML` | 120 | when verbose=false | `mem://standards/verbose-logging-and-failure-diagnostics` |
 | `LOG_TRUNCATE_TEXT` | 240 | when verbose=false | same |
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Runtime Defaults` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
