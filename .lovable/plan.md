@@ -1,97 +1,101 @@
 # Plan SOT Pointer
 
-⚠️ **Roadmap SOT is `/plan.md` at the repo root.** This file holds only the active task-spec for the current `next` cycle. Do not add roadmap items here.
+⚠️ **Roadmap SOT is `/plan.md` at the repo root.** This file holds only the active task-spec for the current `next` cycle.
 
 ---
 
-# Task Spec — Blind-AI Audit of `spec/2026-spec/` (30 Steps)
+# Task Spec — Drive `spec/2026-spec/` Blind-AI Audit to 100/100 (30 Steps)
 
 **Created:** 2026-06-05
 **Owner:** next-loop
-**Scope:** Audit every spec file under `spec/2026-spec/` for blind-AI implementability. Produce a per-file gap analysis and an aggregated score with concrete remediation steps. Mode: **plan only — do not execute in this turn.**
+**Mode:** **plan only — do not execute in this turn.**
+**Starting state:** composite **90.22 / 100** across 229 md files (per `_audit-2026-06-05/99-final-score.md`). 60 files still <90; 0 red.
+**Goal:** composite **≥ 99.5 / 100**, **0 files <90**, all 3 CI checks (acceptance / dangling-links / must-constants) plus the audit-scan heuristic green, and a regression-locked snapshot in CI.
 
-## Goal
+## Guidelines applied
 
-A blind AI handed ONLY a single spec file (no codebase, no chat) must be able to implement it correctly. For each file, report:
+- `.lovable/coding-guidelines.md` — present; applies to any script edits (audit scanner, CI checks) made during execution.
+- `spec/coding-guidelines/` — missing, skipped silently.
+- `.lovable/seo-guidelines.md` — N/A (docs audit, not SEO).
+- Core memory rules in force: No-Questions Mode (log ambiguities under `.lovable/question-and-ambiguity/`), `next` convention, no-retry policy, error-logging discipline, readme.txt prohibitions (no time/clock writes), timezone rule (no hardcoded TZ in any new footer text).
 
-- **Implementable %** — how much the AI can ship without escalation.
-- **Failure %** — how much will silently break or require human input.
-- **Top blockers** — ambiguities, missing acceptance, dangling references, missing schemas, undefined identifiers.
-- **Score (0–100)** on the 5-dim rubric (clarity 25 / determinism 25 / acceptance 20 / cross-refs 15 / pitfalls 15).
-- **Remediation** — exact patches to lift the score to ≥ 90.
+## Pending tasks scanned from `.lovable/`
 
-## Deliverable Layout
+Carried forward (open, not auto-picked):
 
-```
-spec/2026-spec/_audit-2026-06-05/
-├── README.md                  # top-level index + aggregate scoreboard
-├── 00-method.md               # rubric, blind-AI protocol, scoring keys
-├── 01-aggregate-scoreboard.md # one row per audited file w/ score + %
-├── 10-folder-01-prompt-spec.md
-├── 11-folder-02-ci-cd.md
-├── 12-folder-03-chrome-ext-features.md
-├── 13-folder-03-db-and-sqlite.md
-├── 20-cross-folder-gaps.md
-├── 30-remediation-backlog.md  # 30-step fix queue, ranked by impact
-└── 99-final-score.md
-```
+1. **ws-members-panel.ts:314 unterminated string (TS1002)** — pre-existing, blocks `tsc --noEmit` on macro-controller. _(from `.lovable/pending-issues/readme.md`)_ — out of scope for this audit-uplift cycle; remains open.
+2. **Deferred (do NOT auto-pick):** D1 React component tests, D2 E2E React UI, D3 Prompt Click E2E, D4 P Store, D5 Cross-Project Sync. _(`05-future-pending-work.md`; honor `mem://preferences/deferred-workstreams`)_
+3. **Issue 115 — Workspace label refinement** — already marked ✅ COMPLETE in v3.12.0; leave closed.
 
-Per-folder audit file structure: front-matter (folder path, file count, aggregate score) → per-file table → top-10 gaps → recommended patches.
+No new pending items are introduced by this plan. If step 29 fires, a new entry will be appended at execution time.
+
+## Ambiguities (logged, non-blocking)
+
+- "reaches to a hundred percent" — interpreted as composite ≥ 99.5 AND 0 files <90 AND all CI checks green. If the user meant literal 100.0 on every file, step 30 verifies and a follow-up plan would extend.
+- "take steps I will describe later on" — interpreted as: write the 30 steps now; user may revise before execution.
 
 ---
 
 ## The 30 Steps
 
-**Execution progress:** Steps 1–7 and 22, 24, 26, 28 complete (folder audits 01/02/03ext/03db, scoreboard, cross-folder gaps, copy-paste backlog, audit scripts, reconciliation, self-audit, final score, README all written 2026-06-05). Composite 50.1/100. Next execution starts at Step 8.
+Each step is atomic, has a proof hook (test / script / scorer delta), and lists the files it touches. Steps are ordered by impact-per-effort using the current per-folder gap data.
 
-1. Inventory `spec/2026-spec/` — list every `.md`, count files per subfolder, snapshot tree to `00-method.md`.
-2. Lock the rubric (5 dims, weights, pass bar = 90) and the blind-AI protocol into `00-method.md`.
-3. Create `_audit-2026-06-05/` skeleton with all 9 placeholder files above.
-4. Audit `01-prompt-spec/README.md` + each numbered file; score, list gaps, propose patches → `10-folder-01-prompt-spec.md`.
-5. Audit `02-ci-cd-spec-for-chrome-extensions/` (00–17 + audit.md + 99). Use existing `audit.md` as prior art — reconcile, do not duplicate → `11-folder-02-ci-cd.md`.
-6. Audit `03-chrome-ext-features/README.md` + every `NN-*.md` (01–20). Cross-check against existing per-file audits in `audit/` — flag stale audits → `12-folder-03-chrome-ext-features.md`.
-7. Audit `03-db-and-sqlite-integration-with-chrome-extension/` → `13-folder-03-db-and-sqlite.md`.
-8. For every spec file, run the 5 blind-AI questions: identifiers defined? schemas present? acceptance machine-checkable? cross-refs resolvable inside the folder? pitfalls + counter-examples shown?
-9. Record per-file Implementable % and Failure % in the per-folder tables.
-10. Flag every dangling reference (links to files that don't exist, undefined symbols, missing schema paths).
-11. Flag every "non-negotiable" rule that lacks an enforcement hook (test, lint, CI gate).
-12. Flag every place a numeric constant appears without source-of-truth binding (e.g. timeouts, caps, budgets).
-13. Flag every TS type / JSON schema referenced but not inlined or linked to a versioned schema file.
-14. Flag every place the spec says "the host implements X" without contract shape.
-15. Flag duplicated rules across folders and pick a single owner — record in `20-cross-folder-gaps.md`.
-16. Flag conflicting rules across folders (different values for the same constant, etc.) → `20-cross-folder-gaps.md`.
-17. Compute aggregate score per folder = weighted mean of per-file scores.
-18. Compute repo-wide blind-AI score (`spec/2026-spec/` composite) → `99-final-score.md`.
-19. Compute repo-wide Implementable % and Failure % (weighted by file size) → `99-final-score.md`.
-20. Write `01-aggregate-scoreboard.md`: one row per file (Path | Score | Impl% | Fail% | Top Blocker).
-21. Rank every gap by (Failure% impact × file traffic) into a single backlog → `30-remediation-backlog.md`.
-22. For each backlog item, write the exact patch instruction (file, section, before/after) — must be copy-paste-applyable by a blind AI.
-23. Group backlog into 30 atomic fix-steps (1 patch = 1 step) so the existing spec-tighten macro can iterate.
-24. Add machine-check hooks to `30-remediation-backlog.md`: for each step name the script/test that proves it landed (or "needs new test").
-25. Cross-reference every gap against existing memories (`mem://index.md`) — if a rule already exists, cite it; if missing, add a TODO for memory creation.
-26. Cross-reference against `spec/99-consistency-report.md` and per-folder `99-consistency-report.md` files — reconcile findings.
-27. Validate that `_audit-2026-06-05/README.md` lists every produced file and the aggregate score, with anchor links.
-28. Self-audit pass: re-read every produced audit file; confirm rubric applied consistently and no folder skipped.
-29. Append `Pending` entry to `.lovable/pending-issues/` if any backlog item is deferred (e.g. requires user input).
-30. Final write-up to `99-final-score.md`: aggregate score, top-5 blockers, "fix to reach 100" path, ETA per step.
+### Wave A — Topic-aware uplift of remaining stragglers (steps 1–10)
+
+1. **Inventory <90 files.** Run `python3 scripts/audit/audit-scan.py spec/2026-spec --output=/tmp/scores.json`, then emit `/tmp/under90.json` grouped by folder. Proof: file exists, 60 rows.
+2. **Per-topic preset for `01-prompt-spec/08-save-create-edit/`** (5 files). MUST: optimistic-update rollback rule, slug-collision policy, soft-delete TTL bound to `reference/05-runtime-defaults.md`. Pitfalls: lost-update on concurrent edit, ZIP re-import duplicate id. Proof: scorer rerun, all 5 files ≥90.
+3. **Per-topic preset for `01-prompt-spec/09-next-overview/`** (5 files). MUST: host-submit button detection contract, disabled-button polling cap, interruption-detection event schema, cancel idempotency. Pitfalls: double-fire on focus regain, false-positive interruption on scroll. Proof: scorer ≥90 each.
+4. **Per-topic preset for `01-prompt-spec/10-queue-model/` + `11-queue-lifecycle/`** (10 files). MUST: task-shape JSON schema bound, status enum closed-set, ordering tie-breaker, retry-and-hold budget bound to runtime-defaults. Pitfalls: status-skip race, stuck `processing` on tab close. Proof: scorer ≥90 each + `check-must-constants` green.
+5. **Per-topic preset for `01-prompt-spec/15-settings/`** (5 files). MUST: settings-schema versioning, default-reset deterministic order, host-override precedence. Pitfalls: stale cache after schema bump, host-override applied to unrelated origin. Proof: scorer ≥90 each.
+6. **Per-topic preset for `01-prompt-spec/17-onboarding/` + `18-test-plan/`** (10 files). MUST: first-run idempotency, telemetry opt-in default `false`, test-fixture path conventions, ci-gate names. Pitfalls: tour re-fires after re-install, fixtures drift from schema. Proof: scorer ≥90 each.
+7. **Per-topic preset for `01-prompt-spec/19-reference-snippets/` + `20-adoption-checklist/`** (10 files). MUST: snippets compile under TS strict, checklist items map to acceptance criteria. Pitfalls: snippet diverges from contract, checklist references removed file. Proof: scorer ≥90 each + `check-dangling-links` green.
+8. **Per-topic preset for `01-prompt-spec/99-spec-issues/` + `reference/` + `ui-reference/`** (5 files). MUST: every issue has resolution-state, every reference page bound to a runtime constant or schema. Proof: scorer ≥90 each.
+9. **Per-topic preset for `02-ci-cd-spec` 80–89 stragglers** (6 files). MUST: bare `on: push:` rule, `httpFailFast` reference, no-zips-in-repo, out-of-band tag policy. Pitfalls: branch/path filter regression, `gh release create` with `--draft` skipping workflow. Proof: scorer ≥90 each.
+10. **Per-topic preset for `03-chrome-ext-features/audit/` subfolder** (14 files). MUST: each audit references its parent spec file + a machine check, includes a counter-example. Pitfalls: audit-stale-vs-spec, missing namespace logger call. Proof: scorer ≥90 each.
+
+### Wave B — Determinism + acceptance hardening (steps 11–17)
+
+11. **Bind every numeric constant to `reference/05-runtime-defaults.md`.** Run `check-must-constants` in `--report` mode to list every literal lacking citation, patch each. Proof: `check-must-constants` exits 0 with `--strict`.
+12. **Add machine-checkable acceptance to every README/overview file** currently using the exempt fallback. Convert "should" → "MUST" with checkbox list. Proof: scorer `acceptance=20` for every file; spot-audit ≥10 files.
+13. **Inline JSON Schemas / TS types where referenced but missing.** Scan `01-prompt-spec/02-data-model/` and `10-queue-model/` for "shape" prose without a fenced schema; inline minimal schema. Proof: scorer `determinism` ≥20 each.
+14. **Pitfalls + counter-example pass** on every file still scoring `pitfalls=0`. Append at least one `Anti-pattern:` + one `Edge case:` block. Proof: scorer `pitfalls=15` for all files.
+15. **Cross-ref repair pass.** Run `check-dangling-links`, patch every dangling target (create stub or relink). Proof: `check-dangling-links` exits 0; scorer `cross_refs=15` for every file with links.
+16. **Top-level `spec/2026-spec/README.md` uplift** from 90 → 100. Add deterministic links to all 4 subfolders + machine-check anchor list + per-folder mean table. Proof: scorer = 100.
+17. **`_audit-2026-06-05/` self-consistency pass.** Re-run scorer, regenerate `01-aggregate-scoreboard.md`, `99-final-score.md`, `README.md` from `/tmp/scores.json` via a new `scripts/audit/render-reports.mjs`. Proof: regenerated files diff-clean on rerun.
+
+### Wave C — Cross-folder & SOT consolidation (steps 18–22)
+
+18. **Cross-folder duplicate-rule consolidation.** For every rule duplicated across `01-prompt-spec`, `02-ci-cd`, `03-chrome-ext-features`, `03-db-and-sqlite`, pick one canonical owner; other folders link to it. Proof: `20-cross-folder-gaps.md` updated; no duplicate MUST text >120 chars across folders (grep check).
+19. **Conflicting-constant resolution.** Diff numeric constants across folders; for any divergence, pick winner in `reference/05-runtime-defaults.md` and patch losers. Proof: new `scripts/audit/check-constant-divergence.mjs` exits 0.
+20. **Memory cross-reference.** For every "MUST" added in waves A/B, cite the matching `mem://` entry (or add a TODO in `.lovable/question-and-ambiguity/` if none exists). Proof: grep finds zero un-cited MUSTs in updated files.
+21. **Reconcile with `99-consistency-report.md`** files inside each subfolder; update `_audit-2026-06-05/40-reconciliation-with-root-consistency-report.md` with closed/open status per row. Proof: file updated; open count documented.
+22. **Quarantine graduation pass** — process ~196 id-denylist files: confirm graduation criteria met, move to active list, or document why deferred. Proof: graduation log appended.
+
+### Wave D — CI lock-in & regression guards (steps 23–28)
+
+23. **Add `scripts/audit/render-reports.mjs`** that consumes `/tmp/scores.json` and writes the 3 report files deterministically (no timestamps). Proof: unit test for renderer in `scripts/__tests__/`.
+24. **Add `scripts/audit/check-score-floor.mjs`** — fails if any file <90 or composite <99.5. Proof: passes locally; fails on a planted regression in a test fixture.
+25. **Wire all checks into `.github/workflows/spec-audit.yml`:** `audit-scan.py` → `render-reports.mjs` (diff-clean) → `check-score-floor.mjs` → existing acceptance/dangling/must-constants. Upload `scores.json` as artefact. Proof: workflow YAML updated; canary push green.
+26. **Add `check-constant-divergence.mjs`** to the workflow (from step 19). Proof: workflow green.
+27. **Snapshot lock:** commit `_audit-2026-06-05/scores.snapshot.json`. Workflow diffs current scores vs snapshot; alerts on drop, accepts only when snapshot is updated in same PR. Proof: workflow asserts equality.
+28. **No-bare-fetch & footer-lint guards** for new audit scripts (apply `.lovable/coding-guidelines.md` rules: functions ≤8 lines, no `any`, boolean naming). Proof: `npm run lint` clean on changed files; new unit tests in `scripts/__tests__/`.
+
+### Wave E — Final score, sign-off, pending sweep (steps 29–30)
+
+29. **Pending-issues sweep.** If any backlog item required user input or was deferred, append a new entry under `.lovable/pending-issues/` with exact path, missing item, and reasoning (Code Red logging rule). Cross-check `06-workspace-label-refinement.md` stays ✅ COMPLETE.
+30. **Final write-up.** Re-run full audit; if composite ≥ 99.5 AND 0 files <90 AND all 5 CI checks green → update `_audit-2026-06-05/99-final-score.md` + top-level `README.md` with the new score, the "100%" verification snippet, and the snapshot hash. If any gate red, log gap to `.lovable/question-and-ambiguity/` and stop for user input. Proof: CI green on final push + composite ≥ 99.5 printed.
 
 ---
 
-## Guidelines applied
+## Expected scorecard after 30 steps
 
-- `.lovable/coding-guidelines.md` — present, will follow during execution.
-- `spec/coding-guidelines/` — not present, skipped per rule.
-- `mem://index.md` Core rules in force: No-Questions Mode active (log ambiguities to `.lovable/question-and-ambiguity/`), `next` convention, dark-only theme N/A (audit is docs-only), no-retry, error-logging discipline, readme.txt prohibitions (no time/clock writes into `readme.txt`).
+| Metric | Start | Target |
+| --- | --- | --- |
+| Composite | 90.22 | **≥ 99.5** |
+| Files ≥ 90 | 169 / 229 | **229 / 229** |
+| Files < 60 | 0 | **0** |
+| CI checks green | 3 / 3 | **6 / 6** (adds score-floor, constant-divergence, snapshot-diff) |
 
-## Pending tasks scanned from `.lovable/`
+## Execution order note
 
-Carried forward (open):
-
-1. **ws-members-panel.ts:314 unterminated string (TS1002)** — pre-existing, blocks `tsc --noEmit` on macro-controller. _(from `.lovable/pending-issues/readme.md`)_
-2. **Deferred (do NOT auto-pick):** D1 React component tests, D2 E2E React UI, D3 Prompt Click E2E, D4 P Store, D5 Cross-Project Sync. _(from `05-future-pending-work.md`; honor `mem://preferences/deferred-workstreams`)_
-
-No new pending items from this plan; if step 29 fires, a new entry will be created at execution time.
-
-## Ambiguities (none blocking)
-
-- "Put your gap analysis in thirty step, next thirty step" — interpreted as: write the 30 planning steps now, then execute them as the next 30 `next` iterations. If the user meant "produce 30 separate gap-analysis documents", they can correct on the next turn.
+Steps 1–10 are highest impact (mechanical uplift) and should run in 1–2 batches. Steps 11–17 close the determinism + acceptance long tail. Steps 18–22 prevent score regression via SOT consolidation. Steps 23–28 lock the gains in CI. Steps 29–30 finalize.
