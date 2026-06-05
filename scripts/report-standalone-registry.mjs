@@ -30,7 +30,7 @@
  *            `emitJsonReport()` for the full schema.
  *
  * Excluded folders (not real standalone scripts):
- *   _generated, types, prompts (prompts is content-only, no build entry)
+ *   _generated, types, prompts, macros (content-only folders, no build entry)
  *
  * Author: Riseup Asia LLC
  */
@@ -48,7 +48,7 @@ const JSON_MODE = process.argv.includes("--json");
 const IS_CI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 
 /** Folders inside standalone-scripts/ that are NOT discoverable as a standalone script. */
-const EXCLUDED_FOLDERS = new Set(["_generated", "types", "prompts"]);
+const EXCLUDED_FOLDERS = new Set(["_generated", "types", "prompts", "macros"]);
 
 /**
  * Locations every script must appear in. Stable, ordered for the
