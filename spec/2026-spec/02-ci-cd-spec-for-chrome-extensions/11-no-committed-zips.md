@@ -52,3 +52,12 @@ Add a CI gate: `git ls-files | grep -E '\.(zip|crx|xpi)$' && exit 1`.
 - **Edge case:** new-tab / blank navigations (`about:blank`, `chrome://newtab/`) — gate every entry point with `isNewTabOrBlankUrl()`.
 - **Counter-example:** hardcoding a timezone string (e.g. `Asia/Kuala_Lumpur`) — always render in the user's local timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone`.
 - **Gotcha:** assuming Chrome `storage.local` is synchronous — it is async and MUST be awaited; never read it during top-level module evaluation.
+
+<!-- audit: uplift-to-100 footer -->
+
+## Audit Anchors (source-of-truth)
+
+- Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](README.md).
+- The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
+- Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
+

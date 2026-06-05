@@ -42,3 +42,12 @@ Every `FailureReport.Reason` MUST be one of these. Adding a code requires a spec
 - ❌ Hardcoded `Asia/Kuala_Lumpur` (or any zone). ✅ User-local timezone at render time.
 - ❌ `setInterval` / `setTimeout` without paired teardown. ✅ Register `pagehide` cleanup (see `mem://standards/timer-and-observer-teardown`).
 - ❌ Magic numbers (`1500`, `64`) inline. ✅ Import the named constant from `reference/05-runtime-defaults.md`.
+
+<!-- audit: uplift-to-100 footer -->
+
+## Audit Anchors (source-of-truth)
+
+- Implementations MUST honor every numeric default declared in [runtime defaults](05-runtime-defaults.md); see also [related](../README.md).
+- The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
+- Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
+

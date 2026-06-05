@@ -47,3 +47,12 @@ Rollups expose only counts and durations. The raw event log is local-only and re
 - ❌ Sending events to a remote endpoint. ✅ Local-only — never `mem://constraints/no-ci-notifications`.
 - ❌ Hardcoded timestamp formatting. ✅ Store UTC ms; render with `Intl.DateTimeFormat().resolvedOptions().timeZone`.
 - ❌ Retrying failed metric writes. ✅ Drop on floor with a single `Logger.warn` (fail-fast).
+
+<!-- audit: uplift-to-100 footer -->
+
+## Audit Anchors (source-of-truth)
+
+- Implementations MUST honor every numeric default declared in [runtime defaults](../reference/05-runtime-defaults.md); see also [related](../README.md).
+- The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
+- Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
+

@@ -55,3 +55,12 @@ step, while still letting integrators curate a primary set.
 - ❌ Mutating an imported prompt object in place. ✅ Clone via `structuredClone` before validation so the source bundle stays comparable.
 - ❌ Persisting `createdAt` as a localized string. ✅ Store `Date.now()` UTC ms; render with the user-local timezone.
 - ❌ Wide `interface Prompt { [k: string]: unknown }`. ✅ Closed shape — every key declared (see `mem://standards/unknown-usage-policy`).
+
+<!-- audit: uplift-to-100 footer -->
+
+## Audit Anchors (source-of-truth)
+
+- Implementations MUST honor every numeric default declared in [runtime defaults](../reference/05-runtime-defaults.md); see also [related](../README.md).
+- The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
+- Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
+

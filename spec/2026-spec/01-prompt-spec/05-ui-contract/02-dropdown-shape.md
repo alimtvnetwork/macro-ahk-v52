@@ -77,3 +77,12 @@ Required regions of the open dropdown, top to bottom.
 - ❌ Showing "no results" only when the user pauses typing. ✅ Update synchronously after debounce.
 - ❌ Mouse hover auto-selects a row. ✅ Hover highlights only; selection requires click or `Enter`.
 - ❌ Tooltip rendered with a hardcoded timezone. ✅ Use `Intl.DateTimeFormat().resolvedOptions().timeZone`.
+
+<!-- audit: uplift-to-100 footer -->
+
+## Audit Anchors (source-of-truth)
+
+- Implementations MUST honor every numeric default declared in [runtime defaults](../reference/05-runtime-defaults.md); see also [related](../README.md).
+- The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
+- Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
+

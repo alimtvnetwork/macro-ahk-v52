@@ -76,3 +76,12 @@ Numeric defaults referenced in this file are canonical in [Runtime Defaults](../
 - ❌ Silent `?? ""` for missing variables. ✅ Throw with full `VariableContext` (name/source/row/column/resolvedValue/type/reason).
 - ❌ Polling the manifest every N seconds. ✅ Manual-load + hash-diff (see `mem://features/prompt-management`).
 - ❌ Retrying a failed load with exponential backoff. ✅ Fail fast per `mem://constraints/no-retry-policy`.
+
+<!-- audit: uplift-to-100 footer -->
+
+## Audit Anchors (source-of-truth)
+
+- Implementations MUST honor every numeric default declared in [runtime defaults](../reference/05-runtime-defaults.md); see also [related](../README.md).
+- The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
+- Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
+

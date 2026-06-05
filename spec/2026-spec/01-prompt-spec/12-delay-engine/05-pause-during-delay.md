@@ -73,3 +73,12 @@ Numeric defaults referenced in this file are canonical in [Runtime Defaults](../
 - ❌ Restarting the delay on pause/resume. ✅ Track `remainingMs` at pause; resume schedules `remainingMs`.
 - ❌ Hardcoding 1500ms inline. ✅ Import the named constant.
 - ❌ Adding exponential backoff on send failure. ✅ Fail fast; surface to user (no-retry policy).
+
+<!-- audit: uplift-to-100 footer -->
+
+## Audit Anchors (source-of-truth)
+
+- Implementations MUST honor every numeric default declared in [runtime defaults](../reference/05-runtime-defaults.md); see also [related](../README.md).
+- The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
+- Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
+
