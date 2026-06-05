@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
 const SPEC_DIR = resolve(REPO_ROOT, 'spec/2026-spec/02-ci-cd-spec-for-chrome-extensions');
-const SPEC_README = resolve(SPEC_DIR, 'README.md');
+const SPEC_README = resolve(SPEC_DIR, 'readme.md');
 const GITIGNORE = resolve(REPO_ROOT, '.gitignore');
 
 function readAllSpec() {
