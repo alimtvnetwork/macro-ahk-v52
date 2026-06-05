@@ -115,7 +115,7 @@ export function markLoggingDirty(): void {
 
 /** Inserts a log entry into the logs database. */
 export async function handleLogEntry(message: MessageRequest): Promise<OkResponse> {
-    const msg = message as MessageRequest & {
+    const payload = message as MessageRequest & {
         level: string;
         source: string;
         category: string;
@@ -127,8 +127,8 @@ export async function handleLogEntry(message: MessageRequest): Promise<OkRespons
     };
 
     const sessionId = await ensureSessionId();
-    insertLogRow(msg, sessionId);
-    void writeLogEntry(msg);
+    insertLogRow(payload, sessionId);
+    void writeLogEntry(payload);
     dbManager!.markDirty();
     return { isOk: true };
 }
@@ -138,7 +138,7 @@ export async function handleLogEntry(message: MessageRequest): Promise<OkRespons
  * (undefined)" if any param is undefined, so every column is coerced here. */
 
 /** Executes the INSERT for a single log row. */
-function insertLogRow(msg: {
+function insertLogRow(payload: {
     level: string;
     source: string;
     category: string;
@@ -158,14 +158,14 @@ function insertLogRow(msg: {
         [
             sessionId,
             now,
-            bindReq(msg.level, "INFO"),
-            bindReq(msg.source, "unknown"),
-            bindReq(msg.category, "GENERAL"),
-            bindReq(msg.action, "log"),
-            bindReq(msg.detail, ""),
-            bindOpt(msg.scriptId),
-            bindOpt(msg.projectId),
-            bindOpt(msg.configId),
+            bindReq(payload.level, "INFO"),
+            bindReq(payload.source, "unknown"),
+            bindReq(payload.category, "GENERAL"),
+            bindReq(payload.action, "log"),
+            bindReq(payload.detail, ""),
+            bindOpt(payload.scriptId),
+            bindOpt(payload.projectId),
+            bindOpt(payload.configId),
             bindReq(version, "0.0.0"),
         ],
     );
@@ -177,7 +177,7 @@ function insertLogRow(msg: {
 
 /** Inserts an error entry into the errors database. */
 export async function handleLogError(message: MessageRequest): Promise<OkResponse> {
-    const msg = message as MessageRequest & {
+    const payload = message as MessageRequest & {
         level: string;
         source: string;
         category: string;
@@ -192,13 +192,13 @@ export async function handleLogError(message: MessageRequest): Promise<OkRespons
     };
 
     const sessionId = await ensureSessionId();
-    insertErrorRow(msg, sessionId);
-    writeErrorEntry(msg);
+    insertErrorRow(payload, sessionId);
+    writeErrorEntry(payload);
     return { isOk: true };
 }
 
 /** Executes the INSERT for a single error row. */
-function insertErrorRow(msg: {
+function insertErrorRow(payload: {
     level: string;
     source: string;
     category: string;
@@ -221,17 +221,17 @@ function insertErrorRow(msg: {
         [
             sessionId,
             now,
-            bindReq(msg.level, "ERROR"),
-            bindReq(msg.source, "unknown"),
-            bindReq(msg.category, "GENERAL"),
-            bindReq(msg.errorCode, "UNKNOWN"),
-            bindReq(msg.message, "(no message)"),
-            bindOpt(msg.stackTrace),
-            bindOpt(msg.context),
-            bindOpt(msg.scriptId),
-            bindOpt(msg.projectId),
-            bindOpt(msg.configId),
-            bindOpt(msg.scriptFile),
+            bindReq(payload.level, "ERROR"),
+            bindReq(payload.source, "unknown"),
+            bindReq(payload.category, "GENERAL"),
+            bindReq(payload.errorCode, "UNKNOWN"),
+            bindReq(payload.message, "(no message)"),
+            bindOpt(payload.stackTrace),
+            bindOpt(payload.context),
+            bindOpt(payload.scriptId),
+            bindOpt(payload.projectId),
+            bindOpt(payload.configId),
+            bindOpt(payload.scriptFile),
             bindReq(version, "0.0.0"),
         ],
     );
@@ -266,8 +266,8 @@ function normalizeRows(rows: SqlRow[]): Record<string, SqlValue>[] {
 export async function handleGetRecentLogs(
     message: MessageRequest,
 ): Promise<{ logs: Record<string, SqlValue>[] }> {
-    const msg = message as MessageRequest & { source?: string; limit?: number };
-    const logs = normalizeRows(queryRecentLogs(msg.source, msg.limit));
+    const payload = message as MessageRequest & { source?: string; limit?: number };
+    const logs = normalizeRows(queryRecentLogs(payload.source, payload.limit));
 
     return { logs };
 }
@@ -382,8 +382,8 @@ function queryRecentErrorsAll(limit: number): SqlRow[] {
 export async function handleGetSessionReport(
     message: MessageRequest,
 ): Promise<{ report: string; sessionId: string; sessions: string[]; sessionsWithTimestamps: SessionInfo[] }> {
-    const msg = message as MessageRequest & { sessionId?: string };
-    const sid = msg.sessionId ?? (currentSessionId !== null ? String(currentSessionId) : null);
+    const payload = message as MessageRequest & { sessionId?: string };
+    const sid = payload.sessionId ?? (currentSessionId !== null ? String(currentSessionId) : null);
     const report = await buildSessionReport(sid ?? undefined);
     const sessionsWithTs = await listSessionsWithTimestamps();
     const sessions = sessionsWithTs.map((s) => s.id);

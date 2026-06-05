@@ -156,8 +156,8 @@ export interface ProjectGroupMember {
 /*  SharedAsset CRUD                                                   */
 /* ------------------------------------------------------------------ */
 
-export async function handleGetSharedAssets(msg: AssetTypeMsg): Promise<{ assets: SharedAsset[] }> {
-    const { assetType } = msg;
+export async function handleGetSharedAssets(payload: AssetTypeMsg): Promise<{ assets: SharedAsset[] }> {
+    const { assetType } = payload;
     const db = getDb();
     const sql = assetType
         ? "SELECT * FROM SharedAsset WHERE Type = ? ORDER BY Name ASC"
@@ -169,8 +169,8 @@ export async function handleGetSharedAssets(msg: AssetTypeMsg): Promise<{ assets
     return { assets };
 }
 
-export async function handleGetSharedAsset(msg: AssetIdMsg): Promise<{ asset: SharedAsset | null }> {
-    const { assetId } = msg;
+export async function handleGetSharedAsset(payload: AssetIdMsg): Promise<{ asset: SharedAsset | null }> {
+    const { assetId } = payload;
     const db = getDb();
     const result = db.exec("SELECT * FROM SharedAsset WHERE Id = ?", [assetId]);
     if (result.length === 0 || result[0].values.length === 0) return { asset: null };
@@ -190,8 +190,8 @@ function snapshotVersion(db: ReturnType<typeof getDb>, assetId: number, version:
     );
 }
 
-export async function handleSaveSharedAsset(msg: SaveAssetMsg): Promise<{ assetId: number } | HandlerErrorResponse> {
-    const asset = msg?.asset;
+export async function handleSaveSharedAsset(payload: SaveAssetMsg): Promise<{ assetId: number } | HandlerErrorResponse> {
+    const asset = payload?.asset;
     if (!asset) return missingFieldError("asset", "LIBRARY_SAVE_ASSET");
     if (requireField(asset.Name) === null) return missingFieldError("asset.Name", "LIBRARY_SAVE_ASSET");
     if (requireField(asset.Type) === null) return missingFieldError("asset.Type", "LIBRARY_SAVE_ASSET");
@@ -226,8 +226,8 @@ export async function handleSaveSharedAsset(msg: SaveAssetMsg): Promise<{ assetI
     return { assetId: newId };
 }
 
-export async function handleDeleteSharedAsset(msg: AssetIdMsg): Promise<{ isOk: true; detachedCount: number }> {
-    const { assetId } = msg;
+export async function handleDeleteSharedAsset(payload: AssetIdMsg): Promise<{ isOk: true; detachedCount: number }> {
+    const { assetId } = payload;
     const db = getDb();
 
     // Per spec §6.3: synced links become detached (preserving local copies)
@@ -257,8 +257,8 @@ export async function handleDeleteSharedAsset(msg: AssetIdMsg): Promise<{ isOk: 
 /*  AssetLink CRUD                                                     */
 /* ------------------------------------------------------------------ */
 
-export async function handleGetAssetLinks(msg: LinkFilterMsg): Promise<{ links: AssetLink[] }> {
-    const { projectId, sharedAssetId } = msg;
+export async function handleGetAssetLinks(payload: LinkFilterMsg): Promise<{ links: AssetLink[] }> {
+    const { projectId, sharedAssetId } = payload;
     const db = getDb();
     let sql = "SELECT * FROM AssetLink";
     const conditions: string[] = [];
@@ -287,8 +287,8 @@ export async function handleGetAssetLinks(msg: LinkFilterMsg): Promise<{ links: 
     return { links };
 }
 
-export async function handleSaveAssetLink(msg: SaveLinkMsg): Promise<{ linkId: number } | HandlerErrorResponse> {
-    const link = msg?.link;
+export async function handleSaveAssetLink(payload: SaveLinkMsg): Promise<{ linkId: number } | HandlerErrorResponse> {
+    const link = payload?.link;
     if (!link) return missingFieldError("link", "LIBRARY_SAVE_LINK");
     if (typeof link.SharedAssetId !== "number") return missingFieldError("link.SharedAssetId", "LIBRARY_SAVE_LINK");
     if (typeof link.ProjectId !== "number") return missingFieldError("link.ProjectId", "LIBRARY_SAVE_LINK");
@@ -315,8 +315,8 @@ export async function handleSaveAssetLink(msg: SaveLinkMsg): Promise<{ linkId: n
     return { linkId: newId };
 }
 
-export async function handleDeleteAssetLink(msg: LinkIdMsg): Promise<{ isOk: true }> {
-    const { linkId } = msg;
+export async function handleDeleteAssetLink(payload: LinkIdMsg): Promise<{ isOk: true }> {
+    const { linkId } = payload;
     const db = getDb();
     db.run("DELETE FROM AssetLink WHERE Id = ?", [linkId]);
     markDirty();
@@ -327,8 +327,8 @@ export async function handleDeleteAssetLink(msg: LinkIdMsg): Promise<{ isOk: tru
 /*  Sync Engine                                                        */
 /* ------------------------------------------------------------------ */
 
-export async function handleSyncLibraryAsset(msg: AssetIdMsg): Promise<{ syncedCount: number; pinnedNotified: number }> {
-    const { assetId } = msg;
+export async function handleSyncLibraryAsset(payload: AssetIdMsg): Promise<{ syncedCount: number; pinnedNotified: number }> {
+    const { assetId } = payload;
     const db = getDb();
 
     // Get the latest asset
@@ -368,12 +368,12 @@ export async function handleSyncLibraryAsset(msg: AssetIdMsg): Promise<{ syncedC
  * Promote a local project asset to the shared library.
  * Per spec §6.2: compares content hash, returns action needed.
  */
-export async function handlePromoteAsset(msg: PromoteMsg): Promise<{
+export async function handlePromoteAsset(payload: PromoteMsg): Promise<{
     action: "created" | "identical" | "conflict";
     assetId?: number;
     existingVersion?: string;
 }> {
-    const { slug, name, type, contentJson } = msg;
+    const { slug, name, type, contentJson } = payload;
     const db = getDb();
     const hash = await computeContentHash(contentJson);
 
@@ -406,8 +406,8 @@ export async function handlePromoteAsset(msg: PromoteMsg): Promise<{
 /**
  * Replace an existing library asset with new content (user chose "Replace").
  */
-export async function handleReplaceLibraryAsset(msg: ReplaceMsg): Promise<{ isOk: true; newVersion: string }> {
-    const { assetId, contentJson, name } = msg;
+export async function handleReplaceLibraryAsset(payload: ReplaceMsg): Promise<{ isOk: true; newVersion: string }> {
+    const { assetId, contentJson, name } = payload;
     const db = getDb();
     const hash = await computeContentHash(contentJson);
 
@@ -434,8 +434,8 @@ export async function handleReplaceLibraryAsset(msg: ReplaceMsg): Promise<{ isOk
 /**
  * Fork an existing asset as a new library entry (user chose "Fork").
  */
-export async function handleForkLibraryAsset(msg: ForkMsg): Promise<{ assetId: number; slug: string }> {
-    const { originalSlug, name, type, contentJson } = msg;
+export async function handleForkLibraryAsset(payload: ForkMsg): Promise<{ assetId: number; slug: string }> {
+    const { originalSlug, name, type, contentJson } = payload;
     const db = getDb();
     const hash = await computeContentHash(contentJson);
 
@@ -474,8 +474,8 @@ export async function handleGetProjectGroups(): Promise<{ groups: ProjectGroup[]
     return { groups };
 }
 
-export async function handleSaveProjectGroup(msg: GroupMsg): Promise<{ groupId: number; cascadedCount: number } | HandlerErrorResponse> {
-    const group = msg?.group;
+export async function handleSaveProjectGroup(payload: GroupMsg): Promise<{ groupId: number; cascadedCount: number } | HandlerErrorResponse> {
+    const group = payload?.group;
     if (!group) return missingFieldError("group", "LIBRARY_SAVE_GROUP");
     if (requireField(group.Name) === null) return missingFieldError("group.Name", "LIBRARY_SAVE_GROUP");
 
@@ -504,8 +504,8 @@ export async function handleSaveProjectGroup(msg: GroupMsg): Promise<{ groupId: 
     return { groupId: newId, cascadedCount: 0 };
 }
 
-export async function handleDeleteProjectGroup(msg: GroupIdMsg): Promise<{ isOk: true }> {
-    const { groupId } = msg;
+export async function handleDeleteProjectGroup(payload: GroupIdMsg): Promise<{ isOk: true }> {
+    const { groupId } = payload;
     const db = getDb();
     db.run("DELETE FROM ProjectGroup WHERE Id = ?", [groupId]);
     markDirty();
@@ -516,8 +516,8 @@ export async function handleDeleteProjectGroup(msg: GroupIdMsg): Promise<{ isOk:
 /*  ProjectGroupMember CRUD                                            */
 /* ------------------------------------------------------------------ */
 
-export async function handleGetGroupMembers(msg: GroupIdMsg): Promise<{ members: ProjectGroupMember[] }> {
-    const { groupId } = msg;
+export async function handleGetGroupMembers(payload: GroupIdMsg): Promise<{ members: ProjectGroupMember[] }> {
+    const { groupId } = payload;
     const db = getDb();
     const stmt = db.prepare("SELECT * FROM ProjectGroupMember WHERE GroupId = ?");
     stmt.bind([groupId]);
@@ -529,8 +529,8 @@ export async function handleGetGroupMembers(msg: GroupIdMsg): Promise<{ members:
     return { members };
 }
 
-export async function handleAddGroupMember(msg: GroupMemberMsg): Promise<{ memberId: number }> {
-    const { groupId, projectId } = msg;
+export async function handleAddGroupMember(payload: GroupMemberMsg): Promise<{ memberId: number }> {
+    const { groupId, projectId } = payload;
     const db = getDb();
     db.run(
         `INSERT OR IGNORE INTO ProjectGroupMember (GroupId, ProjectIdUuid) VALUES (?, ?)`,
@@ -542,8 +542,8 @@ export async function handleAddGroupMember(msg: GroupMemberMsg): Promise<{ membe
     return { memberId: newId };
 }
 
-export async function handleRemoveGroupMember(msg: GroupMemberMsg): Promise<{ isOk: true }> {
-    const { groupId, projectId } = msg;
+export async function handleRemoveGroupMember(payload: GroupMemberMsg): Promise<{ isOk: true }> {
+    const { groupId, projectId } = payload;
     const db = getDb();
     db.run("DELETE FROM ProjectGroupMember WHERE GroupId = ? AND ProjectIdUuid = ?", [groupId, projectId]);
     markDirty();
@@ -597,8 +597,8 @@ function cascadeSettingsToMembers(db: ReturnType<typeof getDb>, groupId: number,
 /**
  * Manual cascade trigger — push current group settings to all members.
  */
-export async function handleCascadeGroupSettings(msg: GroupIdMsg): Promise<{ cascadedCount: number }> {
-    const { groupId } = msg;
+export async function handleCascadeGroupSettings(payload: GroupIdMsg): Promise<{ cascadedCount: number }> {
+    const { groupId } = payload;
     const db = getDb();
 
     const result = db.exec("SELECT SharedSettingsJson FROM ProjectGroup WHERE Id = ?", [groupId]);
@@ -619,8 +619,8 @@ export async function handleCascadeGroupSettings(msg: GroupIdMsg): Promise<{ cas
 /*  Version History                                                    */
 /* ------------------------------------------------------------------ */
 
-export async function handleGetAssetVersions(msg: AssetIdMsg): Promise<{ versions: AssetVersion[] }> {
-    const { assetId } = msg;
+export async function handleGetAssetVersions(payload: AssetIdMsg): Promise<{ versions: AssetVersion[] }> {
+    const { assetId } = payload;
     const db = getDb();
     const stmt = db.prepare("SELECT * FROM AssetVersion WHERE SharedAssetId = ? ORDER BY CreatedAt DESC");
     stmt.bind([assetId]);
@@ -632,8 +632,8 @@ export async function handleGetAssetVersions(msg: AssetIdMsg): Promise<{ version
     return { versions };
 }
 
-export async function handleRollbackAssetVersion(msg: VersionIdMsg): Promise<{ isOk: true; rolledBackTo: string }> {
-    const { assetId, versionId } = msg;
+export async function handleRollbackAssetVersion(payload: VersionIdMsg): Promise<{ isOk: true; rolledBackTo: string }> {
+    const { assetId, versionId } = payload;
     const db = getDb();
 
     // Get the target version's content
@@ -774,8 +774,8 @@ function importGroups(db: SqlJsDatabase, groups: LibraryExport["groups"]): void 
     }
 }
 
-export async function handleImportLibrary(msg: ImportMsg): Promise<ImportResult> {
-    const { bundle } = msg;
+export async function handleImportLibrary(payload: ImportMsg): Promise<ImportResult> {
+    const { bundle } = payload;
     const db = getDb();
     const result: ImportResult = { imported: 0, skipped: 0, conflicts: [] };
 
