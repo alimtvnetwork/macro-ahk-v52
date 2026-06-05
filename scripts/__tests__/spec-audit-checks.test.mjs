@@ -12,6 +12,7 @@ const LINKS_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-dangling-links.mjs'
 const CONSTANT_DIVERGENCE_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-constant-divergence.mjs');
 const PITFALLS_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-pitfalls.mjs');
 const MEMORY_REFS_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-must-memory-refs.mjs');
+const SCORE_FLOOR_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-score-floor.mjs');
 
 function createRoot() {
   return mkdtempSync(join(tmpdir(), 'spec-audit-checks-'));
@@ -207,6 +208,31 @@ test('memory-refs checker ignores MUST words inside code fences', () => {
     writeFixture(rootPath, '01-demo/01-fenced.md', '# Fenced\n\n```\nlog: MUST retry\n```\n');
     const result = runScript(MEMORY_REFS_SCRIPT, rootPath);
     assert.equal(result.status, 0, result.stderr);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('score-floor checker passes when file and composite meet custom floors', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, '01-demo/01-good.md', '# Good\n\nThe loader MUST cache results.\n\n## Acceptance\n- [ ] Pass.\n\n## Pitfalls\n- Pitfall: drift.\n\n> Owner: mem://standards/loader\n');
+    const result = spawnSync(process.execPath, [SCORE_FLOOR_SCRIPT, `--root=${rootPath}`, '--min-file=95', '--min-composite=95'], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('score-floor checker fails with CODE RED path details below floor', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, '01-demo/01-thin.md', '# Thin\n');
+    const result = spawnSync(process.execPath, [SCORE_FLOOR_SCRIPT, `--root=${rootPath}`, '--min-file=100', '--min-composite=99.5'], { encoding: 'utf8' });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /CODE RED/);
+    assert.match(result.stderr, /score >= 100/);
+    assert.match(result.stderr, /composite score >= 99\.5/);
   } finally {
     rmSync(rootPath, { recursive: true, force: true });
   }
