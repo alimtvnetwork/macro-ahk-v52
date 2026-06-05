@@ -221,7 +221,6 @@ export default tseslint.config(
       "standalone-scripts/macro-controller/src/auth-resolve.ts",
       "standalone-scripts/macro-controller/src/config-validator.ts",
       "standalone-scripts/macro-controller/src/core/MacroController.ts",
-      "standalone-scripts/macro-controller/src/core/UIManager.ts",
       "standalone-scripts/macro-controller/src/credit-api.ts",
       "standalone-scripts/macro-controller/src/credit-poll-events.ts",
       "standalone-scripts/macro-controller/src/dom-cache.ts",

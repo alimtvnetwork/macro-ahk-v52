@@ -22,8 +22,8 @@ export class UIManager implements UIManagerInterface {
    * Set the create callback — called from macro-looping.ts after createUI is defined.
    * This is necessary because createUI is defined inside the IIFE and cannot be imported.
    */
-  setCreateFn(fn: () => void): void {
-    this._createFn = fn;
+  setCreateFn(callback: () => void): void {
+    this._createFn = callback;
     log('[UIManager] createUI callback registered', 'sub');
   }
 
