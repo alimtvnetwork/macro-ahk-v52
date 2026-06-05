@@ -72,7 +72,7 @@ function scanLine(filePath, lineText, lineNumber, constants) {
 }
 
 function isSkippedPath(filePath, canonicalSotPath) {
-  return filePath.includes('/_audit-') || resolve(filePath) === canonicalSotPath;
+  return resolve(filePath) === canonicalSotPath;
 }
 
 function isOperationalConstantLine(lineText) {

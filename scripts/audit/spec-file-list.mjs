@@ -17,6 +17,10 @@ function listEntry(directoryPath, entryName) {
   const entryPath = join(directoryPath, entryName);
   const entryStats = statSync(entryPath);
 
+  if (entryStats.isDirectory() && entryName.startsWith('_audit-')) {
+    return [];
+  }
+
   if (entryStats.isDirectory()) {
     return listFiles(entryPath);
   }
