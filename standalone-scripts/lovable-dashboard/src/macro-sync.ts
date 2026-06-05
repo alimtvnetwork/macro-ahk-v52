@@ -38,6 +38,7 @@ function doSync(dict: WorkspaceDictionary): WorkspaceRecord | null {
 }
 
 function readCurrentWorkspaceName(): string | null {
-    const el = resolveElement(HomepageDashboardVariables.CurrentWorkspaceName.full);
-    return el?.textContent?.trim() ?? null;
+    const element = resolveElement(HomepageDashboardVariables.CurrentWorkspaceName.full);
+
+    return element?.textContent?.trim() ?? null;
 }
