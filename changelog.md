@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.53.0] — 2026-06-05 CI/CD Pipeline Hardening
+
+### Fixed
+- **spec-index gate**: Rebuilt `spec/21-app/05-prompts/INDEX.json` after prompt-folder byte drift.
+- **perf-budget gate**: Synced `package-lock.json` to include `idb@8.0.3` so `npm ci` succeeds.
+- **Lowercase `.md` gate**: Relaxed `.github/workflows/ci.yml` rule to allow conventional ALL-CAPS docs (`README.md`, `OWNERS.md`, `GLOSSARY.md`, `ACCEPTANCE-MATRIX.md`, etc.) while still rejecting mixed-case filenames.
+- **Spec-links gate**: Reformatted inline regex examples in `spec/2026-spec/02-ci-cd-spec-for-chrome-extensions/02-repo-discovery.md` and `audit.md` (`[:/]([^/]+)` → `(?::|/)([^/]+)`) so the markdown link checker no longer treats them as broken `](...)` links.
+
+### Changed
+- Version bump: 3.51.0 → 3.53.0 (manifest only — CI/docs-only release).
+
+---
+
 ## [v3.51.0] — 2026-06-04
 
 ### Added
