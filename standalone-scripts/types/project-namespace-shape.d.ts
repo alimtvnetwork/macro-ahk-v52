@@ -157,10 +157,10 @@ declare global {
     }
 
     interface NamespaceNotifyApi {
-        toast: (msg: string, level?: string, opts?: unknown) => unknown;
+        toast: (message: string, level?: string, opts?: unknown) => unknown;
         dismiss: (id: string) => unknown;
         dismissAll: () => unknown;
-        onError: (cb: (e: unknown) => void) => unknown;
+        onError: (callback: (e: unknown) => void) => unknown;
         getRecentErrors: () => unknown[];
     }
 
