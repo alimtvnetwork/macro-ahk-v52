@@ -99,7 +99,7 @@ The repository was reorganized in 10 phases on 2026-04-22 from an ad-hoc layout 
 |----------|----------|
 | Migration record (permanent) | `spec/99-archive/governance-history/2026-04-22-reorganization-plan.md` |
 | Final audit | `spec/validation-reports/2026-04-22-reorganization-audit.md` (health 94/100, A) |
-| Old → new path map | `mem://architecture/spec-tree-v3.2.0-layout` |
+| Old → new path map | `mem://architecture/spec-tree-v3-2-0-layout` |
 | Auto-cleanup safeguard | `mem://architecture/spec-folder-auto-cleanup-safeguard` + `scripts/spec-folder-guard-readme.md` |
 | Live phase tracker (read-only) | `.lovable/spec-reorganization-plan-2026-04-22.md` |
 

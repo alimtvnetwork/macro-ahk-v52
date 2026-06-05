@@ -27,4 +27,4 @@ hint "urgency × credits". Default OFF. Pure sort — does NOT hide rows.
 `spec/22-app-issues/refill-priority-filter/01-overview.md` §4.
 
 **Spec:** `spec/22-app-issues/refill-priority-filter/01-overview.md`
-**Plan:** `.lovable/plans/v3.10.0-refill-priority-and-github-open.md`
+**Plan:** `.lovable/plans/v3-10-0-refill-priority-and-github-open.md`

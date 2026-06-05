@@ -33,4 +33,4 @@ Also: "↻ Refresh gitsync" entry invalidates cache then re-runs.
 - `spec/22-app-issues/workspace-github-open/02-api-sample.md` (verbatim
   request + response samples preserved per user instruction)
 
-**Plan:** `.lovable/plans/v3.10.0-refill-priority-and-github-open.md`
+**Plan:** `.lovable/plans/v3-10-0-refill-priority-and-github-open.md`
