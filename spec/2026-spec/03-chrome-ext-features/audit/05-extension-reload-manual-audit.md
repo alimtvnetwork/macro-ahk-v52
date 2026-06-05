@@ -1,196 +1,72 @@
 # Audit 05 — `05-extension-reload-manual.md`
 
 - **Spec under audit:** `spec/2026-spec/03-chrome-ext-features/05-extension-reload-manual.md`
-- **Auditor focus:** How blindly can an AI/LLM implement a safe manual extension reload flow without losing state, violating the no-retry policy, or creating reload loops?
-- **Scoring rubric (0–100):**
-  - Clarity of contract (25)
-  - Determinism / unambiguous wording (25)
-  - Completeness of acceptance criteria (20)
-  - Cross-references resolvable from within the repo (15)
-  - Pitfalls + counter-examples (15)
+- **Auditor focus:** Can an AI/LLM implement a safe, idempotent, no-retry manual reload orchestration (not just a button) end-to-end from this spec alone?
+- **Scoring rubric (0–100):** Clarity (25), Determinism (25), Acceptance completeness (20), Cross-refs (15), Pitfalls (15).
+- **Audited revision:** post-upgrade (canonical `RELOAD_TRIGGER_SOURCES`, session-audit vs Code Red split, platform adapter, fan-out + skipped aggregation, mandatory failure schema, participants registry).
 
-## Critical score: **70 / 100**
+## Critical score: **90 / 100**
 
 | Dimension | Score | Notes |
 |---|---:|---|
-| Clarity of contract | 20 / 25 | The user flow, primitive, confirmation, broadcast, no-retry rule, and tests are clear. |
-| Determinism | 15 / 25 | Several details are underspecified: broadcast coverage, response timing, Code Red payload shape, and exact 150 ms flush semantics. |
-| Completeness of acceptance | 14 / 20 | Good high-level checks, but lacks exact message validation, teardown behavior, failure surfacing contract, and timeout tests. |
-| Cross-references | 9 / 15 | References steps 07, 15, 16 and memory. Step 07 exists; steps 15/16 are pending in this folder, so a blind AI may invent details. |
-| Pitfalls | 12 / 15 | Good reload-loop and popup-direct-call pitfalls, but misses MV3 async listener pitfalls and sendMessage error swallowing. |
+| Clarity | 23 / 25 | Surface, primitive, confirm copy (locked), broadcast, flush window, failure surface, and no-retry are all explicit and scoped. |
+| Determinism | 22 / 25 | `FLUSH_DEADLINE_MS = 150` is a constant; trigger union is one symbol; failure schema is a table; sync `return false` is mandated. Minor: ack envelope's `contextId` format is illustrative, not enforced. |
+| Acceptance | 18 / 20 | Checklist covers union dedup audit, fan-out predicate, audit row vs Code Red, mandatory schema, shortcut editable guard, and lint policy. Missing: explicit assertion that the "Reloading…" → SW-restart path closes the popup (covered only in manual E2E). |
+| Cross-refs | 14 / 15 | Resolves to step 02 (top-level bind), step 03 (platform/messaging), step 07 (status panel location), step 12 (logger), step 13 (error panel), step 14 (boot banner), `mem://constraints/no-retry-policy`, `mem://standards/unknown-usage-policy`, `mem://features/new-tab-no-url-guard`, `mem://features/recorder-keyboard-shortcuts`. Steps 15/16 are explicitly marked pending with a participant interface as the extension point — safe for blind impl. |
+| Pitfalls | 13 / 15 | Covers popup-direct `reload()`, `window.location.reload()`, `sendMessage().catch` without adapter, missing tab fan-out, `return true` while sync, retry-on-failure, reload-in-boot loop, shortcut-in-recorder. Missing: pitfall about persisting `Reload.Requested` *after* `chrome.runtime.reload()` (must precede). |
 
-## Gap analysis (detailed)
+## Resolved issues (vs prior audit)
 
-### G1 — `triggerSource: "file-watch"` is required by step 06 but missing from `ReloadRequest` (HIGH)
+- **G1 (file-watch):** Union now includes `"file-watch"` in `RELOAD_TRIGGER_SOURCES`; step 06 imports the type — duplicate literals are blocked by `scripts/audit-reload-trigger-source.mjs`.
+- **G2 (Code Red vs info):** Manual reload writes `Reload.Requested` to the **session audit table**, not Code Red. Code Red is reserved for `Reload.Failed`. Pre-spec rows must be migrated to `severity="info"` / `resolved=true`.
+- **G3 (failure schema):** Mandatory PascalCase schema table with `EventName`, `BuildId`, `Path`, `Missing`, `Reason`, `ReasonDetail`, `SelectorAttempts`, `VariableContext` — matches project memory.
+- **G4 (`unknown` policy):** Reference uses `toCaughtError(caught)`; explicit `unknown` is forbidden outside that helper, with lint enforcement.
+- **G5 (adapter):** `sendRuntimeMessageSafe` / `sendTabMessageSafe` from `@platform/messaging` are mandatory; direct `.catch()` on `chrome.runtime.sendMessage` is explicitly forbidden.
+- **G6 (fan-out):** Broadcast addresses extension pages **and** tabs via `chrome.tabs.query({})` + `chrome.tabs.sendMessage`, gated by `isInjectableHttpTabUrl()` (wraps `isNewTabOrBlankUrl()`). Skipped tabs aggregated into one `SkippedContexts` summary — never one Code Red per tab.
+- **G7 (150 ms flush):** Reframed as "best-effort flush" with bounded acknowledgement window; missing acks are recorded as `unacknowledged`, not retried.
+- **G8 (`return true`):** Explicitly `return false` after synchronous `sendResponse`.
+- **G9 (copy):** Confirm copy is locked verbatim: `Reload extension? Unsaved panel changes will close.`
+- **G10 (shortcut conflicts):** Editable-field guard reuses the recorder predicate (covers `INPUT`/`TEXTAREA`/`contenteditable`/shadow-DOM); `commands` entries audited by `scripts/audit-manifest-commands.mjs`.
+- **G11 (failure surfacing):** Writes Code Red → broadcasts `ERROR_COUNT_CHANGED` → popup error summary reads on reopen.
+- **G12 (pending deps):** `BeforeReloadParticipant` registry decouples step 15/16 — empty registry until they land.
 
-Step 06 says the dev bridge sends `MSG_RELOAD_EXTENSION` with `triggerSource: "file-watch"`. This step's `ReloadRequest` union only allows:
+## Remaining gaps (minor)
 
-```ts
-"popup" | "options" | "panel" | "keyboard-shortcut" | "context-menu"
-```
+### R1 — Ordering of `writeSessionAudit` vs `chrome.runtime.reload()` is correct but not asserted in tests (LOW)
 
-That means a blind AI implementing step 05 exactly will reject or type-fail the step 06 auto-reload request.
+The reference handler writes the audit row *before* `chrome.runtime.reload()`. The acceptance bullet implies it, but no test name explicitly verifies "audit row persisted before reload primitive is invoked".
 
-**Fix:** Add `"file-watch"` to the canonical `triggerSource` union in step 05, or define `ReloadTriggerSource` once in `src/shared/messages.ts` and require all later specs to import it.
+**Fix:** Add to `reload-handler.test.ts`: `assert(writeSessionAudit was called and awaited before chrome.runtime.reload spy fired)`.
 
-### G2 — Contract says Code Red row for `ManualReload`, reference logs `Reload.Requested` info (HIGH)
+### R2 — `replyContextId` is referenced in handler but not defined on `SendMessageResult` (LOW)
 
-The contract says a Code Red row with `Reason="ManualReload"` is written before reload. The reference handler logs:
+The reference handler reads `ext.replyContextId` and `r.replyContextId`, but the adapter return type is referenced as `SendMessageResult` without a field definition in this spec. Step 03 owns the adapter, but the audit row's `AcknowledgedContexts[]` semantics depend on it.
 
-```ts
-Logger.info("Reload.Requested", { triggerSource, buildId })
-```
+**Fix:** Either pin `SendMessageResult { ok, replyContextId? }` shape in this spec, or add an explicit cross-ref note: "field shape owned by step 03 §Platform messaging".
 
-This is a semantic mismatch. Manual reload is an intentional recovery event, not necessarily an error. If it is stored as Code Red, the Errors panel may count deliberate reloads as unresolved failures. If it is only info, the contract is wrong.
+### R3 — Popup "Reloading…" → SW death timing is not user-visible (LOW)
 
-**Fix:** Decide one contract:
+When SW reloads, the popup may freeze on "Reloading…" before Chrome auto-closes it. Some users perceive this as a hang.
 
-1. **Recommended:** write a session/audit log row, not Code Red, for `Reload.Requested`; reserve Code Red only for `Reload.Failed`.
-2. If the product truly wants manual reloads in the error table, mark them `resolved=true` / `severity="info"` so they do not inflate unresolved error counts.
+**Fix:** Add a 250 ms `setTimeout(window.close, 250)` after `sendMessage` in the popup reference, and document the rationale.
 
-### G3 — Code Red failure payload omits mandatory project fields (HIGH)
+### R4 — `BuildIdMismatch` writes `Logger.warn` but does not surface to the user (LOW)
 
-Project memory requires every failure log to include `Reason`, `ReasonDetail`, `SelectorAttempts[]`, and `VariableContext[]`, with `null + reason` when not applicable. The sample failure payload uses lowercase `reason`, lacks `ReasonDetail`, and omits the diagnostic arrays.
+A build-ID mismatch usually means stale popup against new SW — the correct user action is "close popup, re-open". Currently silent.
 
-**Fix:** Replace the example with canonical fields:
-
-```ts
-Logger.error("Reload.Failed", {
-  BuildId: BUILD_ID,
-  Path: "src/background/reload.ts",
-  Missing: "chrome.runtime.reload() success",
-  Reason: "RuntimeReloadFailed",
-  ReasonDetail: err?.message ?? "chrome.runtime.reload threw without a message.",
-  SelectorAttempts: null,
-  VariableContext: null,
-});
-```
-
-### G4 — Reference code violates the no explicit `unknown` policy (HIGH)
-
-The catch block uses:
-
-```ts
-} catch (caught: unknown) {
-  const err = caught as CaughtError;
-```
-
-Project memory allows `unknown` only in `CaughtError` patterns and says function params must use designed types. This sample is close, but blind AI may copy the explicit `unknown` and trigger lint failures if the repo has a stricter catch helper.
-
-**Fix:** Reference the repo's canonical error helper/type pattern, for example:
-
-```ts
-} catch (caught) {
-  const err = toCaughtError(caught);
-```
-
-If explicit `unknown` is allowed only in a specific helper, state that this sample must call that helper instead of casting inline.
-
-### G5 — `chrome.runtime.sendMessage(...).catch()` is not valid for callback-style Chrome APIs unless promisified (HIGH)
-
-The reference handler uses:
-
-```ts
-void chrome.runtime.sendMessage({ kind: EVT_BEFORE_RELOAD }).catch(() => { ... });
-```
-
-Chrome extension APIs are callback-based in many environments and may not return a Promise unless using a browser polyfill or Chrome's Promise support for that API/version. A blind AI may ship code that throws `Cannot read properties of undefined (reading 'catch')`.
-
-**Fix:** Define one platform adapter:
-
-```ts
-sendRuntimeMessageSafe(message): Promise<SendMessageResult>
-```
-
-or use callback form and inspect `chrome.runtime.lastError`. Step 03 already has a `src/platform/` folder; this step should require using it.
-
-### G6 — `chrome.runtime.sendMessage` does not reach every tab content script/panel (HIGH)
-
-The contract says the background MUST broadcast `EVT_BEFORE_RELOAD` to every context. The sample only calls `chrome.runtime.sendMessage`, which reaches extension contexts but not necessarily every content script in every tab. In-page panels running in content scripts usually need `chrome.tabs.sendMessage(tabId, ...)` for each eligible tab.
-
-**Fix:** Define broadcast precisely:
-
-1. `chrome.runtime.sendMessage` for extension pages (popup/options/side panel if present).
-2. `chrome.tabs.query({})` then `chrome.tabs.sendMessage(tab.id, ...)` for content scripts on supported URLs.
-3. Skip unsupported/new-tab URLs with `isNewTabOrBlankUrl()` and browser-page guards.
-4. Log non-Code-Red skip summaries, not one error per closed/unreachable tab.
-
-### G7 — 150 ms flush deadline is arbitrary and not testable enough (MEDIUM)
-
-The spec states there is no acknowledgement and the SW waits 150 ms before reload. That makes persistence best-effort and can lose SQLite flushes under load. It also conflicts with the phrase "MUST broadcast ... so logs flush" because there is no guarantee.
-
-**Fix:** Use a bounded acknowledgement model only for known extension contexts, while preserving no retry:
-
-- Send `EVT_BEFORE_RELOAD`.
-- Wait up to 150 ms for best-effort acknowledgements from known contexts.
-- Reload at the deadline regardless.
-- Record which contexts acknowledged in the reload audit row.
-
-If no acknowledgements are desired, change wording from "flushes" to "gets a best-effort opportunity to flush".
-
-### G8 — Listener returns `true` although it responds synchronously (LOW)
-
-The sample calls `sendResponse({ ok: true })` synchronously but returns `true`, which signals an async response. This is not fatal, but it is misleading and can hide patterns where the channel is kept open unnecessarily.
-
-**Fix:** Either return `false` after a synchronous response, or make the handler truly async with a typed `respondOnce` helper. Prefer a clear callback adapter to avoid MV3 listener mistakes.
-
-### G9 — Popup confirmation wording may become visible instruction text (LOW)
-
-The inline confirm text is okay, but the broader frontend guidance says not to over-explain app features in UI. The spec should keep the message short and operational.
-
-**Fix:** Define exact concise copy:
-
-```text
-Reload extension? Unsaved panel changes will close.
-```
-
-### G10 — Keyboard shortcut conflicts are not audited (MEDIUM)
-
-The optional `Ctrl+Alt+R` shortcut may collide with recorder shortcuts or browser/system shortcuts. The spec says ignore editable fields but does not require manifest command audit or conflict test.
-
-**Fix:** Add acceptance:
-
-- If `commands` includes reload, it is documented in the popup status area or shortcuts docs.
-- Shortcut handler checks editable targets using the same helper as recorder shortcuts.
-- Test verifies `INPUT`, `TEXTAREA`, `contenteditable="true"`, and shadow-DOM editable targets do not trigger reload.
-
-### G11 — Failure surfacing is undefined (MEDIUM)
-
-The contract says to log Code Red and surface the error if reload fails, but not where or how. Since the popup may be closing and the SW may be unstable, a blind AI may only log to console.
-
-**Fix:** Define surface path:
-
-- Persist `Reload.Failed` row to the error store.
-- Broadcast `ERROR_COUNT_CHANGED` after persistence.
-- Popup status panel reads the error summary when reopened.
-- If persistence fails, use the namespace logger recursion-guarded fallback from step 12.
-
-### G12 — Step depends on pending steps without fallback behavior (MEDIUM)
-
-The pre-reload broadcast mentions panel persistence (step 15) and SQLite flush (step 16), but those files are not present yet in this folder. A blind AI implementing now may invent APIs.
-
-**Fix:** Mark future integrations as pending and define no-op extension points:
-
-```ts
-export interface BeforeReloadParticipant {
-  id: string;
-  beforeReload(deadlineMs: number): Promise<BeforeReloadResult>;
-}
-```
-
-Later steps can register participants without changing the reload handler contract.
+**Fix:** Add `sendResponse({ ok: false, reason: "BuildIdMismatch" })` (already present) **and** require popup to render an inline hint when it sees `ok: false`.
 
 ## Blocker list for blind AI implementation
 
-1. `file-watch` trigger required by step 06 is missing from the step 05 message union (G1).
-2. Manual reload is inconsistently treated as Code Red vs info/session log (G2).
-3. Broadcast sample does not actually reach every content-script/in-page panel context (G6).
-4. Chrome callback APIs are used as Promises without an adapter contract (G5).
-5. Code Red examples do not match mandatory failure-log schema from project memory (G3).
+None remaining. All prior HIGH blockers (G1, G2, G3, G5, G6) are resolved with normative wording, canonical symbols, and CI-enforceable audits.
 
 ## Recommendation
 
-Promote this from a UI button spec to a reload-orchestration contract. Define `ReloadTriggerSource` once, classify manual reload as session/audit info rather than unresolved Code Red, add a platform messaging adapter, implement a real all-context broadcast, and align failure payloads with the mandatory Code Red schema. With those corrections, this spec would rise to ~88/100.
+Spec is implementation-ready. Apply R1–R4 in a follow-up patch to reach ~95/100; none are blockers.
+
+## Audit time
+
+Started: 2026-06-05 22:14 Asia/Kuala_Lumpur. Finished: 2026-06-05 22:20. Duration: ~6 min.
 
 ## Remaining audit items
 
@@ -201,11 +77,3 @@ Promote this from a UI button spec to a reload-orchestration contract. Define `R
 5. 10-reinject-and-uninject
 6. 11-error-logging-discipline
 7. 12-namespace-logger-contract
-8. 13-error-routing-and-panel
-9. 14-boot-failure-banner (spec pending)
-10. 15-floating-in-page-panel (spec pending)
-11. 16-storage-sqlite-pointer (spec pending)
-12. 17-storage-indexeddb-pointer (spec pending)
-13. 18-storage-chrome-local-pointer (spec pending)
-14. 19-testing-matrix (spec pending)
-15. 20-acceptance-criteria (spec pending)

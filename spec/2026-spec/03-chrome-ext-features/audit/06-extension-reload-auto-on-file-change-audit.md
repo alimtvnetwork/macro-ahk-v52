@@ -1,207 +1,74 @@
 # Audit 06 — `06-extension-reload-auto-on-file-change.md`
 
 - **Spec under audit:** `spec/2026-spec/03-chrome-ext-features/06-extension-reload-auto-on-file-change.md`
-- **Auditor focus:** How blindly can an AI/LLM implement dev-only auto reload without shipping dev sockets, violating no-retry, reloading unsafe tabs, or causing loops during watch builds?
-- **Scoring rubric (0–100):**
-  - Clarity of contract (25)
-  - Determinism / unambiguous wording (25)
-  - Completeness of acceptance criteria (20)
-  - Cross-references resolvable from within the repo (15)
-  - Pitfalls + counter-examples (15)
+- **Auditor focus:** Can an AI/LLM implement dev-only auto reload that (a) reuses step 05 cleanly, (b) cannot leak into production, (c) respects no-retry, (d) avoids reload loops and unsafe tabs, all from this spec alone?
+- **Scoring rubric (0–100):** Clarity (25), Determinism (25), Acceptance (20), Cross-refs (15), Pitfalls (15).
+- **Audited revision:** post-upgrade (Vite-native gating, manifest overlay, idempotency sentinel, startup-intent tab refresh, status message contract, production audit script).
 
-## Critical score: **67 / 100**
+## Critical score: **88 / 100**
 
 | Dimension | Score | Notes |
 |---|---:|---|
-| Clarity of contract | 18 / 25 | Dev-only intent, debounce, no retry, production strip, and tab guard are clear at concept level. |
-| Determinism | 13 / 25 | The bridge loading model, manifest overlay, WebSocket lifecycle, tab reload timing, and `file-watch` trigger source are not sufficiently precise. |
-| Completeness of acceptance | 14 / 20 | Good acceptance targets, but missing production-manifest audit, socket cleanup, port conflict handling, loop prevention, and exact status-message contract. |
-| Cross-references | 10 / 15 | Correctly reuses step 05 and references new-tab guard. But it depends on a trigger source not defined by step 05. |
-| Pitfalls | 12 / 15 | Strong dev-leak and retry warnings, but missing MV3 CSP/WebSocket permissions, multi-tab reload behavior, and watcher process teardown. |
+| Clarity | 22 / 25 | Scope explicitly enumerates "this step does NOT redefine" — clean reuse of step 05. Bridge, watcher, overlay, intent, and status contract are separately delineated. |
+| Determinism | 22 / 25 | `PORT=35729`, `DEBOUNCE_MS=250`, `TTL_MS=5_000`, exact chokidar globs/ignores, `awaitWriteFinish` thresholds, `import.meta.env.DEV` (not `NODE_ENV`) in app code, fail-fast on port collision. |
+| Acceptance | 18 / 20 | Checklist covers timing (250–500 ms), production audit, sentinel, startup intent + TTL, predicate-filtered tab reload, status messages, manifest leakage, permission leakage. Missing: explicit "no dev-only `tabs` permission in production manifest" *test* (only narrative). |
+| Cross-refs | 13 / 15 | Resolves to step 02 (SW boot consumes intent), step 05 (trigger union, fan-out, failure schema), step 07 (status display), `mem://constraints/no-retry-policy`, `mem://standards/timer-and-observer-teardown`, `mem://standards/unknown-usage-policy`, `mem://features/new-tab-no-url-guard`. Minor: `dev/reload-status` storage key not cross-referenced in step 18 (chrome.storage pointer). |
+| Pitfalls | 13 / 15 | Watching `src/` vs `dist/`, reconnect-on-error, missing sentinel, post-reload code, `process.env.NODE_ENV` under Vite, `<all_urls>` in prod, unsafe tab reload, port-occupied retry, `pagehide` teardown — all covered. Missing: pitfall about `chrome.storage.local` race when *two* dev tabs both record intent. |
 
-## Gap analysis (detailed)
+## Resolved issues (vs prior audit)
 
-### G1 — `triggerSource: "file-watch"` is not accepted by step 05 (HIGH)
+- **G1 (`file-watch` trigger):** Single source of truth in `RELOAD_TRIGGER_SOURCES` (step 05); bridge imports the union type — no duplicate literal.
+- **G2 (content-script permission risk):** Dev manifest overlay uses `http://*/*` + `https://*/*` (not `<all_urls>`); overlay is merged only when `mode !== "production"`; CI audits `dist/manifest.json`.
+- **G3 (production strip narrow):** `scripts/audit-no-dev-reload-in-prod.mjs` greps `dev-reload-bridge`, `DevReload.`, `ws://localhost`, `35729`, `new WebSocket(`, plus AST/manifest checks for `<all_urls>` and dev chunks; release-blocking.
+- **G4 (no retry / lifecycle):** `hasLoggedSocketDown` gate (exactly one warning), `pagehide` cleanup, no reconnect timer, sentinel prevents duplicate connection.
+- **G5 (double-connect):** Typed `window.__riseupAsiaMacroExtDevReloadBridge` sentinel; second `connect()` short-circuits.
+- **G6 (watch loop on `dist/`):** Chokidar `ignored: ["dist/**/*.map", "dist/dev-status.json", "dist/**/*.log"]` + `awaitWriteFinish` prevents partial-write reloads.
+- **G7 (debounce timing):** Reworded: 250–500 ms after first `dist/` event; source-edit-to-reload time is explicitly unbounded.
+- **G8 (post-reload tab refresh ordering):** No code runs after `chrome.runtime.reload()`. Intent is written to `chrome.storage.local` *before* reload; next SW boot consumes within 5 s TTL, deletes the key, then reloads the tab once.
+- **G9 (broader unsupported URLs):** `isInjectableHttpTabUrl()` wraps `isNewTabOrBlankUrl()` and rejects `chrome://`, `chrome-extension://`, `edge://`, `brave://`, `opera://`, `chrome-search://`, `about:`, `file://`, Web Store, empty/discarded.
+- **G10 (status contract):** `MSG_DEV_RELOAD_STATUS_CHANGED` / `MSG_GET_DEV_RELOAD_STATUS` + `DevReloadStatus { connected, lastChangedAtIso, tabId, reason }`. Background is source of truth; popup subscribes.
+- **G11 (port/SIGINT):** `WebSocketServer` constructor in try/catch → `process.exit(1)` with Code-Red-shaped log; `SIGINT`/`SIGTERM` → single watcher+server close.
+- **G12 (envelope):** Broadcast payload is JSON `{ kind:"dev/reload", buildId, changedPaths[] }` — not bare string.
+- **G13 (`NODE_ENV` under Vite):** App code uses `import.meta.env.DEV`; Node scripts use `process.env.NODE_ENV`; CI audit is mandatory regardless of compile-time gates.
+- **G14 (permission docs):** Dev-only `tabs`, if needed, lives in overlay only and is justified in `README.dev.md`; production audit fails if it leaks.
 
-This spec depends on step 05 accepting:
+## Remaining gaps (minor)
 
-```ts
-triggerSource: "file-watch"
-```
+### R1 — Multi-tab intent race is undefined (LOW)
 
-But step 05's `ReloadRequest` union does not include `"file-watch"`. A blind AI implementing both specs in order will create a type error or runtime validation failure.
+If two tabs match the active-tab query around the same time (rapid file edits across multiple devtools windows), only the **last** `chrome.storage.local.set({KEY:…})` wins. The losing tab is silently skipped.
 
-**Fix:** Define `ReloadTriggerSource` in step 05 with `"file-watch"`, or let step 06 explicitly patch the step 05 union and acceptance list.
+**Fix:** Either document "only the most recently focused tab is refreshed" as the contract, or store an array of intents keyed by `tabId` with the same 5 s TTL and consume all.
 
-### G2 — Dev bridge as a content script creates permission and review risk (HIGH)
+### R2 — `DevReload.SocketDown` is logged via `Logger.warn`, but the warn path's persistence is not specified (LOW)
 
-The spec says the dev manifest content script matches `"<all_urls>"` and includes `dev-reload-bridge.js`. Even if dev-only, this pattern can accidentally leak into production and looks like a localhost exfiltration channel. It also injects a WebSocket client into every page, which is unnecessary if reload can be coordinated from an extension page/background context.
+The sample passes the full Code Red-shaped object to `Logger.warn`. Step 12 (namespace logger contract) owns whether `warn` persists to the error store or only to console. Without that contract being inlined here, a blind AI may skip persistence and the popup status will be the only signal.
 
-**Fix:** Prefer a dev-only extension page or background-side connection where possible. If a content-script bridge is retained, require:
+**Fix:** Add a sentence: "`DevReload.SocketDown` MUST be persisted to the session audit table (not Code Red) so the popup status panel can read it on next open."
 
-- dev-only manifest generation with a hard production audit;
-- no `"<all_urls>"` in production;
-- explicit CSP allowance analysis for `ws://localhost:35729` if needed;
-- exact CI grep for `35729`, `WebSocket(`, `dev-reload-bridge`, and `ws://localhost` in production `dist/`.
+### R3 — `dev/reload-status` storage key not registered in step 18 (LOW)
 
-### G3 — Production strip check is too narrow (HIGH)
+Step 18 (chrome.storage pointer) is the canonical registry of `chrome.storage.local` keys. The `dev/reload-status` and `dev/postReloadTabRefresh` keys are introduced here but not yet listed there.
 
-Acceptance only checks that `dist/` contains no reference to `dev-reload-bridge`. A blind AI can still ship:
+**Fix:** Add a one-line note: "Register `dev/reload-status` and `dev/postReloadTabRefresh` in step 18's key registry; both are dev-only and stripped by the production audit."
 
-- `ws://localhost:35729`
-- `new WebSocket(`
-- `DevReload.SocketDown`
-- dev manifest content script entry
-- package/import references to the bridge under a different chunk name
+### R4 — Production audit does not assert "no `tabs` permission" in `dist/manifest.json` (LOW)
 
-**Fix:** Add a production audit script:
+Narrative says production manifest must not gain `tabs` solely for auto-reload, but the audit script's check list does not enumerate the `permissions` array.
 
-```text
-scripts/audit-no-dev-reload-in-prod.mjs
-Scans: dist/**/*.{js,json,html,map}
-Fails on: dev-reload-bridge, DevReload., ws://localhost, 35729, new WebSocket(, triggerSource:"file-watch"
-Also parses dist/manifest.json and fails if any content script includes dev reload chunks.
-```
-
-### G4 — No-retry policy conflicts with WebSocket default behavior expectations (MEDIUM)
-
-The spec forbids reconnect attempts. That matches project memory, but it does not require cleanup after the socket closes or errors. A blind AI may leave listeners alive, duplicate connections after content-script reinjection, or log multiple times.
-
-**Fix:** Add lifecycle rules:
-
-- One connection attempt per bridge instance.
-- `hasLoggedSocketDown` gate ensures exactly one warning.
-- Remove event listeners on `pagehide`.
-- Close socket on `pagehide`.
-- Never schedule reconnect timers.
-
-### G5 — Reference bridge can double-connect on repeated content-script injection (HIGH)
-
-When content scripts are reinjected into a tab during dev, the sample `connect()` runs again with no sentinel. Multiple bridge instances can each receive `reload` and send multiple `MSG_RELOAD_EXTENSION` messages.
-
-**Fix:** Add a dev bridge sentinel:
-
-```ts
-const KEY = "__riseupAsiaMacroExtDevReloadBridge";
-if (!window[KEY]) {
-  window[KEY] = { connected: true, buildId: BUILD_ID };
-  connect();
-}
-```
-
-In this repo, use a typed global declaration and avoid explicit `unknown` casts outside approved helper patterns.
-
-### G6 — Watching `dist/` can trigger reload loops from generated files (MEDIUM)
-
-Watching `dist/` after a successful rebuild is good, but the spec does not exclude files that are written by the reload pipeline itself, diagnostics exports, sourcemaps, or dev status artifacts. If any reload process writes into `dist/`, it can trigger a loop.
-
-**Fix:** Define watch globs and ignores:
-
-```js
-watch("dist/**/*.{js,css,html,json,wasm,png,svg}", {
-  ignored: ["dist/**/*.map", "dist/dev-status.json", "dist/**/*.log"],
-  ignoreInitial: true,
-  awaitWriteFinish: { stabilityThreshold: 100, pollInterval: 25 },
-});
-```
-
-### G7 — Debounce says 250 ms, acceptance says reload after ≤ 500 ms without build-time bounds (LOW)
-
-The watcher debounces `dist/` events by 250 ms. Acceptance says edits trigger reload after ≤ 500 ms. That is only true after the bundler emits to `dist/`, not from source edit time. Large rebuilds can exceed 500 ms.
-
-**Fix:** Clarify timing:
-
-> After the first relevant `dist/` event, exactly one reload message is broadcast between 250 ms and 500 ms later. Source-edit-to-reload time is not bounded because rebuild duration varies.
-
-### G8 — Tab refresh ordering around `chrome.runtime.reload()` is likely impossible as written (HIGH)
-
-Step 06 says after reload, the bridge also signals `chrome.tabs.reload` on the active tab. The sample shows the background handler querying and reloading the tab inside the same flow. But `chrome.runtime.reload()` tears down the service worker; code after it may not run. If tab reload is attempted after extension reload, it may be skipped.
-
-**Fix:** Define exact ordering:
-
-1. Receive file-watch request.
-2. Capture active supported tab ID before extension reload.
-3. Broadcast before-reload and flush.
-4. Reload extension.
-5. On new service-worker startup, read pending dev tab-refresh intent from `chrome.storage.local` with short TTL.
-6. Reload that tab once, then delete the intent.
-
-This avoids relying on code running after `chrome.runtime.reload()`.
-
-### G9 — New-tab guard is named but unsupported URLs are broader than new-tab (MEDIUM)
-
-The spec only names `chrome://` and new-tab guards. Extension content scripts also cannot run on Chrome Web Store, extension pages, browser internal pages, `file://` unless permission is granted, and empty/discarded tabs.
-
-**Fix:** Add a supported-tab predicate:
-
-```ts
-isInjectableHttpTabUrl(url): boolean
-```
-
-It should include the memory-mandated `isNewTabOrBlankUrl()` and reject browser/system schemes before any `chrome.tabs.reload` or content-script messaging.
-
-### G10 — Status indicator has no message/storage contract (MEDIUM)
-
-The popup status panel must show "Dev watcher: connected / disconnected", but there is no source of truth for that status. The bridge knows socket state inside a content script; the popup is a different context.
-
-**Fix:** Define a shared status message contract:
-
-```ts
-MSG_DEV_RELOAD_STATUS_CHANGED
-MSG_GET_DEV_RELOAD_STATUS
-```
-
-Background stores `{ connected, lastChangedAtIso, tabId, reason }` in memory or dev-only storage. The popup asks background for the current status and subscribes to changes.
-
-### G11 — Node watcher has no port conflict or teardown behavior (LOW)
-
-The sample starts `WebSocketServer({ port: 35729 })` but does not define behavior if the port is occupied, process receives SIGINT/SIGTERM, or chokidar errors.
-
-**Fix:** Add fail-fast behavior:
-
-- If port is occupied, print a Code Red formatted build/dev error and exit non-zero.
-- On SIGINT/SIGTERM, close watcher and WebSocket server once.
-- No retry with a new port because that would break the extension bridge contract.
-
-### G12 — Reference watcher uses untyped JS and string messages (LOW)
-
-The Node watcher sends bare string `"reload"`; the bridge checks `evt.data !== "reload"`. This is okay for a tiny dev tool, but it leaves no build ID, timestamp, or reason for debugging.
-
-**Fix:** Send a small JSON envelope:
-
-```json
-{"kind":"dev/reload","buildId":"...","changedPaths":["dist/content.js"]}
-```
-
-Do not use this for retry or queueing; it is only for diagnostics and status display.
-
-### G13 — `NODE_ENV` gating is too easy to get wrong in Vite (MEDIUM)
-
-The sample uses `process.env.NODE_ENV !== "production"` and `define`. Vite also has `mode`, `import.meta.env.DEV`, and `import.meta.env.PROD`. A blind AI may produce a bundle where the dev bridge is included because the expression is not statically replaced.
-
-**Fix:** Standardize gating:
-
-- In app code, use `import.meta.env.DEV` / `import.meta.env.PROD` if Vite is the bundler.
-- In Node scripts, use `process.env.NODE_ENV`.
-- CI production audit is mandatory regardless of compile-time gates.
-
-### G14 — `chrome.tabs.reload` permission requirements are not documented (LOW)
-
-If the dev flow reloads tabs, the extension may require `tabs` or activeTab/host permissions depending on access pattern. Step 02 requires minimal permissions and README justification.
-
-**Fix:** Add a dev-only permission note: production manifest should not gain permissions solely for dev auto-reload. Any dev-only `tabs` usage must live in the dev manifest overlay and be justified there.
+**Fix:** Extend `scripts/audit-no-dev-reload-in-prod.mjs` to load `dist/manifest.json` and fail if `permissions` includes `tabs` unless `README.md` justifies it for a non-dev feature.
 
 ## Blocker list for blind AI implementation
 
-1. Step 06 requires `file-watch`, but step 05 does not allow that trigger source (G1).
-2. Production strip audit only checks one string and can miss localhost/WebSocket leakage (G3).
-3. Bridge can double-connect after reinjection because it has no idempotency sentinel (G5).
-4. Tab reload after `chrome.runtime.reload()` is not reliably executable in the same worker lifetime (G8).
-5. Popup watcher status has no cross-context message/storage source of truth (G10).
+None remaining. Prior HIGH blockers (G1, G2, G3, G5, G8) are all resolved with normative wording, runnable audit scripts, and Vite-native gating.
 
 ## Recommendation
 
-Treat dev auto-reload as a dev-only orchestration system, not just a content-script socket. First fix the shared `ReloadTriggerSource`, add a bridge sentinel, strengthen production leakage audits, define socket lifecycle/teardown, and move post-extension-reload tab refresh into a startup intent flow. With those corrections, this spec would rise to ~86/100.
+Spec is implementation-ready. R1–R4 are low-priority polish; none block step 06 from being shipped behind dev-mode and CI guards.
+
+## Audit time
+
+Started: 2026-06-05 22:20 Asia/Kuala_Lumpur. Finished: 2026-06-05 22:25. Duration: ~5 min.
 
 ## Remaining audit items
 
@@ -211,11 +78,3 @@ Treat dev auto-reload as a dev-only orchestration system, not just a content-scr
 4. 10-reinject-and-uninject
 5. 11-error-logging-discipline
 6. 12-namespace-logger-contract
-7. 13-error-routing-and-panel
-8. 14-boot-failure-banner (spec pending)
-9. 15-floating-in-page-panel (spec pending)
-10. 16-storage-sqlite-pointer (spec pending)
-11. 17-storage-indexeddb-pointer (spec pending)
-12. 18-storage-chrome-local-pointer (spec pending)
-13. 19-testing-matrix (spec pending)
-14. 20-acceptance-criteria (spec pending)
