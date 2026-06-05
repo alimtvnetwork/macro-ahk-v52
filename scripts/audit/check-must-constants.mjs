@@ -13,8 +13,9 @@ const STRICT_ARG = '--strict';
 const REPORT_ARG = '--report';
 const DEFAULT_SOT_REL = '01-prompt-spec/reference/05-runtime-defaults.md';
 const SOT_LINK_TEXT = 'reference/05-runtime-defaults.md';
-const UNIT_CONSTANT_RE = /\b\d+(?:\.\d+)?\s*(?:ms|milliseconds?|s|sec(?:onds?)?|minutes?|hours?|days?|items?|rows?|entries?|tasks?|kib|mib|bytes?|retries?|attempts?|chars?)\b/i;
-const OPERATIONAL_KEYWORD_RE = /\b(?:default|timeout|cap|capacity|limit|budget|window|deadline|retry|retries|interval|ttl|truncate|lru|max|min|debounce|frame|quota)\b/i;
+const UNIT_CONSTANT_RE = /\b\d(?:[\d_ ]*\d)?(?:\.\d+)?\s*(?:ms|milliseconds?|s|sec(?:onds?)?|minutes?|hours?|days?|items?|rows?|entries?|tasks?|kib|mib|bytes?|retries?|attempts?|chars?)\b/i;
+const OPERATIONAL_KEYWORD_RE = /\b(?:default|timeout|cap|capacity|limit|budget|window|deadline|retry|retries|interval|ttl|truncate|lru|debounce|frame|quota)\b/i;
+const MAX_MIN_UNIT_RE = /\b(?:max|min)\s+\d(?:[\d_ ]*\d)?(?:\.\d+)?\s*(?:ms|milliseconds?|s|sec(?:onds?)?|minutes?|hours?|days?|items?|rows?|entries?|tasks?|kib|mib|bytes?|retries?|attempts?|chars?)\b/i;
 const KEYWORD_RANGE_RE = /\b(?:default|timeout|cap|capacity|limit|budget|window|deadline|retry|retries|interval|ttl|truncate|lru|max|min)\b.*\b\d+\s*(?:\.\.|-|–)\s*\d+\b/i;
 const IDENTIFIER_CONSTANT_RE = /\b[A-Z][A-Z0-9_]*(?:_MS|_TIMEOUT|_LIMIT|_CAP|_SIZE|_RETRIES|_CAPACITY|_BYTES|_DAYS|_ITEMS|_ATTEMPTS)\b.*\b\d+\b/;
 const RUNTIME_CONSTANT_RE = /^\|\s*`([^`]+)`/gm;
@@ -121,11 +122,15 @@ function isSkippedPath(filePath, canonicalSotPath) {
 }
 
 function isOperationalConstantLine(lineText) {
-  const text = lineText.trim();
+  const text = stripNonOperationalTokens(lineText.trim());
   const hasUnitConstant = UNIT_CONSTANT_RE.test(text);
   const hasOperationalKeyword = OPERATIONAL_KEYWORD_RE.test(text);
 
-  return (hasUnitConstant && hasOperationalKeyword) || KEYWORD_RANGE_RE.test(text) || IDENTIFIER_CONSTANT_RE.test(text);
+  return (hasUnitConstant && hasOperationalKeyword) || MAX_MIN_UNIT_RE.test(text) || KEYWORD_RANGE_RE.test(text) || IDENTIFIER_CONSTANT_RE.test(text);
+}
+
+function stripNonOperationalTokens(lineText) {
+  return lineText.replace(/\b[A-Z]+-[a-z]+-\d+(?:\.\.\d+)?\b/g, '');
 }
 
 function hasSourceOfTruthBinding(lineText, defaults, hasFileBinding) {
