@@ -28,7 +28,7 @@ function getSnapshot(): EditorThemeName {
 /** React hook — returns current theme + setter. */
 export function useEditorTheme() {
   const theme = useSyncExternalStore(
-    (cb) => { listeners.push(cb); return () => { listeners = listeners.filter((l) => l !== cb); }; },
+    (callback) => { listeners.push(callback); return () => { listeners = listeners.filter((l) => l !== callback); }; },
     getSnapshot,
     () => DEFAULT_THEME,
   );

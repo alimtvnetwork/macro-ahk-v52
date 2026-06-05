@@ -31,15 +31,15 @@ export interface SentinelSnapshot {
 /** Reads the sentinel synchronously. Returns null when absent or malformed. */
 export function readSentinel(): SentinelSnapshot | null {
     try {
-        const el = document.getElementById(SENTINEL_ID);
-        const isMissing = el === null;
+        const sentinelEl = document.getElementById(SENTINEL_ID);
+        const isMissing = sentinelEl === null;
         if (isMissing) {
             return null;
         }
-        const fingerprint = el.getAttribute(ATTR_FP) ?? "";
-        const projectsCsv = el.getAttribute(ATTR_PROJECTS) ?? "";
-        const canRunRaw = el.getAttribute(ATTR_CAN_RUN) ?? "false";
-        const trigger = el.getAttribute(ATTR_TRIGGER) ?? "";
+        const fingerprint = sentinelEl.getAttribute(ATTR_FP) ?? "";
+        const projectsCsv = sentinelEl.getAttribute(ATTR_PROJECTS) ?? "";
+        const canRunRaw = sentinelEl.getAttribute(ATTR_CAN_RUN) ?? "false";
+        const trigger = sentinelEl.getAttribute(ATTR_TRIGGER) ?? "";
         const projectIds = projectsCsv.length > 0
             ? projectsCsv.split(",").filter((s) => s.length > 0)
             : [];
