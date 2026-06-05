@@ -105,7 +105,7 @@ def main():
     folder = Path(args.folder)
     root = resolve_spec_root(folder)
     rows = []
-    for p in sorted(folder.rglob('*.md')):
+    for p in iter_markdown_files(folder):
         rows.append(score_file(p, root))
     output = json.dumps(rows, indent=2)
     if args.output:
@@ -129,6 +129,12 @@ def resolve_spec_root(folder: Path) -> Path:
             return candidate
 
     return Path('spec/2026-spec')
+
+def iter_markdown_files(folder: Path):
+    return sorted(path for path in folder.rglob('*.md') if is_scored_path(path))
+
+def is_scored_path(path: Path) -> bool:
+    return not any(part.startswith('_audit-') for part in path.parts)
 
 if __name__ == '__main__':
     main()

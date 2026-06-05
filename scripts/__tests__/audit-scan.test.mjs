@@ -30,3 +30,17 @@ test('audit scanner writes JSON to --output path', () => {
     rmSync(rootPath, { recursive: true, force: true });
   }
 });
+
+test('audit scanner skips generated audit folders', () => {
+  const { folderPath, rootPath } = createFixture();
+  try {
+    const auditPath = join(dirname(folderPath), '_audit-2026-06-05');
+    mkdirSync(auditPath, { recursive: true });
+    writeFileSync(join(auditPath, '99-generated.md'), '# Generated\n');
+    const result = spawnSync('python3', [SCRIPT, dirname(folderPath)], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(result.stdout).length, 1);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
