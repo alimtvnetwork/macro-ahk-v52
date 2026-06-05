@@ -211,3 +211,41 @@ test('memory-refs checker ignores MUST words inside code fences', () => {
     rmSync(rootPath, { recursive: true, force: true });
   }
 });
+
+const QUARANTINE_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-quarantine.mjs');
+
+test('quarantine checker passes when README is the only file', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, 'README.md', '# Quarantine policy\n');
+    const result = runScript(QUARANTINE_SCRIPT, rootPath);
+    assert.equal(result.status, 0, result.stderr);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('quarantine checker passes when draft declares Graduation Plan', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, 'README.md', '# Policy\n');
+    writeFixture(rootPath, '01-draft.md', '# Draft\n\n## Graduation Plan\n- target: foo\n');
+    const result = runScript(QUARANTINE_SCRIPT, rootPath);
+    assert.equal(result.status, 0, result.stderr);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('quarantine checker fails when draft lacks Graduation Plan', () => {
+  const rootPath = createRoot();
+  try {
+    writeFixture(rootPath, 'README.md', '# Policy\n');
+    writeFixture(rootPath, '01-orphan.md', '# Orphan\n\nNo plan here.\n');
+    const result = runScript(QUARANTINE_SCRIPT, rootPath);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Graduation Plan/);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
