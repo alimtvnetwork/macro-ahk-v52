@@ -28,3 +28,5 @@ jobs:
         run: node scripts/audit/check-pitfalls.mjs
       - name: Score floor
         run: node scripts/audit/check-score-floor.mjs
+      - name: Score snapshot lock
+        run: node scripts/audit/check-score-snapshot.mjs
