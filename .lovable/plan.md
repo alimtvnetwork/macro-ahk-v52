@@ -33,7 +33,7 @@ This keeps the checker strict against real violations (any hardcoded zone in cod
 6. Extend `scripts/__tests__/check-forbidden-timezones.test.mjs` with three new cases:
    (a) line with `Asia/Kuala_Lumpur` AND `Intl.DateTimeFormat().resolvedOptions().timeZone` → PASS (skipped),
    (b) line with `Asia/Kuala_Lumpur` AND `<!-- allow-timezone-example -->` → PASS (skipped),
-   (c) line with `Asia/Kuala_Lumpur` alone → FAIL (still flagged).
+   (c) line with `Asia/Kuala_Lumpur` alone → FAIL (still flagged). <!-- allow-timezone-example -->
 7. Run the test file (`node --test scripts/__tests__/check-forbidden-timezones.test.mjs`) — all existing + 3 new tests must pass.
 8. Run the actual checker (`node scripts/check-forbidden-timezones.mjs`) against the repo. Expect: exit 0; previously-flagged 60+ lines silently skipped because each contains the safe-render marker.
 9. If any line still flags, inspect it; only legitimate violations remain. Either remove the hardcoded zone from that line or, if it is genuinely pedagogical and lacks the fix snippet, append the inline allow marker — do not blanket-suppress.
