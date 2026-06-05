@@ -27,6 +27,10 @@
 - **HARD ERROR logs without exact path / missing item / reasoning:** CODE RED. See memory: `constraints/file-path-error-logging-code-red.md`.
 - **Vague Code Red diagnostics:** A Code Red log without `Path`, `Missing`, `Reason`, `ReasonDetail`, `SelectorAttempts`, and `VariableContext` is forbidden.
 
+## Timezone
+
+- **Hardcoded timezone (any form):** Never write `Asia/Kuala_Lumpur`, `Kuala Lumpur`, `Malaysia` as a project timezone, `(UTC+8)` as a canonical tag, or any other fixed IANA zone / city label in code, specs, audits, plans, READMEs, comments, logs, or memory. All render-time formatting MUST use the user's local timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone`. Store timestamps as UTC ISO-8601. See memory: `localization/timezone`.
+
 ## UI
 
 - **Light-mode theme or theme toggles:** Dark-only enforced. See memory: `preferences/dark-only-theme`.
