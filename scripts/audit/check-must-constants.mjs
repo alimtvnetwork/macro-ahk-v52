@@ -97,16 +97,16 @@ function scanFile(filePath, canonicalSotPath, defaults, strictMode) {
   });
 }
 
-function scanLine(filePath, lineText, lineNumber, constants) {
+function scanLine(filePath, lineText, lineNumber, defaults) {
   if (!isOperationalConstantLine(lineText)) {
     return [];
   }
 
-  if (hasSourceOfTruthBinding(lineText, constants)) {
+  if (hasSourceOfTruthBinding(lineText, defaults)) {
     return [];
   }
 
-  return [buildFailure(filePath, lineNumber, lineText)];
+  return [buildFailure(filePath, lineNumber, lineText, defaults.numbers)];
 }
 
 function hasFileLevelSotBinding(fileText, constants) {
@@ -127,8 +127,8 @@ function isOperationalConstantLine(lineText) {
   return (hasUnitConstant && hasOperationalKeyword) || KEYWORD_RANGE_RE.test(text) || IDENTIFIER_CONSTANT_RE.test(text);
 }
 
-function hasSourceOfTruthBinding(lineText, constants) {
-  return lineText.includes(SOT_LINK_TEXT) || lineText.includes('mem://') || constants.some((constantName) => {
+function hasSourceOfTruthBinding(lineText, defaults) {
+  return lineText.includes(SOT_LINK_TEXT) || lineText.includes('mem://') || defaults.constants.some((constantName) => {
     return lineText.includes(constantName);
   });
 }
@@ -171,12 +171,15 @@ function byteAliases(value) {
   return [isKib ? String(value / 1024) : '', isMib ? String(value / 1048576) : ''];
 }
 
-function buildFailure(filePath, lineNumber, lineText) {
+function buildFailure(filePath, lineNumber, lineText, runtimeNumbers) {
+  const lineNumbers = extractLineNumbers(lineText).filter((value) => runtimeNumbers.has(value));
+
   return {
     path: filePath,
     line: lineNumber,
     missing: SOT_LINK_TEXT,
     excerpt: lineText.trim(),
+    matchingRuntimeValues: lineNumbers,
     reason: 'Operational numeric constant is not bound to the runtime-defaults source-of-truth or a canonical mem:// rule.',
   };
 }
@@ -196,5 +199,12 @@ function writeFailureReport(failures) {
     process.stderr.write(`    missing: ${failure.missing}\n`);
     process.stderr.write(`    excerpt: ${failure.excerpt}\n`);
     process.stderr.write(`    reason: ${failure.reason}\n`);
+  }
+}
+
+function writeReport(failures, strictMode) {
+  process.stdout.write(`[check-must-constants] report strict=${strictMode} failures=${failures.length}\n`);
+  for (const failure of failures) {
+    process.stdout.write(`${failure.path}:${failure.line}: ${failure.excerpt}\n`);
   }
 }
