@@ -28,8 +28,8 @@ type JSZip = JSZipType;
 export async function handlePurgeLogs(
     message: MessageRequest,
 ): Promise<{ purged: number }> {
-    const msg = message as MessageRequest & { olderThanDays?: number };
-    const days = msg.olderThanDays ?? 30;
+    const payload = message as MessageRequest & { olderThanDays?: number };
+    const days = payload.olderThanDays ?? 30;
     const purged = purgeOldLogs(days);
 
     markLoggingDirty();
