@@ -331,7 +331,7 @@ export default tseslint.config(
       "standalone-scripts/macro-controller/src/ws-name-matching.ts",
       "standalone-scripts/macro-controller/src/xpath-utils.ts",
       "standalone-scripts/macro-controller/tests/e2e/credit-totals/run-credit-totals-e2e.test.ts",
-      "standalone-scripts/marco-sdk/src/config.ts",
+      
       "standalone-scripts/marco-sdk/src/logger.ts",
       "standalone-scripts/marco-sdk/src/notify.ts",
       "standalone-scripts/marco-sdk/src/prompts.ts",
