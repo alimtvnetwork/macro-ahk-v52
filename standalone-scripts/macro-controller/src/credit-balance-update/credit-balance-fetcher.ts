@@ -82,6 +82,7 @@ export async function fetchWithTimeout(
     }, timeoutMs);
 
     try {
+        // no-bare-fetch-allow: caller performs the required immediate response.ok classification and logs Reason/ReasonDetail.
         return await fetch(url, { ...init, signal: controller.signal });
     } finally {
         clearTimeout(timer);
