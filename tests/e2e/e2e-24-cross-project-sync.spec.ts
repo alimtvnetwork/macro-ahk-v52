@@ -44,7 +44,7 @@ test.describe('E2E-24 — Cross-Project Sync Chrome pass', () => {
       await options.getByTestId('project-group-settings-input').fill('{"logLevel":"warn","retryOnNavigate":true}');
       await options.getByTestId('project-group-save-button').click();
 
-      await expect(options.getByText(groupName)).toBeVisible({ timeout: 20_000 });
+      await expect(options.getByRole('heading', { name: groupName })).toBeVisible({ timeout: 20_000 });
       const groupId = await readGroupId(options, groupName);
       expect(groupId).not.toBeNull();
       await options.getByTestId(`project-group-card-${groupId}`).click();
