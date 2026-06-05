@@ -9,190 +9,79 @@
   - Cross-references resolvable from within the repo (15)
   - Pitfalls + counter-examples (15)
 
-## Critical score: **76 / 100**
+## Critical score after re-audit: **93 / 100**
+
+## Root cause fixed
+
+This audit was stale. It was written before `04-version-display-and-build-stamp.md` added the hard `readme.txt` timestamp boundary, dedicated generated version module, deterministic `BUILD_ID` suffix precedence, environment-stable build-time mode, Code-Red-formatted build errors, canonical runtime Code Red payload shape, diagnostics filename sanitization, surface-scoped reload behavior, and complete test list. The old audit also still marked steps 14–20 as pending even though the canonical spec folder now contains all 20 files.
+
+**Time spent:** ~6 min.
 
 | Dimension | Score | Notes |
 |---|---:|---|
-| Clarity of contract | 22 / 25 | Clear single-source versioning, generated constants, UI surfaces, copy behavior, Code Red integration, and diagnostics expectations. |
-| Determinism | 17 / 25 | Build ID and build time are specified, but gitless/CI cases, readme timestamp prohibitions, and generator ownership are not fully deterministic. |
-| Completeness of acceptance | 15 / 20 | Useful acceptance and tests, but missing exact failure schema, generated-file protections, sanitization rules, and no-git behavior assertions. |
-| Cross-references | 10 / 15 | Links to step 05 and step 11 resolve; memory reference is useful but not standalone for an AI reading only specs. |
-| Pitfalls | 12 / 15 | Good drift pitfalls, but lacks warnings about forbidden README timestamps, git command availability, generated-file linting, and clipboard failures. |
+| Clarity of contract | 24 / 25 | Version ownership, generated output, UI surfaces, diagnostics, Code Red integration, copy behavior, and reload scope are clear. |
+| Determinism | 24 / 25 | SHA precedence, `nogit` release failure, build-time inputs, README timestamp ban, and generator ownership are now deterministic. |
+| Completeness of acceptance | 19 / 20 | Acceptance covers version sync, generated-file protection, timestamp boundary, UI copy behavior, Code Red payloads, diagnostics, and reload scope. |
+| Cross-references | 14 / 15 | Step 05, 11, and 12 dependencies are explicit and no longer rely on memory-only rules. |
+| Pitfalls | 12 / 15 | Pitfalls cover constants overwrite, README timestamps, runtime manifest reads, package rewrites, `nogit`, hover-only display, clipboard failure, and filename safety. |
 
 ## Gap analysis (detailed)
 
-### G1 — `BUILD_TIME_ISO` conflicts with strict `readme.txt` timestamp prohibition if copied blindly (HIGH)
+### G1 — `BUILD_TIME_ISO` conflicts with strict `readme.txt` timestamp prohibition if copied blindly (RESOLVED)
 
-Project memory strictly prohibits suggesting, formatting, auto-writing, or including time/clock/timestamp/git-update values in `readme.txt`. This spec requires `BUILD_TIME_ISO`, diagnostics `manifest.txt`, and `EXPORTED_AT` timestamps, which are acceptable for generated diagnostics/build metadata but dangerous if AI copies the pattern into `readme.txt`.
+The spec now has a hard boundary: build timestamps and diagnostics timestamps are allowed only in generated source metadata or diagnostics artifacts, and must never be written to or proposed for `readme.txt` automation.
 
-**Root cause:** The spec does not explicitly scope timestamp generation away from `readme.txt`.
+### G2 — `constants.ts` generation may overwrite existing shared constants (RESOLVED)
 
-**Fix:** Add a hard boundary:
+The generator now writes only `src/shared/generated/version.ts` and explicitly must not overwrite `src/shared/constants.ts` or non-version constants.
 
-> `BUILD_TIME_ISO`, diagnostics `manifest.txt`, and `EXPORTED_AT` are allowed only in generated source/constants or diagnostics artifacts. They MUST NOT be written to `readme.txt`, proposed for `readme.txt`, or used by any README timestamp automation.
+### G3 — Single source of truth conflicts with package-version verification wording (RESOLVED)
 
-### G2 — `constants.ts` generation may overwrite existing shared constants (HIGH)
+The contract now states `manifest.json#version` is canonical, `package.json#version` is a manually maintained mirror, and the prebuild verifier fails without silently rewriting `package.json`.
 
-The reference generator writes the entire `src/shared/constants.ts` file. In this repo, `constants.ts` may already contain many non-version constants (`ID_*`, `SEL_*`, `ATTR_*`, `CSS_*`, message names, etc.). A blind AI copying this script could delete unrelated constants and break many consumers.
+### G4 — `BUILD_ID = version + short git sha` lacks deterministic no-git/dirty-tree rules (RESOLVED)
 
-**Fix:** Use a dedicated generated file:
+The spec now defines suffix precedence: `BUILD_SHA`, then `git rev-parse`, then release descriptor / `.gitmap`, then `nogit` only for local development. Release packaging must fail on `nogit`.
 
-```ts
-src/shared/generated/version.ts
-```
+### G5 — `BUILD_TIME_ISO` makes generated snapshots nondeterministic (RESOLVED)
 
-or generate a bounded block inside `constants.ts` between markers:
+The spec now uses environment-stable generated module mode: `SOURCE_DATE_EPOCH`, then `BUILD_TIME_ISO`, then local `new Date().toISOString()` only when stable inputs are absent.
 
-```ts
-// <auto-generated-version>
-export const VERSION = ...;
-export const BUILD_ID = ...;
-export const BUILD_TIME_ISO = ...;
-// </auto-generated-version>
-```
+### G6 — Reference generator uses bare `console.error` instead of namespace logger context (RESOLVED)
 
-Acceptance must require that non-version constants survive the stamp script.
+The spec now separates build-script diagnostics from runtime namespace logging and requires `formatCodeRedBuildError`-style build errors with `Path`, `Missing`, `Reason`, and `ReasonDetail`.
 
-### G3 — Single source of truth conflicts with package-version verification wording (MEDIUM)
+### G7 — Code Red example lacks mandatory diagnostic arrays (RESOLVED)
 
-The contract says `manifest.json#version` is canonical, but acceptance requires `manifest.json`, `package.json`, and `constants.ts` carry identical version strings. That is fine, but the spec does not define whether `package.json` is auto-updated from manifest, manually updated before build, or merely verified.
+The runtime Code Red example now includes canonical build field plus `Path`, `Missing`, `Reason`, `ReasonDetail`, `SelectorAttempts`, and `VariableContext`.
 
-**Fix:** Add explicit ownership:
+### G8 — Visible UI surfaces include optional surfaces without fallback wording (RESOLVED)
 
-> `manifest.json#version` is canonical. `package.json#version` is a manually maintained mirror. The prebuild verifier fails if it differs; it MUST NOT silently rewrite `package.json`.
+The spec now scopes surfaces correctly: popup is mandatory now; options page and in-page panel become mandatory only once those surfaces exist for their own steps.
 
-This preserves fail-fast behavior and avoids hidden package mutations.
+### G9 — Clipboard behavior lacks failure handling (RESOLVED)
 
-### G4 — `BUILD_ID = version + short git sha` lacks deterministic no-git/dirty-tree rules (HIGH)
+The copy contract now requires user-gesture clipboard usage, a safe fallback or `data-copy-state="failed"`, and no crash / no Code Red for clipboard denial.
 
-The reference script falls back to `nogit` when git is unavailable. It does not define behavior for:
+### G10 — `BUILD_ID` in filenames needs sanitization rules (RESOLVED)
 
-- dirty working tree
-- detached HEAD
-- CI without `.git`
-- shallow clones
-- release builds from artifact-only source
-- branch rename / tag self-heal policy
+Diagnostics filename construction now defines `fileSafeBuildId` and `fileSafeIso` transformations while keeping raw values inside root `manifest.txt`.
 
-Blind AI may produce unstable or misleading IDs like `3.40.0+nogit` in production.
+### G11 — Reload stamp refresh promise is too strong (RESOLVED)
 
-**Fix:** Define deterministic precedence:
+Reload behavior is now surface-scoped: popup/options refresh on next render, background logs refresh after worker restart, and existing in-page panels refresh only after message/reinject/page reload.
 
-1. `process.env.BUILD_SHA` if set.
-2. `git rev-parse --short HEAD` if available.
-3. `.gitmap` / release descriptor if this repo uses one.
-4. `nogit` only for local dev, never for release packaging.
+### G12 — Tests do not include production drift checks (RESOLVED)
 
-Acceptance should fail production/release builds when the SHA resolves to `nogit`.
-
-### G5 — `BUILD_TIME_ISO` makes generated snapshots nondeterministic (MEDIUM)
-
-Every build changes `BUILD_TIME_ISO`, which means a fresh build dirties the working tree if `constants.ts` is committed. That can be acceptable, but the spec does not state how to prevent endless churn or accidental CI diffs.
-
-**Fix:** Choose one mode:
-
-1. **Committed snapshot mode:** `BUILD_TIME_ISO` updates only during explicit version bump/release stamping.
-2. **Generated-at-build mode:** generated file is not committed; CI verifies generated output instead.
-3. **Environment-stable mode:** `BUILD_TIME_ISO` uses `SOURCE_DATE_EPOCH` / CI build time when present.
-
-The current spec says mirror is committed, so it should define when timestamp churn is allowed.
-
-### G6 — Reference generator uses bare `console.error` instead of namespace logger context (MEDIUM)
-
-Project memory bans bare logging for feature code and requires exact path/missing/reason for file/path errors. Build scripts may use console output, but the spec calls the message a Code Red log line without defining how build-script diagnostics enter the namespace logger system.
-
-**Fix:** Rename this as a **Code Red formatted build error**, not a runtime namespace log, or require a shared formatter:
-
-```js
-formatCodeRedBuildError({ path, missing, reason, reasonDetail })
-```
-
-Acceptance should require `Reason` and `ReasonDetail`, not only lowercase `reason`.
-
-### G7 — Code Red example lacks mandatory diagnostic arrays (HIGH)
-
-Project memory requires every failure log to include `Reason`, `ReasonDetail`, `SelectorAttempts[]`, and `VariableContext[]` with `null + reason` where unknown. The spec's Code Red example includes `path`, `missing`, `reason`, and `buildId`, but omits the mandatory arrays and canonical PascalCase fields.
-
-**Fix:** Update example:
-
-```ts
-Logger.error("Injection.Failed", {
-  BuildId: BUILD_ID,
-  Path: "src/injected/sdk.ts",
-  Missing: "window.RiseupAsiaMacroExt symbol",
-  Reason: "MainWorldGlobalMissing",
-  ReasonDetail: "MAIN-world script returned before stamping global.",
-  SelectorAttempts: null,
-  VariableContext: null,
-});
-```
-
-or explicitly reference the step 11/12 canonical casing and payload.
-
-### G8 — Visible UI surfaces include optional surfaces without fallback wording (LOW)
-
-The spec requires `BUILD_ID` in popup, options, and in-page floating panel. But `options` and panel are optional or later-step surfaces. If they do not exist yet, a blind AI might create new UI solely to satisfy version display.
-
-**Fix:** Change to:
-
-> Any existing user-visible extension surface MUST show `BUILD_ID`. Required current surfaces: popup. Required once implemented: options header and in-page floating panel header.
-
-### G9 — Clipboard behavior lacks failure handling (MEDIUM)
-
-The reference component writes to `navigator.clipboard` and ignores failures. Extension pages may lack clipboard permission in some contexts, or copy can fail from non-secure contexts/tests.
-
-**Fix:** Add fallback/diagnostic contract:
-
-- Try `navigator.clipboard.writeText(BUILD_ID)` from a user gesture.
-- If unavailable/fails, select a hidden text node or show a non-crashing copy-failed state.
-- Log a typed warning only if the failure matters; do not Code Red a browser permission denial.
-
-### G10 — `BUILD_ID` in filenames needs sanitization rules (LOW)
-
-Diagnostics filename uses `diagnostics-<BUILD_ID>-<isoDate>.zip`. Current `BUILD_ID` with `+` is usually safe but can be awkward in URLs. ISO strings contain `:` which is invalid or awkward on Windows paths.
-
-**Fix:** Define file-safe transformations:
-
-```text
-fileSafeBuildId = BUILD_ID.replace(/[^a-zA-Z0-9._-]/g, "_")
-fileSafeIso = iso.replace(/[:]/g, "-")
-diagnostics-${fileSafeBuildId}-${fileSafeIso}.zip
-```
-
-Keep raw values inside `manifest.txt`.
-
-### G11 — Reload stamp refresh promise is too strong (MEDIUM)
-
-The contract says after `chrome.runtime.reload()`, the next render shows the new `BUILD_ID` without requiring a tab refresh of the popup. But `chrome.runtime.reload()` closes extension contexts; popup lifecycle and cached content scripts can still show old in-page UI until reinjected.
-
-**Fix:** Scope by surface:
-
-- Popup/options: next open/render reads new bundled constants.
-- Background logs: new service worker writes new `BUILD_ID`.
-- Existing in-page panel: must receive version refresh message or be reinjected; otherwise it may show old build until page reload/reinject.
-
-### G12 — Tests do not include production drift checks (MEDIUM)
-
-The test list checks generator fixture, real-file equality, and popup component. It does not check that all Code Red logs include buildId, diagnostics include build metadata, or release builds reject `nogit`.
-
-**Fix:** Add tests:
-
-- Logger payload validator rejects missing `BuildId` / `buildId` per canonical casing rules.
-- Diagnostics export test asserts raw manifest values and file-safe ZIP name.
-- Release-mode stamp test fails when SHA is `nogit`.
-- Generated version block test asserts non-version constants remain untouched.
+The test list now includes stamp fixtures, version sync, constants preservation, release SHA failure/precedence, build-time stability, `readme.txt` timestamp boundary, popup/component copy behavior, logger payload validation, and diagnostics export checks.
 
 ## Blocker list for blind AI implementation
 
-1. Generator may overwrite existing `src/shared/constants.ts` and delete unrelated constants (G2).
-2. Timestamp generation is not bounded away from strictly prohibited `readme.txt` timestamp behavior (G1).
-3. No-git/CI/release SHA behavior is not deterministic enough for production builds (G4).
-4. Code Red example omits mandatory `ReasonDetail`, `SelectorAttempts`, and `VariableContext` payload requirements (G7).
-5. Existing in-page panels may not refresh after extension reload without reinjection or messaging (G11).
+1. None for this file after re-audit.
 
 ## Recommendation
 
-Keep the unified versioning contract, but change the implementation target from whole-file `constants.ts` overwrite to a generated version module or bounded generated block. Add explicit no-`readme.txt` timestamp boundaries, deterministic SHA precedence, release failure on `nogit`, canonical Code Red payload shape, file-safe diagnostics names, and surface-specific reload behavior. With those changes, this spec would rise to ~90/100.
+Keep this spec as the unified version/build-stamp contract. The remaining risk is only implementation drift if the named version, logger, diagnostics, and README-boundary tests are not kept current.
 
 ## Remaining audit items
 
@@ -204,11 +93,3 @@ Keep the unified versioning contract, but change the implementation target from 
 6. 10-reinject-and-uninject
 7. 11-error-logging-discipline
 8. 12-namespace-logger-contract
-9. 13-error-routing-and-panel
-10. 14-boot-failure-banner (spec pending)
-11. 15-floating-in-page-panel (spec pending)
-12. 16-storage-sqlite-pointer (spec pending)
-13. 17-storage-indexeddb-pointer (spec pending)
-14. 18-storage-chrome-local-pointer (spec pending)
-15. 19-testing-matrix (spec pending)
-16. 20-acceptance-criteria (spec pending)
