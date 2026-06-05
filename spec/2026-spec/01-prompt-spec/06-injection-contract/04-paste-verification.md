@@ -69,3 +69,8 @@ strings are saved; otherwise both are truncated to 240 chars with a
 - Whether the chatbot eventually responds (out of scope).
 - Whether the submit button was enabled (T81 covers it).
 - Variable resolution correctness (T38 already validated it).
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T49 · Paste verification` contract in this file and the folder-level acceptance target: all supported paste strategies inject and verify prompt text without corrupting selection state.
+- [ ] Verification passes when `UT-inject-001..008 and E2E-inject-001..004` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

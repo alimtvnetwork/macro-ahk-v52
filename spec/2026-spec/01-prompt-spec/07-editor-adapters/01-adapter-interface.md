@@ -59,3 +59,8 @@ AdapterRegistry.register(new TextareaAdapter());
 ```
 
 Resolution order: **last-registered wins** for matching `canHandle`. This lets hosts override defaults.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `01 — Editor Adapter Interface` contract in this file and the folder-level acceptance target: textarea, contenteditable, and rich-editor adapters expose the same injection contract.
+- [ ] Verification passes when `E2E-adapter-001..006` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

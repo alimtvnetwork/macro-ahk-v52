@@ -24,3 +24,8 @@ Without verbose logging, bodies and HTML snippets show truncated to 120/240 char
 - Recent events list uses windowed rendering (50 rows visible).
 - Metrics are computed on tab open and cached for 30s — explicit refresh button to bypass.
 - Panel registers no global listeners outside its lifetime; teardown follows the Timer & Observer Teardown rule.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — Debug Panel` contract in this file and the folder-level acceptance target: events, metrics, debug panel rows, and diagnostics exports follow the observability schema.
+- [ ] Verification passes when `UT-obs-001..008` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

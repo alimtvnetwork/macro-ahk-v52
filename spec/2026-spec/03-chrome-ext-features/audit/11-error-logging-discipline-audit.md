@@ -111,3 +111,8 @@ sole gate; callers pass raw values; helper reads `Project.VerboseLogging` from
 7. 18-storage-chrome-local-pointer (spec pending)
 8. 19-testing-matrix (spec pending)
 9. 20-acceptance-criteria (spec pending)
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Audit 11 — Error Logging Discipline` contract in this file and the folder-level acceptance target: each audit finding remains traceable to a feature spec and a verification hook.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

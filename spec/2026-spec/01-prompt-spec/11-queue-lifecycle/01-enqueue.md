@@ -34,3 +34,8 @@ QueueEngine.enqueueBulk({ kind, promptSlug, context, count });
 
 - Enqueueing without a successful render (caller would receive a `PromptError` instead).
 - Mutating an already-queued task's `renderedBody` (rebuild a new task instead).
+
+## Acceptance
+
+- [ ] The implementation satisfies the `01 — Enqueue` contract in this file and the folder-level acceptance target: enqueue, tick, retry, hold, cancel, pause, and completion events follow the queue lifecycle.
+- [ ] Verification passes when `UT-lifecycle-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

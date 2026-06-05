@@ -67,3 +67,8 @@ project's failure logs.
 - Empty prompt list — `loadAll()` returns `[]`.
 - Hidden defaults — silently skipped during merge.
 - Extra unknown keys in `info.json` — preserved, ignored.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T39 · Error modes` contract in this file and the folder-level acceptance target: loader calls return typed successes, typed errors, and bounded cache behavior.
+- [ ] Verification passes when `UT-loader-001..012` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

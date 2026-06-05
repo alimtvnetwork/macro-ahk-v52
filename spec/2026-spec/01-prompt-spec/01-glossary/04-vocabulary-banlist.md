@@ -38,3 +38,8 @@ rg -n -i \
 ```
 
 Zero output ⇒ spec is clean.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T24 · Vocabulary ban-list` contract in this file and the folder-level acceptance target: all downstream terms, actors, states, and banned vocabulary stay defined and consistently named.
+- [ ] Verification passes when `LINT-glossary-coverage` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

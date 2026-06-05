@@ -35,3 +35,8 @@ If the host omits a hook, the engine falls back to:
 ## Teardown
 
 All subscriptions return a disposer. Engine disposal calls every disposer, registers `pagehide` cleanup per the project Timer & Observer Teardown rule.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `02 — Detection Hooks` contract in this file and the folder-level acceptance target: every failure path emits the mandatory failure-log shape and user-visible feedback.
+- [ ] Verification passes when `UT-fail-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

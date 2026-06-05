@@ -29,3 +29,8 @@ async function maybeDelay(cfg: DelayConfig): Promise<void> {
 
 - Hosts where a sub-second cadence would race their own rate limiter and trigger a 429.
 - Plan mode, where the first task is also the heaviest — a small lead-in delay lets the UI render the queue list before the first stream starts.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — Skip First` contract in this file and the folder-level acceptance target: default delay, settings, jitter, skip-first, and pause semantics use runtime defaults.
+- [ ] Verification passes when `UT-delay-001..006` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -30,3 +30,8 @@
 - `/api/me` returns 401 → loop logs `Reason=LoggedOut`, halts, surfaces toast.
 
 No `MacroController`, no `chrome.*`, no `RiseupAsia*` — confirming the spec ports cleanly.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — Worked example: shipping Prompts to "HelpDeskly"` contract in this file and the folder-level acceptance target: pre-flight, wire-up, go-live, worked example, and handoff steps stay complete.
+- [ ] Verification passes when `meta-check` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

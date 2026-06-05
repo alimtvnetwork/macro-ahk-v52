@@ -169,6 +169,9 @@ panel can show the exact failed request path.
 
 ## Acceptance for this step
 
+- [ ] The implementation satisfies the `Step 15 — Bind Safety Entry Point Guards` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 - `src/test/regression/handler-guards.test.ts` proves that missing `projectId`, `key`, `group`, `filename`, `fileId`, and equivalent
   required fields return `isOk: false` with `[op]` in the message.
 - The same tests prove the fake DB call log has zero `run`, `exec`, or `prepare` calls for invalid requests.

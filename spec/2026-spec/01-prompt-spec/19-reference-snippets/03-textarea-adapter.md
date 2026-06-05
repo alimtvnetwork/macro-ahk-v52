@@ -35,3 +35,8 @@ export const textareaAdapter: EditorAdapter = {
 - Uses the native value setter so React/Vue controlled inputs accept the change.
 - `paste` returns a boolean for the caller's read-back assertion (T49).
 - No `execCommand` — deprecated in modern browsers for textareas.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — Textarea editor adapter reference` contract in this file and the folder-level acceptance target: reference snippets remain copyable and typecheck without hidden imports.
+- [ ] Verification passes when `typecheck-spec-snippets.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

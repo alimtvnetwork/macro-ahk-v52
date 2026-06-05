@@ -28,3 +28,8 @@
 ## Click-through
 
 Clicking a failed row opens a detail drawer showing the full `FailureRecord` (Reason, ReasonDetail, SelectorAttempts, VariableContext, timestamps). Verbose payloads are gated by the project's verbose-logging toggle.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — User Feedback` contract in this file and the folder-level acceptance target: every failure path emits the mandatory failure-log shape and user-visible feedback.
+- [ ] Verification passes when `UT-fail-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

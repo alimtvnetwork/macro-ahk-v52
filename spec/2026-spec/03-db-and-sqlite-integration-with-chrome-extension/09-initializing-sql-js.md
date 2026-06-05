@@ -65,6 +65,9 @@ export default function initSqlJs(): Promise<SqlJsStatic> {
 
 ## Acceptance for this step
 
+- [ ] The implementation satisfies the `Step 09 — Initializing sql.js` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 - `src/background/sqljs-loader.ts` exports a default `initSqlJs()` returning `Promise<SqlJsStatic>`.
 - Calling `initSqlJs()` twice in the same worker returns the same promise instance.
 - Deleting `public/assets/sql-wasm.wasm` and reloading the extension produces a Code Red log line containing the path and `404`.

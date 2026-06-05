@@ -25,6 +25,11 @@ interface CapacityConfig {
 
 When the user enters a count `> maxQueueSize - currentPending`, the input MUST surface inline: *"Only X slots available (cap 999)"*. No silent truncation.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — Capacity` contract in this file and the folder-level acceptance target: queued task shape, status transitions, capacity, storage, and ordering are enforced.
+- [ ] Verification passes when `UT-queue-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

@@ -113,3 +113,8 @@ runtime.
 
 1. 11-error-logging-discipline
 2. 12-namespace-logger-contract
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Audit 10 — Re-inject and Uninject` contract in this file and the folder-level acceptance target: each audit finding remains traceable to a feature spec and a verification hook.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

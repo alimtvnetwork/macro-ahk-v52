@@ -41,3 +41,8 @@ Out of scope for v1 (explicit decision; manual save matches user mental model an
 - All inputs labelled.
 - Focus trap inside modal; `Esc` closes; initial focus on Title for new, on Body for edit.
 - Live region announces save success / failure.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `05 — Editor UX Contract` contract in this file and the folder-level acceptance target: prompt create, edit, delete, duplicate, import, and archive flows are reversible and observable.
+- [ ] Verification passes when `UT-crud-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

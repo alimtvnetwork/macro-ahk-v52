@@ -42,6 +42,11 @@ const DEFAULTS: PromptsSettings = {
 
 A host may register `SettingsDefaultsProvider` to ship custom defaults. User edits win over host defaults; reset restores the **host** default (not the spec default).
 
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — Defaults & Reset` contract in this file and the folder-level acceptance target: settings schema, defaults, reset, host overrides, and UX surface validate consistently.
+- [ ] Verification passes when `UT-settings-001..006` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

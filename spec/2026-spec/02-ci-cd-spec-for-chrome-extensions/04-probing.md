@@ -38,6 +38,11 @@ seq 2 "$probe_max" | xargs -P "$concurrency" -I{} -t bash -c '
 The same algorithm is used during release publication to verify every required
 asset URL returns `200` before flipping `draft: false`.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — Probing Feature` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

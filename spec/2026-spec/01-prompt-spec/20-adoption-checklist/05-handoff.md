@@ -27,3 +27,8 @@
 - Verbose logging defaults OFF; full prompt bodies only when ON.
 
 **If you need to extend the spec**, add a new top-level folder with a `NNN-` prefix continuing the numbering, and append a row to `01-plan-tasks-1-20.md`'s tracking table.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `05 — Handoff: where the next AI should start reading` contract in this file and the folder-level acceptance target: pre-flight, wire-up, go-live, worked example, and handoff steps stay complete.
+- [ ] Verification passes when `meta-check` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

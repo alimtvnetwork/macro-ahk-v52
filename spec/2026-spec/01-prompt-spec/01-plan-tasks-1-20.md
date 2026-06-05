@@ -216,6 +216,11 @@ Each completed follow-up task increments a checkbox here:
 - [x] T111–T115 Reference snippets  *(2026-06-02)*
 - [x] T116–T120 Adoption checklist  *(2026-06-02)*
 
+## Acceptance
+
+- [ ] The implementation satisfies the `Tasks 1–20 — Planning the next 100 tasks (T21–T120)` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

@@ -27,3 +27,8 @@
 - [ ] `readme.txt` (if shipped) contains no clock/timestamp/git-update values.
 
 Sign-off requires every box ticked.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — Go-live checklist` contract in this file and the folder-level acceptance target: pre-flight, wire-up, go-live, worked example, and handoff steps stay complete.
+- [ ] Verification passes when `meta-check` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

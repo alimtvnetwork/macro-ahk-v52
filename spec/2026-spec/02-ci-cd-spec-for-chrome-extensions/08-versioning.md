@@ -84,4 +84,7 @@ Exit codes: `0` agree, `1` mismatch (prints all sources), `2` insufficient
 sources. Never replace this with an ad-hoc `grep` — fragile `grep`s have
 historically passed mismatched majors.
 
+## Acceptance
 
+- [ ] The implementation satisfies the `08 — Versioning` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

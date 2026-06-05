@@ -30,6 +30,11 @@ interface ReadinessConfig {
 
 Each failure MUST emit the mandatory failure log shape (`Reason`, `ReasonDetail`, `SelectorAttempts[]`).
 
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — Disabled-Button Handling` contract in this file and the folder-level acceptance target: NextLoop submission, disabled-button handling, interruption, and cancellation behavior is deterministic.
+- [ ] Verification passes when `E2E-next-001..005` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

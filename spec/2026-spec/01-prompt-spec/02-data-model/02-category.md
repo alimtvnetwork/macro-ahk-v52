@@ -33,3 +33,8 @@ step, while still letting integrators curate a primary set.
 
 - `all` — implicit virtual category; selecting it shows every prompt. Never store a `PromptCategory` with `slug = "all"`.
 - `uncategorised` — implicit; matches prompts whose `categories` array is empty.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T27 · PromptCategory shape + free-tag fallback` contract in this file and the folder-level acceptance target: Prompt, PromptCategory, and PromptStore contracts hold across storage implementations.
+- [ ] Verification passes when `UT-data-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

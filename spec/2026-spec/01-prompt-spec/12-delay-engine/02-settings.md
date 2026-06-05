@@ -39,3 +39,8 @@ No deep merge — kind overrides are **whole-object** replacements to avoid surp
 ## Persistence
 
 Stored in the host's settings store under a single key `prompts.delaySettings`. Schema-validated on load; invalid values fall back to `DELAY_DEFAULTS` and emit a single warn log (no crash).
+
+## Acceptance
+
+- [ ] The implementation satisfies the `02 — Per-Mode Settings` contract in this file and the folder-level acceptance target: default delay, settings, jitter, skip-first, and pause semantics use runtime defaults.
+- [ ] Verification passes when `UT-delay-001..006` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

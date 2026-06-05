@@ -221,3 +221,7 @@ SilentlyContinue` outside `finally` cleanup — fail fast per §-no-retry policy
 Self-test in CI: `pwsh -File scripts/install.ps1 -Version v0.0.0-test -Ext demo`
 in a `windows-latest` matrix leg of `ci.yml` to catch parser/TLS regressions.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — Download & Install Scripts` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -84,6 +84,9 @@ An AI agent that has never read Chrome MV3 docs. Treat every rule here as non-ne
 
 ## Acceptance for this step
 
+- [ ] The implementation satisfies the `Step 05 — Manifest V3 Constraints That Shape Storage` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 - `manifest.json` includes the four required fields above.
 - A grep for `localStorage` in `src/background/` returns zero hits (or only comments explaining why it is banned there).
 - A grep for `setInterval` in flush/retention code returns zero hits; `chrome.alarms.create` is used instead.

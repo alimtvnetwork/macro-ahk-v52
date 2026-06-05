@@ -55,3 +55,8 @@ The dropdown chrome is English baseline (per non-goal NG8). Prompt
 titles and bodies render in whatever language they were authored;
 adapters MUST NOT alter direction (`dir` attribute is inherited from
 the host).
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T45 · Accessibility` contract in this file and the folder-level acceptance target: trigger, dropdown, keyboard, search, and accessibility behavior remains user-verifiable.
+- [ ] Verification passes when `CT-ui-001..009 and E2E-ui-001..003` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

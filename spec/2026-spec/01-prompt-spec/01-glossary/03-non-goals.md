@@ -17,3 +17,8 @@ proposes one of these, push back and link this file.
 | NG8 | Internationalisation of the dropdown chrome | English-only baseline; prompt **bodies** can be in any language. |
 | NG9 | Rich-media prompts (images, files, audio) | Text-only `prompt.md` bodies. |
 | NG10 | Recovery from HostApp DOM redesigns | Selector drift is the Integrator's responsibility, surfaced via `100-failure-handling/`. |
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T23 · Non-goals` contract in this file and the folder-level acceptance target: all downstream terms, actors, states, and banned vocabulary stay defined and consistently named.
+- [ ] Verification passes when `LINT-glossary-coverage` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

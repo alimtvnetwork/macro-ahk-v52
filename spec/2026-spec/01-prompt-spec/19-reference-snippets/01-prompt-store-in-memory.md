@@ -44,3 +44,8 @@ export function createInMemoryPromptStore(seed: Prompt[] = []): PromptStore {
 - Pure JS Map; no persistence. Host wraps with `localStorage` / IndexedDB / SQLite adapter.
 - Sort by `order` is stable for FIFO display.
 - `save` preserves `createdAt`, refreshes `updatedAt`.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `01 — In-memory PromptStore reference` contract in this file and the folder-level acceptance target: reference snippets remain copyable and typecheck without hidden imports.
+- [ ] Verification passes when `typecheck-spec-snippets.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

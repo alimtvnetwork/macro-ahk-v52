@@ -125,3 +125,8 @@ row with PascalCase→camelCase normalization".
 6. 18-storage-chrome-local-pointer (spec pending)
 7. 19-testing-matrix (spec pending)
 8. 20-acceptance-criteria (spec pending)
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Audit 12 — Namespace Logger Contract` contract in this file and the folder-level acceptance target: each audit finding remains traceable to a feature spec and a verification hook.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

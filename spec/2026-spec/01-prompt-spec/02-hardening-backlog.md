@@ -13,3 +13,8 @@ spec is complete; this is the follow-on punch-list.
 - [x] H8 — Acceptance-bullet extractor (`scripts/extract-prompts-acceptance.mjs`) → `/mnt/documents/2026-prompts-acceptance.md`.
 - [x] H9 — Reference-snippet typecheck harness (`scripts/typecheck-spec-snippets.mjs`, extracts `\`\`\`ts` blocks + shimmed tsc --noEmit).
 - [x] H10 — Vanilla-HTML host-wiring PoC (`poc/2026-spec/index.html`) — wires snippets 01/02/03/05 + in-memory QueueStore against a mock chat host.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Spec-hardening backlog (post-T120)` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

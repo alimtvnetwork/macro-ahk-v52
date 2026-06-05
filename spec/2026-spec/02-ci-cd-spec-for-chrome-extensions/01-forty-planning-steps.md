@@ -54,3 +54,7 @@ These forty steps are the **outline**. The detailed spec below (§1–§40) maps
 
 ---
 
+## Acceptance
+
+- [ ] The implementation satisfies the `01 — 40 Planning Steps` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

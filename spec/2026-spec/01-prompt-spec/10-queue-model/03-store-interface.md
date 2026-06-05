@@ -34,3 +34,8 @@ type QueueStoreEvent =
 
 - `localStorage` — synchronous and 5MB-bounded; out of contract.
 - Cross-tab sync — explicit non-goal (see `01-glossary/03-non-goals.md`).
+
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — Queue Store Interface` contract in this file and the folder-level acceptance target: queued task shape, status transitions, capacity, storage, and ordering are enforced.
+- [ ] Verification passes when `UT-queue-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

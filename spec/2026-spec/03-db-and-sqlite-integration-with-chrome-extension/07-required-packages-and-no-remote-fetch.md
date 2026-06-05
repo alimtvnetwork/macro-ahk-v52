@@ -70,6 +70,9 @@ The only network calls allowed are to user-controlled APIs (the product's backen
 
 ## Acceptance for this step
 
+- [ ] The implementation satisfies the `Step 07 — Required NPM Packages and the No-Remote-Fetch Rule` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 - `package.json` contains exactly the three packages above (`sql.js`, `idb`, `@types/sql.js`) for storage. No other SQLite/IndexedDB dep.
 - `npm ls sql.js idb` shows the resolved versions match the table above (no duplicates from transitive deps).
 - CI greps in step 39 pass.

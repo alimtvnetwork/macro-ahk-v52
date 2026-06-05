@@ -36,3 +36,8 @@ Per `03-prompt-source-format/05-import-export-zip.md`:
 - **Single:** download `{slug}.json` (info + body inline).
 - **Selection or all:** download `prompts-<YYYYMMDD-HHmm>.zip` matching the bundle format.
 - Exports never include `archivedAt`-set prompts unless the user explicitly opts in.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — Duplicate, Import, Export` contract in this file and the folder-level acceptance target: prompt create, edit, delete, duplicate, import, and archive flows are reversible and observable.
+- [ ] Verification passes when `UT-crud-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

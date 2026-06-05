@@ -74,3 +74,7 @@ Required keys: `manifest_version` (=3), `name`, `version` (semver `X.Y.Z`),
 └── CHANGELOG.md
 ```
 
+## Acceptance
+
+- [ ] The implementation satisfies the `06 — Spec Location & Extension Folder Shape` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

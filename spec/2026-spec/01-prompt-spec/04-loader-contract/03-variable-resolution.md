@@ -50,3 +50,8 @@ Body:   Next, today is {{date}} (run for {{ticket}}).
 ctx:    { vars: { ticket: "ABC-123" }, now: 2026-06-02T03:14:00Z }
 Render: "Next, today is 2026-06-02 (run for ABC-123)."
 ```
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T38 · Variable resolution` contract in this file and the folder-level acceptance target: loader calls return typed successes, typed errors, and bounded cache behavior.
+- [ ] Verification passes when `UT-loader-001..012` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

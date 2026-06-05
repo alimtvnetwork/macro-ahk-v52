@@ -39,3 +39,8 @@ fixtures/
 ## Coverage gate
 
 CI fails the suite if coverage drops below the targets in `01-overview.md`. No flake-tolerance retries — sequential fail-fast per the No-Retry Policy.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `05 — Test Fixtures & Mocks` contract in this file and the folder-level acceptance target: test inventories, target lists, fixtures, and mocks remain discoverable by automation.
+- [ ] Verification passes when `meta-check` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -23,6 +23,11 @@ words MUST use the meaning given here.
 | **EditorKind** | One of `textarea`, `contenteditable`, `prosemirror`, `lexical`, `monaco`, `other`. Determines which paste adapter is used (see `06-injection-contract/adapters/`). |
 | **VerboseMode** | Off by default; when on, full prompt body + full DOM snapshot are recorded in logs. |
 
+## Acceptance
+
+- [ ] The implementation satisfies the `T21 · Terms` contract in this file and the folder-level acceptance target: all downstream terms, actors, states, and banned vocabulary stay defined and consistently named.
+- [ ] Verification passes when `LINT-glossary-coverage` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

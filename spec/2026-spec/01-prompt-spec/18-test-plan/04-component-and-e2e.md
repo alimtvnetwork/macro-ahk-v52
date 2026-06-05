@@ -27,3 +27,8 @@
 - No console errors at any point.
 - Failure drawer shows zero entries after each successful run.
 - Diagnostics export ZIP includes the expected events for the run.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — Component & E2E` contract in this file and the folder-level acceptance target: test inventories, target lists, fixtures, and mocks remain discoverable by automation.
+- [ ] Verification passes when `meta-check` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -166,6 +166,9 @@ Splitting one file per version makes diff review trivial and lets tests load eac
 
 ## Acceptance for this step
 
+- [ ] The implementation satisfies the `Step 13 — Migration Runner Pattern` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 - A fresh DB (no `Deployments` rows) boots, runs all migrations 2..CURRENT, writes N successful `Deployments` rows.
 - A DB at `SchemaVersion=5` boots into a binary with `CURRENT_SCHEMA_VERSION=10` and applies exactly steps 6,7,8,9,10.
 - Forcing `applyV8Up` to throw leaves `SchemaVersion=7` recorded and re-throws to `boot.ts`. The next boot resumes from 7→8.

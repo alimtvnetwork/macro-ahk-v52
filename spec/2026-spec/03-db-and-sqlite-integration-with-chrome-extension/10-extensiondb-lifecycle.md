@@ -150,6 +150,9 @@ export async function flushIfDirty(): Promise<void> {
 
 ## Acceptance for this step
 
+- [ ] The implementation satisfies the `Step 10 — ExtensionDB Lifecycle` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 - `init()` is idempotent: calling it twice returns the same promise effect; no second wasm fetch.
 - `getLogsDb()` / `getErrorsDb()` throw a clear error if called before `init()`.
 - `markDirty()` followed by a 6 s wait results in exactly one `flushToStorage` call per DB.

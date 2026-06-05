@@ -45,3 +45,8 @@ When `document.hidden` becomes true mid-delay:
 ## Teardown
 
 On engine disposal: abort the active signal, `clearTimeout`, drop the resolver. Mirrors the project-wide timer-and-observer-teardown standard.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `05 — Pause During Delay` contract in this file and the folder-level acceptance target: default delay, settings, jitter, skip-first, and pause semantics use runtime defaults.
+- [ ] Verification passes when `UT-delay-001..006` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

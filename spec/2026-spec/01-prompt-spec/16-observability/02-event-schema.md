@@ -39,3 +39,8 @@ Defaults:
 ## No-Retry compliance
 
 Sinks MUST NOT retry failed writes. A failed `emit` logs once via the namespace logger and drops the event.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `02 — Event Schema` contract in this file and the folder-level acceptance target: events, metrics, debug panel rows, and diagnostics exports follow the observability schema.
+- [ ] Verification passes when `UT-obs-001..008` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

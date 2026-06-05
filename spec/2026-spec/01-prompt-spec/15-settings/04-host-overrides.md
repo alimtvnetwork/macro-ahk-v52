@@ -33,3 +33,8 @@ PromptsFeature.bootstrap({ host: myHostOverrides });
 
 - Mutating user settings from a host override (overrides only seed defaults).
 - Registering more than one bootstrap per page; second call throws.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — Per-Host Overrides` contract in this file and the folder-level acceptance target: settings schema, defaults, reset, host overrides, and UX surface validate consistently.
+- [ ] Verification passes when `UT-settings-001..006` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

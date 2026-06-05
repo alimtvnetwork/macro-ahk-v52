@@ -31,3 +31,8 @@ class QueueEngine {
 ```
 
 Cross-refs: `10-queue-model/`, `11-queue-lifecycle/`, `13-failure-handling/05-mandatory-failure-log.md`.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Pseudocode — Queue Engine` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

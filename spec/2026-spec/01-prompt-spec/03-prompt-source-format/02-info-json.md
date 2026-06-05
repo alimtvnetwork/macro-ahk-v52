@@ -43,3 +43,8 @@ loader fills in `body` from `prompt.md`.
 - Body comes from `prompt.md` (T33).
 - Default-vs-user merge rules: T34.
 - Round-trip zip format: T35.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T32 · info.json contract` contract in this file and the folder-level acceptance target: prompt source files round-trip through parse and emit without semantic drift.
+- [ ] Verification passes when `UT-source-001..008` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

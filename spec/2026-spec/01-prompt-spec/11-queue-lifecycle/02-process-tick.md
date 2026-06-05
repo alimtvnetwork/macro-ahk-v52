@@ -43,3 +43,8 @@ A second `tick()` call while `running === true` is a no-op. New `add`/`addMany` 
 ## Visibility
 
 When `document.hidden`, the loop continues but the **delay engine** may extend its sleep (Step 12, `05-pause-during-delay.md`). Per Core memory, idle UIs pause; the queue itself does not.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `02 — Process Tick` contract in this file and the folder-level acceptance target: enqueue, tick, retry, hold, cancel, pause, and completion events follow the queue lifecycle.
+- [ ] Verification passes when `UT-lifecycle-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

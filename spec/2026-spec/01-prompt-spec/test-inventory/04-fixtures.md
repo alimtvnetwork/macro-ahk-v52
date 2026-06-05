@@ -15,3 +15,8 @@ Path: `tests/fixtures/prompts/`.
 | `queue-100/` | 100 pre-built tasks — capacity test |
 
 Loader fixtures must round-trip: `parse → emit → parse` byte-equal.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Fixtures Catalog` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

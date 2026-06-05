@@ -78,3 +78,8 @@ Started: 2026-06-05. Finished: 2026-06-05 22:25. Duration: ~5 min.
 4. 10-reinject-and-uninject
 5. 11-error-logging-discipline
 6. 12-namespace-logger-contract
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Audit 06 — 06-extension-reload-auto-on-file-change.md` contract in this file and the folder-level acceptance target: each audit finding remains traceable to a feature spec and a verification hook.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

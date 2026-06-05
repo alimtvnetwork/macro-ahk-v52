@@ -81,3 +81,8 @@ async function sleepInterruptible(ms: number, abort: () => boolean) {
 - Single-flight `running` guard; safe to call `start()` repeatedly.
 - No exponential backoff; one auth probe, then fail. Matches project No-Retry policy.
 - `sleepInterruptible` polls every 100 ms so `pause`/`cancel` interrupt the delay.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `02 — Queue engine reference` contract in this file and the folder-level acceptance target: reference snippets remain copyable and typecheck without hidden imports.
+- [ ] Verification passes when `typecheck-spec-snippets.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

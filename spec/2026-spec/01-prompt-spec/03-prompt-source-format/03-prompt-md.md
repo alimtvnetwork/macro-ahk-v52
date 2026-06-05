@@ -39,6 +39,11 @@ Next,
 List remaining tasks; do one at a time. Today is {{date}}.
 ```
 
+## Acceptance
+
+- [ ] The implementation satisfies the `T33 · prompt.md body conventions` contract in this file and the folder-level acceptance target: prompt source files round-trip through parse and emit without semantic drift.
+- [ ] Verification passes when `UT-source-001..008` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

@@ -34,3 +34,8 @@ QueueEngine.requeue(taskId): Promise<string>;  // returns new task id
 ## Single re-check (one-shot)
 
 The only automatic recovery is the readiness-grace re-check inside `runOne` for `SubmitDisabled`. That re-check is **one attempt**, not a loop, and it consumes the task's `attemptCount` budget.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `04 — Recovery` contract in this file and the folder-level acceptance target: every failure path emits the mandatory failure-log shape and user-visible feedback.
+- [ ] Verification passes when `UT-fail-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

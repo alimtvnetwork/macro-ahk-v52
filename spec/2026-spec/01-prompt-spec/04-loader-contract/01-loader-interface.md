@@ -56,3 +56,8 @@ export interface PromptContext {
 4. **`render` is pure** for a given `(prompt, ctx)` pair; same inputs
    → identical output.
 5. Errors are typed (T39). Never throw plain `Error` from the public surface.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T36 · Loader interface` contract in this file and the folder-level acceptance target: loader calls return typed successes, typed errors, and bounded cache behavior.
+- [ ] Verification passes when `UT-loader-001..012` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

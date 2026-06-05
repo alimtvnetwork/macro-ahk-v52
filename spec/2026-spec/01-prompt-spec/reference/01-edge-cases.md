@@ -17,3 +17,8 @@
 | 13 | Storage quota hit | Pause queue; surface E-12 with export CTA |
 | 14 | Two dropdowns triggered simultaneously | Close oldest; only one open at a time |
 | 15 | Variable name collides with built-in (`Now`, `Url`) | User var wins; warn at parse |
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Normative Edge Cases` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

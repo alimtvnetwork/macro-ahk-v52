@@ -27,3 +27,8 @@ interface QueueOrdering {
 ## UI binding
 
 Drag-and-drop in the queue panel calls `moveTo(id, newIndex)`. Keyboard shortcuts `Alt+↑ / Alt+↓` step a focused task by one slot.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `05 — Ordering` contract in this file and the folder-level acceptance target: queued task shape, status transitions, capacity, storage, and ordering are enforced.
+- [ ] Verification passes when `UT-queue-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

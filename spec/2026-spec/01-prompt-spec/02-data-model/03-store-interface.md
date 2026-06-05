@@ -66,3 +66,8 @@ export type Unsubscribe = () => void;
 - Remote HTTP (`GET /prompts`, `PUT /prompts/{id}`, …).
 
 The Prompts feature MUST NOT know which one is in use.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T28 · PromptStore interface` contract in this file and the folder-level acceptance target: Prompt, PromptCategory, and PromptStore contracts hold across storage implementations.
+- [ ] Verification passes when `UT-data-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

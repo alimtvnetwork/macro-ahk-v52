@@ -37,3 +37,8 @@ The export panel surfaces a checklist:
 - "Include verbose bodies?" (default **no** even if verbose logging is on)
 
 Users must tick "I reviewed the contents" before the download button enables.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `05 — Export & Diagnostics` contract in this file and the folder-level acceptance target: events, metrics, debug panel rows, and diagnostics exports follow the observability schema.
+- [ ] Verification passes when `UT-obs-001..008` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

@@ -208,6 +208,9 @@ This is intentionally louder than step 15's clean missing-field response because
 
 ## Acceptance for this step
 
+- [ ] The implementation satisfies the `Step 16 — Bind Safety Proxy Net` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 - `wrapDatabaseWithBindSafety(db).run(sql, ["x", undefined])` throws `BindError` and the raw DB receives zero calls.
 - `exec(sql, params)` is covered even though sql.js typings commonly declare only `exec(sql)`.
 - `prepare(sql).bind(params)` and `prepare(sql).run(params)` both reject `undefined` before delegating.

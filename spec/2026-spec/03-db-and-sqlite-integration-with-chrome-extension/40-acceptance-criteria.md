@@ -136,6 +136,11 @@ Acceptance failures must be logged with exact path, missing item, reason, and re
 - [step-38](./38-testing.md) — required tests.
 - [step-39](./39-ci-gates.md) — required CI gates.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `Step 40 — Acceptance Criteria` contract in this file and the folder-level acceptance target: SQLite, IndexedDB, chrome.storage.local, and localStorage decisions follow the storage-layer contract.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

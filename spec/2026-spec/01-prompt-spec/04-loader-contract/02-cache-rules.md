@@ -49,6 +49,11 @@ The cache holds at most one `Prompt[]` (typically < 100 records,
 each < 64 KiB body — see T33). Total cap ~6 MiB worst case; no
 eviction policy needed.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `T37 · Cache rules` contract in this file and the folder-level acceptance target: loader calls return typed successes, typed errors, and bounded cache behavior.
+- [ ] Verification passes when `UT-loader-001..012` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

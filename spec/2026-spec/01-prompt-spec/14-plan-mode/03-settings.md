@@ -29,6 +29,11 @@ Single key `prompts.planSettings`. Schema-validated on load; corruption falls ba
 
 Hosts may ship their own defaults by registering a `PlanDefaultsProvider` at boot. User edits always win over host defaults; user **reset** restores the host default, not the spec default.
 
+## Acceptance
+
+- [ ] The implementation satisfies the `03 — Plan Settings` contract in this file and the folder-level acceptance target: PlanLoop renders, queues, edits, and compares against NextLoop without autorun ambiguity.
+- [ ] Verification passes when `E2E-plan-001..003` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
+
 ---
 
 <!-- audit: numeric constants source-of-truth -->

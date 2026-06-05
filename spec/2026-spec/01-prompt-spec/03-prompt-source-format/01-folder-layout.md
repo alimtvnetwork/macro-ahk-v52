@@ -41,3 +41,8 @@ distribution format and the shape used by the reference corpus at
 The folder `standalone-scripts/prompts/` in this repo is treated as a
 **read-only reference** that demonstrates this layout end-to-end. Do
 not copy it into the spec; cite it by path only.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T31 · On-disk folder layout` contract in this file and the folder-level acceptance target: prompt source files round-trip through parse and emit without semantic drift.
+- [ ] Verification passes when `UT-source-001..008` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

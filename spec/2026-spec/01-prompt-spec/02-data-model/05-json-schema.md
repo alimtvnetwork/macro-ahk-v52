@@ -63,3 +63,8 @@ on-disk / over-the-wire records. Schema dialect: **JSON Schema 2020-12**.
   offending record and continues.
 - Validation errors MUST include the JSON Pointer of the failing field
   (e.g. `/categories/2`) and a one-line human reason.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `T30 · JSON Schema for Prompt and PromptCategory` contract in this file and the folder-level acceptance target: Prompt, PromptCategory, and PromptStore contracts hold across storage implementations.
+- [ ] Verification passes when `UT-data-001..010` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

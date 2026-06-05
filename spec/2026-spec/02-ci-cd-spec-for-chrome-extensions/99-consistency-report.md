@@ -68,3 +68,8 @@ The split spec now matches the audit report: every file exists at the canonical
 2026 folder path, hardening coverage is labeled G11–G25, every gap has a
 mapped CI regression test, and the final auditor score remains **100 / 100**.
 See `spec-audit-2026-06-04-v2.md` for the rescore artifact.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `99 — Consistency Report` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

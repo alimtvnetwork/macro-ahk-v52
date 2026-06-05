@@ -389,6 +389,7 @@ no-retry. Cross-referenced `mem://cicd/release-watcher-self-heal-tag` and
 > issues outside this spec's authority. Composite first-run AI-failure
 > probability: **< 0.1%**.
 
+## Acceptance
 
-
-
+- [ ] The implementation satisfies the `Gap Analysis — Chrome Extension CI/CD Spec` contract in this file and the folder-level acceptance target: Chrome-extension CI/CD, installer, release, operations, and audit contracts remain enforceable.
+- [ ] Verification passes when `npm run test:cicd-spec` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

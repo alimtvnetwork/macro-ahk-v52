@@ -227,3 +227,8 @@ Live spec path: **`spec/2026-spec/01-prompt-spec/`**
 | 118 | Final gate matrix re-confirm | — | ✅ banlist, ✅ mermaid, ✅ xrefs, ✅ info.json, ✅ snippets, ✅ cross-refs — **8/8 green** |
 | 119 | Updated Phase I ledger | 5 s | This block |
 | 120 | Phase I closeout | — | ✅ COMPLETE — Phase G's 8/8 claim now actually true |
+
+## Acceptance
+
+- [ ] The implementation satisfies the `Renumber Baseline — Phase A + B complete` contract in this file and the folder-level acceptance target: the prompt feature spec remains internally linked and blind-AI implementable.
+- [ ] Verification passes when `node scripts/audit/check-dangling-links.mjs` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.

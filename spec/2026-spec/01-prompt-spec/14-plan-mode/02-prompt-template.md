@@ -34,3 +34,8 @@ Plan mode resolves variables via the standard `PromptContext` plus:
 - `selection` — host-provided current selection text, may be empty.
 
 Resolution order matches `04-loader-contract/03-variable-resolution.md`: Caller > Editor > Clock > Empty.
+
+## Acceptance
+
+- [ ] The implementation satisfies the `02 — Plan Prompt Template` contract in this file and the folder-level acceptance target: PlanLoop renders, queues, edits, and compares against NextLoop without autorun ambiguity.
+- [ ] Verification passes when `E2E-plan-001..003` passes, and `node scripts/audit/check-acceptance.mjs --root=spec/2026-spec` reports this file has a machine-checkable acceptance contract.
