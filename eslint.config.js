@@ -227,7 +227,6 @@ export default tseslint.config(
       "standalone-scripts/macro-controller/src/gitsync/progress-probe.ts",
       
       "standalone-scripts/macro-controller/src/logging.ts",
-      "standalone-scripts/macro-controller/src/macro-looping.ts",
       "standalone-scripts/macro-controller/src/project-name-dropdown.ts",
       "standalone-scripts/macro-controller/src/remix-bulk.ts",
       "standalone-scripts/macro-controller/src/remix-dropdown.ts",

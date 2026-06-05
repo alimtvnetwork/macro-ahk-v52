@@ -1,5 +1,5 @@
  
-declare const chrome: { runtime: { sendMessage: (msg: unknown, cb?: (resp: unknown) => void) => void } };
+declare const chrome: { runtime: { sendMessage: (message: unknown, callback?: (response: unknown) => void) => void } };
 /**
  * MacroLoop Controller — Thin Orchestrator (V2 Phase 02)
  *
