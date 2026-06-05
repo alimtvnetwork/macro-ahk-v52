@@ -64,7 +64,7 @@ For agents wiring a specific hardening control, jump straight to the gap audit:
 ## Determinism Notes
 
 - This spec MUST be implemented exactly as written; any divergence MUST raise a spec issue first.
-- Numeric defaults (timeouts, retries, sizes) MUST be sourced from `reference/05-runtime-defaults.md` (e.g. `DELAY_MS = 5000 ms`, `MAX_RETRIES = 3`).
+- Numeric defaults (timeouts, retries, sizes) MUST be sourced from `reference/05-runtime-defaults.md`; prose MUST cite constant names, not duplicate numeric values.
 - All boolean toggles MUST have an explicit default of `false` unless the runtime-defaults table specifies otherwise.
 - Implementations MUST treat undocumented states as a hard error and SHALL log via the namespace logger.
 
@@ -80,7 +80,7 @@ For agents wiring a specific hardening control, jump straight to the gap audit:
 ## Audit Anchors (source-of-truth)
 
 - Implementations MUST honor every numeric default declared in [runtime defaults](../01-prompt-spec/reference/05-runtime-defaults.md); see also [related](../README.md).
-- The default operation budget is `5000 ms` and the default capacity is `3 items`; these values SHALL NOT be hardcoded inline.
+- Runtime-default values MUST be read from named constants in `reference/05-runtime-defaults.md`, not copied into prose examples.
 - Any deviation MUST raise a spec issue before code is shipped (`60 s` review window minimum).
 
 ## Acceptance
