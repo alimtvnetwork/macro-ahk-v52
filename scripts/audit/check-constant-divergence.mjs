@@ -38,14 +38,13 @@ function readRuntimeDefaults(filePath) {
 
 function parseRuntimeDefaults(fileText) {
   return new Map(Array.from(fileText.matchAll(RUNTIME_ROW_RE)).map((match) => {
-    return [match[1], buildRuntimeDefault(match[2], match[3])];
+    return [match[1], buildRuntimeDefault(match[2])];
   }));
 }
 
-function buildRuntimeDefault(defaultText, rangeText) {
+function buildRuntimeDefault(defaultText) {
   return {
     defaultValue: normalizeValue(defaultText.trim()),
-    allowedValues: new Set(extractNumbers(`${defaultText} ${rangeText}`)),
   };
 }
 
@@ -150,10 +149,6 @@ function normalizeValue(valueText) {
   const numericMatch = valueText.match(NUMBER_RE);
 
   return numericMatch ? normalizeNumber(numericMatch[0]) : valueText;
-}
-
-function extractNumbers(text) {
-  return Array.from(text.matchAll(NUMBER_RE)).map((match) => normalizeNumber(match[0]));
 }
 
 function normalizeNumber(value) {
