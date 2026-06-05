@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,6 +16,7 @@ const RED_BAR = 60;
 const SCORE_FILE_FLOOR = 100;
 const SCORE_COMPOSITE_FLOOR = 99.5;
 const ROOT_FOLDER = '.';
+const SNAPSHOT_FILE = 'scores.snapshot.json';
 
 const SPEC_ROOT = resolve(getArg(ROOT_ARG, DEFAULT_SPEC_ROOT));
 const REPORT_DIR = resolve(getArg(OUT_ARG, DEFAULT_REPORT_DIR));
