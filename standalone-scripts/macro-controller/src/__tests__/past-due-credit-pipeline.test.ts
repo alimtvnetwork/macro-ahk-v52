@@ -19,7 +19,7 @@
  *   - Invariant: row with status pill ⇒ no EXPIRED tier badge
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { calculateProZeroCreditSummary } from '../pro-zero/pro-zero-credit-calculator';
 import { CreditGrantType } from '../pro-zero/credit-grant-type';
 import type { CreditBalanceResponseTyped } from '../pro-zero/credit-balance-response-typed';
@@ -105,6 +105,9 @@ function buildWsCreditFromSummary(): WorkspaceCredit {
 }
 
 describe('Issue 117 — pipeline: RCA payload → credit summary → badge', () => {
+  beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date(NOW_MS)); });
+  afterEach(() => { vi.useRealTimers(); });
+
   it('pro-zero calculator: AvailableCredits = 225 (full grant balance preserved)', () => {
     const summary = calculateProZeroCreditSummary(RCA_CREDIT_BALANCE, NOW_MS);
     expect(summary.Total).toBe(225);
