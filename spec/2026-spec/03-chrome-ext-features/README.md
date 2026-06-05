@@ -27,8 +27,8 @@ acceptance.
 12. `12-namespace-logger-contract.md` — `Logger.error()` namespace pattern, no bare `console.log`.
 13. `13-error-routing-and-panel.md` — error counts, ERROR_COUNT_CHANGED broadcast, errors panel.
 14. `14-boot-failure-banner.md` — visible top-level banner when bootstrap fails.
-15. `15-floating-panel-minimize-and-drag.md` — minimize / restore / drag-drop / position persistence.
-16. `16-sqlite-integration.md` — sql.js bundling, per-namespace DB pattern (see `../03-db-and-sqlite-integration-with-chrome-extension/`).
+15. `15-floating-in-page-panel.md` — minimize / restore / drag-drop / position persistence.
+16. `16-storage-sqlite-pointer.md` — sql.js bundling, per-namespace DB pattern (see `../03-db-and-sqlite-integration-with-chrome-extension/`).
 17. `17-indexeddb-cache.md` — injection cache, invalidation on build-id change.
 18. `18-chrome-storage-local-usage.md` — when to use `chrome.storage.local` vs SQLite vs IDB.
 19. `19-testing-matrix.md` — unit, component, manual Chrome E2E coverage requirements.
