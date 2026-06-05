@@ -9,6 +9,8 @@ import { fileURLToPath } from 'node:url';
 const TEST_DIR = dirname(fileURLToPath(import.meta.url));
 const ACCEPTANCE_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-acceptance.mjs');
 const LINKS_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-dangling-links.mjs');
+const CONSTANT_DIVERGENCE_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-constant-divergence.mjs');
+const PITFALLS_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-pitfalls.mjs');
 
 function createRoot() {
   return mkdtempSync(join(tmpdir(), 'spec-audit-checks-'));
@@ -22,6 +24,10 @@ function writeFixture(rootPath, relativePath, content) {
 
 function runScript(scriptPath, rootPath) {
   return spawnSync(process.execPath, [scriptPath, `--root=${rootPath}`], { encoding: 'utf8' });
+}
+
+function writeRuntimeDefaults(rootPath) {
+  writeFixture(rootPath, '01-prompt-spec/reference/05-runtime-defaults.md', '# Runtime Defaults\n\n| Constant | Default | Range | Source |\n|---|---:|---|---|\n| `DELAY_MS` | 7000 | 5000..10000 | `delay.md` |\n| `MAX_SCRIPT_SIZE_BYTES` | 5242880 | fixed | `quota.md` |\n');
 }
 
 test('acceptance checker passes with heading and checkbox bullet', () => {
@@ -121,7 +127,32 @@ test('dangling-link checker fails when reference definition is absent', () => {
     rmSync(rootPath, { recursive: true, force: true });
   }
 });
-const PITFALLS_SCRIPT = resolve(TEST_DIR, '..', 'audit', 'check-pitfalls.mjs');
+
+test('constant-divergence checker passes when values match runtime defaults', () => {
+  const rootPath = createRoot();
+  try {
+    writeRuntimeDefaults(rootPath);
+    writeFixture(rootPath, '01-demo/good.md', '# Good\n\n`DELAY_MS = 7000 ms` and `MAX_SCRIPT_SIZE_BYTES = 5 MiB`.\n');
+    const result = runScript(CONSTANT_DIVERGENCE_SCRIPT, rootPath);
+    assert.equal(result.status, 0, result.stderr);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
+
+test('constant-divergence checker fails when prose contradicts runtime defaults', () => {
+  const rootPath = createRoot();
+  try {
+    writeRuntimeDefaults(rootPath);
+    writeFixture(rootPath, '01-demo/bad.md', '# Bad\n\n`DELAY_MS = 5000 ms` is the default.\n');
+    const result = runScript(CONSTANT_DIVERGENCE_SCRIPT, rootPath);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /DELAY_MS=7000/);
+    assert.match(result.stderr, /documented as 5000/);
+  } finally {
+    rmSync(rootPath, { recursive: true, force: true });
+  }
+});
 
 test('pitfalls checker passes when file has Pitfall block', () => {
   const rootPath = createRoot();
