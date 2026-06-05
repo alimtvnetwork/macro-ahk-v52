@@ -151,7 +151,7 @@ export default tseslint.config(
       "src/components/options/StepEditorDialog.tsx",
       "src/components/options/StepWaitDialog.tsx",
       "src/components/options/StorageBrowserView.tsx",
-      "src/components/options/api-explorer/types.ts",
+      
       "src/components/options/json-tree/**/*.ts",
       "src/components/options/json-tree/**/*.tsx",
       "src/components/options/project-database/useSchemaBuilder.ts",
