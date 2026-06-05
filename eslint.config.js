@@ -232,7 +232,7 @@ export default tseslint.config(
       "standalone-scripts/macro-controller/src/remix-bulk.ts",
       "standalone-scripts/macro-controller/src/remix-dropdown.ts",
       "standalone-scripts/macro-controller/src/remix-modal.ts",
-      "standalone-scripts/macro-controller/src/remix/invalidate-sentinel.ts",
+      
       "standalone-scripts/macro-controller/src/rename-api.ts",
       "standalone-scripts/macro-controller/src/rename-template.ts",
       "standalone-scripts/macro-controller/src/selected-workspaces-store.ts",
