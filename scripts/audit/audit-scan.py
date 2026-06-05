@@ -134,7 +134,7 @@ def iter_markdown_files(folder: Path):
     return sorted(path for path in folder.rglob('*.md') if is_scored_path(path))
 
 def is_scored_path(path: Path) -> bool:
-    return not any(part.startswith('_audit-') for part in path.parts)
+    return not any(part.startswith('_') for part in path.parts)
 
 if __name__ == '__main__':
     main()
