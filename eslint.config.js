@@ -132,7 +132,7 @@ export default tseslint.config(
       "src/background/handlers/project-config-handler.ts",
       "src/background/handlers/prompt-chain-handler.ts",
       "src/background/handlers/prompt-handler.ts",
-      "src/background/handlers/run-stats-handler.ts",
+      
       "src/background/handlers/sdk-bridge-handler.ts",
       "src/background/handlers/sdk-selftest-handler.ts",
       "src/background/handlers/settings-handler.ts",
