@@ -69,9 +69,9 @@ interface SkeletonBarOpts {
 /** Create a single shimmer bar element. */
 export function createSkeletonBar(opts?: SkeletonBarOpts): HTMLElement {
   opts = opts || {};
-  const el = document.createElement('div');
-  el.className = 'marco-skeleton';
-  el.style.cssText = [
+  const bar = document.createElement('div');
+  bar.className = 'marco-skeleton';
+  bar.style.cssText = [
     'width:' + (opts.width || '100%'),
     'height:' + (opts.height || '12px'),
     'border-radius:' + (opts.borderRadius || '4px'),
@@ -79,7 +79,7 @@ export function createSkeletonBar(opts?: SkeletonBarOpts): HTMLElement {
     opts.marginBottom ? 'margin-bottom:' + opts.marginBottom : '',
     opts.display ? 'display:' + opts.display : '',
   ].filter(Boolean).join(';') + ';';
-  return el;
+  return bar;
 }
 
 // ============================================
