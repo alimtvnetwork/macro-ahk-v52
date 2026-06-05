@@ -7,7 +7,7 @@
 | Metric | Value |
 | --- | --- |
 | Files audited | 230 |
-| Repo composite score | **97.9 / 100** |
+| Repo composite score | **98 / 100** |
 | Files ≥ 90 (pass bar) | **229 / 230** |
 | Files at 100 | **140 / 230** |
 | Files < 60 (red) | 0 |
@@ -26,7 +26,7 @@
 
 | Check | Status |
 | --- | --- |
-| `audit-scan.py` composite ≥ 90 | ✅ 97.9 |
+| `audit-scan.py` composite ≥ 90 | ✅ 98 |
 | `check-acceptance.mjs` | ✅ green |
 | `check-dangling-links.mjs` | ✅ green |
 | `check-must-constants.mjs` | ✅ green |

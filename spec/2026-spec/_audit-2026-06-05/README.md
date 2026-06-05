@@ -1,6 +1,6 @@
 # Blind-AI Audit — `spec/2026-spec/`
 
-**Composite score: 97.9 / 100** across 230 markdown files — **100% pass-rate at ≥90**, 0 red. All CI gates are expected to stay green.
+**Composite score: 98 / 100** across 230 markdown files — **100% pass-rate at ≥90**, 0 red. All CI gates are expected to stay green.
 
 ## Contents
 
