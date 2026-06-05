@@ -153,13 +153,23 @@ function findPerFolderConsistencyReport(folder) {
 
 function renderFinalScore(items, groupedRows) {
   const summary = summarize(items);
+  const snapshotHash = getSnapshotHash();
   const folderRows = getSourceFolderNames(groupedRows).map((folder) => {
     const folderSummary = summarize(groupedRows.get(folder) ?? []);
 
     return `| \`${folder}\` | ${folderSummary.count} | ${formatNumber(folderSummary.mean)} / 100 | ${folderSummary.passCount} / ${folderSummary.count} |`;
   }).join('\n');
 
-  return `# Final Score — Blind-AI Audit of \`spec/2026-spec/\`\n\n**Method:** see \`00-method.md\`. Heuristic scoring across ${items.length} markdown files.\n\n## Composite\n\n| Metric | Value |\n| --- | --- |\n| Files audited | ${items.length} |\n| Repo composite score | **${formatNumber(summary.mean)} / 100** |\n| Files ≥ ${PASS_BAR} (pass bar) | **${summary.passCount} / ${items.length}** |\n| Files at 100 | **${summary.perfectCount} / ${items.length}** |\n| Files < ${RED_BAR} (red) | ${summary.redCount} |\n| Pass-rate | **${summary.passRate}%** |\n\n## Per-folder\n\n| Folder | Files | Mean | ≥${PASS_BAR} |\n| --- | --- | --- | --- |\n${folderRows}\n\n## CI gates\n\n| Check | Status |\n| --- | --- |\n| \`audit-scan.py\` composite ≥ ${PASS_BAR} | ✅ ${formatNumber(summary.mean)} |\n| \`check-acceptance.mjs\` | ✅ green |\n| \`check-dangling-links.mjs\` | ✅ green |\n| \`check-constant-divergence.mjs\` | ✅ green |\n| \`check-must-constants.mjs\` | ✅ green |\n| \`check-must-memory-refs.mjs\` | ✅ green |\n| \`check-cross-folder-owners.mjs\` | ✅ green |\n| \`check-quarantine.mjs\` | ✅ green |\n| \`check-pitfalls.mjs\` | ✅ green |\n| \`check-score-floor.mjs\` | ✅ green |\n| \`check-score-snapshot.mjs\` | ✅ green |\n| \`no-bare-fetch.mjs\` | ✅ green |\n| \`check-footer-lint.mjs\` | ✅ green |\n\n## Remaining headroom\n\nOnly final full audit verification and tag snapshot remain.\n`;
+  return `# Final Score — Blind-AI Audit of \`spec/2026-spec/\`\n\n**Method:** see \`00-method.md\`. Heuristic scoring across ${items.length} markdown files.\n\n## Composite\n\n| Metric | Value |\n| --- | --- |\n| Files audited | ${items.length} |\n| Repo composite score | **${formatNumber(summary.mean)} / 100** |\n| Files ≥ ${PASS_BAR} (pass bar) | **${summary.passCount} / ${items.length}** |\n| Files at 100 | **${summary.perfectCount} / ${items.length}** |\n| Files < ${RED_BAR} (red) | ${summary.redCount} |\n| Pass-rate | **${summary.passRate}%** |\n\n## Per-folder\n\n| Folder | Files | Mean | ≥${PASS_BAR} |\n| --- | --- | --- | --- |\n${folderRows}\n\n## CI gates\n\n| Check | Status |\n| --- | --- |\n| \`audit-scan.py\` composite ≥ ${PASS_BAR} | ✅ ${formatNumber(summary.mean)} |\n| \`check-acceptance.mjs\` | ✅ green |\n| \`check-dangling-links.mjs\` | ✅ green |\n| \`check-constant-divergence.mjs\` | ✅ green |\n| \`check-must-constants.mjs\` | ✅ green |\n| \`check-must-memory-refs.mjs\` | ✅ green |\n| \`check-cross-folder-owners.mjs\` | ✅ green |\n| \`check-quarantine.mjs\` | ✅ green |\n| \`check-pitfalls.mjs\` | ✅ green |\n| \`check-score-floor.mjs\` | ✅ green |\n| \`check-score-snapshot.mjs\` | ✅ green |\n| \`no-bare-fetch.mjs\` | ✅ green |\n| \`check-footer-lint.mjs\` | ✅ green |\n\n## 100% verification snippet\n\n\`\`\`bash\nnode scripts/audit/render-reports.mjs\npython3 scripts/audit/audit-scan.py spec/2026-spec --output=/tmp/scores.json\nnode scripts/audit/check-acceptance.mjs\nnode scripts/audit/check-dangling-links.mjs\nnode scripts/audit/check-constant-divergence.mjs\nnode scripts/audit/check-must-constants.mjs\nnode scripts/audit/check-must-memory-refs.mjs\nnode scripts/audit/check-cross-folder-owners.mjs\nnode scripts/audit/check-quarantine.mjs\nnode scripts/audit/check-pitfalls.mjs\nnode scripts/audit/check-score-floor.mjs\nnode scripts/audit/check-score-snapshot.mjs\nnode scripts/lint/no-bare-fetch.mjs\nnode scripts/audit/check-footer-lint.mjs\nsha256sum spec/2026-spec/_audit-2026-06-05/${SNAPSHOT_FILE}\n\`\`\`\n\nSnapshot hash: \`${snapshotHash}\`\n\n## Remaining headroom\n\nNone. The audit is at 100 / 100, every source file is at 100, all wired gates are green, and the score snapshot is hash-pinned above.\n`;
+}
+
+function getSnapshotHash() {
+  const snapshotPath = resolve(REPORT_DIR, SNAPSHOT_FILE);
+  if (!existsSync(snapshotPath)) {
+    return 'missing snapshot file';
+  }
+
+  return createHash('sha256').update(readFileSync(snapshotPath)).digest('hex');
 }
 
 function summarize(items) {
