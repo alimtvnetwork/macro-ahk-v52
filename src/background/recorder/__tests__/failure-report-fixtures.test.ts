@@ -106,25 +106,25 @@ describe("Verbose toggle payload contract", () => {
         expect(NonVerbose.CapturedHtml).toBeNull();
         // DomContext keeps the truncated snippets but NOT the full versions.
         expect(NonVerbose.DomContext).not.toBeNull();
-        const ctx = NonVerbose.DomContext!;
-        expect(ctx.OuterHtmlSnippet.length).toBeGreaterThan(0);
-        expect(ctx.OuterHtmlSnippet.length).toBeLessThanOrEqual(240);
-        expect(ctx.TextSnippet.length).toBeLessThanOrEqual(120);
-        expect(ctx.OuterHtml).toBeUndefined();
-        expect(ctx.Text).toBeUndefined();
+        const contextFixture = NonVerbose.DomContext!;
+        expect(contextFixture.OuterHtmlSnippet.length).toBeGreaterThan(0);
+        expect(contextFixture.OuterHtmlSnippet.length).toBeLessThanOrEqual(240);
+        expect(contextFixture.TextSnippet.length).toBeLessThanOrEqual(120);
+        expect(contextFixture.OuterHtml).toBeUndefined();
+        expect(contextFixture.Text).toBeUndefined();
     });
 
     it("verbose reports populate OuterHtml/Text + CapturedHtml mirrors DomContext.OuterHtml", () => {
         const { Verbose } = fixtureReplayZeroMatches();
         expect(Verbose.DomContext).not.toBeNull();
-        const ctx = Verbose.DomContext!;
-        expect(ctx.OuterHtml).toBeDefined();
-        expect(ctx.Text).toBeDefined();
-        expect(ctx.OuterHtml).toContain('id="go"');
-        expect(ctx.Text).toBe("Go");
+        const contextFixture = Verbose.DomContext!;
+        expect(contextFixture.OuterHtml).toBeDefined();
+        expect(contextFixture.Text).toBeDefined();
+        expect(contextFixture.OuterHtml).toContain('id="go"');
+        expect(contextFixture.Text).toBe("Go");
         // CapturedHtml is surfaced at top level for export tooling — and must
         // be byte-identical to DomContext.OuterHtml when both exist.
-        expect(Verbose.CapturedHtml).toBe(ctx.OuterHtml);
+        expect(Verbose.CapturedHtml).toBe(contextFixture.OuterHtml);
     });
 
     it("verbose flag does NOT alter Reason / ReasonDetail / Selectors / Variables", () => {
