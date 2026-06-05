@@ -1,0 +1,168 @@
+# 03 — Folder and File Layout
+
+## Why this step exists
+
+A predictable source tree lets any LLM open the repo and know where to add a
+content script, a popup component, a background handler, or a test — without
+re-learning the project. The layout below also matches the assumptions the
+later steps (injection, reload, logger) bake in.
+
+## Canonical tree
+
+```text
+my-extension/
+├── manifest.json                  # MV3 manifest (source-of-truth version)
+├── package.json
+├── tsconfig.json
+├── vite.config.ts                 # or rollup / webpack — single bundler
+├── README.md
+├── CHANGELOG.md
+├── public/                        # static assets copied verbatim to dist/
+│   ├── icons/{16,48,128}.png
+│   └── sql-wasm.wasm              # bundled, never CDN-loaded
+├── src/
+│   ├── shared/                    # cross-context utilities (pure, no chrome.*)
+│   │   ├── constants.ts           # VERSION, BUILD_ID, ID_/SEL_/ATTR_/CSS_
+│   │   ├── url-utils.ts           # isNewTabOrBlankUrl(), normalizeUrl()
+│   │   ├── types.ts               # SqlValue, JsonValue, CaughtError
+│   │   └── logger.ts              # namespace Logger (see step 12)
+│   ├── background/                # service worker entry + handlers
+│   │   ├── index.ts               # SW top-level: bind listeners SYNCHRONOUSLY
+│   │   ├── reload.ts              # chrome.runtime.reload wrapper (step 05)
+│   │   ├── injection/
+│   │   │   ├── lifecycle.ts       # 7-stage state machine (step 08)
+│   │   │   ├── sentinel.ts        # data-* idempotency probe (step 09)
+│   │   │   └── cache.ts           # build-id-aware IDB cache (step 17)
+│   │   ├── handlers/              # one file per message kind
+│   │   │   ├── reload-handler.ts
+│   │   │   ├── inject-handler.ts
+│   │   │   └── error-handler.ts
+│   │   └── __tests__/
+│   ├── content/                   # ISOLATED-world content scripts
+│   │   ├── bridge.ts              # postMessage relay to MAIN
+│   │   ├── panel/                 # floating in-page panel (step 15)
+│   │   │   ├── panel.ts
+│   │   │   ├── drag.ts
+│   │   │   └── minimize.ts
+│   │   └── __tests__/
+│   ├── injected/                  # MAIN-world scripts
+│   │   ├── sdk.ts                 # window.MyExt SDK surface
+│   │   └── __tests__/
+│   ├── popup/                     # browser action popup (HTML + JS)
+│   │   ├── popup.html
+│   │   ├── popup.tsx              # or popup.ts for plain DOM
+│   │   ├── lib/extension-env.ts   # chrome.* availability guard
+│   │   ├── components/
+│   │   │   ├── InjectButton.tsx
+│   │   │   ├── ReloadButton.tsx
+│   │   │   ├── VersionBadge.tsx
+│   │   │   └── LogPanel.tsx
+│   │   └── __tests__/
+│   ├── options/                   # full-page options UI (optional)
+│   │   ├── options.html
+│   │   └── options.tsx
+│   ├── storage/                   # all persistence (see sibling spec 03-db-…)
+│   │   ├── sqlite/                # sql.js + per-namespace DBs
+│   │   ├── idb/                   # IndexedDB wrappers
+│   │   └── kv/                    # chrome.storage.local helpers
+│   └── platform/                  # adapter abstracting chrome.* per browser
+│       └── index.ts
+├── scripts/                       # build/dev/release helpers (node, not shipped)
+│   ├── dev-watch-reload.mjs       # file-watcher → SW reload (step 06)
+│   ├── compile-instruction.mjs    # manifest/version generators
+│   ├── prebuild-clean-and-verify.mjs
+│   └── __tests__/
+├── spec/                          # this folder hierarchy
+└── dist/                          # build output, what gets zipped & loaded
+```
+
+## Naming rules
+
+1. **kebab-case** for files and folders. No `PascalCase.ts` filenames except
+   React components (where the file matches the component name).
+2. **Tests** live in a `__tests__/` folder next to the code they cover, never
+   beside it. Test file name: `<source-basename>.test.ts`.
+3. **Constants** are SCREAMING_SNAKE_CASE with a typed prefix:
+   `ID_*`, `SEL_*`, `ATTR_*`, `CSS_*`, `MSG_*`, `EVT_*`.
+4. **One responsibility per file.** A background handler that grows past ~250
+   lines must be split.
+5. **No deep relative imports** (`../../../`). Configure path aliases (e.g.
+   `@shared`, `@background`, `@content`, `@popup`) in `tsconfig.json` and the
+   bundler.
+
+## Build output (`dist/`)
+
+The bundler must produce a `dist/` folder whose top level matches what
+`manifest.json` references:
+
+```text
+dist/
+├── manifest.json
+├── background.js
+├── content.js
+├── injected/sdk.js
+├── popup.html, popup.js
+├── options.html, options.js
+├── icons/…
+└── sql-wasm.wasm
+```
+
+Rules:
+
+- `manifest.json` is **copied**, not regenerated by hand. The source lives at
+  the repo root.
+- `emptyOutDir: false` (or equivalent) when running incremental builds so
+  generated artifacts (instruction snapshots, build id) survive a rebuild.
+  See `mem://architecture/build-artifact-preservation`.
+- The zipped artifact uploaded to the store is `dist/` itself, not its
+  parent.
+
+## Cross-context import rules
+
+| From → To             | Allowed?       | Notes                                      |
+|-----------------------|---------------|--------------------------------------------|
+| any → `shared/`       | yes            | `shared/` must stay pure (no `chrome.*`).  |
+| `popup/` → `background/` | no          | Communicate via `chrome.runtime.sendMessage`. |
+| `content/` → `injected/` | no (no direct) | Bridge via `window.postMessage`.        |
+| `background/` → `content/` | no        | Use `chrome.tabs.sendMessage` / `executeScript`. |
+| `injected/` → `chrome.*` | NEVER       | MAIN world has no `chrome.*`.              |
+
+A lint rule (`no-restricted-imports`) should enforce these. The fixture for
+that rule belongs in `scripts/__tests__/`.
+
+## Where new code goes (decision table)
+
+| Need                                            | Folder                          |
+|------------------------------------------------|---------------------------------|
+| New message kind handled in the SW             | `src/background/handlers/`     |
+| New popup button / view                        | `src/popup/components/`        |
+| New DOM interaction inside the page            | `src/content/` (ISOLATED) or `src/injected/` (MAIN) |
+| New storage table / KV key                     | `src/storage/<layer>/`         |
+| New cross-context pure helper                  | `src/shared/`                  |
+| New dev/release script                         | `scripts/` (never ship to dist) |
+
+## Common pitfalls
+
+- Putting a React component in `src/shared/` — `shared/` must be framework-free.
+- Importing `chrome.*` from `src/injected/` — silently fails at runtime in MAIN.
+- Letting bundler emit a different layout than the manifest expects — load
+  fails with "could not load file 'background.js'".
+- Mixing build artifacts into source folders (e.g. checking in `dist/`).
+
+## Acceptance
+
+- [ ] Repo root contains exactly one `manifest.json` and one `package.json`.
+- [ ] `src/` has the seven top-level folders listed above (`shared`,
+      `background`, `content`, `injected`, `popup`, `options?`, `storage`,
+      `platform`).
+- [ ] No file uses `../../../` imports; path aliases configured.
+- [ ] `dist/` after build matches the layout described in "Build output".
+- [ ] Lint rule rejects forbidden cross-context imports (test passes).
+
+## Tests to ship with this step
+
+- A Node script that walks `src/` and asserts no `../../../` import strings.
+- A lint fixture verifying the `no-restricted-imports` rule trips on a
+  `popup → background` direct import.
+- A post-build assertion that every file referenced in `manifest.json` exists
+  inside `dist/`.
