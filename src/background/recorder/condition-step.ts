@@ -32,53 +32,68 @@ export interface RouteContext {
     readonly JumpsUsed: number;
 }
 
-export function resolveRoute(action: RouteAction, ctx: RouteContext): RouteResolution {
-    const nextJumps = ctx.JumpsUsed + 1;
-    if (nextJumps > MAX_ROUTE_JUMPS) {
-        return {
-            Kind: "Error",
-            Reason: "RouteLoopDetected",
-            Detail: `Route jumps exceeded ${MAX_ROUTE_JUMPS}`,
-        };
+export function resolveRoute(action: RouteAction, routeContext: RouteContext): RouteResolution {
+    const nextJumps = routeContext.JumpsUsed + 1;
+    const isRouteLimitExceeded = nextJumps > MAX_ROUTE_JUMPS;
+    if (isRouteLimitExceeded) {
+        return createRouteLoopError();
     }
 
+    return resolveAllowedRoute(action, routeContext, nextJumps);
+}
+
+function resolveAllowedRoute(action: RouteAction, routeContext: RouteContext, nextJumps: number): RouteResolution {
     switch (action.Kind) {
         case "Continue":
-            return { Kind: "Cursor", NextIndex: ctx.CurrentIndex + 1, JumpsUsed: nextJumps };
+            return { Kind: "Cursor", NextIndex: routeContext.CurrentIndex + 1, JumpsUsed: nextJumps };
 
         case "EndRun":
             return { Kind: "End", Outcome: action.Outcome, JumpsUsed: nextJumps };
 
-        case "GoToLabel": {
-            const idx = ctx.Steps.findIndex((s) => s.Label === action.Label);
-            if (idx < 0) {
-                return {
-                    Kind: "Error",
-                    Reason: "InvalidRouteTarget",
-                    Detail: `No step with Label='${action.Label}' in current group`,
-                };
-            }
-            return { Kind: "Cursor", NextIndex: idx, JumpsUsed: nextJumps };
-        }
+        case "GoToLabel":
+            return resolveLabelRoute(action.Label, routeContext.Steps, nextJumps);
 
-        case "GoToStepId": {
-            const idx = ctx.Steps.findIndex((s) => s.StepId === action.StepId);
-            if (idx < 0) {
-                return {
-                    Kind: "Error",
-                    Reason: "InvalidRouteTarget",
-                    Detail: `No step with StepId=${action.StepId} in current group`,
-                };
-            }
-            return { Kind: "Cursor", NextIndex: idx, JumpsUsed: nextJumps };
-        }
+        case "GoToStepId":
+            return resolveStepIdRoute(action.StepId, routeContext.Steps, nextJumps);
 
         case "RunGroup":
             return {
                 Kind: "RunGroup",
                 StepGroupId: action.StepGroupId,
-                NextIndex: ctx.CurrentIndex + 1,
+                NextIndex: routeContext.CurrentIndex + 1,
                 JumpsUsed: nextJumps,
             };
     }
+}
+
+function resolveLabelRoute(label: string, steps: ReadonlyArray<RouteableStep>, nextJumps: number): RouteResolution {
+    const routeIndex = steps.findIndex((step) => step.Label === label);
+    const isRouteTargetMissing = routeIndex < 0;
+    if (isRouteTargetMissing) {
+        return createInvalidRouteTarget(`No step with Label='${label}' in current group`);
+    }
+
+    return { Kind: "Cursor", NextIndex: routeIndex, JumpsUsed: nextJumps };
+}
+
+function resolveStepIdRoute(stepId: number, steps: ReadonlyArray<RouteableStep>, nextJumps: number): RouteResolution {
+    const routeIndex = steps.findIndex((step) => step.StepId === stepId);
+    const isRouteTargetMissing = routeIndex < 0;
+    if (isRouteTargetMissing) {
+        return createInvalidRouteTarget(`No step with StepId=${stepId} in current group`);
+    }
+
+    return { Kind: "Cursor", NextIndex: routeIndex, JumpsUsed: nextJumps };
+}
+
+function createInvalidRouteTarget(detail: string): RouteResolution {
+    return { Kind: "Error", Reason: "InvalidRouteTarget", Detail: detail };
+}
+
+function createRouteLoopError(): RouteResolution {
+    return {
+        Kind: "Error",
+        Reason: "RouteLoopDetected",
+        Detail: `Route jumps exceeded ${MAX_ROUTE_JUMPS}`,
+    };
 }
