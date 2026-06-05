@@ -69,3 +69,32 @@ test('skips read-only archive folders', () => {
   });
   assert.equal(result.code, 0, result.stderr);
 });
+
+test('skips counter-example lines that reference the canonical fix', () => {
+  const result = runChecker({
+    'spec/counter.md': `- Counter-example: \`${fixedCityToken}\` — render via Intl.DateTimeFormat().resolvedOptions().timeZone.\n`,
+  });
+  assert.equal(result.code, 0, result.stderr);
+});
+
+test('skips lines marked with the inline allow comment', () => {
+  const result = runChecker({
+    'spec/allow.md': `Example: \`${fixedCityToken}\` <!-- allow-timezone-example -->\n`,
+  });
+  assert.equal(result.code, 0, result.stderr);
+});
+
+test('skips paired bad/good (\u274C/\u2705) counter-example lines', () => {
+  const result = runChecker({
+    'spec/paired.md': `- \u274C Hardcoded \`${fixedCityToken}\`. \u2705 User-local timezone at render time.\n`,
+  });
+  assert.equal(result.code, 0, result.stderr);
+});
+
+test('still fails on standalone forbidden zone with no pedagogical marker', () => {
+  const result = runChecker({
+    'src/bad.ts': `const tz = '${fixedCityToken}';\n`,
+  });
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, new RegExp(fixedCityToken.replace('/', '\\/')));
+});
