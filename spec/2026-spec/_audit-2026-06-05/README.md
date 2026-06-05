@@ -1,15 +1,15 @@
 # Blind-AI Audit — `spec/2026-spec/`
 
-**Composite score: 99.8 / 100** across 230 markdown files — **100% pass-rate at ≥90**, 0 red. All CI gates are expected to stay green.
+**Composite score: 97.9 / 100** across 230 markdown files — **100% pass-rate at ≥90**, 0 red. All CI gates are expected to stay green.
 
 ## Contents
 
 - [`00-method.md`](./00-method.md) — rubric, blind-AI protocol, scoring keys.
 - [`01-aggregate-scoreboard.md`](./01-aggregate-scoreboard.md) — one row per source spec file.
-- [`10-folder-01-prompt-spec.md`](./10-folder-01-prompt-spec.md) — 01-prompt-spec: 131 files, mean 100.
-- [`11-folder-02-ci-cd.md`](./11-folder-02-ci-cd.md) — 02-ci-cd-spec-for-chrome-extensions: 20 files, mean 100.
-- [`12-folder-03-chrome-ext-features.md`](./12-folder-03-chrome-ext-features.md) — 03-chrome-ext-features: 35 files, mean 100.
-- [`13-folder-03-db-and-sqlite.md`](./13-folder-03-db-and-sqlite.md) — 03-db-and-sqlite-integration-with-chrome-extension: 42 files, mean 100.
+- [`10-folder-01-prompt-spec.md`](./10-folder-01-prompt-spec.md) — 01-prompt-spec: 131 files, mean 97.8.
+- [`11-folder-02-ci-cd.md`](./11-folder-02-ci-cd.md) — 02-ci-cd-spec-for-chrome-extensions: 20 files, mean 97.5.
+- [`12-folder-03-chrome-ext-features.md`](./12-folder-03-chrome-ext-features.md) — 03-chrome-ext-features: 35 files, mean 99.9.
+- [`13-folder-03-db-and-sqlite.md`](./13-folder-03-db-and-sqlite.md) — 03-db-and-sqlite-integration-with-chrome-extension: 42 files, mean 97.6.
 - [`20-cross-folder-gaps.md`](./20-cross-folder-gaps.md) — duplicated/conflicting rule watchlist.
 - [`30-remediation-backlog.md`](./30-remediation-backlog.md) — remaining machine-check hardening work.
 - [`99-final-score.md`](./99-final-score.md) — composite score and CI-gate summary.
@@ -21,6 +21,7 @@ node scripts/audit/render-reports.mjs
 python3 scripts/audit/audit-scan.py spec/2026-spec --output=/tmp/scores.json
 node scripts/audit/check-acceptance.mjs
 node scripts/audit/check-dangling-links.mjs
+node scripts/audit/check-constant-divergence.mjs
 node scripts/audit/check-must-constants.mjs
 node scripts/audit/check-pitfalls.mjs
 ```

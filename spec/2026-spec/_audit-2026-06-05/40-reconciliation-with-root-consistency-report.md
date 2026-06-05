@@ -19,9 +19,9 @@ The root consistency report audits folder structure. This generated audit measur
 
 | Folder | Structure | Content Quality (blind-AI) |
 | --- | --- | --- |
-| `2026-spec/01-prompt-spec` | ✅ | 🟢 100 |
-| `2026-spec/02-ci-cd-spec-for-chrome-extensions` | ✅ | 🟢 100 |
-| `2026-spec/03-chrome-ext-features` | ✅ | 🟢 100 |
-| `2026-spec/03-db-and-sqlite-integration-with-chrome-extension` | ✅ | 🟢 100 |
+| `2026-spec/01-prompt-spec` | ✅ | 🟢 97.8 |
+| `2026-spec/02-ci-cd-spec-for-chrome-extensions` | ✅ | 🟢 97.5 |
+| `2026-spec/03-chrome-ext-features` | ✅ | 🟢 99.9 |
+| `2026-spec/03-db-and-sqlite-integration-with-chrome-extension` | ✅ | 🟢 97.6 |
 
 The addendum is not auto-applied; root report ownership remains with the consistency-report maintainer.
