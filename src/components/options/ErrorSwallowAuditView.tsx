@@ -375,7 +375,7 @@ function MissingReportEmptyState() {
                     <p className="text-xs text-muted-foreground">Expected JSON shape:</p>
                     <pre className="overflow-x-auto rounded bg-background/60 px-2 py-1 text-[11px] font-mono">
 {`{
-  "GeneratedAt": "2026-04-27T12:00:00+08:00",
+  "GeneratedAt": "2026-04-27T04:00:00.000Z",
   "Items": [
     {
       "Id":       "abc123",
