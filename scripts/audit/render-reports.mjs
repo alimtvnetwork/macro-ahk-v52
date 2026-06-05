@@ -12,6 +12,8 @@ const ROOT_ARG = '--root=';
 const OUT_ARG = '--out=';
 const PASS_BAR = 90;
 const RED_BAR = 60;
+const SCORE_FILE_FLOOR = 100;
+const SCORE_COMPOSITE_FLOOR = 99.5;
 const ROOT_FOLDER = '.';
 
 const SPEC_ROOT = resolve(getArg(ROOT_ARG, DEFAULT_SPEC_ROOT));
