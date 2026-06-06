@@ -99,10 +99,10 @@ function buildCsvRow(
     ws.freeRemaining,
     ws.topupLimit,
     r.topup_credits_used != null ? r.topup_credits_used : '',
-    ws.totalCredits,
-    ws.totalCreditsUsed != null ? ws.totalCreditsUsed : (r.total_credits_used != null ? r.total_credits_used : ''),
+    totalCreditsCsv,
+    totalUsedCsv,
     r.total_credits_used_in_billing_period != null ? r.total_credits_used_in_billing_period : '',
-    ws.available,
+    availableCsv,
     r.backend_total_used_in_billing_period != null ? r.backend_total_used_in_billing_period : '',
     // Workspace meta
     ws.numProjects != null ? ws.numProjects : (r.num_projects != null ? r.num_projects : ''),
