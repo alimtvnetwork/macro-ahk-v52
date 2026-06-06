@@ -202,7 +202,7 @@ export function exportAvailableWorkspacesAsCsv(): void {
   }
 
   const filtered = workspaces.filter(function(ws: WorkspaceCredit) {
-    return (ws.available || 0) > 0;
+    return resolveCreditSummary(ws).available > 0;
   });
 
   if (filtered.length === 0) {
