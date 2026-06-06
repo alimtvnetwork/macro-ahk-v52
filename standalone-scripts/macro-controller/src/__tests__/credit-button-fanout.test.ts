@@ -57,7 +57,11 @@ describe('💰 Credits button — enrichment fan-out contract', () => {
         expect(body).toMatch(/setCreditBtnLoading\s*\(\s*\w+\.creditBtn\s*,\s*false\s*\)/);
     });
 
-    it('logs fan-out failures via the namespace logger (no swallow)', () => {
-        expect(body).toMatch(/logError\s*\(\s*['"]Credits['"]\s*,\s*['"]requestCredits fan-out failed/);
+    it('logs fan-out failures via the namespace logger with CODE-RED schema (Path/Missing/Reason + WorkspaceId)', () => {
+        expect(body).toMatch(/logError\s*\(\s*['"]CreditBalanceUpdate\.fanOut['"]/);
+        expect(body).toMatch(/Path:\s*standalone-scripts\/macro-controller\/src\/ui\/panel-controls\.ts/);
+        expect(body).toMatch(/Missing item:\s*\/credit-balance result for workspace/);
+        expect(body).toMatch(/Reason:\s*requestCredits rejected/);
+        expect(body).toMatch(/WorkspaceId=/);
     });
 });
