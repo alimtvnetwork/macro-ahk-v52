@@ -1,5 +1,5 @@
 {
-  "GeneratedAt": "2026-06-04T04:15:44.324Z",
+  "GeneratedAt": "2026-06-06T07:06:54.289Z",
   "Items": [
     {
       "Id": "9ce78a370955",
@@ -20,10 +20,10 @@
       "Snippet": "catch (_e: unknown) {"
     },
     {
-      "Id": "6c5aa9d68faf",
+      "Id": "d955bc859d80",
       "Severity": "P1",
       "File": "standalone-scripts/macro-controller/src/startup.ts",
-      "Line": 359,
+      "Line": 358,
       "Rule": "no-empty-catch",
       "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
       "Snippet": "catch (_e: unknown) {"
