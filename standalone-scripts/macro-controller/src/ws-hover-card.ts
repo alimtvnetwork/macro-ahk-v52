@@ -409,9 +409,18 @@ function compactRow(label: string, valueHtml: string): string {
 }
 
 function creditsCompactRow(ws: WorkspaceCredit): string {
-  const avail = Math.round(ws.available || 0);
+  // RCA 2026-06-06: read via resolveCreditSummary so new-free/Lite workspaces
+  // show the same Pending dash the row bar shows, instead of a misleading 0.
+  const summary = resolveCreditSummary(ws);
+  if (summary.renderDash) {
+    const dashHtml = SPAN_COLOR_OPEN + C_MUTED + ';font-weight:600;">—</span>'
+      + SPAN_COLOR_OPEN + C_MUTED + ';font-weight:400;"> '
+      + (summary.source === 'Pending' ? 'fetching…' : 'unavailable') + '</span>';
+    return compactRow('Credits', dashHtml);
+  }
+  const avail = summary.available;
   const daily = Math.round(ws.dailyLimit || ws.dailyFree || 0);
-  const used = Math.round(ws.totalCreditsUsed || 0);
+  const used = summary.totalUsed;
   const aColor = availableColor(avail, daily);
   const html = SPAN_COLOR_OPEN + aColor + ';font-weight:700;">' + avail + '</span>'
     + SPAN_COLOR_OPEN + C_MUTED + ';font-weight:400;"> avail · </span>'
