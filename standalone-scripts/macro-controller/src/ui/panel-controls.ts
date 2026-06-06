@@ -287,7 +287,11 @@ function executeCreditFetch(ctx: CreditFetchCtx): void {
         try {
           await requestCredits(w);
         } catch (err: unknown) {
-          logError('Credits', 'requestCredits fan-out failed for ws=' + w.id, err);
+          logError(
+            'CreditBalanceUpdate.fanOut',
+            'Path: standalone-scripts/macro-controller/src/ui/panel-controls.ts. Missing item: /credit-balance result for workspace ' + w.id + '. Reason: requestCredits rejected during 💰 button fan-out (WorkspaceId=' + w.id + ', Plan=' + String(w.plan) + ').',
+            err,
+          );
         }
       }
     })();
