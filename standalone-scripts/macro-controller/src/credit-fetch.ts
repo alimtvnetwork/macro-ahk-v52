@@ -210,6 +210,7 @@ export function schedulePostParseEnrichment(): void {
       if (mutated === 0) return;
       syncCreditStateFromApi();
       mc().updateUI();
+      repaintWorkspaceRowsAfterEnrichment('pro_0');
     })
     .catch(function (err: unknown): void {
       logError(LOG_SCOPE_CREDIT_FETCH, 'pro_0 enrichment failed', err);
@@ -221,6 +222,7 @@ export function schedulePostParseEnrichment(): void {
       if (mutated === 0) return;
       syncCreditStateFromApi();
       mc().updateUI();
+      repaintWorkspaceRowsAfterEnrichment('pro_1');
     })
     .catch(function (err: unknown): void {
       logError(LOG_SCOPE_CREDIT_FETCH, 'pro_1 enrichment failed', err);
@@ -231,6 +233,7 @@ export function schedulePostParseEnrichment(): void {
       if (mutated === 0) return;
       syncCreditStateFromApi();
       mc().updateUI();
+      repaintWorkspaceRowsAfterEnrichment('ktlo/free/cancelled');
     })
     .catch(function (err: CaughtError): void {
       logError(LOG_SCOPE_CREDIT_FETCH, 'ktlo/free/cancelled enrichment failed', err);
