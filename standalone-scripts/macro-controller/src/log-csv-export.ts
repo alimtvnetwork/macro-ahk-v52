@@ -127,7 +127,7 @@ function buildCsvRow(
     config.expiryGracePeriodDays,
     config.refillWarningThresholdDays,
     // Computed ratios — v2.223.0
-    pct(ws.available || 0, ws.totalCredits || 0),
+    summary.renderDash ? '' : pct(summary.available, summary.total),
     pct(ws.dailyUsed || 0, ws.dailyLimit || 0),
     // Export snapshot meta — v2.223.0
     csvVal(exportedAt),
