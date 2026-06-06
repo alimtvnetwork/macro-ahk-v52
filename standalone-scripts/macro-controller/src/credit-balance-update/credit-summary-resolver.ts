@@ -2,8 +2,10 @@ import type { WorkspaceCredit } from '../types';
 import { calcTotalCredits } from '../credit-api';
 import { CreditFetchOutcome } from './credit-fetch-outcome';
 import { readCreditBalanceUpdateCacheSync } from './credit-balance-cache';
+import { hasInlineCredits } from './credit-fetch-controller';
+import { mapPlanFromWire, shouldFetchCreditBalanceForPlan } from './plan-mapper';
 
-export type CreditSummarySource = 'Inline' | 'Cache' | 'Timeout' | 'Missing';
+export type CreditSummarySource = 'Inline' | 'Cache' | 'Timeout' | 'Missing' | 'Pending';
 
 export interface CreditSummary {
     readonly available: number;
