@@ -1,57 +1,46 @@
-# Plan — Fix `check-forbidden-timezones.mjs` to allow documented counter-examples
+# Plan — Fix empty credit display for new free / Lite / Cancelled accounts after Refresh Credit
 
-**Created:** 2026-06-05
-**Type:** Tooling / CI check correction
-**Trigger:** Checker correctly enforces "no hardcoded timezone", but flags the spec/memory documentation that *teaches* the rule using `Asia/Kuala_Lumpur` as the explicit ❌ counter-example. Code is correct; the test/checker is over-broad. Fix the checker, not the docs. <!-- allow-timezone-example -->
+**Created:** 2026-06-06
+**Type:** Bugfix — Credit Monitoring / UI rendering
+**Trigger:** New free accounts (and other inline-empty workspaces — Lite/Ktlo, Cancelled) show an empty credit area / blank progress bar in the macro-controller even after clicking 💰 Refresh. Toast says "credits refreshed" but the bar never paints.
 
-## Root cause
+## Root Cause Analysis (RCA)
 
-`scripts/check-forbidden-timezones.mjs` matches forbidden tokens line-by-line with no exception for lines that are clearly demonstrating the anti-pattern next to the canonical fix. The 60+ "failing" lines all follow the shape:
+The Credits button calls `fetchLoopCreditsWithDetect(false)` against `/user/workspaces` and updates `loopCreditState`. For **new free / Lite / Cancelled** workspaces the inline response has **no** `*_limit` fields and an empty `grant_type_balances` array — so `parseApiResponse()` writes a row with `available=0`, `totalCredits=0`, `limit=0`.
 
-> ❌ `Asia/Kuala_Lumpur` … ✅ render with `Intl.DateTimeFormat(...).resolvedOptions().timeZone`
+Per `mem://features/macro-controller/credit-balance-update` (v3.50.0) these workspaces are supposed to be backfilled by an on-demand call to `/workspaces/{id}/credit-balance`, with `resolveCreditSummary(ws)` becoming the single source of truth for any UI number. The bug is one (or more) of the following — RCA must confirm which:
 
-A line that documents both the bad and the good pattern is, by construction, a counter-example — not a violation.
+1. **Trigger gap:** the credit-totals/progress-bar renderer reads `ws.available / ws.totalCredits` directly (legacy path) instead of going through `resolveCreditSummary(ws)`, so the on-demand fetch never fires for these rows and the bar stays at `0/0`.
+2. **Render gap:** progress-bar partial (`templates/_partials/credit-bar.html`) early-exits / collapses to width:0 when `total === 0`, so even after the resolver returns a real number the bar isn't repainted because the renderer was never re-invoked after the async resolve completes.
+3. **`hasInlineCredits()` false-positive:** new free workspaces sometimes return `daily_credits_limit: 0` AND a single zero-row `grant_type_balances` entry — current check (`limit > 0 OR grant_type_balances has rows`) classifies that as `InlineHit` and short-circuits the fetch.
+4. **Resolver-not-subscribed:** UI doesn't re-render on the `CreditFetchResult` resolution event, so the value is in cache but never pushed to DOM until the next manual refresh (which then short-circuits via cache TTL → empty again).
+5. **Refresh button** only calls `fetchLoopCreditsWithDetect()` (inline list) and never the resolver, so the per-workspace `/credit-balance` follow-up is skipped entirely for the focused row.
 
-## Design decision
+Most likely combo: **#1 + #4** — the renderer was never migrated to the resolver contract, and the Refresh path doesn't await the resolver fan-out.
 
-Whitelist by **content signal**, not by file path (path allowlists rot). A line is treated as a documented counter-example and skipped iff it contains **either**:
+## 10 Steps
 
-1. The canonical safe-render marker `Intl.DateTimeFormat().resolvedOptions().timeZone`, OR
-2. An explicit inline allow comment: `<!-- allow-timezone-example -->` (escape hatch for rare cases that need to mention a zone without also citing the fix).
+1. **Reproduce & confirm RCA** — open macro-controller as a brand-new free account (no Pro, no top-ups), click 💰. Capture: console log of `loopCreditState.perWorkspace[currentWs]`, network tab for `/user/workspaces` AND any `/workspaces/{id}/credit-balance` call. Note whether the per-workspace endpoint fires at all.
+2. **Audit call sites of raw credit fields** — `rg -n 'available|totalCredits|dailyLimit' standalone-scripts/macro-controller/src --type ts` and tag every site that renders a number/bar. Compare against the resolver-mandated list in `mem://features/macro-controller/credit-balance-update` (hover card, CSV, refill-priority). Any other site rendering UI numbers without `resolveCreditSummary(ws)` is a bug.
+3. **Fix #1 (renderer → resolver)** — migrate the progress-bar renderer (the loop row + any "current workspace highlight") to call `resolveCreditSummary(ws)` and use its `available/total/source`. Keep the bar visible (skeleton/`…`) while `source === 'Pending'`.
+4. **Fix #4 (refresh fan-out)** — in the 💰 click handler, after `fetchLoopCreditsWithDetect()` resolves, iterate `perWorkspace`, and for every row where `hasInlineCredits(ws) === false` call `creditFetchController.resolve(ws.id)` (single-flight, cached). Await `Promise.allSettled` then trigger a single re-render. Do NOT await sequentially per row — fan out in parallel; honour the existing AbortController timeout.
+5. **Audit `hasInlineCredits()` for the zero-row case (#3)** — add a test fixture: `daily_credits_limit: 0, billing_period_credits_limit: 0, grant_type_balances: [{ available: 0, total: 0, grant_type: 'free' }]`. Expected: `InlineHit=false` (forces fetch). Tighten the check if it returns true today.
+6. **Render skeleton for pending state** — in `credit-bar.html` / its TS caller, when resolver returns `source === 'Pending'` paint a striped/animated placeholder bar; when `source === 'Failed'` paint a red 1-px bar with a tooltip "Credit fetch failed — click 💰 to retry". Never collapse to invisible.
+7. **Subscribe to resolver completion** — wire a tiny event (`CreditResolved(workspaceId)`) emitted by `credit-fetch-controller` on success/failure; the controller UI subscribes and re-renders only the affected row. Avoids full re-paint and races.
+8. **Tests** —
+   (a) unit: `credit-balance-network-count.test.ts` extended — new-free fixture MUST trigger exactly one `/credit-balance` call;
+   (b) unit: resolver-pending render produces skeleton DOM, resolver-success replaces it;
+   (c) component test: clicking 💰 on a new-free workspace ends with a non-zero `<progress>` value within the timeout budget;
+   (d) regression: Pro workspace with inline credits still does ZERO `/credit-balance` calls.
+9. **Failure logging** — ensure every code path added in steps 4 + 7 funnels errors through `Logger.error('CreditBalanceUpdate.fetch', …)` with the mandatory schema (`Reason`, `ReasonDetail`, `WorkspaceId`, `BearerPrefix`, `ElapsedMs`, `SourceUrl`). No swallowed catches.
+10. **Version bump + memory sync** — bump `manifest.json` + `constants.ts` (per unified-versioning policy), update `mem://features/macro-controller/credit-balance-update` "Resolver is the single source of truth" bullet to add the progress-bar renderer to the enforced list, and append a row to plan close-out section. Run full audit (`node scripts/audit/check-must-memory-refs.mjs`, smoke-rescore, quarantine, tooltip-dict-gate) before declaring done.
 
-This keeps the checker strict against real violations (any hardcoded zone in code, configs, runtime helpers) while honoring the memory rule that the docs MUST teach the anti-pattern.
+## Pending tasks scanned from `.lovable/`
 
-## 15 Steps
+No open `## Pending` / `## TODO` sections found in `.lovable/plan.md`, `.lovable/plans/*`, `.lovable/pending-issues/*` that aren't already tracked in their own files. Nothing to append.
 
-1. Re-read `scripts/check-forbidden-timezones.mjs` and `scripts/__tests__/check-forbidden-timezones.test.mjs` to confirm current line-iteration shape and matcher precedence.
-2. Confirm the full failing list (60+ lines) all live under `spec/2026-spec/**` and `mem://localization/timezone` and all cite `Intl.DateTimeFormat().resolvedOptions().timeZone` on the same line — i.e. classify as "documented counter-example" not real leak.
-3. Add two skip constants near the top of `check-forbidden-timezones.mjs`:
-   - `SAFE_RENDER_MARKER = 'Intl.DateTimeFormat().resolvedOptions().timeZone'`
-   - `INLINE_ALLOW_MARKER = '<!-- allow-timezone-example -->'`
-4. In the per-line loop, `continue` to next line when the raw line includes either marker — before running the FORBIDDEN_PATTERNS regex sweep. Keep the existing token matching otherwise unchanged.
-5. Update the script's header comment to document the two-marker escape hatch and the rationale (counter-example pedagogy is required by the timezone memory).
-6. Extend `scripts/__tests__/check-forbidden-timezones.test.mjs` with three new cases:
-   (a) line with `Asia/Kuala_Lumpur` AND `Intl.DateTimeFormat().resolvedOptions().timeZone` → PASS (skipped),
-   (b) line with `Asia/Kuala_Lumpur` AND `<!-- allow-timezone-example -->` → PASS (skipped),
-   (c) line with `Asia/Kuala_Lumpur` alone → FAIL (still flagged). <!-- allow-timezone-example -->
-7. Run the test file (`node --test scripts/__tests__/check-forbidden-timezones.test.mjs`) — all existing + 3 new tests must pass.
-8. Run the actual checker (`node scripts/check-forbidden-timezones.mjs`) against the repo. Expect: exit 0; previously-flagged 60+ lines silently skipped because each contains the safe-render marker.
-9. If any line still flags, inspect it; only legitimate violations remain. Either remove the hardcoded zone from that line or, if it is genuinely pedagogical and lacks the fix snippet, append the inline allow marker — do not blanket-suppress.
-10. Verify no real code path regressed: `rg -n 'Asia/Kuala_Lumpur|Kuala_Lumpur|MYT|UTC\+8|\+08:00' src/ standalone-scripts/ chrome-extension/ 2>/dev/null | rg -v 'Intl\.DateTimeFormat\(\)\.resolvedOptions\(\)\.timeZone'` returns empty — runtime code is still clean. <!-- allow-timezone-example -->
-11. Re-run the full spec link checker and structure check (`node scripts/report-spec-links-ci.mjs` and `node scripts/check-spec-readme-structure.mjs --strict`) to confirm no collateral damage.
-12. Append a one-line entry to the `changelog.md` v3.53.0 "Fixed" section: "Forbidden-timezone scanner now skips lines that pair the anti-pattern with the canonical local-render snippet — unblocks the documented counter-examples mandated by `mem://localization/timezone`."
-13. Update memory: append a clarifying note to `mem://localization/timezone` (or its referenced file) explaining the two-marker escape hatch so future authors know how to write counter-examples safely. Index core rule remains unchanged.
-14. Scan `.lovable/pending-issues/` and `.lovable/plans/` for any open tasks that reference timezone or this checker; append unresolved items below in the Pending Tasks section and resolve sequentially.
-15. Final sanity: run the same audit gates surfaced in the failing CI run (spec-links, spec-readme-structure, changelog-entry, perf-budget if relevant) and confirm green. Close the task in the plan with a one-line resolution note.
+## Guidelines applied
 
-## Pending Tasks (carried forward)
-
-- **P Store deferred workstream** (`spec/21-app/02-features/misc-features/pstore-marketplace.md`) — DO NOT auto-pick; user-deferred per `mem://preferences/deferred-workstreams`. Leave as-is.
-- **Priority 0.8 id-denylist quarantine retirement** — 183 exact-file entries + 3 glob quarantines remain. Continue post-completion of this fix.
-- **Optional minisign release signing** — blocked on `MINISIGN_SECRET_KEY` provisioning. Leave deferred; not actionable here.
-
-No pending tasks specific to this fix block its execution.
-
-## Ambiguity / Open Questions
-
-None. The user's intent is explicit: the checker is wrong to flag documented counter-examples; fix the checker, not the docs. The two-marker design preserves the strict ban on real hardcoded zones in runtime code while honoring the pedagogical requirement of the memory rule.
+- `.lovable/coding-guidelines.md` — present, will follow during execution.
+- `spec/coding-guidelines/` — not present, skipped silently.
+- Memory: `mem://features/macro-controller/credit-balance-update`, `mem://features/macro-controller/credit-refresh-behavior`, `mem://constraints/no-retry-policy` (no exponential backoff in step 4 fan-out — single-flight + single auth retry only).
