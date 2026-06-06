@@ -59,6 +59,8 @@ import type { TaskNextDeps } from './task-next-ui';
 import { logError } from '../error-utils';
 import { showToast } from '../toast';
 import { batchRefreshProOneCreditBalances } from '../credit-balance/batch-refresh';
+import { requestCredits, hasInlineCredits } from '../credit-balance-update/credit-fetch-controller';
+import { mapPlanFromWire, shouldFetchCreditBalanceForPlan } from '../credit-balance-update/plan-mapper';
 import { CssFragment } from '../types';
 // ============================================
 
@@ -269,9 +271,27 @@ function executeCreditFetch(ctx: CreditFetchCtx): void {
     const candidates = (loopCreditState.perWorkspace || []).map(function (w) {
       return { workspaceId: w.id, plan: w.plan };
     });
-    batchRefreshProOneCreditBalances(candidates).catch(function (err: unknown) {
+    const proOneRefresh = batchRefreshProOneCreditBalances(candidates).catch(function (err: unknown) {
       logError('Credits', 'batchRefreshProOneCreditBalances rejected', err);
-    }).finally(function () {
+    });
+    // RCA 2026-06-06 #4: pro_1 batch only covers pro_1. New free / Lite
+    // (ktlo) / Cancelled / pro_0 workspaces without inline credits never
+    // get their `/credit-balance` follow-up unless we fan out here. Without
+    // this the 💰 button flips back to idle while those bars stay at the
+    // skeleton dash forever. Sequential, no retry (mem://constraints/no-retry-policy).
+    const enrichmentFanOut = (async function () {
+      for (const w of loopCreditState.perWorkspace || []) {
+        const plan = mapPlanFromWire(w.plan);
+        if (!shouldFetchCreditBalanceForPlan(plan)) { continue; }
+        if (hasInlineCredits(w)) { continue; }
+        try {
+          await requestCredits(w);
+        } catch (err: unknown) {
+          logError('Credits', 'requestCredits fan-out failed for ws=' + w.id, err);
+        }
+      }
+    })();
+    Promise.all([proOneRefresh, enrichmentFanOut]).finally(function () {
       ctx.onComplete();
       setCreditBtnLoading(ctx.creditBtn, false);
       focusCurrentWorkspaceInList();

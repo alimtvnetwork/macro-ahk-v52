@@ -2,8 +2,10 @@ import type { WorkspaceCredit } from '../types';
 import { calcTotalCredits } from '../credit-api';
 import { CreditFetchOutcome } from './credit-fetch-outcome';
 import { readCreditBalanceUpdateCacheSync } from './credit-balance-cache';
+import { hasInlineCredits } from './credit-fetch-controller';
+import { mapPlanFromWire, shouldFetchCreditBalanceForPlan } from './plan-mapper';
 
-export type CreditSummarySource = 'Inline' | 'Cache' | 'Timeout' | 'Missing';
+export type CreditSummarySource = 'Inline' | 'Cache' | 'Timeout' | 'Missing' | 'Pending';
 
 export interface CreditSummary {
     readonly available: number;
@@ -66,6 +68,30 @@ export function resolveCreditSummary(ws: WorkspaceCredit): CreditSummary {
 
     const total = inlineTotal(ws);
     const available = Math.max(0, Math.round(ws.available || 0));
+    // RCA 2026-06-06 #1/#2: when a workspace has neither inline credit data
+    // nor a cached `/credit-balance` row yet (new free / Lite / Cancelled
+    // accounts before enrichment fans out), emit a `Pending` summary so
+    // the renderer shows a skeleton dash instead of pinning the bar to 0/0
+    // and confusing the user into thinking they have no credits.
+    if (available === 0 && total === 0) {
+        const plan = mapPlanFromWire(ws.plan);
+        const enrichmentApplies = shouldFetchCreditBalanceForPlan(plan) && !hasInlineCredits(ws);
+        if (enrichmentApplies) {
+            return {
+                available: 0,
+                total: 0,
+                daily: 0,
+                dailyLimit: 0,
+                billingAvailable: 0,
+                billingLimit: 0,
+                rollover: 0,
+                rolloverLimit: 0,
+                totalUsed: 0,
+                source: 'Pending',
+                renderDash: true,
+            };
+        }
+    }
     return {
         available,
         total,

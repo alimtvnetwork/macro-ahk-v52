@@ -696,8 +696,11 @@ function buildWsRow(
   // badge room to breathe without crowding adjacent rows.
   row.style.cssText = 'display:flex;align-items:center;gap:6px;padding:7px 8px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05);transition:background 0.15s;font-size:11px;' + wsRowBgStyle(isCurrent, isSel);
 
+  const dashTooltip = creditSummary.source === 'Pending'
+    ? 'Fetching credit balance… click 💰 Credits to refresh'
+    : 'Credit-balance request timed out';
   const creditBarHtml = creditSummary.renderDash
-    ? '<span title="Credit-balance request timed out" style="font-size:11px;color:' + cWarning + ';min-width:160px;display:inline-block;">—</span>'
+    ? '<span title="' + dashTooltip + '" style="font-size:11px;color:' + cWarning + ';min-width:160px;display:inline-block;">—</span>'
     : renderCreditBar({
       totalCredits: creditSummary.total, available: creditSummary.available, totalUsed: creditSummary.totalUsed,
       freeRemaining: Math.round(ws.freeRemaining || 0), freeGranted: Math.round(ws.freeGranted || 0),
