@@ -25,6 +25,22 @@ import { parseLoopApiResponse, syncCreditStateFromApi, applyProZeroEnrichment, a
 import { logError } from './error-utils';
 import { ApiPath } from './types';
 import { enrichCreditBalanceUpdateWorkspaces } from './credit-balance-update/enrichment';
+import { populateLoopWorkspaceDropdown } from './ws-list-renderer';
+
+/**
+ * v3.55.x credit-bar repaint fix — see `.lovable/plan.md` 2026-06-06.
+ * Enrichment overlays /credit-balance numbers onto each row, but the per-row
+ * progress bar (renderCreditBar inside renderLoopWorkspaceList) is only
+ * repainted by populateLoopWorkspaceDropdown(). Without this companion call
+ * Free / Lite / Cancelled / pro_0 / pro_1 bars stay pinned at 0/0.
+ */
+function repaintWorkspaceRowsAfterEnrichment(scope: string): void {
+  try {
+    populateLoopWorkspaceDropdown();
+  } catch (err: unknown) {
+    logError(LOG_SCOPE_CREDIT_FETCH, scope + ': populateLoopWorkspaceDropdown failed', err);
+  }
+}
 
 const LOG_SCOPE_CREDIT_FETCH = 'credit-fetch';
 const CREDIT_FETCH_ASYNC_SCOPE = 'credit-fetch-async';
