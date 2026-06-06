@@ -29,6 +29,7 @@ import type { WorkspaceCredit } from './types';
 import { log } from './logging';
 import { getEffectiveStatus, daysBetween, daysUntil } from './workspace-status';
 import { getWorkspaceLifecycleConfig, type WorkspaceLifecycleConfig } from './workspace-lifecycle-config';
+import { resolveCreditSummary } from './credit-balance-update/credit-summary-resolver';
 
 // ── CSV Helpers ──
 
@@ -64,6 +65,15 @@ function buildCsvRow(
   const daysSinceChange = ws.subscriptionStatusChangedAt ? daysBetween(ws.subscriptionStatusChangedAt) : '';
   const refillIso = ws.nextRefillAt || ws.billingPeriodEndAt || '';
   const dToRefill = refillIso ? daysUntil(refillIso) : -1;
+  // RCA 2026-06-06: Credits in CSV must reflect resolver state — Pending /
+  // Timeout rows export as blank to avoid polluting analytics with phantom 0s
+  // for new-free workspaces whose /credit-balance hasn't landed yet.
+  const summary = resolveCreditSummary(ws);
+  const totalCreditsCsv: string | number = summary.renderDash ? '' : summary.total;
+  const totalUsedCsv: string | number = summary.renderDash
+    ? ''
+    : (ws.totalCreditsUsed != null ? ws.totalCreditsUsed : (r.total_credits_used != null ? r.total_credits_used : ''));
+  const availableCsv: string | number = summary.renderDash ? '' : summary.available;
   return [
     csvVal(ws.fullName),
     csvVal(ws.name),
@@ -89,10 +99,10 @@ function buildCsvRow(
     ws.freeRemaining,
     ws.topupLimit,
     r.topup_credits_used != null ? r.topup_credits_used : '',
-    ws.totalCredits,
-    ws.totalCreditsUsed != null ? ws.totalCreditsUsed : (r.total_credits_used != null ? r.total_credits_used : ''),
+    totalCreditsCsv,
+    totalUsedCsv,
     r.total_credits_used_in_billing_period != null ? r.total_credits_used_in_billing_period : '',
-    ws.available,
+    availableCsv,
     r.backend_total_used_in_billing_period != null ? r.backend_total_used_in_billing_period : '',
     // Workspace meta
     ws.numProjects != null ? ws.numProjects : (r.num_projects != null ? r.num_projects : ''),
@@ -117,7 +127,7 @@ function buildCsvRow(
     config.expiryGracePeriodDays,
     config.refillWarningThresholdDays,
     // Computed ratios — v2.223.0
-    pct(ws.available || 0, ws.totalCredits || 0),
+    summary.renderDash ? '' : pct(summary.available, summary.total),
     pct(ws.dailyUsed || 0, ws.dailyLimit || 0),
     // Export snapshot meta — v2.223.0
     csvVal(exportedAt),
@@ -192,7 +202,7 @@ export function exportAvailableWorkspacesAsCsv(): void {
   }
 
   const filtered = workspaces.filter(function(ws: WorkspaceCredit) {
-    return (ws.available || 0) > 0;
+    return resolveCreditSummary(ws).available > 0;
   });
 
   if (filtered.length === 0) {
