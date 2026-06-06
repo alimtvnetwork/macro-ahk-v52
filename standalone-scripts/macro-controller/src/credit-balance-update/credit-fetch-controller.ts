@@ -46,12 +46,34 @@ function readRawGrantTypeBalances(ws: WorkspaceCredit): ReadonlyArray<object> | 
     return null;
 }
 
+/**
+ * A grant-type-balance row counts as "inline data" only if it carries a
+ * non-zero number. New free / Lite (ktlo) / Cancelled accounts can ship
+ * `grant_type_balances: [{ total_granted: 0, total_remaining: 0, ... }]`
+ * — a zero-row that previously short-circuited the /credit-balance fetch
+ * and pinned the UI at 0/0. See `.lovable/plan.md` 2026-06-06 RCA #3.
+ */
+function isNonZeroGrantRow(row: object): boolean {
+    const r = row as Record<string, unknown>;
+    const keys = ['total_granted', 'total_remaining', 'total_billing_period_used', 'daily_limit', 'daily_remaining'];
+    for (const k of keys) {
+        const v = Number(r[k]);
+        if (Number.isFinite(v) && v > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 export function hasInlineCredits(ws: WorkspaceCredit): boolean {
     if (Number(ws.limit || 0) > 0) {
         return true;
     }
     const balances = readRawGrantTypeBalances(ws);
-    return Array.isArray(balances) && balances.length > 0;
+    if (!Array.isArray(balances) || balances.length === 0) {
+        return false;
+    }
+    return balances.some(isNonZeroGrantRow);
 }
 
 function buildInlineBalance(ws: WorkspaceCredit): CreditBalance {
