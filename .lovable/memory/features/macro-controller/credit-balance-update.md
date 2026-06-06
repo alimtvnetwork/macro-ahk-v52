@@ -72,3 +72,19 @@ subscribeCreditFetchSettings();   // hot-reload on SAVE_SETTINGS
   `tests/e2e/e2e-credit-balance-ktlo.spec.ts`,
   `e2e-credit-balance-timeout.spec.ts`,
   `e2e-credit-balance-no-fetch-when-inline.spec.ts`.
+
+### v3.56.0 addendum — Pending state + fan-out + resolver-only reads
+
+**RCA 2026-06-06:** Even after the row repaint fix, new Free / Lite / Cancelled / pro_0 workspaces still showed empty bars after clicking 💰 Credits, because (a) the resolver had no "enrichment-in-flight" state, (b) the 💰 button only refreshed pro_1 in batch, and (c) hover card / CSV / totals still read raw `ws.available` / `ws.totalCreditsUsed`.
+
+**New hard rules (all enforced by tests):**
+
+- **Pending state in resolver:** `resolveCreditSummary(ws)` returns `source: 'Pending'` + `renderDash: true` when `shouldFetchCreditBalanceForPlan(plan)` is true AND `hasInlineCredits(ws)` is false. Renderer shows `— fetching…` skeleton, not `0/0`. Test: `__tests__/credit-summary-resolver-pending.test.ts`.
+
+- **💰 button fan-out:** `executeCreditFetch` in `ui/panel-controls.ts` MUST run `Promise.all([proOneRefresh, enrichmentFanOut])` where `enrichmentFanOut` sequentially `await requestCredits(w)` for every workspace where `shouldFetchCreditBalanceForPlan(plan) && !hasInlineCredits(w)`. Loading state cleared only after both settle. Failures logged with scope `CreditBalanceUpdate.fanOut` + CODE-RED `Path/Missing/Reason` + `WorkspaceId=…`. Test: `__tests__/credit-button-fanout.test.ts`.
+
+- **Resolver-only reads:** `ws-hover-card.ts` Credits row, `log-csv-export.ts` Total/Available/Used columns + `Available > 0` filter, and `credit-totals.ts::isMissingCreditData` MUST go through `resolveCreditSummary(ws)`. `renderDash: true` ⇒ CSV emits `""`, totals exclude row from sums and count it in `missingCount`. Never read raw `ws.available` / `ws.totalCreditsUsed` / `ws.totalCredits` directly for UI/export/totals.
+
+- **Per-row repaint after enrichment:** every `.then()` inside `schedulePostParseEnrichment` (credit-fetch.ts) that calls `mc().updateUI()` MUST also call `repaintWorkspaceRowsAfterEnrichment(scope)` which funnels through `populateLoopWorkspaceDropdown()`. Three known scopes: `'pro_0'`, `'pro_1'`, `'ktlo/free/cancelled'`. Test: `__tests__/enrichment-repaints-list.test.ts`.
+
+- **All-zero grant rows force fetch:** `hasInlineCredits(ws)` returns false when `grant_type_balances` contains only zero-remaining/zero-granted entries (new-free fixtures), so the controller still issues `/credit-balance`.
