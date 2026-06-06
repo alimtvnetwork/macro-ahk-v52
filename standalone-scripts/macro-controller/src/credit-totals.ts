@@ -34,6 +34,7 @@
  */
 
 import type { WorkspaceCredit } from './types';
+import { resolveCreditSummary } from './credit-balance-update/credit-summary-resolver';
 
 /** Lovable Free plan: 5 daily credits per account. */
 export const FREE_DAILY_CAP = 5;
