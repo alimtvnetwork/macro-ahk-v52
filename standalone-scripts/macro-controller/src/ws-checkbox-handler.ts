@@ -151,50 +151,47 @@ export function updateWsSelectionUI(): void {
   syncSelectionControls(count);
 }
 
+/** Resolve workspace from the keyboard-navigated row (Fallback 1). */
+function resolveFromKeyboardNav(): { wsId: string; wsName: string } | null {
+  const listEl = document.getElementById(DomId.LoopWsList);
+  const currentNavIndex = navState().getIndex();
+  if (!listEl || currentNavIndex < 0) return null;
+  const items = listEl.querySelectorAll(SEL_LOOP_WS_ITEM);
+  const navItem = items[currentNavIndex] as HTMLElement | undefined;
+  if (!navItem) return null;
+  const wsId = navItem.getAttribute(DataAttr.WsId) || '';
+  const wsName = navItem.getAttribute('data-ws-name') || '';
+  log('Move fallback: using keyboard-navigated item idx=' + currentNavIndex + ' (' + wsName + ')', 'info');
+  return { wsId, wsName };
+}
+
+/** Resolve workspace from the first checked checkbox (Fallback 2). */
+function resolveFromCheckedBox(): { wsId: string; wsName: string } | null {
+  const checkedIds = Object.keys(getLoopWsCheckedIds());
+  if (checkedIds.length === 0) return null;
+  const firstCheckedId = checkedIds[0];
+  const listEl = document.getElementById(DomId.LoopWsList);
+  const matchedItem = listEl
+    ? listEl.querySelector('[' + DataAttr.WsId + '="' + firstCheckedId + '"]') as HTMLElement | null
+    : null;
+  const wsName = matchedItem ? (matchedItem.getAttribute('data-ws-name') || '') : '';
+  log('Move fallback: using first checked workspace id=' + firstCheckedId + ' (' + wsName + ')'
+    + (checkedIds.length > 1 ? ' [' + (checkedIds.length - 1) + ' other checks ignored]' : ''),
+    'info');
+  return { wsId: firstCheckedId, wsName };
+}
+
 /**
  * Move project to the currently selected workspace in the list.
  */
 export function triggerLoopMoveFromSelection(): void {
   const selectedEl = document.getElementById('loop-ws-selected');
-  let wsId = selectedEl
-    ? selectedEl.getAttribute('data-selected-id')
-    : '';
-  let wsName = selectedEl
-    ? selectedEl.getAttribute('data-selected-name')
-    : '';
+  let wsId = selectedEl ? (selectedEl.getAttribute('data-selected-id') || '') : '';
+  let wsName = selectedEl ? (selectedEl.getAttribute('data-selected-name') || '') : '';
 
-  // Fallback 1: if nothing explicitly selected, use the keyboard-navigated item
   if (!wsId) {
-    const listEl = document.getElementById(DomId.LoopWsList);
-    const currentNavIndex = navState().getIndex();
-    if (listEl && currentNavIndex >= 0) {
-      const items = listEl.querySelectorAll(SEL_LOOP_WS_ITEM);
-      const navItem = items[currentNavIndex] as HTMLElement | undefined;
-      if (navItem) {
-        wsId = navItem.getAttribute(DataAttr.WsId) || '';
-        wsName = navItem.getAttribute('data-ws-name') || '';
-        log('Move fallback: using keyboard-navigated item idx=' + currentNavIndex + ' (' + wsName + ')', 'info');
-      }
-    }
-  }
-
-  // Fallback 2: if still nothing, use the first checked checkbox.
-  // Users frequently tick a checkbox and press Move without clicking the row;
-  // without this fallback Move silently fails with "Select a workspace first".
-  if (!wsId) {
-    const checkedIds = Object.keys(getLoopWsCheckedIds());
-    if (checkedIds.length > 0) {
-      const firstCheckedId = checkedIds[0];
-      const listEl = document.getElementById(DomId.LoopWsList);
-      const matchedItem = listEl
-        ? listEl.querySelector('[' + DataAttr.WsId + '="' + firstCheckedId + '"]') as HTMLElement | null
-        : null;
-      wsId = firstCheckedId;
-      wsName = matchedItem ? (matchedItem.getAttribute('data-ws-name') || '') : '';
-      log('Move fallback: using first checked workspace id=' + wsId + ' (' + wsName + ')'
-        + (checkedIds.length > 1 ? ' [' + (checkedIds.length - 1) + ' other checks ignored]' : ''),
-        'info');
-    }
+    const fallback = resolveFromKeyboardNav() ?? resolveFromCheckedBox();
+    if (fallback) { wsId = fallback.wsId; wsName = fallback.wsName; }
   }
 
   if (!wsId) {
@@ -213,12 +210,10 @@ export function triggerLoopMoveFromSelection(): void {
     return;
   }
 
-  log(
-    'Moving project to workspace=' + wsId + ' (' + wsName + ')',
-    'delegate',
-  );
+  log('Moving project to workspace=' + wsId + ' (' + wsName + ')', 'delegate');
   moveToWorkspace(wsId, wsName || '');
 }
+
 
 /** Apply active highlight styles to a navigated workspace row. */
 function highlightActiveItem(item: Element): void {

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.56.0] — 2026-06-18 Credit Balance Fan-out + Project Move Fix
+
+### Fixed
+- **Project Move regression**: `ws-checkbox-handler.ts` now falls back to `getLoopWsCheckedIds()` when no keyboard-navigated row is active, so ticking a workspace checkbox and clicking Move no longer dead-ends with "No workspace selected".
+- **Silent move on non-project tabs**: `ws-move.ts` now logs a warning and surfaces a toast when the active tab is not `/projects/{id}`, instead of silently switching context without moving.
+
+### Changed
+- Version bump 3.55.0 → 3.56.0 across `manifest.json`, `version.json`, `src/shared/constants.ts`, all standalone-script `instruction.ts` files, and `standalone-scripts/macro-controller/src/shared-state.ts`.
+
+---
+
 ## [v3.55.0] — 2026-06-05 Filename Casing Fix + Version Bump
 
 ### Fixed
