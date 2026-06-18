@@ -448,8 +448,11 @@ export async function moveToWorkspace(targetWorkspaceId: string, targetWorkspace
     // ✅ Primary path: move project to target workspace
     await executeMove(projectId, targetWorkspaceId, targetWorkspaceName, false);
   } else {
-    // ✅ Fallback path: switch workspace context without moving a project
-    log('No project ID in URL — using workspace-access-requests fallback', 'warn');
+    // ⚠ Fallback path: switch workspace context without moving a project.
+    // This does NOT relocate the project — surface that clearly so a Move
+    // click from a non-/projects/{id} URL doesn't silently no-op.
+    log('No project ID in URL — using workspace-access-requests fallback (project will NOT be moved)', 'warn');
+    showToast('Open a project page first — Move from this URL only switches workspace context, it does not move the project.', 'warn', { noStop: true });
     await executeSwitchContext(targetWorkspaceId, targetWorkspaceName, false);
   }
 
