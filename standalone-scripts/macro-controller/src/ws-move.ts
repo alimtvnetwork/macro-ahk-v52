@@ -272,7 +272,15 @@ async function executeMove(
   targetWorkspaceName: string,
   isRetry: boolean,
 ): Promise<void> {
-  const token = resolveToken();
+  // Use unified getBearerToken() contract — on retry, force a fresh fetch
+  // so we never re-send the token that just got 401/403'd.
+  let token = '';
+  try {
+    token = await getBearerToken(isRetry ? { force: true } : undefined);
+  } catch (caught: unknown) {
+    logError('executeMove.getBearerToken', 'token fetch threw', caught);
+    token = resolveToken();
+  }
 
   if (!token) {
     handleMoveNoToken();
