@@ -75,7 +75,7 @@ vi.mock("@/platform", () => ({
 import OptionsPage from "@/pages/Options";
 
 const normalizeSnapshotHtml = (html: string): string =>
-  html.replaceAll(/radix-:r[0-9a-z]+:/g, "radix-:stable:");
+  html.replace(/radix-:r[0-9a-z]+:/g, "radix-:stable:");
 
 describe("Options Page — Structural Snapshot", () => {
   it("matches the baseline snapshot", () => {
