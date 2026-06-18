@@ -14,7 +14,7 @@
 
 import { MacroController } from './core/MacroController';
 import { log, logSub } from './logging';
-import { resolveToken, invalidateSessionBridgeKey, recoverAuthOnce } from './auth';
+import { resolveToken, invalidateSessionBridgeKey, recoverAuthOnce, getBearerToken } from './auth';
 import { extractProjectIdFromUrl } from './workspace-detection';
 import { showToast } from './toast';
 import { CREDIT_API_BASE, state } from './shared-state';
