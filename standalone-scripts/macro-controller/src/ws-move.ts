@@ -34,6 +34,30 @@ function isAuthFailure(status: number): boolean {
   return status === 401 || status === 403;
 }
 
+/**
+ * Detect Lovable's Castle risk-engine block. The 403 body looks like:
+ *   { "type": "castle_denied", "message": "This transfer was blocked..." }
+ * This is NOT an auth failure — the bearer token is valid. Re-authenticating
+ * or invalidating session keys won't help; the user must complete a
+ * security challenge on lovable.dev (verify email / 2FA / wait for cooldown).
+ */
+function isCastleDenied(status: number, data: unknown): boolean {
+  if (status !== 403) return false;
+  if (!data || typeof data !== 'object') return false;
+  const body = data as Record<string, unknown>;
+  return body.type === 'castle_denied';
+}
+
+function extractCastleMessage(data: unknown): string {
+  if (data && typeof data === 'object') {
+    const body = data as Record<string, unknown>;
+    if (typeof body.message === 'string' && body.message.length > 0) {
+      return body.message;
+    }
+  }
+  return 'This transfer was blocked by Lovable security. Verify your account on lovable.dev and try again.';
+}
+
 // ============================================
 // Delegation state reset helper
 // ============================================
