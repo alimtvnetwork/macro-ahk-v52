@@ -60,11 +60,17 @@ type RefreshCallback = (token: string, source: string) => void;
  * All mutable state is encapsulated — no module-level `let` variables.
  */
 export class AuthRecoveryManager {
-  private readonly recoveryLock: ConcurrencyLock<string>;
+  // Lazy-init to avoid circular-import TDZ: async-utils → logging chain →
+  // credit-balance-fetcher → auth → auth-recovery → async-utils.
+  // At module-load time `createConcurrencyLock` may not yet be defined.
+  private lazyRecoveryLock: ConcurrencyLock<string> | null = null;
   private outcomeRecorder: RefreshOutcomeRecorder | null = null;
 
-  constructor() {
-    this.recoveryLock = createConcurrencyLock<string>();
+  private get recoveryLock(): ConcurrencyLock<string> {
+    if (this.lazyRecoveryLock === null) {
+      this.lazyRecoveryLock = createConcurrencyLock<string>();
+    }
+    return this.lazyRecoveryLock;
   }
 
   /**
