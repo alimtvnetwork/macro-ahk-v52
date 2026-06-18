@@ -4,7 +4,7 @@
 
 ## Overview
 
-The MacroLoop and ComboSwitch controllers must display the **current workspace name** (e.g., "P07 D2V7 Orinmax's Lovable v5") — never the project name (e.g., "macro-ahk-v49").
+The MacroLoop and ComboSwitch controllers must display the **current workspace name** (e.g., "P07 D2V7 Orinmax's Lovable v5") — never the project name (e.g., "macro-ahk-v50").
 
 ---
 

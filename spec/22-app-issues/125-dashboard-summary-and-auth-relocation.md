@@ -23,7 +23,7 @@
 
 ### 2.2 Dashboard summary bar
 
-Insert a new compact summary strip directly below the title row (`TS Macro / macro-ahk-v49 / v3.x` line) and above the action buttons (`Check / ⏹ / Credits / Prompts / ⚠ / ☰`). The strip shows three pills:
+Insert a new compact summary strip directly below the title row (`TS Macro / macro-ahk-v50 / v3.x` line) and above the action buttons (`Check / ⏹ / Credits / Prompts / ⚠ / ☰`). The strip shows three pills:
 
 | Pill | Label | Value source |
 |------|-------|--------------|
