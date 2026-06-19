@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.67.0] — 2026-06-19 Installer contract exit code 9
+
+### Added
+- `scripts/installer-contract.json` now declares exit code `9` (`uncaught_crash`, spec §8.1) so `check-installer-contract.mjs` no longer flags `scripts/install.ps1:1299` as drift. Regenerated `installer-constants.{sh,ps1}`.
+
 ## [v3.66.0] — 2026-06-19
 
 ### Fixed
