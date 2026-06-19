@@ -176,11 +176,42 @@ function hasChromeStorage(): boolean {
     && !!chrome.storage.local;
 }
 
-/** Load overrides from chrome.storage.local into the in-memory cache. Idempotent. */
+/**
+ * MAIN-world fallback: when injected into the page world, `chrome.storage.local`
+ * is not exposed. Fall back to `window.localStorage` (same lovable.dev origin),
+ * which still survives reloads. Keys are namespaced with `__marco__:` to avoid
+ * collisions with the host app.
+ */
+const LS_KEY = '__marco__:' + STORAGE_KEY;
+
+function hasLocalStorage(): boolean {
+  try {
+    return typeof window !== 'undefined' && !!window.localStorage;
+  } catch (_e: unknown) { return false; } // allow-swallow: SecurityError in sandboxed iframe.
+}
+
+function readFromLocalStorage(): unknown {
+  if (!hasLocalStorage()) return undefined;
+  try {
+    const raw = window.localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : undefined;
+  } catch (_e: unknown) { return undefined; } // allow-swallow: corrupt JSON falls back to defaults.
+}
+
+function writeToLocalStorage(value: SettingsOverrides): boolean {
+  if (!hasLocalStorage()) return false;
+  try {
+    window.localStorage.setItem(LS_KEY, JSON.stringify(value));
+    return true;
+  } catch (_e: unknown) { return false; } // QuotaExceeded / SecurityError.
+}
+
+/** Load overrides from chrome.storage.local (or localStorage fallback) into the in-memory cache. Idempotent. */
 export async function loadSettingsOverrides(): Promise<SettingsOverrides> {
   if (!hasChromeStorage()) {
+    cache.overrides = sanitize(readFromLocalStorage());
     cache.loaded = true;
-    cache.overrides = {};
+    log('[Settings] loaded overrides (localStorage fallback): ' + JSON.stringify(cache.overrides), 'info');
     return cache.overrides;
   }
   try {
@@ -193,7 +224,7 @@ export async function loadSettingsOverrides(): Promise<SettingsOverrides> {
     const msg = err instanceof Error ? err.message : String(err);
     logError('SettingsStore', 'load failed: ' + msg);
     cache.loaded = true;
-    cache.overrides = {};
+    cache.overrides = sanitize(readFromLocalStorage());
     return cache.overrides;
   }
 }
@@ -206,10 +237,15 @@ export function getSettingsOverrides(): SettingsOverrides {
 /** Persist new overrides. Pass {} to reset to JSON defaults. */
 export async function saveSettingsOverrides(next: SettingsOverrides): Promise<void> {
   const sanitized = sanitize(next);
-  if (!hasChromeStorage()) {
-    throw new Error('chrome.storage.local unavailable — cannot persist settings');
+  if (hasChromeStorage()) {
+    await chrome.storage.local.set({ [STORAGE_KEY]: sanitized });
+  } else {
+    // MAIN-world fallback: persist to localStorage so the user's edits survive reload.
+    if (!writeToLocalStorage(sanitized)) {
+      throw new Error('chrome.storage.local unavailable and localStorage write failed — cannot persist settings');
+    }
+    log('[Settings] saved overrides via localStorage fallback', 'info');
   }
-  await chrome.storage.local.set({ [STORAGE_KEY]: sanitized });
   cache.overrides = sanitized;
   cache.loaded = true;
   log('[Settings] saved overrides: ' + JSON.stringify(sanitized), 'success');
