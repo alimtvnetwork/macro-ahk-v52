@@ -93,11 +93,15 @@ function Resolve-Version([string]$raw, [string]$repo) {
             Write-Err "Failed to query $api : $($_.Exception.Message)"
             exit 2
         }
-        if (-not $rsp.tag_name) {
+        $tagName = $null
+        if ($rsp -and ($rsp.PSObject.Properties.Name -contains 'tag_name')) {
+            $tagName = [string]$rsp.tag_name
+        }
+        if ([string]::IsNullOrWhiteSpace($tagName)) {
             Write-Err "Latest release response missing tag_name (Reason=ApiShapeUnexpected; ReasonDetail=$api)"
             exit 2
         }
-        return [string]$rsp.tag_name
+        return $tagName
     }
 
     $candidate = $raw.Trim()
