@@ -74,6 +74,11 @@ function buildExpandedEntry(
   if (raw.category) { entry.category = raw.category; }
   if (raw.isFavorite) { entry.isFavorite = true; }
   if (raw.isDefault !== undefined) { entry.isDefault = raw.isDefault; }
+  // Bridge fields per spec/30-next-button-reference/01-spec.md §1: let future
+  // chip-row UI collapse expanded variants back into their parent group.
+  entry.parentTitle = name;
+  if (raw.slug) { entry.parentSlug = raw.slug; }
+  entry.variantValue = value;
   entry.tags = Array.isArray(raw.tags) ? raw.tags : autoTagPrompt(expandedName, expandedText);
   return entry;
 }
