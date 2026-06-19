@@ -173,6 +173,32 @@ async function waitBetweenIterations(): Promise<void> {
   await waitForCompletion(MAX_WAIT_MS);
 }
 
+/**
+ * Submit the chat form. Prefers form#chat-input.requestSubmit() over
+ * clicking the submit button (v3.59.0 — Issue 127): the form-level
+ * submit is the framework's contract and avoids breaking when Lovable
+ * re-renders the button DOM (which the brittle XPath-based locator
+ * could miss). Falls back to button.click() only when the form is
+ * absent.
+ */
+function dispatchChatSubmit(): boolean {
+  const form = document.getElementById('chat-input');
+  if (form instanceof HTMLFormElement) {
+    if (typeof form.requestSubmit === 'function') {
+      form.requestSubmit();
+    } else {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    }
+    return true;
+  }
+  const btn = findAddToTasksButton();
+  if (btn && !(btn as HTMLButtonElement).disabled) {
+    btn.click();
+    return true;
+  }
+  return false;
+}
+
 /** Returns true if iteration submitted successfully; false if loop should break. */
 async function submitOneIteration(): Promise<boolean> {
   if (!setEditorText(repeatLoopState.capturedText)) {
@@ -186,9 +212,12 @@ async function submitOneIteration(): Promise<boolean> {
     }
     return false;
   }
-  btn.click();
+  if (!dispatchChatSubmit()) {
+    showPasteToast('❌ Repeat: no form#chat-input nor submit button — stopped at ' + repeatLoopState.completed + '/' + repeatLoopState.count, true);
+    return false;
+  }
   repeatLoopState.completed++;
-  log('Repeat: iteration ' + repeatLoopState.completed + '/' + repeatLoopState.count + ' submitted', 'info');
+  log('Repeat: iteration ' + repeatLoopState.completed + '/' + repeatLoopState.count + ' submitted (form#chat-input)', 'info');
   showPasteToast('🔁 Repeat: ' + repeatLoopState.completed + '/' + repeatLoopState.count, false);
   notify();
   return true;

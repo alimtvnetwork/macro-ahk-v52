@@ -1,10 +1,9 @@
 /**
  * Payment Banner Hider — Banner locator.
  *
- * Single-responsibility class that resolves the sticky billing banner
- * via XPath and confirms its text content. Injected into the
- * PaymentBannerHider entry-point class so it can be swapped for a
- * test double (per class-based-standalone-scripts standard).
+ * Resolves the sticky billing banner via one of several known
+ * XPath+text patterns (BANNER_PATTERNS in types.ts) and confirms
+ * the element's textContent contains an expected substring.
  *
  * Errors are NEVER swallowed — XPath defects throw and surface to
  * the caller's catch block where they are logged via
@@ -12,11 +11,11 @@
  * (per no-error-swallowing standard).
  */
 
-import { TARGET_TEXT, TARGET_XPATH } from "./types";
+import { BANNER_PATTERNS, type BannerPattern } from "./types";
 
-// 9 is the DOM XPath "first ordered node" result type. Keep this numeric so
-// the standalone bundle can be smoke-tested in Node shims without browser-only
-// XPath globals.
+// 9 is the DOM XPath "first ordered node" result type. Kept numeric so
+// the standalone bundle can be smoke-tested in Node shims without
+// browser-only XPath globals.
 const XPATH_RESULT_FIRST_ORDERED_NODE_TYPE = 9;
 
 function isHtmlElement(node: Node | null): node is HTMLElement {
@@ -31,38 +30,49 @@ function isHtmlElement(node: Node | null): node is HTMLElement {
     return node instanceof HTMLElement;
 }
 
+function tryPattern(pattern: BannerPattern): HTMLElement | null {
+    const result = document.evaluate(
+        pattern.xpath,
+        document,
+        null,
+        XPATH_RESULT_FIRST_ORDERED_NODE_TYPE,
+        null,
+    );
+    const node = result.singleNodeValue;
+
+    if (!isHtmlElement(node)) {
+        return null;
+    }
+
+    const text = node.textContent ?? "";
+
+    for (const needle of pattern.anyText) {
+        if (text.includes(needle)) {
+            return node;
+        }
+    }
+
+    return null;
+}
+
 export class BannerLocator {
     /**
-     * Resolve the target element if it exists in the live DOM AND
-     * carries the exact "Payment issue detected." text.
-     *
-     * @returns the matched element, or `null` when the banner is
-     *   genuinely absent. Throws when the XPath itself is malformed
-     *   (a programmer defect — must surface, not be swallowed).
+     * Walk the BANNER_PATTERNS list and return the first match.
+     * `null` when none of the known banners are present.
      */
     public locate(): HTMLElement | null {
         if (typeof document === "undefined" || typeof document.evaluate !== "function") {
             return null;
         }
-        const result = document.evaluate(
-            TARGET_XPATH,
-            document,
-            null,
-            XPATH_RESULT_FIRST_ORDERED_NODE_TYPE,
-            null,
-        );
-        const node = result.singleNodeValue;
 
-        if (!isHtmlElement(node)) {
-            return null;
+        for (const pattern of BANNER_PATTERNS) {
+            const hit = tryPattern(pattern);
+
+            if (hit !== null) {
+                return hit;
+            }
         }
 
-        const text = node.textContent ?? "";
-
-        if (!text.includes(TARGET_TEXT)) {
-            return null;
-        }
-
-        return node;
+        return null;
     }
 }

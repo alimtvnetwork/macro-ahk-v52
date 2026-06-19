@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.59.0] — 2026-06-19 Payment Banner Patterns + Form-Submit for Repeat Loop
+
+### Added
+- **Multi-pattern payment banner matcher** (`standalone-scripts/payment-banner-hider/src/types.ts`, `banner-locator.ts`): replaced the single `TARGET_XPATH` + `TARGET_TEXT` pair with a `BANNER_PATTERNS` array. Each entry is `{ xpath, anyText[] }` and the locator walks them in order. Pre-shipped with the legacy "Payment issue detected." banner at `/html/body/div[2]/main/div/div[1]` and the new v3.59 "Update payment method" / "Final notice" / "reverted to the Free plan" banner at `/html/body/div[2]/main/div/div[1]/div`. Adding new variants now means one struct, no code changes.
+
+### Changed
+- **Repeat-loop submission** (`standalone-scripts/macro-controller/src/ui/repeat-loop-ui.ts`): replaced `btn.click()` with `form#chat-input.requestSubmit()` (falls back to the dispatched `submit` event, then the button click only when the form is absent). Matches the framework's actual contract and survives Lovable re-rendering the submit button DOM. Logs now report `submitted (form#chat-input)`.
+
+### Version
+- Bumped 3.58.0 → 3.59.0 across `manifest.json`, `package.json`, `src/shared/constants.ts`, `standalone-scripts/macro-controller/src/shared-state.ts`, every `standalone-scripts/*/src/instruction.ts`, and `standalone-scripts/payment-banner-hider/src/index.ts` (`VERSION` constant 2.239.0 → 3.59.0). Verified by `node scripts/check-version-sync.mjs` → `✅ All versions in sync: 3.59.0`.
+
+### Deferred (logged at `.lovable/question-and-ambiguity/62-repeat-box-collapse-and-prompts-ui.md`)
+- Collapse-to-arrow button on the repeat box (UI work).
+- More compact prompts dropdown UI.
+- Plan-section prompts refresh (12 → next-steps-v7 alignment).
+
+---
+
 ## [v3.58.0] — 2026-06-19 Test-Env Hardening for Hot-Reload Version Check
 
 ### Fixed
