@@ -443,51 +443,51 @@ function locateElement(resolved: ResolvedSelector, doc: Document): HTMLElement |
         return node instanceof HTMLElement ? node : null;
     }
     if (resolved.Kind === "Css") {
-        const el = doc.querySelector(resolved.Expression);
-        return el instanceof HTMLElement ? el : null;
+        const element = doc.querySelector(resolved.Expression);
+        return element instanceof HTMLElement ? element : null;
     }
     // Aria — minimal support: `[aria-label="…"]`-style expressions are passed straight to querySelector
-    const el = doc.querySelector(resolved.Expression);
-    return el instanceof HTMLElement ? el : null;
+    const element = doc.querySelector(resolved.Expression);
+    return element instanceof HTMLElement ? element : null;
 }
 
 /* ------------------------------------------------------------------ */
 /*  Event dispatch                                                     */
 /* ------------------------------------------------------------------ */
 
-function dispatchClick(el: HTMLElement): void {
-    el.focus({ preventScroll: true });
-    el.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
-    el.dispatchEvent(new MouseEvent("mouseup",   { bubbles: true, cancelable: true }));
-    el.dispatchEvent(new MouseEvent("click",     { bubbles: true, cancelable: true }));
+function dispatchClick(element: HTMLElement): void {
+    element.focus({ preventScroll: true });
+    element.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+    element.dispatchEvent(new MouseEvent("mouseup",   { bubbles: true, cancelable: true }));
+    element.dispatchEvent(new MouseEvent("click",     { bubbles: true, cancelable: true }));
 }
 
-function dispatchType(el: HTMLElement, value: string): void {
-    el.focus({ preventScroll: true });
-    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-        const proto = el instanceof HTMLInputElement
+function dispatchType(element: HTMLElement, value: string): void {
+    element.focus({ preventScroll: true });
+    if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+        const proto = element instanceof HTMLInputElement
             ? HTMLInputElement.prototype
             : HTMLTextAreaElement.prototype;
         const setter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
         if (setter !== undefined) {
-            setter.call(el, value);
+            setter.call(element, value);
         } else {
-            el.value = value;
+            element.value = value;
         }
-    } else if (el.isContentEditable) {
-        el.textContent = value;
+    } else if (element.isContentEditable) {
+        element.textContent = value;
     } else {
         return; // not typeable
     }
-    el.dispatchEvent(new Event("input",  { bubbles: true }));
-    el.dispatchEvent(new Event("change", { bubbles: true }));
+    element.dispatchEvent(new Event("input",  { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
-function dispatchSelect(el: HTMLElement, value: string): void {
-    if (!(el instanceof HTMLSelectElement)) { return; }
-    el.value = value;
-    el.dispatchEvent(new Event("input",  { bubbles: true }));
-    el.dispatchEvent(new Event("change", { bubbles: true }));
+function dispatchSelect(element: HTMLElement, value: string): void {
+    if (!(element instanceof HTMLSelectElement)) { return; }
+    element.value = value;
+    element.dispatchEvent(new Event("input",  { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
 function defaultSleep(ms: number): Promise<void> {
