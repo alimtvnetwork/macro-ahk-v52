@@ -2,7 +2,7 @@
 
 > **Version:** 7.0 (verbatim capture from user, 2026-06-19)
 > **Category:** `next` (dynamic — `N` is parsed from the prompt header)
-> **Trigger phrases:** `next 1`, `next 2`, `next 3`, `next 4`, `next 5`, `next 8`, `next n steps`, `next n tasks`
+> **Trigger phrases (v3.63.0 sequence):** `next 1`, `next 2`, `next 3`, `next 4`, `next 5`, `next 7`, `next 8`, `next 10`, `next 12`, `next 15`
 > **Slug template:** `next-${N}-steps`
 
 Parse the requested count from the prompt title/header before doing
