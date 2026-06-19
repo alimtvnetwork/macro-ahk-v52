@@ -20,8 +20,8 @@ const POLL_MS = 500;
 const MAX_WAIT_MS = 10 * 60 * 1000; // 10 min per submit
 const STORAGE_KEY = 'marco-repeat-loop-prefs';
 
-export const WAIT_MODE_SUBMIT_READY = WAIT_MODE_SUBMIT_READY as const;
-export const WAIT_MODE_FIXED_DELAY = WAIT_MODE_FIXED_DELAY as const;
+export const WAIT_MODE_SUBMIT_READY = 'submit-ready' as const;
+export const WAIT_MODE_FIXED_DELAY = 'fixed-delay' as const;
 export type RepeatWaitMode = typeof WAIT_MODE_SUBMIT_READY | typeof WAIT_MODE_FIXED_DELAY;
 
 interface RepeatState {
