@@ -38,5 +38,6 @@ ls .lovable/question-and-ambiguity/ | grep -oE '^[0-9]+' | sort -n | tail -1
 _(Append a bullet per new file: `- NN — title — recommendation taken/pending`.)_
 
 - See files in this folder for the full list (legacy entries were not back-indexed; new entries should be appended here).
+- 126 — chat-box Repeat selector + Next/Plan single-task append — recommendation pending (default: paste-then-submit cycle, last-picked prompt, panel-rendered Repeat selector 1..100).
 
 _Created 2026-06-02 — Batch A remediation step 9._

@@ -26,3 +26,8 @@ re-deriving it from chat history.
 | 06 | [06-logo-create.md](./prompts/06-logo-create.md) | Logo Create (Projects/ scaffold, SVG + raster + palette + favicon + README) | `create logo`, `make logo`, `logo`, `create icon`, `make icon`, `logo create` | active |
 | 07 | [07-proof-read.md](./prompts/07-proof-read.md) | Proofread / Rewrite (DO NOT ACT — rewrite only) | `proofread`, `proof read`, `rewrite`, `rewrite next`, `next` (in proofread mode) | active |
 | 08 | [08-bump-version.md](./prompts/08-bump-version.md) | Bump Version (minor bump + changelog + README pin) | `bump version`, `bump minor`, `pre-bump`, `version bump`, `release bump` | active |
+| 09 | [09-coding-guidelines.md](./prompts/09-coding-guidelines.md) | Coding Guidelines (verbatim, 15 rules) | `coding guidelines`, `read coding guidelines` | active |
+| 10 | [10-lowercase-readme-and-sequence.md](./prompts/10-lowercase-readme-and-sequence.md) | Lowercase Readme + `NN-kebab.md` Convention | `lowercase readme`, `sequence slugs`, `file naming convention` | active |
+| 11 | [11-explain-like-layman.md](./prompts/11-explain-like-layman.md) | Explain Like I'm a Layman (v1) | `explain like layman`, `explain like i'm five`, `eli5`, `eli-layman` | active |
+| 12 | [12-next-steps-v7.md](./prompts/12-next-steps-v7.md) | Next ${N} Steps (v7) — single-task append (Issue 126) | `next 1`, `next 2`, `next 3`, `next 4`, `next 5`, `next 8`, `next n steps`, `next n tasks` | active |
+| 13 | [13-plan-steps-v7.md](./prompts/13-plan-steps-v7.md) | Plan ${N} (v7) — Evidence Enforcement, single-task append (Issue 126) | `plan 5`, `plan 8`, `plan 10`, `plan 12`, `plan 15`, `plan 20`, `plan 25`, `plan 30`, `plan 35`, `plan 40`, `plan 45`, `plan 50`, `plan 100` | active |
