@@ -52,6 +52,9 @@ test('page stub exposes auth token and marco SDK surfaces required by the bundle
         'isUsableToken',
         'window.marco.api.credits',
         'fetchWorkspaces',
+        'fetchBalance',
+        '/workspaces/',
+        '/credit-balance',
         'window.marco.api.workspace',
         'markViewed',
     ]) {

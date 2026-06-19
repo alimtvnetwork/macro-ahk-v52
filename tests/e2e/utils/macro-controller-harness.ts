@@ -144,7 +144,10 @@ function buildPageStubSource(projectId: string): string {
         window.marco.auth = { getLastAuthDiag: () => ({ source: 'harness-localStorage', bridgeOutcome: 'skipped', durationMs: 0 }) };
         window.marco.prompts = { preWarm: () => Promise.resolve([]) };
         window.marco.api = window.marco.api || {};
-        window.marco.api.credits = { fetchWorkspaces: async ({ baseUrl }) => { const resp = await fetch(String(baseUrl || 'https://api.lovable.dev') + '/user/workspaces'); return { ok: resp.ok, status: resp.status, data: await resp.json(), headers: {} }; } };
+        window.marco.api.credits = {
+            fetchWorkspaces: async ({ baseUrl }) => { const resp = await fetch(String(baseUrl || 'https://api.lovable.dev') + '/user/workspaces'); return { ok: resp.ok, status: resp.status, data: await resp.json(), headers: {} }; },
+            fetchBalance: async (workspaceId, { baseUrl }) => { const resp = await fetch(String(baseUrl || 'https://api.lovable.dev') + '/workspaces/' + encodeURIComponent(workspaceId) + '/credit-balance'); return { ok: resp.ok, status: resp.status, data: await resp.json(), headers: {} }; },
+        };
         window.marco.api.workspace = { markViewed: () => Promise.resolve({ ok: true, status: 200, data: { workspace_id: 'ws-ktlo-001', project: { workspace_id: 'ws-ktlo-001', name: ${JSON.stringify(projectId)} } } }) };
     })();`;
 }
