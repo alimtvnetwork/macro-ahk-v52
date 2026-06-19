@@ -71,10 +71,12 @@ const IDB_NAME = "marco_prompts_cache";
 const IDB_VERSION = 1;
 const IDB_STORE = "prompts";
 const IDB_KEY = "prompt_cache";
+const CACHE_SCHEMA_VERSION = "3.72.0";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 
 interface CacheRecord {
     id: string;
+    schemaVersion?: string;
     entries: PromptEntry[];
     fetchedAt: number;
     hash: string;
@@ -118,7 +120,11 @@ function readCache(): Promise<CacheRecord | null> {
                     const req = store.get(IDB_KEY);
                     req.onsuccess = () => {
                         const record = req.result as CacheRecord | undefined;
-                        resolve(record?.entries?.length ? record : null);
+                        if (record?.schemaVersion !== CACHE_SCHEMA_VERSION) {
+                            resolve(null);
+                            return;
+                        }
+                        resolve(record.entries?.length ? record : null);
                     };
                     req.onerror = () => resolve(null);
                     tx.oncomplete = () => db.close();
@@ -138,7 +144,7 @@ function writeCache(entries: PromptEntry[]): Promise<void> {
                 try {
                     const tx = db.transaction(IDB_STORE, "readwrite");
                     const store = tx.objectStore(IDB_STORE);
-                    store.put({ id: IDB_KEY, entries, fetchedAt: Date.now(), hash });
+                    store.put({ id: IDB_KEY, schemaVersion: CACHE_SCHEMA_VERSION, entries, fetchedAt: Date.now(), hash });
                     tx.oncomplete = () => { db.close(); resolve(); };
                     tx.onerror = () => { db.close(); resolve(); };
                 } catch {
