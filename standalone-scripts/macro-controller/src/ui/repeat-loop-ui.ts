@@ -453,9 +453,14 @@ function renderControl(refs: ControlRefs): void {
 }
 
 function buildControl(opts: { compact: boolean }): HTMLElement {
+  // Outer host wraps both the collapsed pill and the expanded controls so
+  // a single mounted node can flip between the two without re-mounting.
+  const host = document.createElement('div');
+  host.style.cssText = 'display:inline-flex;align-items:stretch;width:100%;';
+
   const root = document.createElement('div');
   const pad = opts.compact ? '4px 6px' : '6px 8px';
-  root.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:' + pad + ';background:' + cSectionBg + ';border:1px solid rgba(124,58,237,0.25);border-radius:6px;font-family:system-ui,-apple-system,sans-serif;color:' + cPanelFg + ';font-size:11px;';
+  root.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:' + pad + ';background:' + cSectionBg + ';border:1px solid rgba(124,58,237,0.25);border-radius:6px;font-family:system-ui,-apple-system,sans-serif;color:' + cPanelFg + ';font-size:11px;flex:1;box-sizing:border-box;';
 
   const label = document.createElement('span');
   label.textContent = '🔁 Repeat';
@@ -482,17 +487,47 @@ function buildControl(opts: { compact: boolean }): HTMLElement {
   };
   root.appendChild(action);
 
+  // Collapse toggle — chevron pinned to the right edge.
+  const collapseBtn = document.createElement('button');
+  collapseBtn.type = 'button';
+  collapseBtn.title = 'Collapse repeat controls';
+  collapseBtn.style.cssText = 'margin-left:4px;padding:2px 6px;background:transparent;border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:11px;line-height:1;';
+  collapseBtn.textContent = '–';
+  collapseBtn.onclick = function () { toggleRepeatCollapsed(); };
+  root.appendChild(collapseBtn);
+
+  // Collapsed pill — tiny "🔁 N/M ▸" button that expands on click.
+  const pill = document.createElement('button');
+  pill.type = 'button';
+  pill.title = 'Expand repeat controls';
+  pill.style.cssText = 'display:none;align-items:center;gap:4px;padding:3px 8px;background:' + cSectionBg + ';border:1px solid rgba(124,58,237,0.3);border-radius:999px;color:' + cPrimaryLight + ';cursor:pointer;font:600 11px system-ui,-apple-system,sans-serif;flex:0 0 auto;';
+  pill.onclick = function () { toggleRepeatCollapsed(); };
+
+  host.appendChild(pill);
+  host.appendChild(root);
+
   const refs: ControlRefs = { input, modeSel: wait.modeSel, delayInput: wait.delayInput, action, progress };
-  const render = (): void => { renderControl(refs); };
+  const render = (): void => {
+    renderControl(refs);
+    const collapsed = repeatLoopState.collapsed;
+    root.style.display = collapsed ? 'none' : 'flex';
+    pill.style.display = collapsed ? 'inline-flex' : 'none';
+    if (collapsed) {
+      const status = repeatLoopState.running
+        ? '🔁 ' + repeatLoopState.completed + '/' + repeatLoopState.count
+        : '🔁 Repeat';
+      pill.textContent = status + ' ▸';
+    }
+  };
   render();
   repeatLoopState.subscribers.add(render);
   // Live ticker: phase boundaries call notify(), but the elapsed/countdown
   // seconds need to advance every tick while running.
   const tickId = setInterval(function () {
-    if (!document.body.contains(root)) { clearInterval(tickId); return; }
+    if (!document.body.contains(host)) { clearInterval(tickId); return; }
     if (repeatLoopState.running) render();
   }, 1000);
-  return root;
+  return host;
 }
 
 /** Macro-panel section (compact, sits in the panel body). */
