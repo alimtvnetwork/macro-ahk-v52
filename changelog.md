@@ -7,13 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
-## [v3.73.0] — 2026-06-19
+## [v3.73.0] — 2026-06-19 Plan prompt bundle + Task Next hard stop
 
 ### Added
+- **Plan Steps bundled prompt** — added `standalone-scripts/prompts/14-plan-steps/` from the canonical `.lovable/prompts/13-plan-steps-v7.md` mirror and regenerated bundled prompt JSON so the prompt dropdown includes the numbered Plan prompt source.
 
 ### Fixed
+- **Task Next repeated submissions** — saved settings can no longer turn off the one-shot guard. Task Next always clamps to one queued prompt; multi-run remains exclusive to the dedicated Repeat `▶ Start` control.
+- **Plan Task prompt body** — Plan presets now inject the v7 evidence-enforcement shape with exact step count, `.lovable/plans/pending/` lifecycle, no plan-approval tool, and single-task append semantics.
 
 ### Changed
+- **Prompt cache schema** — Macro Controller prompt cache schema moved to `5`, and the SDK prompt cache schema moved to `3.73.0` so stale prompt snapshots reload.
 - Version bump: 3.72.0 → 3.73.0 (all version files synced)
 
 ---
