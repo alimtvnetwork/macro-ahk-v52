@@ -209,7 +209,13 @@ function performVersionCheck(ctx: VersionCheckCtx): void {
   ctx.statusRow.textContent = 'Checking…';
   ctx.checkBtn.disabled = true;
 
-  sendToExtension('GET_SCRIPT_INFO', { scriptName: 'macroController' }).then(function(resp: ExtensionResponse) {
+  const resultPromise = sendToExtension('GET_SCRIPT_INFO', { scriptName: 'macroController' });
+  if (!resultPromise || typeof resultPromise.then !== 'function') {
+    ctx.checkBtn.disabled = false;
+    ctx.statusRow.textContent = '❌ Extension unavailable';
+    return;
+  }
+  resultPromise.then(function(resp: ExtensionResponse) {
     ctx.checkBtn.disabled = false;
 
     if (!resp || resp.isOk === false) {

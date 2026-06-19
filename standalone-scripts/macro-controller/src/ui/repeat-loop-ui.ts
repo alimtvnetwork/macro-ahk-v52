@@ -435,6 +435,7 @@ export function mountRepeatInlineStrip(): void {
   if (tryMountInline()) return;
   if (_inlineObserver) return;
   _inlineObserver = new MutationObserver(function () {
+    if (typeof document === 'undefined' || !document.body) return;
     if (!document.getElementById(INLINE_ID) && tryMountInline()) {
       // Keep observing — Lovable re-renders the chat shell on route changes
       // and we want to remount when it disappears.
