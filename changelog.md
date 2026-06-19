@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.70.0] — 2026-06-19 Banner hider matches "Final notice" + Repeat box collapses
+
+### Fixed
+- **Payment Banner Hider** — case-insensitive needle matching, scan from `document.documentElement` (instead of `body`), increased `TEXT_SCAN_MAX_NODES` from 2000 → 8000, dropped `MAIN`/`HEADER` from the skip-list and lifted `TEXT_MAX_LEN` to 1200 chars. The "Final notice. Your account will be reverted to the Free plan if payment isn't updated." banner now collapses reliably even when Lovable shifts its DOM around (XPaths miss → text fallback hits). Added `"payment isn't updated"` needle.
+
+### Added
+- **Repeat box collapse** — the floating "🔁 Repeat" controls now have a `–` chevron that collapses them to a tiny "🔁 N/M ▸" pill. Click the pill to expand. State is persisted across reloads (`marco-repeat-loop-prefs` schema v2). Both mount points (panel section + inline strip above chat) stay in sync.
+
+
+
 ## [v3.69.0] — 2026-06-19 Installer survives existing target folder
 
 ### Fixed
