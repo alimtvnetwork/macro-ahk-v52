@@ -275,41 +275,56 @@ export function fetchLoopCredits(
   isRetry?: boolean,
   autoDetectFn?: (token: string) => Promise<void>,
 ): void {
-  const token = resolveToken();
-  logCreditPreflight(token, isRetry);
+  // v3.61.0 — always force-refresh the bearer token before the FIRST attempt.
+  // Previously we used the cached/TTL token from resolveToken() and only
+  // refreshed AFTER a 401/403 came back — which meant the very first
+  // /user/workspaces call after extension boot or wake-up routinely failed
+  // (user complaint: "credits keep failing, please get a fresh bearer
+  // first"). On the retry path the caller already passed isRetry=true and
+  // refreshed via handleAuthRecovery, so we keep the cached read there.
+  const tokenPromise = isRetry
+    ? Promise.resolve(resolveToken())
+    : getBearerToken({ force: true }).catch(function (err: unknown) {
+        logError(LOG_SCOPE_CREDIT_FETCH, 'pre-flight getBearerToken({force}) failed', err);
+        return resolveToken();
+      });
 
-  apiFetchWorkspaces()
-    .then(async function (resp: SdkApiResponse): Promise<Record<string, unknown> | undefined> {
-      if (!resp.ok) {
-        if (isAuthFailure(resp.status) && !isRetry) {
-          const recovered = await handleAuthRecovery(token, resp.status, '');
-          if (!recovered) { mc().updateUI(); return undefined; }
-          fetchLoopCredits(true, autoDetectFn);
+  tokenPromise.then(function (token: string) {
+    logCreditPreflight(token, isRetry);
 
-          return undefined;
+    apiFetchWorkspaces()
+      .then(async function (resp: SdkApiResponse): Promise<Record<string, unknown> | undefined> {
+        if (!resp.ok) {
+          if (isAuthFailure(resp.status) && !isRetry) {
+            const recovered = await handleAuthRecovery(token, resp.status, '');
+            if (!recovered) { mc().updateUI(); return undefined; }
+            fetchLoopCredits(true, autoDetectFn);
+
+            return undefined;
+          }
+
+          handleNonAuthError(resp);
+          throw new Error('HTTP ' + resp.status);
         }
 
-        handleNonAuthError(resp);
-        throw new Error('HTTP ' + resp.status);
-      }
+        const data = resp.data as Record<string, unknown>;
+        logSub('Credit API: response received, data keys=' + Object.keys(data).join(','), 1);
 
-      const data = resp.data as Record<string, unknown>;
-      logSub('Credit API: response received, data keys=' + Object.keys(data).join(','), 1);
-
-      return data;
-    })
-    .then(async function (data: Record<string, unknown> | undefined) {
-      if (!data) return;
-      await processSuccessData(data, autoDetectFn);
-    })
-    .catch(function (err: Error) {
-      logError('Credit API failed', '' + err.message);
-      logSub('Token source: ' + getLastTokenSource(), 1);
-      logSub('isRetry: ' + (isRetry ? 'YES' : 'NO'), 1);
-      logSub('Hint: If 401/403, the token may be expired. Check extension bridge or re-login.', 1);
-      nsCallTyped('_internal.updateAuthDiag');
-      mc().updateUI();
-    });
+        return data;
+      })
+      .then(async function (data: Record<string, unknown> | undefined) {
+        if (!data) return;
+        await processSuccessData(data, autoDetectFn);
+      })
+      .catch(function (err: Error) {
+        logError('Credit API failed', '' + err.message);
+        logSub('Token source: ' + getLastTokenSource(), 1);
+        logSub('isRetry: ' + (isRetry ? 'YES' : 'NO'), 1);
+        logSub('Hint: If 401/403, the token may be expired. Check extension bridge or re-login.', 1);
+        nsCallTyped('_internal.updateAuthDiag');
+        mc().updateUI();
+      });
+  });
 }
 
 // ============================================
