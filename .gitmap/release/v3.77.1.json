@@ -1,0 +1,15 @@
+{
+  "version": "3.77.1",
+  "branch": "release/v3.77.1",
+  "sourceBranch": "main",
+  "commit": "6c30b84b4a8e5b64df748ab99a3af86928859dc6",
+  "tag": "v3.77.1",
+  "assets": [],
+  "changelog": [
+    "Version bump only — no functional changes. Re-pins manifest, `version.json`, `EXTENSION_VERSION`, every standalone-script `instruction.ts`, the SDK, and the readme install one-liners to `3.77.1`."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-19T21:56:28Z",
+  "isLatest": false
+}
