@@ -314,7 +314,6 @@ function doNextTask(ctx: TaskNextLoopCtx, index: number): void {
 export function runTaskNextLoop(deps: TaskNextDeps, count: number) {
   if (taskNextState.running) {
     log('Task Next: Already running', 'warn');
-
     return;
   }
 
@@ -323,27 +322,29 @@ export function runTaskNextLoop(deps: TaskNextDeps, count: number) {
   if (!prompt || !prompt.text) {
     logError('Task Next', '"Next Tasks" prompt not found — aborting');
     showPasteToast('❌ "Next Tasks" prompt not found', true);
-
     return;
   }
 
-  taskNextState.running = true;
-  taskNextState.cancelled = false;
-  const taskCount = resolveRequestedTaskCount(count);
+  // PASTE-ONLY behaviour (v3.74.0): the Next button (and any "Next N steps"
+  // preset) must only paste the prompt into the chat box. It must NOT click
+  // the submit button and must NOT loop / chain follow-up tasks. Repeated
+  // submissions belong exclusively to the Repeat `▶ Start` control.
+  const requested = Math.max(1, Math.floor(count) || 1);
+  if (requested > 1) {
+    log('Task Next: multi-run blocked; pasting once only. Use Repeat Start for repeats.', 'warn');
+  }
+
   const promptsCfg = deps.getPromptsConfig();
+  const outcome = pasteIntoEditor(prompt.text, promptsCfg, deps.getByXPath);
 
-  log('Task Next: Starting ' + taskCount + ' task(s)', 'info');
-  showPasteToast('⏭ Task Next: Starting ' + taskCount + ' task(s)…', false);
+  if (String(outcome) === 'failed') {
+    logError('Task Next', 'Failed to inject prompt');
+    showPasteToast('❌ Task Next: Injection failed', true);
+    return;
+  }
 
-  const ctx: TaskNextLoopCtx = {
-    count: taskCount,
-    completed: 0,
-    prompt,
-    promptsCfg,
-    deps,
-  };
-
-  doNextTask(ctx, 0);
+  log('Task Next: pasted prompt (no auto-submit)', 'info');
+  showPasteToast('⏭ Task Next: pasted — click Submit to send', false);
 }
 
 // Escape key cancel handler — call once at init
