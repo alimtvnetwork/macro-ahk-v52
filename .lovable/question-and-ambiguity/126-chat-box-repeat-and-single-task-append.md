@@ -236,3 +236,7 @@ User explicitly opened a one-shot question turn and chose:
 - **Empty chat box:** Start **anyway** — guard removed; logs a warning only.
 - **Payment-notice scope:** unchanged — payment-failure banners only (credit/upgrade modals stay visible).
 - **Persistence:** `chrome.storage.local` (falls back to `localStorage`) under key `marco-repeat-loop-prefs`. Persists `count`, `waitMode`, `delaySec` only. **Never** persists running state — loops never auto-resume after reload.
+
+### Correction (2026-06-19, same day)
+- **Empty-box guard:** kept (refuse + red toast). Previous "start anyway" reverted.
+- **Persistence:** switched from chrome.storage-with-fallback to plain synchronous `localStorage` because MAIN-world scripts can't see `chrome.storage`. Key `marco-repeat-loop-prefs`, schema `v:1`.
