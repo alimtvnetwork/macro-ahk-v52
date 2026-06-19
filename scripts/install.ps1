@@ -183,8 +183,29 @@ function Get-LatestVersion {
             $script:MainFallback = $true
             return $script:MarcoMainBranchSentinel
         }
+        # 5xx / transient network: try ONCE via the github.com redirect
+        # (different endpoint — not a retry of the same one, so the
+        # no-retry policy is preserved). github.com/<repo>/releases/latest
+        # 302→ /releases/tag/<vX.Y.Z>, which sidesteps api.github.com.
+        Write-Step "api.github.com returned $statusCode — falling back to $script:DownloadBase redirect..."
+        $fallbackUrl = "$script:DownloadBase/$Repo/releases/latest"
+        $loc = $null
+        try {
+            $r = Invoke-WebRequest -Uri $fallbackUrl -UseBasicParsing -MaximumRedirection 0 -ErrorAction Stop
+            $loc = $r.Headers['Location']
+        } catch {
+            if ($_.Exception.PSObject.Properties['Response'] -and $_.Exception.Response) {
+                try { $loc = $_.Exception.Response.Headers['Location'] } catch { $loc = $null }
+            }
+        }
+        if ($loc -and ($loc -match '/releases/tag/([^/?#]+)')) {
+            $tag = $matches[1]
+            Write-Step "Resolved $tag via $script:DownloadBase redirect."
+            return $tag
+        }
         Write-Err "Failed to fetch latest release: $_"
         Write-Err "Spec §2.3: discovery-mode API failure exits 5."
+        Write-Err "Hint: api.github.com is unreachable. Re-run with -Version vX.Y.Z to pin a specific release (e.g. -Version v3.66.0)."
         exit 5
     }
 }
