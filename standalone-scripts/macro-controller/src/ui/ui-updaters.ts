@@ -216,7 +216,7 @@ export function destroyPanel(): void {
   // captured dead managers).
   try {
     nsWrite('_internal.createUIWrapper', undefined as unknown as () => void);
-    nsWrite('_internal.createUIManager', undefined as unknown as () => unknown);
+    nsWrite('_internal.createUIManager', undefined as unknown as () => object);
   } catch (_e) { /* namespace may already be torn down — non-fatal */ }
 
   // Tear down the singleton so the next injection bootstraps a fresh one
