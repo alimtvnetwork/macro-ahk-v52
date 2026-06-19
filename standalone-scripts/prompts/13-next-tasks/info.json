@@ -1,14 +1,18 @@
 {
   "Id": "default-next-tasks",
-  "Title": "Next Tasks",
+  "Title": "Next ${N} steps",
   "Slug": "next-tasks",
-  "Version": "1.2.0",
+  "Version": "1.3.0",
   "Author": "marco",
   "Categories": [
-    "automation"
+    "next"
   ],
   "IsDefault": true,
   "Order": 13,
+  "IsDynamic": true,
+  "ReplaceKey": "N",
+  "ReplaceValues": ["1", "2", "3", "4", "5", "8"],
+  "SlugTemplate": "next-${N}-steps",
   "CreatedAt": "2026-03-21T00:00:00Z",
   "UpdatedAt": "2026-06-19T00:00:00Z"
 }
