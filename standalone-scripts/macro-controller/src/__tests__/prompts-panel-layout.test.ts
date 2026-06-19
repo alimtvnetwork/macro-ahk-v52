@@ -47,20 +47,20 @@ describe('Prompts panel — header layout', () => {
 
 describe('Prompts panel — prompt item rows', () => {
   it('prompt items are flex rows with consistent padding', () => {
-    const css = cssBlockFor("padding:6px 8px;cursor:pointer;font-size:10px");
+    const css = cssBlockFor("padding:3px 6px;cursor:pointer;font-size:10px");
     expect(css).toContain('display:flex');
     expect(css).toContain('align-items:center');
     expect(css).toContain('justify-content:space-between');
     expect(css).toContain('font-size:10px');
   });
 
-  it('numeric badge stays 16x16 with 8px font', () => {
-    const css = cssBlockFor('width:16px;height:16px');
+  it('numeric badge stays 14x14 with 8px font', () => {
+    const css = cssBlockFor('width:14px;height:14px');
     expect(css).toContain('display:inline-flex');
     expect(css).toContain('border-radius:3px');
     expect(css).toContain('font-size:8px');
     expect(css).toContain('flex-shrink:0');
-    expect(css).toContain('margin-right:6px');
+    expect(css).toContain('margin-right:5px');
   });
 
   it('name span flex-grows and truncates with ellipsis', () => {
