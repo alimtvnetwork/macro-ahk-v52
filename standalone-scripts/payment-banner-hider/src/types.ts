@@ -1,19 +1,13 @@
 /**
  * Payment Banner Hider — Shared types & constants.
- *
- * Extracted from index.ts so the class file stays focused on behaviour
- * and the state machine has a single source of truth (CQ3 — no magic
- * strings).
  */
 
-/** Lifecycle states of a matched banner element. */
 export enum BannerState {
     Fading = "fading",
     Hiding = "hiding",
     Done = "done",
 }
 
-/** DOM attribute used both for state tracking AND CSS scoping. */
 export const STATE_ATTR = "data-marco-banner-hider";
 
 /**
@@ -27,12 +21,9 @@ export interface BannerPattern {
 }
 
 /**
- * Known sticky billing banners. Add new entries here when Lovable ships
- * a new banner variant — no other code needs to change.
- *
- * 1. Legacy "Payment issue detected." banner (div[1] root).
- * 2. v3.59.0 — "Update payment method" / "Final notice" banner
- *    (div[1]/div root, sibling to the new header).
+ * Known sticky billing banners. New banner variants are added here; if
+ * none of the XPaths hit, the locator falls back to BANNER_TEXT_NEEDLES
+ * (text-only scan) so DOM-structure churn does not break collapse.
  */
 export const BANNER_PATTERNS: readonly BannerPattern[] = [
     {
@@ -49,14 +40,35 @@ export const BANNER_PATTERNS: readonly BannerPattern[] = [
     },
 ];
 
-/** Time after which the banner is fully collapsed and display:none-d. */
-export const REMOVE_DELAY_MS = 1000;
+/**
+ * Text-only fallback. When every XPath misses (Lovable shifted the DOM),
+ * the locator scans for the smallest element whose textContent contains
+ * one of these needles and uses that as the collapse target.
+ */
+export const BANNER_TEXT_NEEDLES: readonly string[] = [
+    "Payment issue detected.",
+    "Update payment method",
+    "Final notice",
+    "reverted to the Free plan",
+];
 
-/** Debounce window for MutationObserver-driven check() calls. */
+/** Cap the text-fallback scan so we don't pay for huge documents. */
+export const TEXT_SCAN_MAX_NODES = 2000;
+
+export const REMOVE_DELAY_MS = 1000;
 export const OBSERVER_DEBOUNCE_MS = 100;
 
-/** Public surface exposed on `window` for debugging. */
+/** Debug overlay match record — surfaced via window.PaymentBannerHider.debug(). */
+export interface BannerDebugMatch {
+    readonly source: "xpath" | "text-fallback" | "none";
+    readonly xpath: string | null;
+    readonly matchedText: string | null;
+    readonly collapseTargetCount: number;
+    readonly timestamp: number;
+}
+
 export interface PaymentBannerHiderApi {
     readonly version: string;
     check(): void;
+    debug(): BannerDebugMatch | null;
 }
