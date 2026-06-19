@@ -379,7 +379,8 @@ export function openTaskNextSettingsModal(deps: TaskNextDeps) {
     { key: 'retryCount', label: 'Retry count', type: 'number' },
     { key: 'retryDelayMs', label: 'Retry delay (ms)', type: 'number' },
     { key: 'buttonXPath', label: 'Button XPath', type: 'text' },
-    { key: 'promptSlug', label: 'Prompt slug', type: 'text' }
+    { key: 'promptSlug', label: 'Prompt slug', type: 'text' },
+    { key: 'requireStartForMultiRun', label: 'Next button runs once only', type: 'checkbox' },
   ];
 
   const inputs: Record<string, HTMLInputElement> = {};
