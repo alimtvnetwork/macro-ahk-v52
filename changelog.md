@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.74.1] — 2026-06-19 Lint fix: repeat-loop-ui buildControl
+
+### Fixed
+- **ESLint `max-lines-per-function`** in `standalone-scripts/macro-controller/src/ui/repeat-loop-ui.ts` — extracted `buildActionButton()` and `buildCollapseButton()` helpers out of `buildControl()` so it sits under the 60-line cap. No behaviour change.
+
+---
+
 ## [v3.74.0] — 2026-06-19 Dynamic prompt presets + Next button paste-only
 
 ### Fixed
