@@ -71,7 +71,7 @@ const IDB_NAME = "marco_prompts_cache";
 const IDB_VERSION = 1;
 const IDB_STORE = "prompts";
 const IDB_KEY = "prompt_cache";
-const CACHE_SCHEMA_VERSION = "3.72.0";
+const CACHE_SCHEMA_VERSION = "3.73.0";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 
 interface CacheRecord {

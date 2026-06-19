@@ -25,7 +25,7 @@ export const SEL_LOOP_WS_ITEM = '.loop-ws-item';
 
 export const LOG_MAX_ENTRIES = 500;
 export const WS_HISTORY_MAX_ENTRIES = 50;
-export const DB_PROMPTS_CACHE_VERSION = 4;
+export const DB_PROMPTS_CACHE_VERSION = 5;
 export const DB_PAGE_SIZE = 25;
 export const MAX_ACTIVITY_LINES = 100;
 
