@@ -227,3 +227,12 @@ User explicitly opened a one-shot question turn and chose:
   errors, no credit threshold. User wants full manual control.
 
 **Status:** RESOLVED — ready to implement. No further questions.
+
+---
+
+## Follow-up answers (2026-06-19)
+
+- **Wait between iterations:** dropdown — `auto (submit ready)` *(default)* OR `fixed delay`. When fixed: number input (1–3600s) + presets **5/8/12/15/20/30/60s** + free custom value.
+- **Empty chat box:** Start **anyway** — guard removed; logs a warning only.
+- **Payment-notice scope:** unchanged — payment-failure banners only (credit/upgrade modals stay visible).
+- **Persistence:** `chrome.storage.local` (falls back to `localStorage`) under key `marco-repeat-loop-prefs`. Persists `count`, `waitMode`, `delaySec` only. **Never** persists running state — loops never auto-resume after reload.

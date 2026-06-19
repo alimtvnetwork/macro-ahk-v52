@@ -15,11 +15,18 @@ import { findAddToTasksButton } from './task-next-ui';
 import { cPanelFg, cPrimary, cPrimaryLight, cSectionBg } from '../shared-state';
 
 const PRESETS = [1, 5, 10, 25, 50, 100] as const;
+const DELAY_PRESETS_SEC = [5, 8, 12, 15, 20, 30, 60] as const;
 const POLL_MS = 500;
 const MAX_WAIT_MS = 10 * 60 * 1000; // 10 min per submit
+const STORAGE_KEY = 'marco-repeat-loop-prefs';
+
+export type RepeatWaitMode = 'submit-ready' | 'fixed-delay';
 
 interface RepeatState {
   count: number;
+  waitMode: RepeatWaitMode;
+  /** Fixed delay between iterations, seconds (used when waitMode = 'fixed-delay'). */
+  delaySec: number;
   running: boolean;
   cancelled: boolean;
   completed: number;
@@ -30,12 +37,48 @@ interface RepeatState {
 
 export const repeatLoopState: RepeatState = {
   count: 10,
+  waitMode: 'submit-ready',
+  delaySec: 15,
   running: false,
   cancelled: false,
   completed: 0,
   capturedText: '',
   subscribers: new Set(),
 };
+
+// ── persistence (count + waitMode + delaySec only, never running state) ──
+function persist(): void {
+  try {
+    const payload = { count: repeatLoopState.count, waitMode: repeatLoopState.waitMode, delaySec: repeatLoopState.delaySec };
+    const cs = (globalThis as { chrome?: { storage?: { local?: { set?: (i: Record<string, unknown>) => void } } } }).chrome;
+    if (cs?.storage?.local?.set) {
+      cs.storage.local.set({ [STORAGE_KEY]: payload });
+    } else if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    }
+  } catch (e) { log('Repeat: persist failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
+}
+
+function hydrate(): void {
+  try {
+    const apply = (raw: unknown): void => {
+      if (!raw || typeof raw !== 'object') return;
+      const o = raw as { count?: unknown; waitMode?: unknown; delaySec?: unknown };
+      if (typeof o.count === 'number' && o.count >= 1) repeatLoopState.count = Math.min(1000, Math.floor(o.count));
+      if (o.waitMode === 'submit-ready' || o.waitMode === 'fixed-delay') repeatLoopState.waitMode = o.waitMode;
+      if (typeof o.delaySec === 'number' && o.delaySec >= 1) repeatLoopState.delaySec = Math.min(3600, Math.floor(o.delaySec));
+      notify();
+    };
+    const cs = (globalThis as { chrome?: { storage?: { local?: { get?: (k: string, cb: (r: Record<string, unknown>) => void) => void } } } }).chrome;
+    if (cs?.storage?.local?.get) {
+      cs.storage.local.get(STORAGE_KEY, function (result) { apply(result?.[STORAGE_KEY]); });
+    } else if (typeof localStorage !== 'undefined') {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) apply(JSON.parse(raw));
+    }
+  } catch (e) { log('Repeat: hydrate failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
+}
+hydrate();
 
 function notify(): void {
   for (const fn of repeatLoopState.subscribers) {
@@ -136,7 +179,16 @@ async function runRepeatLoopAsync(): Promise<void> {
     notify();
 
     if (repeatLoopState.completed >= repeatLoopState.count) break;
-    await waitForCompletion(MAX_WAIT_MS);
+    if (repeatLoopState.waitMode === 'fixed-delay') {
+      const ms = Math.max(1, repeatLoopState.delaySec) * 1000;
+      const until = Date.now() + ms;
+      while (Date.now() < until) {
+        if (repeatLoopState.cancelled) break;
+        await sleep(Math.min(POLL_MS, until - Date.now()));
+      }
+    } else {
+      await waitForCompletion(MAX_WAIT_MS);
+    }
   }
 
   const wasCancelled = repeatLoopState.cancelled;
@@ -158,10 +210,11 @@ export function startRepeatLoop(): void {
     log('Repeat: already running', 'warn');
     return;
   }
-  const text = readEditorText().trim();
-  if (!text) {
-    showPasteToast('❌ Repeat: chat box is empty — type or paste something first', true);
-    return;
+  // Per Ambiguity 126 follow-up (2026-06-19): empty chat box is allowed
+  // — user explicitly chose "start anyway". No guard.
+  const text = readEditorText();
+  if (!text.trim()) {
+    log('Repeat: starting with empty chat box (user-allowed)', 'warn');
   }
   const n = Math.max(1, Math.min(1000, Math.floor(repeatLoopState.count) || 1));
   repeatLoopState.count = n;
@@ -186,6 +239,20 @@ export function setRepeatCount(n: number): void {
   const v = Math.max(1, Math.min(1000, Math.floor(n) || 1));
   repeatLoopState.count = v;
   notify();
+  persist();
+}
+
+export function setRepeatWaitMode(mode: RepeatWaitMode): void {
+  repeatLoopState.waitMode = mode;
+  notify();
+  persist();
+}
+
+export function setRepeatDelaySec(sec: number): void {
+  const v = Math.max(1, Math.min(3600, Math.floor(sec) || 1));
+  repeatLoopState.delaySec = v;
+  notify();
+  persist();
 }
 
 // ─────────────────────────────────────────────
@@ -221,6 +288,39 @@ function buildControl(opts: { compact: boolean }): HTMLElement {
     root.appendChild(b);
   }
 
+  // ── wait-mode selector ──
+  const waitWrap = document.createElement('span');
+  waitWrap.style.cssText = 'display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:6px;border-left:1px solid rgba(124,58,237,0.25);';
+  const waitLabel = document.createElement('span');
+  waitLabel.textContent = 'wait';
+  waitLabel.style.cssText = 'font-size:10px;opacity:0.8;';
+  waitWrap.appendChild(waitLabel);
+  const modeSel = document.createElement('select');
+  modeSel.style.cssText = 'padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';font-size:10px;';
+  const optA = document.createElement('option'); optA.value = 'submit-ready'; optA.textContent = 'auto (submit ready)'; modeSel.appendChild(optA);
+  const optB = document.createElement('option'); optB.value = 'fixed-delay'; optB.textContent = 'fixed delay'; modeSel.appendChild(optB);
+  modeSel.value = repeatLoopState.waitMode;
+  modeSel.onchange = function () { setRepeatWaitMode(modeSel.value as RepeatWaitMode); };
+  waitWrap.appendChild(modeSel);
+
+  const delayInput = document.createElement('input');
+  delayInput.type = 'number'; delayInput.min = '1'; delayInput.max = '3600';
+  delayInput.value = String(repeatLoopState.delaySec);
+  delayInput.title = 'Fixed delay between iterations (seconds)';
+  delayInput.style.cssText = 'width:52px;padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';font-size:10px;';
+  delayInput.oninput = function () { setRepeatDelaySec(parseInt(delayInput.value, 10) || 1); };
+  waitWrap.appendChild(delayInput);
+  const sUnit = document.createElement('span'); sUnit.textContent = 's'; sUnit.style.cssText = 'font-size:10px;opacity:0.7;'; waitWrap.appendChild(sUnit);
+
+  for (const s of DELAY_PRESETS_SEC) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = s + 's'; b.title = 'Set fixed delay to ' + s + 's';
+    b.style.cssText = 'padding:1px 4px;background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.25);border-radius:3px;color:' + cPanelFg + ';cursor:pointer;font-size:9px;';
+    b.onclick = function () { setRepeatWaitMode('fixed-delay'); setRepeatDelaySec(s); };
+    waitWrap.appendChild(b);
+  }
+  root.appendChild(waitWrap);
+
   const progress = document.createElement('span');
   progress.style.cssText = 'font-size:10px;color:' + cPrimaryLight + ';margin-left:4px;min-width:42px;';
   root.appendChild(progress);
@@ -237,6 +337,11 @@ function buildControl(opts: { compact: boolean }): HTMLElement {
   function render(): void {
     input.value = String(repeatLoopState.count);
     input.disabled = repeatLoopState.running;
+    modeSel.value = repeatLoopState.waitMode;
+    modeSel.disabled = repeatLoopState.running;
+    delayInput.value = String(repeatLoopState.delaySec);
+    delayInput.disabled = repeatLoopState.running || repeatLoopState.waitMode !== 'fixed-delay';
+    delayInput.style.opacity = repeatLoopState.waitMode === 'fixed-delay' ? '1' : '0.45';
     if (repeatLoopState.running) {
       action.textContent = '⏹ Stop';
       action.style.background = '#dc2626';
