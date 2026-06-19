@@ -23,7 +23,7 @@ const instruction: ProjectInstruction<EmptySettings> = {
     SchemaVersion: "1.0",
     Name: "lovable-user-add",
     DisplayName: "Lovable User Add",
-    Version: "3.63.1",
+    Version: "3.63.2",
     Description: "Bulk-add Lovable workspace members from a CSV; promotes Owner rows via shared promoteToOwner.",
     World: InjectionWorld.Main,
     IsGlobal: false,
