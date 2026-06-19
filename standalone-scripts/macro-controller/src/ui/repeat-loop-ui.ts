@@ -239,6 +239,20 @@ export function setRepeatCount(n: number): void {
   const v = Math.max(1, Math.min(1000, Math.floor(n) || 1));
   repeatLoopState.count = v;
   notify();
+  persist();
+}
+
+export function setRepeatWaitMode(mode: RepeatWaitMode): void {
+  repeatLoopState.waitMode = mode;
+  notify();
+  persist();
+}
+
+export function setRepeatDelaySec(sec: number): void {
+  const v = Math.max(1, Math.min(3600, Math.floor(sec) || 1));
+  repeatLoopState.delaySec = v;
+  notify();
+  persist();
 }
 
 // ─────────────────────────────────────────────
