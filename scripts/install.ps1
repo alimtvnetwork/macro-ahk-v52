@@ -203,6 +203,22 @@ function Get-LatestVersion {
             Write-Step "Resolved $tag via $script:DownloadBase redirect."
             return $tag
         }
+        # Final fallback: raw.githubusercontent.com version.json on main.
+        # Served via a different CDN than api.github.com/github.com — survives
+        # most upstream API outages. Still a single attempt (no retry).
+        $rawUrl = "https://raw.githubusercontent.com/$Repo/main/version.json"
+        Write-Step "github.com redirect unavailable — trying $rawUrl..."
+        try {
+            $vresp = Invoke-WebRequest -Uri $rawUrl -UseBasicParsing -ErrorAction Stop
+            $vjson = $vresp.Content | ConvertFrom-Json -ErrorAction Stop
+            if ($vjson.PSObject.Properties['version'] -and $vjson.version) {
+                $tag = "v$($vjson.version)"
+                if (Test-VersionFormat $tag) {
+                    Write-Step "Resolved $tag via version.json."
+                    return $tag
+                }
+            }
+        } catch { }
         Write-Err "Failed to fetch latest release: $_"
         Write-Err "Spec §2.3: discovery-mode API failure exits 5."
         Write-Err "Hint: api.github.com is unreachable. Re-run with -Version vX.Y.Z to pin a specific release (e.g. -Version v3.66.0)."
