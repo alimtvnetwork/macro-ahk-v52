@@ -41,7 +41,7 @@ if (!fnMatch) {
     detail: 'Resolve-InstallDir function not found in scripts/install.ps1',
   });
 } else {
-  const body = fnMatch[1];
+  const body = fnMatch[1].split('\n').map(l => l.replace(/(^|[^`])#.*$/, '$1')).join('\n');
   if (!/Get-Location/.test(body)) {
     findings.push({
       rule: 'resolver-uses-cwd',
