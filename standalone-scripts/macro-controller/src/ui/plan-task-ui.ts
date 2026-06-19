@@ -11,7 +11,13 @@ import type { PromptContext } from './prompt-loader';
 import { getPromptsConfig } from './prompt-loader';
 import { getByXPath } from '../xpath-utils';
 
-const PLAN_TASK_STEP_COUNTS = [5, 10, 15, 20, 30, 40];
+// Plan sequence (v3.63.0): increasing-gap progression requested by user 2026-06-19.
+// 2,3,5,8,10,12,14,15,18,20,22,25,28,30,32,35,38,40,42,45,48,50,52,55,58,60,70,80,100,150,200
+const PLAN_TASK_STEP_COUNTS = [
+  2, 3, 5, 8, 10, 12, 14, 15, 18, 20,
+  22, 25, 28, 30, 32, 35, 38, 40, 42, 45,
+  48, 50, 52, 55, 58, 60, 70, 80, 100, 150, 200,
+];
 
 /** Build the canonical Plan Task prompt for N steps. */
 export function buildPlanTaskPrompt(n: number): string {
