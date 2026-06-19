@@ -1,24 +1,17 @@
 /**
  * Payment Banner Hider — Standalone Script
  *
- * Auto-injects on lovable.dev/* pages and hides the sticky "Payment
- * issue detected." banner via a CSS3 transition declared in
- * css/payment-banner-hider.css.
- *
- * Design (per 2026-04-24 RCA — Issue 98):
- *  - Single class entry point with injected BannerLocator dependency.
- *  - State machine driven by the BannerState enum (no magic strings).
- *  - All CSS lives in a sibling .css file referenced from instruction.ts.
- *  - Specificity comes from [data-marco-banner-hider]; no force-overrides.
- *  - Catches log via Logger.error and rethrow; nothing is swallowed.
- *  - No requestAnimationFrame — the CSS transition handles timing.
+ * Auto-injects on lovable.dev/* pages and hides the sticky billing
+ * banner via the CSS3 transition declared in css/payment-banner-hider.css.
  */
 
 import "./globals.d";
-import { BannerLocator } from "./banner-locator";
+import { BannerLocator, type LocateResult } from "./banner-locator";
 import { BannerLogFn } from "../../types/runtime/enums/banner";
 import { logPaymentBannerHiderError } from "./logger";
+import { renderDebugOverlay, hideDebugOverlay } from "./debug-overlay";
 import {
+    type BannerDebugMatch,
     BannerState,
     OBSERVER_DEBOUNCE_MS,
     REMOVE_DELAY_MS,
@@ -26,7 +19,7 @@ import {
     type PaymentBannerHiderApi,
 } from "./types";
 
-const VERSION = "3.63.1";
+const VERSION = "3.63.2";
 
 export class PaymentBannerHider implements PaymentBannerHiderApi {
     public readonly version = VERSION;
@@ -34,12 +27,13 @@ export class PaymentBannerHider implements PaymentBannerHiderApi {
     private readonly locator: BannerLocator;
     private observer: MutationObserver | null = null;
     private debounceTimer: number | null = null;
+    private lastMatch: BannerDebugMatch | null = null;
+    private overlayActive = false;
 
     public constructor(locator: BannerLocator = new BannerLocator()) {
         this.locator = locator;
     }
 
-    /** Boot the script: do an initial pass, then start the observer. */
     public start(): void {
         this.check();
 
@@ -48,61 +42,76 @@ export class PaymentBannerHider implements PaymentBannerHiderApi {
                 this.check();
                 this.startObserver();
             });
-
             return;
         }
 
         this.startObserver();
     }
 
-    /** Public single-pass entry — also exposed as window.PaymentBannerHider.check(). */
     public check(): void {
         try {
-            const target = this.locator.locate();
+            const hit = this.locator.locate();
 
-            if (target === null) {
+            if (hit === null) {
+                this.lastMatch = {
+                    source: "none",
+                    xpath: null,
+                    matchedText: null,
+                    collapseTargetCount: 0,
+                    timestamp: Date.now(),
+                };
+                if (this.overlayActive) renderDebugOverlay(this.lastMatch);
                 return;
             }
 
-            if (target.getAttribute(STATE_ATTR) !== null) {
-                return;
-            }
+            if (hit.element.getAttribute(STATE_ATTR) !== null) return;
 
-            this.hide(target);
+            this.hide(hit);
         } catch (caught) {
             this.logError(BannerLogFn.Check, "Detection pass failed", caught);
-
             throw caught;
         }
     }
 
-    /** Drive the banner through fading → hiding → done states. */
-    private hide(el: HTMLElement): void {
-        // Gap fix (v3.63.0): also collapse the banner's wrapper chain so
-        // the parent flex/grid `gap` does not leave an empty slot. We
-        // walk up at most 3 ancestors that contain ONLY the banner
-        // (single-child wrappers) and apply the same state attribute.
-        const targets = this.collectCollapseTargets(el);
+    /** Toggle the on-page debug overlay; returns the last match snapshot. */
+    public debug(): BannerDebugMatch | null {
+        this.overlayActive = !this.overlayActive;
+        if (this.overlayActive) {
+            renderDebugOverlay(this.lastMatch);
+        } else {
+            hideDebugOverlay();
+        }
+        return this.lastMatch;
+    }
+
+    private hide(hit: LocateResult): void {
+        const targets = this.collectCollapseTargets(hit.element);
+
+        this.lastMatch = {
+            source: hit.source,
+            xpath: hit.xpath,
+            matchedText: hit.matchedText,
+            collapseTargetCount: targets.length,
+            timestamp: Date.now(),
+        };
+        if (this.overlayActive) renderDebugOverlay(this.lastMatch);
+
         for (const t of targets) t.setAttribute(STATE_ATTR, BannerState.Fading);
 
-        // The class change above primes the CSS transition declared
-        // in css/payment-banner-hider.css; setting the next state in
-        // a microtask is enough — no requestAnimationFrame needed.
         queueMicrotask(() => {
             for (const t of targets) t.setAttribute(STATE_ATTR, BannerState.Hiding);
         });
 
         window.setTimeout(() => {
             for (const t of targets) t.setAttribute(STATE_ATTR, BannerState.Done);
-            // Banner is fully hidden; observer is no longer needed.
             this.stopObserver();
         }, REMOVE_DELAY_MS);
     }
 
     /**
-     * Walk up single-child wrapper elements so parent `gap` / padding
-     * does not leave a visible slot once the banner collapses. Stops at
-     * `main`, `body`, or any ancestor with more than one element child.
+     * Walk up single-child wrapper elements so parent `gap` / padding does
+     * not leave a visible slot once the banner collapses. Stops at `main`,
+     * `body`, or any ancestor with more than one element child.
      */
     private collectCollapseTargets(el: HTMLElement): HTMLElement[] {
         const out: HTMLElement[] = [el];
@@ -118,21 +127,12 @@ export class PaymentBannerHider implements PaymentBannerHiderApi {
         return out;
     }
 
-
-    /** Watch for SPA re-renders that re-introduce the banner. */
     private startObserver(): void {
-        if (this.observer !== null) {
-            return;
-        }
-
-        if (typeof MutationObserver === "undefined") {
-            return;
-        }
+        if (this.observer !== null) return;
+        if (typeof MutationObserver === "undefined") return;
 
         const root = document.body ?? document.documentElement;
-        this.observer = new MutationObserver(() => {
-            this.scheduleCheck();
-        });
+        this.observer = new MutationObserver(() => this.scheduleCheck());
         this.observer.observe(root, {
             childList: true,
             subtree: true,
@@ -140,32 +140,25 @@ export class PaymentBannerHider implements PaymentBannerHiderApi {
         });
     }
 
-    /** Disconnect the observer and clear any pending debounced check. */
     private stopObserver(): void {
         if (this.observer !== null) {
             this.observer.disconnect();
             this.observer = null;
         }
-
         if (this.debounceTimer !== null) {
             window.clearTimeout(this.debounceTimer);
             this.debounceTimer = null;
         }
     }
 
-    /** Coalesce burst mutations into a single check() call. */
     private scheduleCheck(): void {
-        if (this.debounceTimer !== null) {
-            return;
-        }
-
+        if (this.debounceTimer !== null) return;
         this.debounceTimer = window.setTimeout(() => {
             this.debounceTimer = null;
             this.check();
         }, OBSERVER_DEBOUNCE_MS);
     }
 
-    /** Logger.error if available, isolated fallback otherwise — never swallow. */
     private logError(fn: string, message: string, error: CaughtError): void {
         logPaymentBannerHiderError(fn, message, error);
     }
