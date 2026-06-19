@@ -1,14 +1,18 @@
 {
   "Id": "default-plan-steps",
-  "Title": "Plan Steps",
+  "Title": "Plan ${N}",
   "Slug": "plan-steps",
-  "Version": "1.0.0",
+  "Version": "1.1.0",
   "Author": "marco",
   "Categories": [
     "Plan"
   ],
   "IsDefault": true,
   "Order": 14,
+  "IsDynamic": true,
+  "ReplaceKey": "N",
+  "ReplaceValues": ["5", "8", "10", "12", "15", "20", "25", "30", "35", "40", "45", "50", "100"],
+  "SlugTemplate": "plan-${N}",
   "CreatedAt": "2026-06-19T00:00:00Z",
   "UpdatedAt": "2026-06-19T00:00:00Z"
 }
