@@ -26,4 +26,11 @@ describe('default prompt content', () => {
     expect(prompt).toContain('same turn');
     expect(prompt).toContain('flat numbered remaining-tasks list');
   });
+
+  it('repeat prompt clarifies that repeated submissions require Start', () => {
+    const prompt = readPrompt('standalone-scripts/prompts/13-next-tasks/prompt.md');
+
+    expect(prompt).toContain('Do one logical task at a time');
+    expect(prompt).toContain('repeated submissions require the dedicated Repeat `▶ Start` control');
+  });
 });

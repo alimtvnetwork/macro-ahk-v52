@@ -30,6 +30,7 @@ export interface CachedPromptEntry {
 /** Record shape for JSON copy in IndexedDB. */
 interface JsonCopyRecord {
   id: string;
+  schemaVersion?: string;
   entries: CachedPromptEntry[];
   fetchedAt: number;
   hash: string;
@@ -171,7 +172,7 @@ function logWriteError(storeName: string, e: unknown): void {
 /** Read the JSON copy of cached prompts. */
 export function readJsonCopy(): Promise<JsonCopyRecord | null> {
   return readRecord<JsonCopyRecord>(PromptCacheKey.Store, PromptCacheKey.JsonCopy).then(function(record) {
-    if (!record || !record.entries || record.entries.length === 0) {
+    if (!record || record.schemaVersion !== String(DB_VERSION) || !record.entries || record.entries.length === 0) {
       return null;
     }
     log('[PromptCache] JsonCopy read: ' + record.entries.length + ' entries', 'info');
@@ -187,6 +188,7 @@ export function writeJsonCopy(entries: CachedPromptEntry[]): Promise<void> {
 
   return writeRecord(PromptCacheKey.Store, {
     id: PromptCacheKey.JsonCopy,
+    schemaVersion: String(DB_VERSION),
     entries: entries,
     fetchedAt: Date.now(),
     hash: hash,

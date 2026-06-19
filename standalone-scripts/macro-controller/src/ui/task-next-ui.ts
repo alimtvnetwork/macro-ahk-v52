@@ -24,6 +24,7 @@ export interface TaskNextSettings {
   retryDelayMs: number;
   buttonXPath: string;
   promptSlug: string;
+  requireStartForMultiRun: boolean;
 }
 
 /** Concrete union of all setting value types — derived from TaskNextSettings */
@@ -41,7 +42,8 @@ export const taskNextState: {
     retryCount: 3,
     retryDelayMs: 1000,
     buttonXPath: '/html/body/div[3]/div/div[2]/main/div/div/div[1]/div/div[2]/div/form/div[2]/div/button[2]',
-    promptSlug: Label.NextTasks
+    promptSlug: Label.NextTasks,
+    requireStartForMultiRun: true,
   },
   running: false,
   cancelled: false,
@@ -232,6 +234,16 @@ function tryClickAndAdvance(ctx: ClickContext): void {
   setTimeout(function () { ctx.doNextTask(ctx.index + 1); }, taskNextState.settings.postClickDelayMs);
 }
 
+function resolveRequestedTaskCount(count: number): number {
+  const requested = Math.max(1, Math.floor(count) || 1);
+  if (taskNextState.settings.requireStartForMultiRun && requested > 1) {
+    log('Task Next: multi-run blocked; queuing one task only. Use Repeat Start for repeated submissions.', 'warn');
+    showPasteToast('⏭ Task Next: queued 1 only — use Repeat Start for repeats', false);
+    return 1;
+  }
+  return requested;
+}
+
 // CQ16: Extracted context for task next loop
 interface TaskNextLoopCtx {
   count: number;
@@ -315,13 +327,14 @@ export function runTaskNextLoop(deps: TaskNextDeps, count: number) {
 
   taskNextState.running = true;
   taskNextState.cancelled = false;
+  const taskCount = resolveRequestedTaskCount(count);
   const promptsCfg = deps.getPromptsConfig();
 
-  log('Task Next: Starting ' + count + ' tasks', 'info');
-  showPasteToast('⏭ Task Next: Starting ' + count + ' tasks…', false);
+  log('Task Next: Starting ' + taskCount + ' task(s)', 'info');
+  showPasteToast('⏭ Task Next: Starting ' + taskCount + ' task(s)…', false);
 
   const ctx: TaskNextLoopCtx = {
-    count,
+    count: taskCount,
     completed: 0,
     prompt,
     promptsCfg,
@@ -366,7 +379,8 @@ export function openTaskNextSettingsModal(deps: TaskNextDeps) {
     { key: 'retryCount', label: 'Retry count', type: 'number' },
     { key: 'retryDelayMs', label: 'Retry delay (ms)', type: 'number' },
     { key: 'buttonXPath', label: 'Button XPath', type: 'text' },
-    { key: 'promptSlug', label: 'Prompt slug', type: 'text' }
+    { key: 'promptSlug', label: 'Prompt slug', type: 'text' },
+    { key: 'requireStartForMultiRun', label: 'Next button runs once only', type: 'checkbox' },
   ];
 
   const inputs: Record<string, HTMLInputElement> = {};
@@ -379,7 +393,11 @@ export function openTaskNextSettingsModal(deps: TaskNextDeps) {
     row.appendChild(lbl);
     const inp = document.createElement('input');
     inp.type = field.type;
-    inp.value = String(taskNextState.settings[field.key]);
+    if (field.type === 'checkbox') {
+      inp.checked = taskNextState.settings[field.key] === true;
+    } else {
+      inp.value = String(taskNextState.settings[field.key]);
+    }
     inp.style.cssText = 'width:100%;padding:6px 8px;background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:6px;color:' + cPanelFg + ';font-size:11px;box-sizing:border-box;';
     row.appendChild(inp);
     modal.appendChild(row);
@@ -405,6 +423,7 @@ export function openTaskNextSettingsModal(deps: TaskNextDeps) {
     taskNextState.settings.retryDelayMs = parseInt(inputs.retryDelayMs.value) || 1000;
     taskNextState.settings.buttonXPath = inputs.buttonXPath.value || taskNextState.settings.buttonXPath;
     taskNextState.settings.promptSlug = inputs.promptSlug.value || Label.NextTasks;
+    taskNextState.settings.requireStartForMultiRun = inputs.requireStartForMultiRun.checked;
     saveTaskNextSettings(deps);
     overlay.remove();
     showPasteToast('✅ Task Next settings saved', false);
