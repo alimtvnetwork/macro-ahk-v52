@@ -11,9 +11,14 @@
  * Exit: 0 on success, 1 on first missing entry (fail-fast, no retry).
  */
 import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = process.cwd();
+// Resolve relative to the repo root (scripts/..), NOT process.cwd().
+// CI jobs sometimes invoke this from a sub-directory (e.g. chrome-extension/)
+// where `src/popup/popup.html` legitimately does not exist — but the source
+// entries always live at a fixed offset from this file.
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const REQUIRED_ENTRIES: ReadonlyArray<string> = [
     "manifest.json",
