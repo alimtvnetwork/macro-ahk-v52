@@ -1,5 +1,5 @@
 ---
-name: Canonical dropdown prompts registry (v3.59.x)
+name: Canonical dropdown prompts registry (v3.73.x)
 description: The 8 prompts shipped in the macro-controller prompt dropdown (vbx PROMPTS array). Maps category/slug to .lovable/prompts/*.md mirror file. Authoritative for trigger phrases.
 type: reference
 ---
@@ -17,7 +17,7 @@ Mirror (human-readable + AI-loadable): the `.lovable/prompts/*.md` files below. 
 | 4 | Memory | `read-memory` | Read Memory | no | `.lovable/prompts/05-read-memory.md` |
 | 5 | Memory | `write-memory` | Write Memory | no | `.lovable/prompts/03-write-memory.md` |
 | 6 | next | `next-steps` | Next ${N} steps | **yes** — `N ∈ {1,2,3,4,5,8}`, slugTemplate `next-${N}-steps` | `.lovable/prompts/12-next-steps-v7.md` |
-| 7 | Plan | `plan-steps` | Plan ${N} | **yes** — `N ∈ {5,8,10,12,15,20,25,30,35,40,45,50,100}`, slugTemplate `plan-${N}` | `.lovable/prompts/13-plan-steps-v7.md` |
+| 7 | Plan | `plan-steps` | Plan ${N} | **yes** — `N ∈ {2,3,5,8,10,12,14,15,18,20,22,25,28,30,32,35,38,40,42,45,48,50,52,55,58,60,70,80,100,150,200}`, slugTemplate `plan-${N}` | `.lovable/prompts/13-plan-steps-v7.md` mirrored into `standalone-scripts/prompts/14-plan-steps/` |
 | 8 | Proofread | `proofread` | Proofread | no | `.lovable/prompts/07-proof-read.md` |
 
 ## Sync rule
