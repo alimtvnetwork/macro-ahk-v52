@@ -1,0 +1,15 @@
+{
+  "version": "3.68.0",
+  "branch": "release/v3.68.0",
+  "sourceBranch": "main",
+  "commit": "59c800688d500f3b5fc290db2ac11fe441122116",
+  "tag": "v3.68.0",
+  "assets": [],
+  "changelog": [
+    "`scripts/install.ps1` `Resolve-InstallDir` now defaults to `\u003ccwd\u003e\\marco-extension` (using `Get-Location`) instead of `$HOME\\marco-extension`, so `irm … | iex` installs into the folder the user is actually in. Help text and `.PARAMETER` doc updated to match."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-19T21:01:12Z",
+  "isLatest": false
+}
