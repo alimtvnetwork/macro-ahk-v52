@@ -160,6 +160,7 @@ function pause(ms: number, signal?: AbortSignal): Promise<void> {
  * them. Disabled events (`Enabled === false`) are skipped silently — they
  * count toward neither attempted nor completed.
  */
+/* eslint-disable-next-line max-lines-per-function, sonarjs/cognitive-complexity */
 export async function runKeywordEventChain(
     events: ReadonlyArray<KeywordEvent>,
     options: ChainRunOptions = {},

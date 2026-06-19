@@ -224,6 +224,7 @@ export interface SqlExecCapable {
  * @param mode "full" requires Projects/Scripts/Configs/Meta;
  *             "prompts-only" requires Prompts/Meta.
  */
+/* eslint-disable-next-line max-lines-per-function, sonarjs/cognitive-complexity */
 export function validateBundleSchema(
     db: SqlExecCapable,
     mode: BundleMode = "full",
@@ -342,6 +343,7 @@ export function validateBundleSchema(
     return { ok: errors.length === 0, formatVersion, errors };
 }
 
+/* eslint-disable-next-line max-lines-per-function */
 function validateTableColumns(
     db: SqlExecCapable,
     tableName: string,

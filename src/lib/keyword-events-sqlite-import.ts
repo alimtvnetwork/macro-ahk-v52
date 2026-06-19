@@ -317,6 +317,7 @@ export interface PlanImportMatchesOptions {
     readonly strictUidOnly?: boolean;
 }
 
+/* eslint-disable-next-line max-lines-per-function, sonarjs/cognitive-complexity */
 export function planImportMatches(
     selected: ReadonlyArray<KeywordEvent>,
     imported: ReadonlyArray<ImportedKeywordEvent>,

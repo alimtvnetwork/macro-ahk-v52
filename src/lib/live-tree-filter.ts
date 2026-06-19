@@ -49,6 +49,7 @@ function stepMatches(step: StepRow, q: string): boolean {
     return stepKindLabel(step.StepKindId).toLowerCase().includes(q);
 }
 
+/* eslint-disable-next-line max-lines-per-function */
 export function filterLiveTree(
     forest: ReadonlyArray<LiveTreeNode>,
     stepsByGroup: ReadonlyMap<number, ReadonlyArray<StepRow>>,

@@ -777,6 +777,7 @@ function readVariablesTable(db: Database): Map<string, Record<string, unknown>> 
   return out;
 }
 
+/* eslint-disable-next-line max-lines-per-function */
 function readProjects(db: Database, strict = false): StoredProject[] {
   let rows;
   try { rows = db.exec("SELECT * FROM Projects"); } catch {

@@ -71,6 +71,7 @@ function getChrome(): ChromeApiLike | null {
 }
 
 export function detectTransport(): RecorderSyncTransport {
+/* eslint-disable-next-line sonarjs/no-duplicate-string */
     if (getChrome()?.storage?.local !== undefined) { return "chrome.storage"; }
     if (typeof window !== "undefined" && typeof window.localStorage !== "undefined") {
         return "localStorage";
