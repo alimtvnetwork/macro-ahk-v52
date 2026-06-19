@@ -131,3 +131,5 @@ Updated: just now
 - [Prompt Variables](mem://features/prompt-variables) — `{{ VarName }}` syntax + shared declaration shape + 5-tier resolution waterfall
 - [Macro-Prompts folder](mem://architecture/macro-prompts-folder) — `standalone-scripts/macro-prompts/` source-of-truth + 13-stage aggregator
 - [Chrome Extension CI/CD spec](mem://architecture/chrome-extension-ci-cd-spec) — 40-step generic Chrome-extension CI/CD spec in spec/2026-spec/02-ci-cd-spec-for-chrome-extensions; indexed by 12-cicd; never-commit-ZIP rule
+- [Repeat-loop chat submit (v3.59.0)](mem://features/macro-controller/repeat-loop-chat-submit) — Auto-submit MUST use `form#chat-input.requestSubmit()`; `btn.click()` is last-resort fallback only; centralised in `dispatchChatSubmit()`. Spec: `spec/22-app-issues/10-repeat-loop-chat-submit-form-requestsubmit.md`
+- [Payment banner multi-pattern (v3.59.0)](mem://features/payment-banner-hider) — `BANNER_PATTERNS[]` array replaces single XPath+text; new variants = one entry append. Spec: `spec/22-app-issues/11-payment-banner-multi-pattern-matcher.md`

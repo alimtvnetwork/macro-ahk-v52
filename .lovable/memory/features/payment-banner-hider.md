@@ -1,9 +1,22 @@
 ---
 name: Payment Banner Hider
-description: Auto-injected global script hiding the Lovable "Payment issue detected." banner — class-based, CSS-on-disk, post-RCA reference implementation
+description: Auto-injected global script hiding Lovable payment banners — multi-pattern (BANNER_PATTERNS[]) so new variants need only one entry
 type: feature
 ---
-# Payment Banner Hider (v2.230.0)
+# Payment Banner Hider (v3.59.0)
+
+## Multi-pattern matcher (v3.59.0)
+`src/types.ts` exports `BANNER_PATTERNS: BannerPattern[]`. Each entry has:
+- `xpath` — anchor element
+- `anyText[]` — banner matches if ANY string appears in `textContent`
+- `id` — diagnostic label
+
+Current entries:
+1. Legacy `/html/body/div[2]/main/div/div[1]` — `["Payment issue detected."]`
+2. v3.59 `/html/body/div[2]/main/div/div[1]/div` — `["Update payment method", "Final notice", "reverted to the Free plan"]`
+
+To support a new variant: append a `BannerPattern` to the array. Do NOT add new
+locator classes — `BannerLocator` iterates the array.
 
 Standalone-script project at `standalone-scripts/payment-banner-hider/` that
 auto-injects on `https://lovable.dev/*` and hides the sticky "Payment issue
