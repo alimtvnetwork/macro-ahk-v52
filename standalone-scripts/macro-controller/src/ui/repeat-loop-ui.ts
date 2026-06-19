@@ -46,6 +46,9 @@ export const repeatLoopState: RepeatState = {
   completed: 0,
   capturedText: '',
   subscribers: new Set(),
+  phase: 'idle',
+  phaseStartedAt: 0,
+  phaseDeadlineAt: 0,
 };
 
 // ── persistence (count + waitMode + delaySec only, never running state) ──
