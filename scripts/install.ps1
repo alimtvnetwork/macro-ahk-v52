@@ -895,30 +895,62 @@ function Remove-PathSafely {
 function Install-Extension([string]$zipPath, [string]$installDir) {
     Write-Step "Installing to $installDir..."
 
-    # Rename-then-replace pattern: if Chrome (or AV) has files in the
-    # current install dir locked, Remove-PathSafely renames it out of the
-    # way and schedules deletion for next reboot. The new extraction
-    # always lands in a fresh empty dir at the original path, so the
-    # re-install succeeds even with the extension actively loaded.
-    if (Test-Path -LiteralPath $installDir) {
-        Remove-PathSafely -Path $installDir -Reason "replace previous install at $installDir"
+    # Stage-then-swap pattern. Extract into a sibling staging dir first
+    # and only rotate the existing install out once we have a complete
+    # new copy on disk. This avoids the Windows PowerShell 5.1
+    # Expand-Archive bug where `-Force` does NOT overwrite pre-existing
+    # files inside the destination (throws "The file 'X' already
+    # exists.") — which is exactly what happens when the target folder
+    # already contains a previous install.
+    $parent = Split-Path -Parent $installDir
+    if ([string]::IsNullOrEmpty($parent)) { $parent = (Get-Location).Path }
+    if (-not (Test-Path -LiteralPath $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
     }
-    New-Item -ItemType Directory -Path $installDir -Force | Out-Null
-    Expand-Archive -Path $zipPath -DestinationPath $installDir -Force
+    $leaf = Split-Path -Leaf $installDir
+    $stagingDir = Join-Path $parent ".$leaf.staging-$script:MarcoRunId"
 
-    $fileCount = (Get-ChildItem -Path $installDir -File -Recurse | Measure-Object).Count
-    if ($fileCount -eq 0) {
-        Write-Err "Extraction produced no files in $installDir"
+    if (Test-Path -LiteralPath $stagingDir) {
+        Remove-PathSafely -Path $stagingDir -Reason "clear stale staging dir"
+    }
+    New-Item -ItemType Directory -Path $stagingDir -Force | Out-Null
+
+    try {
+        Expand-Archive -Path $zipPath -DestinationPath $stagingDir -Force -ErrorAction Stop
+    } catch {
+        Remove-PathSafely -Path $stagingDir -Reason "rollback failed extraction"
+        Write-Err "Failed to extract archive: $($_.Exception.Message)"
         exit 6
     }
 
-    $manifest = Join-Path $installDir "manifest.json"
-    if (-not (Test-Path $manifest)) {
-        $nested = Get-ChildItem -Path $installDir -Filter "manifest.json" -Recurse | Select-Object -First 1
+    $fileCount = (Get-ChildItem -Path $stagingDir -File -Recurse | Measure-Object).Count
+    if ($fileCount -eq 0) {
+        Remove-PathSafely -Path $stagingDir -Reason "rollback empty extraction"
+        Write-Err "Extraction produced no files in $stagingDir"
+        exit 6
+    }
+
+    $manifest = Join-Path $stagingDir "manifest.json"
+    if (-not (Test-Path -LiteralPath $manifest)) {
+        $nested = Get-ChildItem -Path $stagingDir -Filter "manifest.json" -Recurse | Select-Object -First 1
         if (-not $nested) {
+            Remove-PathSafely -Path $stagingDir -Reason "rollback corrupt archive"
             Write-Err "manifest.json not found — archive may be corrupted."
             exit 6
         }
+    }
+
+    if (Test-Path -LiteralPath $installDir) {
+        Remove-PathSafely -Path $installDir -Reason "replace previous install at $installDir"
+    }
+
+    try {
+        Move-Item -LiteralPath $stagingDir -Destination $installDir -Force -ErrorAction Stop
+    } catch {
+        Write-Note "Move-Item failed ($($_.Exception.Message)); falling back to copy."
+        New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+        Copy-Item -Path (Join-Path $stagingDir '*') -Destination $installDir -Recurse -Force
+        Remove-PathSafely -Path $stagingDir -Reason "cleanup after copy fallback"
     }
 
     Write-OK "Installed $fileCount files to $installDir"
