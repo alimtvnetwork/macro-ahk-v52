@@ -12,7 +12,8 @@
     "**CI lint errors (id-denylist)**: renamed restricted identifiers `el` → `element` / `editor` and `fn` → `subscriber` in `standalone-scripts/macro-controller/src/ui/payment-notice-removal.ts`, `standalone-scripts/macro-controller/src/ui/repeat-loop-ui.ts`, and `src/background/recorder/live-dom-replay.ts`.",
     "**Cognitive complexity / max-lines warnings**: split `runRepeatLoopAsync` into `submitOneIteration` + `waitBetweenIterations`; split `buildControl` into `buildCountInput` / `buildCountPresets` / `buildWaitControls` / `renderControl`; split `executeSwitchContext` (`standalone-scripts/macro-controller/src/ws-move.ts`) into `resolveSwitchToken` + `handleSwitchAuthFailure`.",
     "Extracted `WAIT_MODE_SUBMIT_READY` / `WAIT_MODE_FIXED_DELAY` constants to eliminate the `sonarjs/no-duplicate-string` warning.",
-    "Version bump: 3.56.0 → 3.57.0 (all version files synced)."
+    "Version bump: 3.56.0 → 3.57.0 (all version files synced).",
+    "Re-trigger release-watcher to rebuild + upload assets after CI lint/test fixes (vitest `repeat-loop-ui` MutationObserver `document`-undefined guard + `hot-reload-section` `sendToExtension` undefined-promise guard)."
   ],
   "isDraft": false,
   "isPreRelease": false,
