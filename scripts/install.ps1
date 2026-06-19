@@ -403,7 +403,7 @@ Conforms to spec/14-update/01-generic-installer-behavior.md.
 
 Options:
   -Version <ver>             Force vX.Y.Z[-pre] or 'latest'.
-  -InstallDir <path>         Target directory (default: \$HOME\marco-extension).
+  -InstallDir <path>         Target directory (default: <cwd>\marco-extension).
   -Repo <o/r>                GitHub owner/repo override.
   -DryRun                    Resolve plan, print, exit 0 without installing.
   -NoSiblingDiscovery        Disable §4 sibling-repo probing (overrides config).
