@@ -16,7 +16,7 @@
  * Exits with a clear PASS / FAIL log line — no silent swallowing.
  */
 
-import { BannerLocator } from "./banner-locator";
+import { BannerLocator, type LocateResult } from "./banner-locator";
 import { PaymentBannerHider } from "./index";
 import { BannerLogFn } from "../../types/runtime/enums/banner";
 import { logPaymentBannerHiderError } from "./logger";
@@ -35,8 +35,13 @@ class StubBannerLocator extends BannerLocator {
         super();
     }
 
-    public override locate(): HTMLElement | null {
-        return this.target;
+    public override locate(): LocateResult | null {
+        return {
+            element: this.target,
+            source: "xpath",
+            xpath: "stub",
+            matchedText: "Payment issue detected.",
+        };
     }
 }
 
