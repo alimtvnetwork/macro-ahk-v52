@@ -78,21 +78,46 @@ export class PaymentBannerHider implements PaymentBannerHiderApi {
 
     /** Drive the banner through fading → hiding → done states. */
     private hide(el: HTMLElement): void {
-        el.setAttribute(STATE_ATTR, BannerState.Fading);
+        // Gap fix (v3.63.0): also collapse the banner's wrapper chain so
+        // the parent flex/grid `gap` does not leave an empty slot. We
+        // walk up at most 3 ancestors that contain ONLY the banner
+        // (single-child wrappers) and apply the same state attribute.
+        const targets = this.collectCollapseTargets(el);
+        for (const t of targets) t.setAttribute(STATE_ATTR, BannerState.Fading);
 
         // The class change above primes the CSS transition declared
         // in css/payment-banner-hider.css; setting the next state in
         // a microtask is enough — no requestAnimationFrame needed.
         queueMicrotask(() => {
-            el.setAttribute(STATE_ATTR, BannerState.Hiding);
+            for (const t of targets) t.setAttribute(STATE_ATTR, BannerState.Hiding);
         });
 
         window.setTimeout(() => {
-            el.setAttribute(STATE_ATTR, BannerState.Done);
+            for (const t of targets) t.setAttribute(STATE_ATTR, BannerState.Done);
             // Banner is fully hidden; observer is no longer needed.
             this.stopObserver();
         }, REMOVE_DELAY_MS);
     }
+
+    /**
+     * Walk up single-child wrapper elements so parent `gap` / padding
+     * does not leave a visible slot once the banner collapses. Stops at
+     * `main`, `body`, or any ancestor with more than one element child.
+     */
+    private collectCollapseTargets(el: HTMLElement): HTMLElement[] {
+        const out: HTMLElement[] = [el];
+        let cur: HTMLElement | null = el;
+        for (let i = 0; i < 3; i++) {
+            const parent = cur.parentElement;
+            if (parent === null) break;
+            if (parent.tagName === "MAIN" || parent.tagName === "BODY") break;
+            if (parent.childElementCount !== 1) break;
+            out.push(parent);
+            cur = parent;
+        }
+        return out;
+    }
+
 
     /** Watch for SPA re-renders that re-introduce the banner. */
     private startObserver(): void {
