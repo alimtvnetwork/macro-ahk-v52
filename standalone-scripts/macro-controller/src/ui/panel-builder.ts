@@ -48,6 +48,7 @@ import {
   registerKeyboardHandlers,
 } from './panel-sections';
 import { startRedockObserver } from './redock-observer';
+import { buildRepeatPanelSection, mountRepeatInlineStrip } from './repeat-loop-ui';
 import { createSummaryBar, type SummaryBarHandle } from './summary-bar/component';
 import { computeDashboardSummary, computeSummaryDetails, type DisplayKindResolver } from './summary-bar';
 import { subscribeVisibleWorkspaces } from '../visible-workspaces-store';
