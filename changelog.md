@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.69.0] — 2026-06-19 Installer survives existing target folder
+
+### Fixed
+- `scripts/install.ps1` `Install-Extension` now extracts into a sibling `.<leaf>.staging-<runId>` directory and then swaps it into place, instead of `Expand-Archive`-ing directly over the existing folder. This works around the Windows PowerShell 5.1 bug where `Expand-Archive -Force` does **not** overwrite pre-existing files (throws `"The file 'X' already exists."`), which crashed the installer whenever the target `marco-extension` folder already contained a previous install. On extraction failure, the staging dir is rolled back so the previous install is left untouched.
+
 ## [v3.68.0] — 2026-06-19 Installer defaults to current working directory
 
 ### Changed
