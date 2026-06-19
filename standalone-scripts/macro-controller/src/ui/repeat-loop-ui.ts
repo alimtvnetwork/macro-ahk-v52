@@ -452,6 +452,27 @@ function renderControl(refs: ControlRefs): void {
   }
 }
 
+function buildActionButton(): HTMLButtonElement {
+  const action = document.createElement('button');
+  action.type = 'button';
+  action.style.cssText = 'padding:4px 12px;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;color:#fff;background:' + cPrimary + ';margin-left:auto;';
+  action.onclick = function () {
+    if (repeatLoopState.running) stopRepeatLoop();
+    else startRepeatLoop();
+  };
+  return action;
+}
+
+function buildCollapseButton(): HTMLButtonElement {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.title = 'Collapse repeat controls';
+  btn.style.cssText = 'margin-left:4px;padding:2px 6px;background:transparent;border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:11px;line-height:1;';
+  btn.textContent = '–';
+  btn.onclick = function () { toggleRepeatCollapsed(); };
+  return btn;
+}
+
 function buildControl(opts: { compact: boolean }): HTMLElement {
   // Outer host wraps both the collapsed pill and the expanded controls so
   // a single mounted node can flip between the two without re-mounting.
