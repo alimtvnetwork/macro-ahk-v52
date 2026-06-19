@@ -9,12 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ## [v3.65.0] — 2026-06-19
 
-### Added
+### Changed
+- Version bump: 3.64.0 → 3.65.0 (minor; all version files synced and pinned in root readme)
 
-### Fixed
+---
+
+## [v3.64.0] — 2026-06-19
 
 ### Changed
-- Version bump: 3.63.2 → 3.65.0 (all version files synced)
+- Version bump: 3.63.2 → 3.64.0 (all version files synced)
 
 ---
 
