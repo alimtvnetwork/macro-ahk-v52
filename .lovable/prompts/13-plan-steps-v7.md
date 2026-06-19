@@ -2,7 +2,7 @@
 
 > **Version:** 7.0 (verbatim capture from user, 2026-06-19)
 > **Category:** `Plan` (dynamic — `N` is parsed from the prompt header)
-> **Trigger phrases:** `plan 5`, `plan 8`, `plan 10`, `plan 12`, `plan 15`, `plan 20`, `plan 25`, `plan 30`, `plan 35`, `plan 40`, `plan 45`, `plan 50`, `plan 100`
+> **Trigger phrases (v3.63.0 sequence):** `plan 2`, `plan 3`, `plan 5`, `plan 8`, `plan 10`, `plan 12`, `plan 14`, `plan 15`, `plan 18`, `plan 20`, `plan 22`, `plan 25`, `plan 28`, `plan 30`, `plan 32`, `plan 35`, `plan 38`, `plan 40`, `plan 42`, `plan 45`, `plan 48`, `plan 50`, `plan 52`, `plan 55`, `plan 58`, `plan 60`, `plan 70`, `plan 80`, `plan 100`, `plan 150`, `plan 200`
 > **Slug template:** `plan-${N}`
 
 > **Sequence notation:** `XX` means a zero-padded 2-digit sequence
