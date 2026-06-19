@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.58.0] — 2026-06-19 Test-Env Hardening for Hot-Reload Version Check
+
+### Fixed
+- **Vitest unhandled exception** in `panel-builder.test.ts`: `performVersionCheck` (`standalone-scripts/macro-controller/src/ui/hot-reload-section.ts`) called `sendToExtension(...).then(...)` directly. In the jsdom environment `sendToExtension` can return `undefined` or throw synchronously, and the call was scheduled via `setTimeout(checkVersion, 500)` so the failure surfaced after test teardown. Wrapped the call in `try/catch`, guarded the result with `typeof resultPromise.then !== 'function'` (sets `❌ Extension unavailable` and returns), and chained `.catch()` to convert any async rejection into a `❌ Check failed` status. Eliminates the `TypeError: Cannot read properties of undefined (reading 'then')` uncaught exception in CI.
+- **Repeat-loop `MutationObserver`** (`standalone-scripts/macro-controller/src/ui/repeat-loop-ui.ts`): callback now guards `typeof document === 'undefined' || !document.body` before touching the DOM, preventing the `ReferenceError: document is not defined` log noise during jsdom teardown.
+- **Release-watcher re-trigger**: bumped `.gitmap/release/v3.57.0.json` so the watcher rebuilds and uploads the missing release assets (resolves `Audit Releases` failure: *"Release v3.57.0 has NO uploaded assets"*).
+
+### Version
+- Bumped 3.57.0 → 3.58.0 across `manifest.json`, `package.json`, `src/shared/constants.ts`, `standalone-scripts/macro-controller/src/shared-state.ts`, and every `standalone-scripts/*/src/instruction.ts` (verified by `node scripts/check-version-sync.mjs` → `✅ All versions in sync: 3.58.0`).
+
+---
+
 ## [v3.57.0] — 2026-06-19 Repeat Loop + Payment Notice Removal + Lint Cleanup
 
 ### Added
