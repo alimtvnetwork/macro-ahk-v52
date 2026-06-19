@@ -363,6 +363,7 @@ export function fetchLoopCreditsAsync(isRetry?: boolean): Promise<void> {
 }
 
 // CQ4: Extracted — resolve token with TTL-aware getBearerToken
+// v3.61.0 — first attempt also forces refresh (was: cached). See fetchLoopCredits comment.
 async function resolveTokenWithRecovery(isRetry?: boolean): Promise<string> {
   if (isRetry) {
     log(LOG_PREFIX + 'retry — forcing token refresh', 'check');
@@ -370,7 +371,7 @@ async function resolveTokenWithRecovery(isRetry?: boolean): Promise<string> {
     return getBearerToken({ force: true });
   }
 
-  return getBearerToken();
+  return getBearerToken({ force: true });
 }
 
 // CQ4: Extracted — handle auth failure in async path
