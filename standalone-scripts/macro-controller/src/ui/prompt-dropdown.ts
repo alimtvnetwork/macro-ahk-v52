@@ -886,11 +886,13 @@ function _buildTaskNextMenuShell(promptsDropdown: HTMLElement): { taskNextItem: 
   const taskNextItem = document.createElement('div');
   taskNextItem.style.cssText = 'border-bottom:1px solid rgba(124,58,237,0.3);';
   const taskNextRow = document.createElement('div');
-  taskNextRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:6px 8px;cursor:pointer;font-size:11px;color:' + cPrimaryLight + ';font-weight:600;';
-  taskNextRow.textContent = '⏭ Task Next';
+  taskNextRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:5px 8px;cursor:pointer;font-size:11px;color:#e9d5ff;font-weight:700;background:rgba(124,58,237,0.18);';
+  const taskNextLabel = document.createElement('span');
+  taskNextLabel.textContent = '⏭ Task Next';
+  taskNextRow.appendChild(taskNextLabel);
   const taskNextArrow = document.createElement('span');
   taskNextArrow.textContent = '▸';
-  taskNextArrow.style.cssText = 'font-size:10px;margin-left:4px;';
+  taskNextArrow.style.cssText = 'font-size:11px;margin-left:4px;color:#e9d5ff;';
   taskNextRow.appendChild(taskNextArrow);
 
   const taskNextSub = document.createElement('div');
