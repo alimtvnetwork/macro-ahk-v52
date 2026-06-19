@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.72.0] — 2026-06-19 Prompt cache invalidation + Next runs once by default
+
+### Fixed
+- **Prompts still showing stale text** — both prompt caches now carry explicit schema versions. The Macro Controller IndexedDB prompt cache moved to schema `4`, and the Marco SDK prompt cache now rejects records that are not stamped with `3.72.0`, forcing updated bundled prompts to reload instead of serving old cached entries.
+- **Task Next auto-repeat** — Task Next now clamps multi-count requests to one task by default. The multi-submit repeat flow only runs from the dedicated Repeat `▶ Start` control; clicking a Next preset cannot silently continue submitting multiple tasks.
+
+### Changed
+- **SDK version surface** — Marco SDK runtime version strings now match the extension release so prompt-cache schema changes are visible in runtime diagnostics.
+
+
 ## [v3.71.0] — 2026-06-19 Default prompts updated for release and next-task behavior
 
 ### Changed
