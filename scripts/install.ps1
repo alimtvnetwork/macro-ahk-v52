@@ -28,7 +28,7 @@
   Pass `latest` to force the API fallback even when a URL pin is present.
 
 .PARAMETER InstallDir
-  Target directory. Default: $HOME\marco-extension
+  Target directory. Default: <cwd>\marco-extension
 
 .PARAMETER Repo
   GitHub owner/repo. Default: alimtvnetwork/macro-ahk-v50
