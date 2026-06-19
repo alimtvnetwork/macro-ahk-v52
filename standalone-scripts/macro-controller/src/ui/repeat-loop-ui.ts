@@ -35,7 +35,7 @@ interface RepeatState {
   cancelled: boolean;
   completed: number;
   capturedText: string;
-  /** Mounted controls subscribed to state changes (count/running/completed). */
+  /** Mounted controls subscribed to state changes (count/running/completed/collapsed). */
   subscribers: Set<() => void>;
   /** Current iteration phase — drives the live timer label. */
   phase: RepeatPhase;
@@ -43,6 +43,8 @@ interface RepeatState {
   phaseStartedAt: number;
   /** ms epoch when current phase is expected to end (0 = unknown / open-ended). */
   phaseDeadlineAt: number;
+  /** When true, controls render as a tiny chevron-only pill. Persisted. */
+  collapsed: boolean;
 }
 
 export const repeatLoopState: RepeatState = {
@@ -57,6 +59,7 @@ export const repeatLoopState: RepeatState = {
   phase: 'idle',
   phaseStartedAt: 0,
   phaseDeadlineAt: 0,
+  collapsed: false,
 };
 
 // ── persistence (count + waitMode + delaySec only, never running state) ──
