@@ -114,18 +114,18 @@ function setEditorText(text: string): boolean {
   }
 
   // contenteditable
-  const el = target as HTMLElement;
-  el.focus();
+  const editor = target as HTMLElement;
+  editor.focus();
   const sel = window.getSelection();
   if (sel) {
     const range = document.createRange();
-    range.selectNodeContents(el);
+    range.selectNodeContents(editor);
     sel.removeAllRanges();
     sel.addRange(range);
   }
   document.execCommand('delete', false);
   const ok = document.execCommand('insertText', false, text);
-  el.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: text }));
+  editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: text }));
   return ok;
 }
 
