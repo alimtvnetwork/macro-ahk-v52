@@ -19,6 +19,7 @@ Set-Variable -Scope Script -Option ReadOnly -Force -Name 'MarcoExitBadVersionArg
 Set-Variable -Scope Script -Option ReadOnly -Force -Name 'MarcoExitMissingArtifact' -Value 4  # §8.1
 Set-Variable -Scope Script -Option ReadOnly -Force -Name 'MarcoExitNetworkOrTooling' -Value 5  # §8.1
 Set-Variable -Scope Script -Option ReadOnly -Force -Name 'MarcoExitInvalidArchive' -Value 6  # §8.1
+Set-Variable -Scope Script -Option ReadOnly -Force -Name 'MarcoExitUncaughtCrash' -Value 9  # §8.1
 
 # Checksums
 $script:MarcoChecksumsFile = 'checksums.txt'

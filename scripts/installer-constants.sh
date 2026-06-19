@@ -23,6 +23,7 @@ readonly MARCO_EXIT_BAD_VERSION_ARG=3  # §8.1: --version / -Version did not mat
 readonly MARCO_EXIT_MISSING_ARTIFACT=4  # §8.1: Strict mode: the requested release exists but the asset (zip) is not attached.
 readonly MARCO_EXIT_NETWORK_OR_TOOLING=5  # §8.1: API unreachable, curl/Invoke-WebRequest failed, or required tooling missing.
 readonly MARCO_EXIT_INVALID_ARCHIVE=6  # §8.1: Checksum mismatch, corrupt zip/tar, or unzip failure.
+readonly MARCO_EXIT_UNCAUGHT_CRASH=9  # §8.1: Uncaught exception in the installer — full crash log written to %TEMP%/MARCO-installer-crash.log and printed to stderr before exit.
 
 # Checksums
 MARCO_CHECKSUMS_FILE="checksums.txt"
