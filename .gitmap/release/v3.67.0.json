@@ -1,0 +1,15 @@
+{
+  "version": "3.67.0",
+  "branch": "release/v3.67.0",
+  "sourceBranch": "main",
+  "commit": "09914d8cfa23c69c2031a8f9807240eccc447b47",
+  "tag": "v3.67.0",
+  "assets": [],
+  "changelog": [
+    "`scripts/installer-contract.json` now declares exit code `9` (`uncaught_crash`, spec §8.1) so `check-installer-contract.mjs` no longer flags `scripts/install.ps1:1299` as drift. Regenerated `installer-constants.{sh,ps1}`."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-19T20:26:18Z",
+  "isLatest": false
+}
