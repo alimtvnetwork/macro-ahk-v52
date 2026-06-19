@@ -17,8 +17,8 @@ import {
 } from "./types";
 
 const XPATH_RESULT_FIRST_ORDERED_NODE_TYPE = 9;
-const TEXT_MAX_LEN = 600;
-const SKIP_TAGS = new Set(["HTML", "BODY", "MAIN", "HEADER"]);
+const TEXT_MAX_LEN = 1200;
+const SKIP_TAGS = new Set(["HTML", "BODY", "SCRIPT", "STYLE", "NOSCRIPT"]);
 
 export interface LocateResult {
     readonly element: HTMLElement;
