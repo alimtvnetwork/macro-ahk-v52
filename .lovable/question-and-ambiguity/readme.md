@@ -41,3 +41,4 @@ _(Append a bullet per new file: `- NN — title — recommendation taken/pending
 - 126 — chat-box Repeat selector + Next/Plan single-task append — recommendation pending (default: paste-then-submit cycle, last-picked prompt, panel-rendered Repeat selector 1..100).
 
 _Created 2026-06-02 — Batch A remediation step 9._
+- 62 — repeat-box collapse + prompts UI compaction + plan-section prompts (deferred from v3.59.0) — recommendation: ship as v3.60.0 "Repeat-box + Prompts UI polish".
