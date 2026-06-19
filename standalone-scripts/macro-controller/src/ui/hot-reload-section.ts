@@ -209,7 +209,12 @@ function performVersionCheck(ctx: VersionCheckCtx): void {
   ctx.statusRow.textContent = 'Checking…';
   ctx.checkBtn.disabled = true;
 
-  const resultPromise = sendToExtension('GET_SCRIPT_INFO', { scriptName: 'macroController' });
+  let resultPromise: Promise<ExtensionResponse> | undefined;
+  try {
+    resultPromise = sendToExtension('GET_SCRIPT_INFO', { scriptName: 'macroController' }) as Promise<ExtensionResponse> | undefined;
+  } catch {
+    resultPromise = undefined;
+  }
   if (!resultPromise || typeof resultPromise.then !== 'function') {
     ctx.checkBtn.disabled = false;
     ctx.statusRow.textContent = '❌ Extension unavailable';
@@ -240,6 +245,9 @@ function performVersionCheck(ctx: VersionCheckCtx): void {
       ctx.availVal.style.color = cPrimaryLight;
       if (ctx.onVersionMismatch) { ctx.onVersionMismatch(ctx.availableVersion); }
     }
+  }).catch(function() {
+    ctx.checkBtn.disabled = false;
+    ctx.statusRow.textContent = '❌ Check failed';
   });
 }
 
