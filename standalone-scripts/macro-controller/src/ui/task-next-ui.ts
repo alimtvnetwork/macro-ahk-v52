@@ -234,6 +234,16 @@ function tryClickAndAdvance(ctx: ClickContext): void {
   setTimeout(function () { ctx.doNextTask(ctx.index + 1); }, taskNextState.settings.postClickDelayMs);
 }
 
+function resolveRequestedTaskCount(count: number): number {
+  const requested = Math.max(1, Math.floor(count) || 1);
+  if (taskNextState.settings.requireStartForMultiRun && requested > 1) {
+    log('Task Next: multi-run blocked; queuing one task only. Use Repeat Start for repeated submissions.', 'warn');
+    showPasteToast('⏭ Task Next: queued 1 only — use Repeat Start for repeats', false);
+    return 1;
+  }
+  return requested;
+}
+
 // CQ16: Extracted context for task next loop
 interface TaskNextLoopCtx {
   count: number;
