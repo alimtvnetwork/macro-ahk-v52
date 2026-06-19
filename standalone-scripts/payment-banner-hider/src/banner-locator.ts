@@ -17,6 +17,8 @@ import {
 } from "./types";
 
 const XPATH_RESULT_FIRST_ORDERED_NODE_TYPE = 9;
+const TEXT_MAX_LEN = 600;
+const SKIP_TAGS = new Set(["HTML", "BODY", "MAIN", "HEADER"]);
 
 export interface LocateResult {
     readonly element: HTMLElement;
@@ -31,7 +33,7 @@ function isHtmlElement(node: Node | null): node is HTMLElement {
     return node instanceof HTMLElement;
 }
 
-function tryPattern(pattern: BannerPattern): { el: HTMLElement; text: string } | null {
+function tryPattern(pattern: BannerPattern): { element: HTMLElement; text: string } | null {
     const result = document.evaluate(
         pattern.xpath,
         document,
@@ -44,9 +46,32 @@ function tryPattern(pattern: BannerPattern): { el: HTMLElement; text: string } |
 
     const text = node.textContent ?? "";
     for (const needle of pattern.anyText) {
-        if (text.includes(needle)) return { el: node, text: needle };
+        if (text.includes(needle)) return { element: node, text: needle };
     }
     return null;
+}
+
+function matchNeedle(text: string): string | null {
+    for (const needle of BANNER_TEXT_NEEDLES) {
+        if (text.includes(needle)) return needle;
+    }
+    return null;
+}
+
+function considerNode(
+    node: HTMLElement,
+    best: { element: HTMLElement; text: string; size: number } | null,
+): { element: HTMLElement; text: string; size: number } | null {
+    if (SKIP_TAGS.has(node.tagName)) return best;
+    const text = node.textContent ?? "";
+    if (text.length === 0 || text.length >= TEXT_MAX_LEN) return best;
+    const needle = matchNeedle(text);
+    if (needle === null) return best;
+    const size = node.getElementsByTagName("*").length;
+    if (best === null || size < best.size) {
+        return { element: node, text: needle, size };
+    }
+    return best;
 }
 
 /**
@@ -54,39 +79,20 @@ function tryPattern(pattern: BannerPattern): { el: HTMLElement; text: string } |
  * whose textContent contains one of the needles. "Smallest" = fewest
  * descendants, so we don't accidentally collapse <body>.
  */
-function textFallback(root: ParentNode): { el: HTMLElement; text: string } | null {
-    let best: { el: HTMLElement; text: string; size: number } | null = null;
+function textFallback(root: ParentNode): { element: HTMLElement; text: string } | null {
+    let best: { element: HTMLElement; text: string; size: number } | null = null;
     let count = 0;
 
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
     let node = walker.nextNode();
-    while (node !== null) {
+    while (node !== null && count < TEXT_SCAN_MAX_NODES) {
         count++;
-        if (count > TEXT_SCAN_MAX_NODES) break;
-
-        if (isHtmlElement(node)) {
-            const tag = node.tagName;
-            // Skip structural giants — never collapse these.
-            if (tag !== "HTML" && tag !== "BODY" && tag !== "MAIN" && tag !== "HEADER") {
-                const text = node.textContent ?? "";
-                if (text.length > 0 && text.length < 600) {
-                    for (const needle of BANNER_TEXT_NEEDLES) {
-                        if (text.includes(needle)) {
-                            const size = node.getElementsByTagName("*").length;
-                            if (best === null || size < best.size) {
-                                best = { el: node, text: needle, size };
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        if (isHtmlElement(node)) best = considerNode(node, best);
         node = walker.nextNode();
     }
 
     if (best === null) return null;
-    return { el: best.el, text: best.text };
+    return { element: best.element, text: best.text };
 }
 
 export class BannerLocator {
@@ -99,7 +105,7 @@ export class BannerLocator {
             const hit = tryPattern(pattern);
             if (hit !== null) {
                 return {
-                    element: hit.el,
+                    element: hit.element,
                     source: "xpath",
                     xpath: pattern.xpath,
                     matchedText: hit.text,
@@ -114,7 +120,7 @@ export class BannerLocator {
         if (fb === null) return null;
 
         return {
-            element: fb.el,
+            element: fb.element,
             source: "text-fallback",
             xpath: null,
             matchedText: fb.text,

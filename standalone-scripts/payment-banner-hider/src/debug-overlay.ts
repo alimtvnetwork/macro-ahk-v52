@@ -17,10 +17,10 @@ function ensureOverlay(): HTMLElement {
     const existing = document.getElementById(OVERLAY_ID);
     if (existing !== null) return existing;
 
-    const el = document.createElement("div");
-    el.id = OVERLAY_ID;
-    el.setAttribute("data-marco-debug", "banner-hider");
-    el.style.cssText = [
+    const element = document.createElement("div");
+    element.id = OVERLAY_ID;
+    element.setAttribute("data-marco-debug", "banner-hider");
+    element.style.cssText = [
         "position:fixed",
         "bottom:12px",
         "right:12px",
@@ -35,16 +35,16 @@ function ensureOverlay(): HTMLElement {
         "box-shadow:0 4px 16px rgba(0,0,0,.5)",
         "pointer-events:auto",
     ].join(";");
-    document.body.appendChild(el);
-    return el;
+    document.body.appendChild(element);
+    return element;
 }
 
 export function renderDebugOverlay(match: BannerDebugMatch | null): void {
     if (typeof document === "undefined" || document.body === null) return;
 
-    const el = ensureOverlay();
+    const element = ensureOverlay();
     if (match === null) {
-        el.textContent = "BannerHider: no match yet";
+        element.textContent = "BannerHider: no match yet";
         return;
     }
 
@@ -55,8 +55,8 @@ export function renderDebugOverlay(match: BannerDebugMatch | null): void {
         `collapse targets: ${match.collapseTargetCount}`,
         `t: ${new Date(match.timestamp).toISOString()}`,
     ];
-    el.textContent = lines.join("\n");
-    el.style.whiteSpace = "pre";
+    element.textContent = lines.join("\n");
+    element.style.whiteSpace = "pre";
 }
 
 export function hideDebugOverlay(): void {

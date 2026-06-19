@@ -20,13 +20,13 @@ import {
 
 /** Stub locator that returns whatever element the test selected by ID/attr. */
 class IdLocator extends BannerLocator {
-    public constructor(private readonly el: HTMLElement | null) {
+    public constructor(private readonly element: HTMLElement | null) {
         super();
     }
     public override locate(): LocateResult | null {
-        if (this.el === null) return null;
+        if (this.element === null) return null;
         return {
-            element: this.el,
+            element: this.element,
             source: "xpath",
             xpath: "stub",
             matchedText: "stub",
@@ -43,39 +43,39 @@ describe("PaymentBannerHider — selector-based regressions", () => {
 
     it("collapses a banner located by #id selector", async () => {
         document.body.innerHTML = `<div id="pay-banner">Payment issue detected.</div>`;
-        const el = document.querySelector<HTMLElement>("#pay-banner")!;
+        const element = document.querySelector<HTMLElement>("#pay-banner")!;
 
-        new PaymentBannerHider(new IdLocator(el)).check();
+        new PaymentBannerHider(new IdLocator(element)).check();
 
-        expect(el.getAttribute(STATE_ATTR)).toBe(BannerState.Fading);
+        expect(element.getAttribute(STATE_ATTR)).toBe(BannerState.Fading);
         await vi.advanceTimersByTimeAsync(REMOVE_DELAY_MS + 10);
-        expect(el.getAttribute(STATE_ATTR)).toBe(BannerState.Done);
+        expect(element.getAttribute(STATE_ATTR)).toBe(BannerState.Done);
     });
 
     it("collapses a banner located by [role='alert']", async () => {
         document.body.innerHTML = `<div role="alert" id="r">Update payment method</div>`;
-        const el = document.querySelector<HTMLElement>("[role='alert']")!;
+        const element = document.querySelector<HTMLElement>("[role='alert']")!;
 
-        new PaymentBannerHider(new IdLocator(el)).check();
-        expect(el.getAttribute(STATE_ATTR)).toBe(BannerState.Fading);
+        new PaymentBannerHider(new IdLocator(element)).check();
+        expect(element.getAttribute(STATE_ATTR)).toBe(BannerState.Fading);
     });
 
     it("collapses a banner located by [data-testid]", async () => {
         document.body.innerHTML = `<div data-testid="billing-banner">Final notice</div>`;
-        const el = document.querySelector<HTMLElement>("[data-testid='billing-banner']")!;
+        const element = document.querySelector<HTMLElement>("[data-testid='billing-banner']")!;
 
-        new PaymentBannerHider(new IdLocator(el)).check();
-        expect(el.getAttribute(STATE_ATTR)).toBe(BannerState.Fading);
+        new PaymentBannerHider(new IdLocator(element)).check();
+        expect(element.getAttribute(STATE_ATTR)).toBe(BannerState.Fading);
         await vi.advanceTimersByTimeAsync(REMOVE_DELAY_MS + 10);
-        expect(el.getAttribute(STATE_ATTR)).toBe(BannerState.Done);
+        expect(element.getAttribute(STATE_ATTR)).toBe(BannerState.Done);
     });
 
     it("collapses a banner located by class selector", async () => {
         document.body.innerHTML = `<div class="billing-warning">reverted to the Free plan</div>`;
-        const el = document.querySelector<HTMLElement>(".billing-warning")!;
+        const element = document.querySelector<HTMLElement>(".billing-warning")!;
 
-        new PaymentBannerHider(new IdLocator(el)).check();
-        expect(el.getAttribute(STATE_ATTR)).toBe(BannerState.Fading);
+        new PaymentBannerHider(new IdLocator(element)).check();
+        expect(element.getAttribute(STATE_ATTR)).toBe(BannerState.Fading);
     });
 
     it("walks single-child wrappers up to 3 levels (id-located)", async () => {
@@ -90,8 +90,8 @@ describe("PaymentBannerHider — selector-based regressions", () => {
 
         new PaymentBannerHider(new IdLocator(banner)).check();
 
-        for (const el of [banner, L1, L2, L3]) {
-            expect(el.getAttribute(STATE_ATTR)).toBe(BannerState.Fading);
+        for (const element of [banner, L1, L2, L3]) {
+            expect(element.getAttribute(STATE_ATTR)).toBe(BannerState.Fading);
         }
     });
 
@@ -126,29 +126,29 @@ describe("PaymentBannerHider — selector-based regressions", () => {
 
     it("transitions fading → hiding via microtask, then done after REMOVE_DELAY_MS", async () => {
         document.body.innerHTML = `<div id="b">Payment issue detected.</div>`;
-        const el = document.querySelector<HTMLElement>("#b")!;
+        const element = document.querySelector<HTMLElement>("#b")!;
 
-        new PaymentBannerHider(new IdLocator(el)).check();
-        expect(el.getAttribute(STATE_ATTR)).toBe(BannerState.Fading);
+        new PaymentBannerHider(new IdLocator(element)).check();
+        expect(element.getAttribute(STATE_ATTR)).toBe(BannerState.Fading);
 
         await Promise.resolve();
-        expect(el.getAttribute(STATE_ATTR)).toBe(BannerState.Hiding);
+        expect(element.getAttribute(STATE_ATTR)).toBe(BannerState.Hiding);
 
         await vi.advanceTimersByTimeAsync(REMOVE_DELAY_MS + 5);
-        expect(el.getAttribute(STATE_ATTR)).toBe(BannerState.Done);
+        expect(element.getAttribute(STATE_ATTR)).toBe(BannerState.Done);
     });
 
     it("is idempotent: a second check() on the same element does nothing", async () => {
         document.body.innerHTML = `<div id="b">Payment issue detected.</div>`;
-        const el = document.querySelector<HTMLElement>("#b")!;
-        const hider = new PaymentBannerHider(new IdLocator(el));
+        const element = document.querySelector<HTMLElement>("#b")!;
+        const hider = new PaymentBannerHider(new IdLocator(element));
 
         hider.check();
         await Promise.resolve();
-        const stateAfterFirst = el.getAttribute(STATE_ATTR);
+        const stateAfterFirst = element.getAttribute(STATE_ATTR);
 
         hider.check();
-        expect(el.getAttribute(STATE_ATTR)).toBe(stateAfterFirst);
+        expect(element.getAttribute(STATE_ATTR)).toBe(stateAfterFirst);
     });
 
     it("does nothing when locator returns null (no banner present)", () => {
@@ -166,8 +166,8 @@ describe("PaymentBannerHider — selector-based regressions", () => {
 
     it("debug() toggles the overlay and reports the last match", async () => {
         document.body.innerHTML = `<div id="b">Payment issue detected.</div>`;
-        const el = document.querySelector<HTMLElement>("#b")!;
-        const hider = new PaymentBannerHider(new IdLocator(el));
+        const element = document.querySelector<HTMLElement>("#b")!;
+        const hider = new PaymentBannerHider(new IdLocator(element));
         hider.check();
         await vi.advanceTimersByTimeAsync(REMOVE_DELAY_MS + 10);
 
