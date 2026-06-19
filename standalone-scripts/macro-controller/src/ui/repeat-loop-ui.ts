@@ -24,6 +24,8 @@ export const WAIT_MODE_SUBMIT_READY = 'submit-ready' as const;
 export const WAIT_MODE_FIXED_DELAY = 'fixed-delay' as const;
 export type RepeatWaitMode = typeof WAIT_MODE_SUBMIT_READY | typeof WAIT_MODE_FIXED_DELAY;
 
+type RepeatPhase = 'idle' | 'submitting' | 'waiting-completion' | 'waiting-delay';
+
 interface RepeatState {
   count: number;
   waitMode: RepeatWaitMode;
@@ -35,6 +37,12 @@ interface RepeatState {
   capturedText: string;
   /** Mounted controls subscribed to state changes (count/running/completed). */
   subscribers: Set<() => void>;
+  /** Current iteration phase — drives the live timer label. */
+  phase: RepeatPhase;
+  /** ms epoch when current phase started. */
+  phaseStartedAt: number;
+  /** ms epoch when current phase is expected to end (0 = unknown / open-ended). */
+  phaseDeadlineAt: number;
 }
 
 export const repeatLoopState: RepeatState = {
@@ -46,6 +54,9 @@ export const repeatLoopState: RepeatState = {
   completed: 0,
   capturedText: '',
   subscribers: new Set(),
+  phase: 'idle',
+  phaseStartedAt: 0,
+  phaseDeadlineAt: 0,
 };
 
 // ── persistence (count + waitMode + delaySec only, never running state) ──
@@ -165,12 +176,21 @@ async function waitBetweenIterations(): Promise<void> {
   if (repeatLoopState.waitMode === WAIT_MODE_FIXED_DELAY) {
     const ms = Math.max(1, repeatLoopState.delaySec) * 1000;
     const until = Date.now() + ms;
+    setPhase('waiting-delay', ms);
     while (Date.now() < until && !repeatLoopState.cancelled) {
       await sleep(Math.min(POLL_MS, until - Date.now()));
     }
     return;
   }
+  setPhase('waiting-completion', 0);
   await waitForCompletion(MAX_WAIT_MS);
+}
+
+function setPhase(phase: RepeatPhase, durationMs: number): void {
+  repeatLoopState.phase = phase;
+  repeatLoopState.phaseStartedAt = Date.now();
+  repeatLoopState.phaseDeadlineAt = durationMs > 0 ? Date.now() + durationMs : 0;
+  notify();
 }
 
 /**
@@ -201,6 +221,7 @@ function dispatchChatSubmit(): boolean {
 
 /** Returns true if iteration submitted successfully; false if loop should break. */
 async function submitOneIteration(): Promise<boolean> {
+  setPhase('submitting', 0);
   if (!setEditorText(repeatLoopState.capturedText)) {
     showPasteToast('❌ Repeat: editor not found — stopped at ' + repeatLoopState.completed + '/' + repeatLoopState.count, true);
     return false;
@@ -237,6 +258,9 @@ async function runRepeatLoopAsync(): Promise<void> {
   const total = repeatLoopState.count;
   repeatLoopState.running = false;
   repeatLoopState.cancelled = false;
+  repeatLoopState.phase = 'idle';
+  repeatLoopState.phaseStartedAt = 0;
+  repeatLoopState.phaseDeadlineAt = 0;
   notify();
 
   if (wasCancelled) {
@@ -374,6 +398,21 @@ interface ControlRefs {
   progress: HTMLElement;
 }
 
+function formatPhaseTimer(): string {
+  const now = Date.now();
+  const phase = repeatLoopState.phase;
+  if (phase === 'idle') return '';
+  if (phase === 'submitting') return '⏳ submitting…';
+  if (phase === 'waiting-completion') {
+    const elapsed = Math.max(0, Math.floor((now - repeatLoopState.phaseStartedAt) / 1000));
+    return '⏱ waiting reply ' + elapsed + 's';
+  }
+  // waiting-delay (fixed delay): show countdown
+  const remainMs = Math.max(0, repeatLoopState.phaseDeadlineAt - now);
+  const remainSec = Math.ceil(remainMs / 1000);
+  return '⏱ next in ' + remainSec + 's';
+}
+
 function renderControl(refs: ControlRefs): void {
   refs.input.value = String(repeatLoopState.count);
   refs.input.disabled = repeatLoopState.running;
@@ -385,7 +424,8 @@ function renderControl(refs: ControlRefs): void {
   if (repeatLoopState.running) {
     refs.action.textContent = '⏹ Stop';
     refs.action.style.background = '#dc2626';
-    refs.progress.textContent = repeatLoopState.completed + '/' + repeatLoopState.count;
+    const timer = formatPhaseTimer();
+    refs.progress.textContent = repeatLoopState.completed + '/' + repeatLoopState.count + (timer ? ' • ' + timer : '');
   } else {
     refs.action.textContent = '▶ Start';
     refs.action.style.background = cPrimary;
@@ -429,6 +469,12 @@ function buildControl(opts: { compact: boolean }): HTMLElement {
   const render = (): void => { renderControl(refs); };
   render();
   repeatLoopState.subscribers.add(render);
+  // Live ticker: phase boundaries call notify(), but the elapsed/countdown
+  // seconds need to advance every tick while running.
+  const tickId = setInterval(function () {
+    if (!document.body.contains(root)) { clearInterval(tickId); return; }
+    if (repeatLoopState.running) render();
+  }, 1000);
   return root;
 }
 
