@@ -23,8 +23,15 @@ export function normalizePromptEntries(entries: Partial<PromptEntry & { order?: 
     const text = typeof raw.text === 'string' ? raw.text : '';
 
     if (name && text) {
-      const entry: PromptEntry = { name, text };
+      // Dynamic expansion: emit one flat entry per replaceValue.
+      if (raw.isDynamic && raw.replaceKey && Array.isArray(raw.replaceValues) && raw.replaceValues.length > 0) {
+        for (const v of raw.replaceValues) {
+          out.push(buildExpandedEntry(raw, name, text, String(v)));
+        }
+        continue;
+      }
 
+      const entry: PromptEntry = { name, text };
       if (raw.id) { entry.id = raw.id; }
       if (raw.slug) { entry.slug = raw.slug; }
       if (raw.category) { entry.category = raw.category; }
@@ -43,6 +50,32 @@ export function normalizePromptEntries(entries: Partial<PromptEntry & { order?: 
     console.warn('[normalizePromptEntries] ⚠️ Dropped ' + droppedCount + '/' + entries.length + ' entries due to missing name or text');
   }
   return out;
+}
+
+/** Replace every `${key}` occurrence in a string. */
+function substituteKey(s: string, key: string, value: string): string {
+  return s.split('${' + key + '}').join(value);
+}
+
+/** Build one expanded PromptEntry for a dynamic prompt + a single replaceValue. */
+function buildExpandedEntry(
+  raw: Partial<PromptEntry>,
+  name: string,
+  text: string,
+  value: string,
+): PromptEntry {
+  const key = raw.replaceKey as string;
+  const expandedName = substituteKey(name, key, value);
+  const expandedText = substituteKey(text, key, value);
+  const slugBase = raw.slugTemplate || raw.slug || expandedName.toLowerCase().replace(/\s+/g, '-');
+  const expandedSlug = substituteKey(slugBase, key, value);
+  const entry: PromptEntry = { name: expandedName, text: expandedText, slug: expandedSlug };
+  if (raw.id) { entry.id = substituteKey(String(raw.id), key, value) + '-' + value; }
+  if (raw.category) { entry.category = raw.category; }
+  if (raw.isFavorite) { entry.isFavorite = true; }
+  if (raw.isDefault !== undefined) { entry.isDefault = raw.isDefault; }
+  entry.tags = Array.isArray(raw.tags) ? raw.tags : autoTagPrompt(expandedName, expandedText);
+  return entry;
 }
 
 /** Auto-tag a prompt based on its name and content. */

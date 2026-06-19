@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.76.0] — 2026-06-19 Dynamic prompt expansion in dropdown
+
+### Added
+- **Flat dynamic-prompt entries in the prompt dropdown.** `normalizePromptEntries()` in `standalone-scripts/macro-controller/src/ui/prompt-utils.ts` now expands any entry with `isDynamic`, `replaceKey`, and `replaceValues` into one flat `PromptEntry` per value, substituting `${replaceKey}` in name, text, slug (via `slugTemplate`), and id. Result: `Plan 5 … Plan 100` and `Next 1 steps … Next 8 steps` appear directly in the prompts list — no accordion click needed.
+- **PromptEntry typing** in `standalone-scripts/macro-controller/src/types/ui-types.ts` extended with `isDynamic`, `replaceKey`, `replaceValues`, `slugTemplate`.
+
+---
+
 ## [v3.75.0] — 2026-06-19 Bundled Release prompt
 
 ### Added

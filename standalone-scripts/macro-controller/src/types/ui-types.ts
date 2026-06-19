@@ -53,6 +53,14 @@ export interface PromptEntry {
   isFavorite?: boolean;
   isDefault?: boolean;
   tags?: string[];
+  // Dynamic prompt expansion (e.g. `Next ${N} steps`, `Plan ${N}`).
+  // When isDynamic is true, normalizePromptEntries() emits one flat
+  // PromptEntry per replaceValue with ${replaceKey} substituted into
+  // name, text, slug (via slugTemplate), and id.
+  isDynamic?: boolean;
+  replaceKey?: string;
+  replaceValues?: string[];
+  slugTemplate?: string;
 }
 
 export interface PromptsCfg {
