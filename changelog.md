@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.57.0] — 2026-06-19
+
+### Added
+
+### Fixed
+
+### Changed
+- Version bump: 3.56.0 → 3.57.0 (all version files synced)
+
+---
+
 ## [v3.56.0] — 2026-06-18 Credit Balance Fan-out + Project Move Fix
 
 ### Fixed
