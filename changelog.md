@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.77.1] — 2026-06-19 Maintenance release
+
+### Changed
+- Version bump only — no functional changes. Re-pins manifest, `version.json`, `EXTENSION_VERSION`, every standalone-script `instruction.ts`, the SDK, and the readme install one-liners to `3.77.1`.
+
+---
+
 ## [v3.77.0] — 2026-06-19 Next-Button v16 reference adoption (Phase 1)
 
 ### Added
