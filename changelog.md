@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.75.0] — 2026-06-19 Bundled Release prompt
+
+### Added
+- **Release prompt** — `standalone-scripts/prompts/22-release/` (Title `Release`, slug `release`, category `Release`). Codifies the release ceremony: bump tier rules, every version-pin file, mandatory changelog row, root-readme pin, prompt aggregator step, and a stale-reference check. Aggregated into `chrome-extension/prompts/macro-prompts.json` so it shows up in the prompt dropdown.
+
+---
+
 ## [v3.74.1] — 2026-06-19 Lint fix: repeat-loop-ui buildControl
 
 ### Fixed

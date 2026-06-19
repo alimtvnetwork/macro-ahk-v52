@@ -1,0 +1,14 @@
+{
+  "Id": "default-release",
+  "Title": "Release",
+  "Slug": "release",
+  "Version": "1.0.0",
+  "Author": "marco",
+  "Categories": [
+    "Release"
+  ],
+  "IsDefault": true,
+  "Order": 22,
+  "CreatedAt": "2026-06-19T00:00:00Z",
+  "UpdatedAt": "2026-06-19T00:00:00Z"
+}
