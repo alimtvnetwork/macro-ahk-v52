@@ -161,40 +161,46 @@ async function waitForCompletion(maxMs: number): Promise<void> {
   }
 }
 
+async function waitBetweenIterations(): Promise<void> {
+  if (repeatLoopState.waitMode === WAIT_MODE_FIXED_DELAY) {
+    const ms = Math.max(1, repeatLoopState.delaySec) * 1000;
+    const until = Date.now() + ms;
+    while (Date.now() < until && !repeatLoopState.cancelled) {
+      await sleep(Math.min(POLL_MS, until - Date.now()));
+    }
+    return;
+  }
+  await waitForCompletion(MAX_WAIT_MS);
+}
+
+/** Returns true if iteration submitted successfully; false if loop should break. */
+async function submitOneIteration(): Promise<boolean> {
+  if (!setEditorText(repeatLoopState.capturedText)) {
+    showPasteToast('❌ Repeat: editor not found — stopped at ' + repeatLoopState.completed + '/' + repeatLoopState.count, true);
+    return false;
+  }
+  const btn = await waitForSubmitReady(MAX_WAIT_MS);
+  if (!btn) {
+    if (!repeatLoopState.cancelled) {
+      showPasteToast('❌ Repeat: submit button never ready — stopped at ' + repeatLoopState.completed + '/' + repeatLoopState.count, true);
+    }
+    return false;
+  }
+  btn.click();
+  repeatLoopState.completed++;
+  log('Repeat: iteration ' + repeatLoopState.completed + '/' + repeatLoopState.count + ' submitted', 'info');
+  showPasteToast('🔁 Repeat: ' + repeatLoopState.completed + '/' + repeatLoopState.count, false);
+  notify();
+  return true;
+}
+
 async function runRepeatLoopAsync(): Promise<void> {
   for (let i = repeatLoopState.completed; i < repeatLoopState.count; i++) {
     if (repeatLoopState.cancelled) break;
-
-    if (!setEditorText(repeatLoopState.capturedText)) {
-      showPasteToast('❌ Repeat: editor not found — stopped at ' + repeatLoopState.completed + '/' + repeatLoopState.count, true);
-      break;
-    }
-
-    const btn = await waitForSubmitReady(MAX_WAIT_MS);
-    if (!btn) {
-      if (!repeatLoopState.cancelled) {
-        showPasteToast('❌ Repeat: submit button never ready — stopped at ' + repeatLoopState.completed + '/' + repeatLoopState.count, true);
-      }
-      break;
-    }
-
-    btn.click();
-    repeatLoopState.completed++;
-    log('Repeat: iteration ' + repeatLoopState.completed + '/' + repeatLoopState.count + ' submitted', 'info');
-    showPasteToast('🔁 Repeat: ' + repeatLoopState.completed + '/' + repeatLoopState.count, false);
-    notify();
-
+    const ok = await submitOneIteration();
+    if (!ok) break;
     if (repeatLoopState.completed >= repeatLoopState.count) break;
-    if (repeatLoopState.waitMode === WAIT_MODE_FIXED_DELAY) {
-      const ms = Math.max(1, repeatLoopState.delaySec) * 1000;
-      const until = Date.now() + ms;
-      while (Date.now() < until) {
-        if (repeatLoopState.cancelled) break;
-        await sleep(Math.min(POLL_MS, until - Date.now()));
-      }
-    } else {
-      await waitForCompletion(MAX_WAIT_MS);
-    }
+    await waitBetweenIterations();
   }
 
   const wasCancelled = repeatLoopState.cancelled;
