@@ -9,8 +9,6 @@
 import { log, logSub } from '../logging';
 import type { ResolvedPromptsConfig } from '../types';
 import { showPasteToast, pasteIntoEditor } from './prompt-utils';
-import { getSettingsOverrides } from '../settings-store';
-import { isReturnButtonVisible } from '../xpath-utils';
 
 import { cPanelBg, cPanelFg, cPrimary, cPrimaryLight } from '../shared-state';
 import { logError } from '../error-utils';
