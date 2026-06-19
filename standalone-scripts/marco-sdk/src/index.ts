@@ -39,7 +39,7 @@ const marco = Object.freeze({
     utils: Object.freeze(createUtilsApi()),
     prompts: Object.freeze(createPromptsApi()),
     api: Object.freeze(createApiModule()),
-    version: "2.169.0",
+    version: "3.72.0",
 });
 
 /* ------------------------------------------------------------------ */
@@ -64,12 +64,12 @@ if (!win.RiseupAsiaMacroExt) {
 /* Register the SDK's own per-project namespace so the documented
    `RiseupAsiaMacroExt.Projects.RiseupMacroSdk.*` surface exists at runtime.
    Issue 66 — Option A. */
-registerSdkSelfNamespace(marco, "2.169.0");
+registerSdkSelfNamespace(marco, "3.72.0");
 
 /* Runtime self-test — validates Projects.RiseupMacroSdk on every page load.
    Logs PASS/FAIL via NamespaceLogger so regressions surface immediately. */
 try {
-    runSdkSelfTest("2.169.0");
+    runSdkSelfTest("3.72.0");
 } catch (err) {
     NamespaceLogger.error(
         "index",
@@ -101,4 +101,4 @@ initXPathCache().catch((caught: unknown) => {
     NamespaceLogger.error("initXPathCache", "XPath cache warm-up failed — cache will be empty until first explicit call (non-fatal)", caught);
 });
 
-console.log("[marco-sdk] Riseup Macro SDK v2.169.0 initialized (RiseupAsiaMacroExt root + Logger + Projects.RiseupMacroSdk self-namespace + runtime self-test)");
+console.log("[marco-sdk] Riseup Macro SDK v3.72.0 initialized (RiseupAsiaMacroExt root + Logger + Projects.RiseupMacroSdk self-namespace + runtime self-test)");
