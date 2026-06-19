@@ -32,6 +32,7 @@ Updated: just now
 - **Prompt Macros audit-root**: Prompt Macros write audits ONLY under `spec/audit/<RunId>/`; never to `skipped/` or `.release/`. Variables resolve Step → Macro → RunContext → Default → fail-fast. See `mem://features/prompt-macros`.
 
 ## Memories
+- [Dropdown prompts registry](mem://prompts/dropdown-prompts-registry) — 8 prompts shipped in macro-controller dropdown (coding-guidelines, lowercase-readme, explain-like-layman, read-memory, write-memory, next-${N}, plan-${N}, proofread); .md mirror under `.lovable/prompts/`; spec at `spec/01-prompt-spec-2026/04-dropdown-prompts-registry.md`
 - [Timezone](mem://localization/timezone) — Never hardcode a timezone; render in user's local timezone
 - [Versioning policy](mem://workflow/versioning-policy) — Unified versioning across manifest, constants.ts, scripts
 - [Planning roadmap](mem://workflow/planning-roadmap) — plan.md as authoritative prioritized backlog

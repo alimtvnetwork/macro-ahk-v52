@@ -31,3 +31,13 @@ re-deriving it from chat history.
 | 11 | [11-explain-like-layman.md](./prompts/11-explain-like-layman.md) | Explain Like I'm a Layman (v1) | `explain like layman`, `explain like i'm five`, `eli5`, `eli-layman` | active |
 | 12 | [12-next-steps-v7.md](./prompts/12-next-steps-v7.md) | Next ${N} Steps (v7) — single-task append (Issue 126) | `next 1`, `next 2`, `next 3`, `next 4`, `next 5`, `next 8`, `next n steps`, `next n tasks` | active |
 | 13 | [13-plan-steps-v7.md](./prompts/13-plan-steps-v7.md) | Plan ${N} (v7) — Evidence Enforcement, single-task append (Issue 126) | `plan 5`, `plan 8`, `plan 10`, `plan 12`, `plan 15`, `plan 20`, `plan 25`, `plan 30`, `plan 35`, `plan 40`, `plan 45`, `plan 50`, `plan 100` | active |
+## Dropdown-shipped subset (canonical, v3.59.x)
+
+These 8 prompts are exposed in the macro-controller chat-box dropdown
+(`PROMPTS` array, vbx markers). See `spec/01-prompt-spec-2026/04-dropdown-prompts-registry.md`
+and `mem://prompts/dropdown-prompts-registry` for the authoritative
+registry and sync workflow:
+
+- 03 Write Memory · 05 Read Memory · 07 Proofread · 09 Coding Guidelines
+- 10 Lowercase Readme + Sequence · 11 Explain Like Layman
+- 12 Next ${N} (dynamic: 1/2/3/4/5/8) · 13 Plan ${N} (dynamic: 5..100)
