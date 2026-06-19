@@ -47,35 +47,39 @@ export const repeatLoopState: RepeatState = {
 };
 
 // ── persistence (count + waitMode + delaySec only, never running state) ──
+// Script runs in the page MAIN world where `chrome.storage` is unavailable,
+// so we use synchronous localStorage — reliable, no async race with first render.
 function persist(): void {
   try {
-    const payload = { count: repeatLoopState.count, waitMode: repeatLoopState.waitMode, delaySec: repeatLoopState.delaySec };
-    const cs = (globalThis as { chrome?: { storage?: { local?: { set?: (i: Record<string, unknown>) => void } } } }).chrome;
-    if (cs?.storage?.local?.set) {
-      cs.storage.local.set({ [STORAGE_KEY]: payload });
-    } else if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    }
+    if (typeof localStorage === 'undefined') return;
+    const payload = {
+      v: 1,
+      count: repeatLoopState.count,
+      waitMode: repeatLoopState.waitMode,
+      delaySec: repeatLoopState.delaySec,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (e) { log('Repeat: persist failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
 }
 
 function hydrate(): void {
   try {
-    const apply = (raw: unknown): void => {
-      if (!raw || typeof raw !== 'object') return;
-      const o = raw as { count?: unknown; waitMode?: unknown; delaySec?: unknown };
-      if (typeof o.count === 'number' && o.count >= 1) repeatLoopState.count = Math.min(1000, Math.floor(o.count));
-      if (o.waitMode === 'submit-ready' || o.waitMode === 'fixed-delay') repeatLoopState.waitMode = o.waitMode;
-      if (typeof o.delaySec === 'number' && o.delaySec >= 1) repeatLoopState.delaySec = Math.min(3600, Math.floor(o.delaySec));
-      notify();
-    };
-    const cs = (globalThis as { chrome?: { storage?: { local?: { get?: (k: string, cb: (r: Record<string, unknown>) => void) => void } } } }).chrome;
-    if (cs?.storage?.local?.get) {
-      cs.storage.local.get(STORAGE_KEY, function (result) { apply(result?.[STORAGE_KEY]); });
-    } else if (typeof localStorage !== 'undefined') {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) apply(JSON.parse(raw));
+    if (typeof localStorage === 'undefined') return;
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return;
+    const o = parsed as { count?: unknown; waitMode?: unknown; delaySec?: unknown };
+    if (typeof o.count === 'number' && o.count >= 1) {
+      repeatLoopState.count = Math.max(1, Math.min(1000, Math.floor(o.count)));
     }
+    if (o.waitMode === 'submit-ready' || o.waitMode === 'fixed-delay') {
+      repeatLoopState.waitMode = o.waitMode;
+    }
+    if (typeof o.delaySec === 'number' && o.delaySec >= 1) {
+      repeatLoopState.delaySec = Math.max(1, Math.min(3600, Math.floor(o.delaySec)));
+    }
+    log('Repeat: prefs hydrated — count=' + repeatLoopState.count + ', mode=' + repeatLoopState.waitMode + ', delay=' + repeatLoopState.delaySec + 's', 'info');
   } catch (e) { log('Repeat: hydrate failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
 }
 hydrate();
@@ -210,11 +214,10 @@ export function startRepeatLoop(): void {
     log('Repeat: already running', 'warn');
     return;
   }
-  // Per Ambiguity 126 follow-up (2026-06-19): empty chat box is allowed
-  // — user explicitly chose "start anyway". No guard.
-  const text = readEditorText();
-  if (!text.trim()) {
-    log('Repeat: starting with empty chat box (user-allowed)', 'warn');
+  const text = readEditorText().trim();
+  if (!text) {
+    showPasteToast('❌ Repeat: chat box is empty — type or paste something first', true);
+    return;
   }
   const n = Math.max(1, Math.min(1000, Math.floor(repeatLoopState.count) || 1));
   repeatLoopState.count = n;
