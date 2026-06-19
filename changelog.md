@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.74.0] — 2026-06-19 Dynamic prompt presets + Next button paste-only
+
+### Fixed
+- **Task Next button must not auto-submit or chain.** `runTaskNextLoop` now pastes the Next Tasks prompt into the chat box exactly once and stops. It no longer clicks the submit button, no longer loops, and no longer retries. Repeated submissions remain exclusive to the dedicated Repeat `▶ Start` control.
+
+### Added
+- **Dynamic prompt metadata** — `13-next-tasks/info.json` and `14-plan-steps/info.json` now declare `IsDynamic`, `ReplaceKey`, `ReplaceValues`, and `SlugTemplate` so the prompt dropdown can render one entry per N (e.g. `Next 1 steps … Next 8 steps`, `Plan 5 … Plan 100`) with `${N}` substituted into title, slug, and body.
+- **Aggregator passthrough** — `scripts/aggregate-prompts.mjs` copies the dynamic-prompt fields into `chrome-extension/prompts/macro-prompts.json` so downstream UI receives the metadata.
+
+---
+
 ## [v3.73.0] — 2026-06-19 Plan prompt bundle + Task Next hard stop
 
 ### Added
