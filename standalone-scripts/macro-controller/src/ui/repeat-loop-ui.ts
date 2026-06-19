@@ -69,10 +69,11 @@ function persist(): void {
   try {
     if (typeof localStorage === 'undefined') return;
     const payload = {
-      v: 1,
+      v: 2,
       count: repeatLoopState.count,
       waitMode: repeatLoopState.waitMode,
       delaySec: repeatLoopState.delaySec,
+      collapsed: repeatLoopState.collapsed,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (e) { log('Repeat: persist failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
