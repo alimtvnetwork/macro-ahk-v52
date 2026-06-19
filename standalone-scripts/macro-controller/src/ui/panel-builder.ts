@@ -48,6 +48,7 @@ import {
   registerKeyboardHandlers,
 } from './panel-sections';
 import { startRedockObserver } from './redock-observer';
+import { buildRepeatPanelSection, mountRepeatInlineStrip } from './repeat-loop-ui';
 import { createSummaryBar, type SummaryBarHandle } from './summary-bar/component';
 import { computeDashboardSummary, computeSummaryDetails, type DisplayKindResolver } from './summary-bar';
 import { subscribeVisibleWorkspaces } from '../visible-workspaces-store';
@@ -182,7 +183,10 @@ export function createUI(deps: PanelBuilderDeps): void {
   // Track body elements for minimize/restore. Auth Diagnostics has moved
   // INSIDE Tools & Logs (Issue 125 §2.1) and is no longer a panel-root
   // child, so it is excluded from this list.
-  plCtx.bodyElements = [status, infoRow, summaryBar.root, btnRow, wsDropSection, taskQueueSection, toolsSection];
+  // Repeat-loop control — chat-box repeat selector (Ambiguity 126)
+  const repeatPanelSection = buildRepeatPanelSection();
+
+  plCtx.bodyElements = [status, infoRow, summaryBar.root, btnRow, wsDropSection, taskQueueSection, repeatPanelSection, toolsSection];
 
   // Assembly
   ui.appendChild(titleRow);
@@ -192,6 +196,7 @@ export function createUI(deps: PanelBuilderDeps): void {
   ui.appendChild(btnRow);
   ui.appendChild(wsDropSection);
   ui.appendChild(taskQueueSection);
+  ui.appendChild(repeatPanelSection);
   ui.appendChild(toolsSection);
 
 
@@ -211,6 +216,9 @@ export function createUI(deps: PanelBuilderDeps): void {
 
   // Record indicator (fixed position)
   document.body.appendChild(createRecordIndicator());
+
+  // Inline Repeat strip above Lovable's chat textarea (Ambiguity 126)
+  mountRepeatInlineStrip();
 
   // Keyboard handlers (with Task Next deps for Ctrl+Shift+1..9 shortcuts)
   const kbTaskNextDeps = deps.taskNextDeps;
