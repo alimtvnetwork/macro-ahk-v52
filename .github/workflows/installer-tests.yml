@@ -110,6 +110,13 @@ jobs:
         run: node scripts/check-installer-contract.mjs
 
       # ───────────────────────────────────────────────────────────
+      # Regression guard for v3.68.0: install.ps1 MUST default to
+      # <cwd>\marco-extension, never $HOME\marco-extension.
+      # ───────────────────────────────────────────────────────────
+      - name: Check installer target dir defaults to cwd
+        run: node scripts/check-installer-target-dir.mjs
+
+      # ───────────────────────────────────────────────────────────
       # Belt-and-braces: actually invoke the generator CLI in-place
       # and assert `git diff` on the two generated files is empty.
       # Catches CLI-only failure modes the in-memory drift check
