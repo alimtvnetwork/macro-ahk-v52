@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.77.0] — 2026-06-19 Next-Button v16 reference adoption (Phase 1)
+
+### Added
+- **Reference asset** — saved Vibedeals "Next →" V16 script verbatim to `assets/01-next-button/next-button.js` for offline study.
+- **Spec** — `spec/30-next-button-reference/01-spec.md` documents the prompt schema (`variants` ↔ `replaceKey`/`replaceValues`/`slugTemplate`), the single-shot paste contract, the future chip-row UX, and what is intentionally out of scope (queue/drain runtime, typeahead, arrow-key navigation).
+- **Variant bridge fields** on `PromptEntry` — `parentTitle`, `parentSlug`, `variantValue`. `normalizePromptEntries()` now stamps them onto every expanded dynamic entry so the dropdown can collapse `Plan 5 … Plan 100` (and `Next 1 steps … Next 8 steps`) back into a single chip row in a future iteration without re-plumbing data.
+
+---
+
 ## [v3.76.0] — 2026-06-19 Dynamic prompt expansion in dropdown
 
 ### Added
