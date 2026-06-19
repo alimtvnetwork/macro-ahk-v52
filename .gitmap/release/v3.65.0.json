@@ -1,0 +1,15 @@
+{
+  "version": "3.65.0",
+  "branch": "release/v3.65.0",
+  "sourceBranch": "main",
+  "commit": "0e833c6cb326896efe88df3e3db068d12a908bec",
+  "tag": "v3.65.0",
+  "assets": [],
+  "changelog": [
+    "Version bump: 3.64.0 → 3.65.0 (minor; all version files synced and pinned in root readme)"
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-19T19:25:50Z",
+  "isLatest": false
+}
