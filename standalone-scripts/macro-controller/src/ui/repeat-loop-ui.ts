@@ -179,7 +179,16 @@ async function runRepeatLoopAsync(): Promise<void> {
     notify();
 
     if (repeatLoopState.completed >= repeatLoopState.count) break;
-    await waitForCompletion(MAX_WAIT_MS);
+    if (repeatLoopState.waitMode === 'fixed-delay') {
+      const ms = Math.max(1, repeatLoopState.delaySec) * 1000;
+      const until = Date.now() + ms;
+      while (Date.now() < until) {
+        if (repeatLoopState.cancelled) break;
+        await sleep(Math.min(POLL_MS, until - Date.now()));
+      }
+    } else {
+      await waitForCompletion(MAX_WAIT_MS);
+    }
   }
 
   const wasCancelled = repeatLoopState.cancelled;
