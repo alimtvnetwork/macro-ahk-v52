@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.68.0] — 2026-06-19 Installer defaults to current working directory
+
+### Changed
+- `scripts/install.ps1` `Resolve-InstallDir` now defaults to `<cwd>\marco-extension` (using `Get-Location`) instead of `$HOME\marco-extension`, so `irm … | iex` installs into the folder the user is actually in. Help text and `.PARAMETER` doc updated to match.
+
 ## [v3.67.0] — 2026-06-19 Installer contract exit code 9
 
 ### Added
