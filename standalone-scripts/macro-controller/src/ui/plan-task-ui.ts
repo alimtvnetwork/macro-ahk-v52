@@ -22,29 +22,58 @@ const PLAN_TASK_STEP_COUNTS = [
 /** Build the canonical Plan Task prompt for N steps. */
 export function buildPlanTaskPrompt(n: number): string {
   return [
-    '## **' + n + '** steps Plan',
+    '# Plan in ' + n + '-Steps Plan (v7) — Evidence Enforcement',
     '',
-    'Please plan this task for **' + n + '** steps in the current situation. ' +
-      'Do not execute anything in this turn — your only job is to list the steps. ' +
-      'Write the ' + n + ' steps into `.lovable/plan.md` as a spec. ' +
-      'Also scan the `.lovable/` folder for any memory or task sections; ' +
-      'if pending tasks exist, append them to the pending list, then resolve them one by one and mark each as done. ' +
-      'If anything is ambiguous, ask clarifying questions before starting.',
+    '> **Category:** `Plan` (dynamic — N is parsed from this header)',
+    '> **Slug:** `plan-' + n + '`',
     '',
-    '## Additional Instruction',
+    'Parse the **N** in this prompt\'s header. That number is the EXACT count of steps in the plan you must write. Not N-1. Not N+1. If you cannot find N, STOP and ask.',
     '',
-    'Before executing, check the task type and follow the relevant guidelines if they exist (skip silently if the file is missing):',
+    '## Rules — non-negotiable',
     '',
-    '1. **Coding tasks** (especially Golang, Python, PHP, or other backend):',
-    '   - Check for `.lovable/coding-guidelines.md`. If present, follow it.',
-    '   - Also check `spec/coding-guidelines/`. If present, follow every file inside.',
-    '   - If this is a coding task and neither location has guidelines, ask me to provide one.',
+    '1. **DO NOT execute anything this turn.** No code edits, no migrations, no installs. The only artifact this turn is the plan file and any subtask / command / issue files described below.',
+    '2. **DO NOT open plan mode. DO NOT call any plan-approval tool.** No `plan--create`. No approval prompts. Write plain markdown files directly with file-writing tools.',
+    '3. **One task = one file.** Path: `.lovable/plans/pending/XX-<slug>.md`, where `XX` is the next free 2-digit sequence across pending and completed plans.',
+    '4. **Scan `.lovable/` first** including memory, existing pending/completed plans, subtasks, commands, and issues. Append unresolved pending tasks into the new plan before producing the ' + n + ' steps.',
+    '5. **Lifecycle:** new plan goes to `.lovable/plans/pending/`; before completion fill `## Evidence`; when done move it to `.lovable/plans/completed/` and flip status to completed.',
+    '6. **Ambiguity = ask.** If request, scope, or N is unclear, ask clarifying questions first. Do not invent steps to pad to ' + n + '.',
     '',
-    '2. **SEO tasks** (website/SEO-related):',
-    '   - Check for `.lovable/seo-guidelines.md`. If present, follow it.',
+    '## Single-task append rule',
     '',
-    'Rule: verify the file/folder exists first. If it does not, skip that guideline silently. ' +
-      'If multiple guidelines apply, follow all of them; if they conflict, prefer the folder-level spec and call out the conflict.',
+    'Picking "Plan ' + n + '" from the prompt dropdown only appends this body to the chat box. It does **not** submit and does **not** auto-repeat. Repetition belongs only to the separate Repeat `▶ Start` control.',
+    '',
+    '## Plan file shape',
+    '',
+    '# <Task title>',
+    '',
+    '**Slug:** <slug>',
+    '**Steps:** ' + n,
+    '**Status:** pending',
+    '**Created:** <YYYY-MM-DD>',
+    '',
+    '## Context',
+    '<What + why, files involved, and links to captured commands/issues.>',
+    '',
+    '## Steps',
+    '1. <step 1 — concrete, verifiable>',
+    '2. <step 2>',
+    '... exactly ' + n + ' items, no more, no less ...',
+    '',
+    '## Verification',
+    '<How each step will be verified — build, logs, preview, tests, screenshots.>',
+    '',
+    '## Evidence',
+    '- Before: <initial failing signal or pending until execution>',
+    '- After: <passing signal to paste before moving to completed>',
+    '- Proof: <command output, log line, screenshot note, or artifact link>',
+    '',
+    '## Checklist',
+    '',
+    '- [ ] Parsed N from this prompt header as ' + n,
+    '- [ ] Scanned `.lovable/` and listed prior pending tasks',
+    '- [ ] Wrote EXACTLY ' + n + ' steps',
+    '- [ ] Did NOT execute the plan',
+    '- [ ] Did NOT call any plan-mode / plan-approval tool',
   ].join('\n');
 }
 
@@ -124,7 +153,7 @@ function appendPresetSteps(sub: HTMLElement, dropdown: HTMLElement): void {
   for (const n of PLAN_TASK_STEP_COUNTS) {
     const it = document.createElement('div');
     it.style.cssText = 'padding:5px 12px;cursor:pointer;font-size:10px;color:' + cPanelFg + ';';
-    it.textContent = 'Plan in ' + n + ' steps';
+    it.textContent = 'Plan ' + n;
     it.onmouseover = function() { (this as HTMLElement).style.background = cBtnMenuHover; };
     it.onmouseout = function() { (this as HTMLElement).style.background = 'transparent'; };
     it.onclick = function(e: Event) {
