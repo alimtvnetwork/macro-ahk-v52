@@ -288,6 +288,39 @@ function buildControl(opts: { compact: boolean }): HTMLElement {
     root.appendChild(b);
   }
 
+  // ── wait-mode selector ──
+  const waitWrap = document.createElement('span');
+  waitWrap.style.cssText = 'display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:6px;border-left:1px solid rgba(124,58,237,0.25);';
+  const waitLabel = document.createElement('span');
+  waitLabel.textContent = 'wait';
+  waitLabel.style.cssText = 'font-size:10px;opacity:0.8;';
+  waitWrap.appendChild(waitLabel);
+  const modeSel = document.createElement('select');
+  modeSel.style.cssText = 'padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';font-size:10px;';
+  const optA = document.createElement('option'); optA.value = 'submit-ready'; optA.textContent = 'auto (submit ready)'; modeSel.appendChild(optA);
+  const optB = document.createElement('option'); optB.value = 'fixed-delay'; optB.textContent = 'fixed delay'; modeSel.appendChild(optB);
+  modeSel.value = repeatLoopState.waitMode;
+  modeSel.onchange = function () { setRepeatWaitMode(modeSel.value as RepeatWaitMode); };
+  waitWrap.appendChild(modeSel);
+
+  const delayInput = document.createElement('input');
+  delayInput.type = 'number'; delayInput.min = '1'; delayInput.max = '3600';
+  delayInput.value = String(repeatLoopState.delaySec);
+  delayInput.title = 'Fixed delay between iterations (seconds)';
+  delayInput.style.cssText = 'width:52px;padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';font-size:10px;';
+  delayInput.oninput = function () { setRepeatDelaySec(parseInt(delayInput.value, 10) || 1); };
+  waitWrap.appendChild(delayInput);
+  const sUnit = document.createElement('span'); sUnit.textContent = 's'; sUnit.style.cssText = 'font-size:10px;opacity:0.7;'; waitWrap.appendChild(sUnit);
+
+  for (const s of DELAY_PRESETS_SEC) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = s + 's'; b.title = 'Set fixed delay to ' + s + 's';
+    b.style.cssText = 'padding:1px 4px;background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.25);border-radius:3px;color:' + cPanelFg + ';cursor:pointer;font-size:9px;';
+    b.onclick = function () { setRepeatWaitMode('fixed-delay'); setRepeatDelaySec(s); };
+    waitWrap.appendChild(b);
+  }
+  root.appendChild(waitWrap);
+
   const progress = document.createElement('span');
   progress.style.cssText = 'font-size:10px;color:' + cPrimaryLight + ';margin-left:4px;min-width:42px;';
   root.appendChild(progress);
