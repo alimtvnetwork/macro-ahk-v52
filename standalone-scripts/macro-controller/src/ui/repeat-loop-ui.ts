@@ -24,6 +24,8 @@ export const WAIT_MODE_SUBMIT_READY = 'submit-ready' as const;
 export const WAIT_MODE_FIXED_DELAY = 'fixed-delay' as const;
 export type RepeatWaitMode = typeof WAIT_MODE_SUBMIT_READY | typeof WAIT_MODE_FIXED_DELAY;
 
+type RepeatPhase = 'idle' | 'submitting' | 'waiting-completion' | 'waiting-delay';
+
 interface RepeatState {
   count: number;
   waitMode: RepeatWaitMode;
@@ -35,6 +37,12 @@ interface RepeatState {
   capturedText: string;
   /** Mounted controls subscribed to state changes (count/running/completed). */
   subscribers: Set<() => void>;
+  /** Current iteration phase — drives the live timer label. */
+  phase: RepeatPhase;
+  /** ms epoch when current phase started. */
+  phaseStartedAt: number;
+  /** ms epoch when current phase is expected to end (0 = unknown / open-ended). */
+  phaseDeadlineAt: number;
 }
 
 export const repeatLoopState: RepeatState = {
