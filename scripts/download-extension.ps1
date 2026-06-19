@@ -121,7 +121,7 @@ Write-Ok "Resolved version: $tag"
 # ----------------------------------------------------------------------
 $assetName  = "marco-extension-$tag.zip"
 $downloadUrl = "https://github.com/$Repo/releases/download/$tag/$assetName"
-$cwd        = (Get-Location).Path
+$cwd        = if ($PWD.ProviderPath) { $PWD.ProviderPath } else { (Get-Location).Path }
 $zipPath    = Join-Path $cwd $assetName
 $targetDir  = Join-Path $cwd $FolderName
 
