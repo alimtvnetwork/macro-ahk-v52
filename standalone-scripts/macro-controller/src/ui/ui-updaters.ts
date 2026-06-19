@@ -207,7 +207,6 @@ export function destroyPanel(): void {
 
   // v3.60.0: invalidate DOM cache — stale detached nodes must not be reused
   try {
-    const { domCache } = require('../dom-cache') as { domCache: { invalidate?: () => void } };
     if (typeof domCache.invalidate === 'function') domCache.invalidate();
   } catch (_e) { /* dom-cache may be unavailable in tests — non-fatal */ }
 
