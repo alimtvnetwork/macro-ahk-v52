@@ -52,8 +52,9 @@ function tryPattern(pattern: BannerPattern): { element: HTMLElement; text: strin
 }
 
 function matchNeedle(text: string): string | null {
+    const haystack = text.toLowerCase();
     for (const needle of BANNER_TEXT_NEEDLES) {
-        if (text.includes(needle)) return needle;
+        if (haystack.includes(needle)) return needle;
     }
     return null;
 }
