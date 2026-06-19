@@ -83,6 +83,10 @@ function textFallback(root: ParentNode): { element: HTMLElement; text: string } 
     let best: { element: HTMLElement; text: string; size: number } | null = null;
     let count = 0;
 
+    if (typeof NodeFilter === "undefined" || typeof document.createTreeWalker !== "function") {
+        return null;
+    }
+
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
     let node = walker.nextNode();
     while (node !== null && count < TEXT_SCAN_MAX_NODES) {
