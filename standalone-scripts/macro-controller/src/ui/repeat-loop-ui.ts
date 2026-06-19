@@ -20,14 +20,14 @@ const POLL_MS = 500;
 const MAX_WAIT_MS = 10 * 60 * 1000; // 10 min per submit
 const STORAGE_KEY = 'marco-repeat-loop-prefs';
 
-export const WAIT_MODE_SUBMIT_READY = 'submit-ready' as const;
-export const WAIT_MODE_FIXED_DELAY = 'fixed-delay' as const;
+export const WAIT_MODE_SUBMIT_READY = WAIT_MODE_SUBMIT_READY as const;
+export const WAIT_MODE_FIXED_DELAY = WAIT_MODE_FIXED_DELAY as const;
 export type RepeatWaitMode = typeof WAIT_MODE_SUBMIT_READY | typeof WAIT_MODE_FIXED_DELAY;
 
 interface RepeatState {
   count: number;
   waitMode: RepeatWaitMode;
-  /** Fixed delay between iterations, seconds (used when waitMode = 'fixed-delay'). */
+  /** Fixed delay between iterations, seconds (used when waitMode = WAIT_MODE_FIXED_DELAY). */
   delaySec: number;
   running: boolean;
   cancelled: boolean;
@@ -39,7 +39,7 @@ interface RepeatState {
 
 export const repeatLoopState: RepeatState = {
   count: 10,
-  waitMode: 'submit-ready',
+  waitMode: WAIT_MODE_SUBMIT_READY,
   delaySec: 15,
   running: false,
   cancelled: false,
@@ -75,7 +75,7 @@ function hydrate(): void {
     if (typeof o.count === 'number' && o.count >= 1) {
       repeatLoopState.count = Math.max(1, Math.min(1000, Math.floor(o.count)));
     }
-    if (o.waitMode === 'submit-ready' || o.waitMode === 'fixed-delay') {
+    if (o.waitMode === WAIT_MODE_SUBMIT_READY || o.waitMode === WAIT_MODE_FIXED_DELAY) {
       repeatLoopState.waitMode = o.waitMode;
     }
     if (typeof o.delaySec === 'number' && o.delaySec >= 1) {
@@ -185,7 +185,7 @@ async function runRepeatLoopAsync(): Promise<void> {
     notify();
 
     if (repeatLoopState.completed >= repeatLoopState.count) break;
-    if (repeatLoopState.waitMode === 'fixed-delay') {
+    if (repeatLoopState.waitMode === WAIT_MODE_FIXED_DELAY) {
       const ms = Math.max(1, repeatLoopState.delaySec) * 1000;
       const until = Date.now() + ms;
       while (Date.now() < until) {
@@ -302,8 +302,8 @@ function buildControl(opts: { compact: boolean }): HTMLElement {
   waitWrap.appendChild(waitLabel);
   const modeSel = document.createElement('select');
   modeSel.style.cssText = 'padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';font-size:10px;';
-  const optA = document.createElement('option'); optA.value = 'submit-ready'; optA.textContent = 'auto (submit ready)'; modeSel.appendChild(optA);
-  const optB = document.createElement('option'); optB.value = 'fixed-delay'; optB.textContent = 'fixed delay'; modeSel.appendChild(optB);
+  const optA = document.createElement('option'); optA.value = WAIT_MODE_SUBMIT_READY; optA.textContent = 'auto (submit ready)'; modeSel.appendChild(optA);
+  const optB = document.createElement('option'); optB.value = WAIT_MODE_FIXED_DELAY; optB.textContent = 'fixed delay'; modeSel.appendChild(optB);
   modeSel.value = repeatLoopState.waitMode;
   modeSel.onchange = function () { setRepeatWaitMode(modeSel.value as RepeatWaitMode); };
   waitWrap.appendChild(modeSel);
@@ -321,7 +321,7 @@ function buildControl(opts: { compact: boolean }): HTMLElement {
     const b = document.createElement('button');
     b.type = 'button'; b.textContent = s + 's'; b.title = 'Set fixed delay to ' + s + 's';
     b.style.cssText = 'padding:1px 4px;background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.25);border-radius:3px;color:' + cPanelFg + ';cursor:pointer;font-size:9px;';
-    b.onclick = function () { setRepeatWaitMode('fixed-delay'); setRepeatDelaySec(s); };
+    b.onclick = function () { setRepeatWaitMode(WAIT_MODE_FIXED_DELAY); setRepeatDelaySec(s); };
     waitWrap.appendChild(b);
   }
   root.appendChild(waitWrap);
@@ -345,8 +345,8 @@ function buildControl(opts: { compact: boolean }): HTMLElement {
     modeSel.value = repeatLoopState.waitMode;
     modeSel.disabled = repeatLoopState.running;
     delayInput.value = String(repeatLoopState.delaySec);
-    delayInput.disabled = repeatLoopState.running || repeatLoopState.waitMode !== 'fixed-delay';
-    delayInput.style.opacity = repeatLoopState.waitMode === 'fixed-delay' ? '1' : '0.45';
+    delayInput.disabled = repeatLoopState.running || repeatLoopState.waitMode !== WAIT_MODE_FIXED_DELAY;
+    delayInput.style.opacity = repeatLoopState.waitMode === WAIT_MODE_FIXED_DELAY ? '1' : '0.45';
     if (repeatLoopState.running) {
       action.textContent = '⏹ Stop';
       action.style.background = '#dc2626';
