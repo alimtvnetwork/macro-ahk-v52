@@ -28,7 +28,7 @@ export interface BannerPattern {
 export const BANNER_PATTERNS: readonly BannerPattern[] = [
     {
         xpath: "/html/body/div[2]/main/div/div[1]",
-        anyText: ["Payment issue detected.", "Final notice"],
+        anyText: ["Payment issue detected."],
     },
     {
         xpath: "/html/body/div[2]/main/div/div[1]/div",
