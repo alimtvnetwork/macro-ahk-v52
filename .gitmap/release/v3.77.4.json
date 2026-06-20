@@ -1,0 +1,16 @@
+{
+  "version": "3.77.4",
+  "branch": "release/v3.77.4",
+  "sourceBranch": "main",
+  "commit": "6fdd0f711221514dc8823eff5bdad2f6d5a5a610",
+  "tag": "v3.77.4",
+  "assets": [],
+  "changelog": [
+    "**Payment banner pattern collision** — removed `\"Final notice\"` from pattern 1's `anyText` array in `standalone-scripts/payment-banner-hider/src/types.ts`. Pattern 1's XPath was matching pattern-2's outer wrapper and stealing the hit before pattern 2 could resolve, breaking the `banner-collapse.test.ts` \"pattern 2 (inner div)\" assertion.",
+    "**`audit-releases.yml`** — added `SKIP_TAGS=\"v3.77.1\"` so the weekly audit no longer fails on the source-only `v3.77.1` tag that was superseded before assets were uploaded."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-20T05:45:21Z",
+  "isLatest": false
+}
