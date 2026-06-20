@@ -7,12 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
-## [v3.77.2] — 2026-06-19 Task Next dead-code cleanup
+## [v3.77.4] — 2026-06-19 Banner pattern fix + CI audit skip
+
+### Fixed
+- **Payment banner pattern collision** — removed `"Final notice"` from pattern 1's `anyText` array in `standalone-scripts/payment-banner-hider/src/types.ts`. Pattern 1's XPath was matching pattern-2's outer wrapper and stealing the hit before pattern 2 could resolve, breaking the `banner-collapse.test.ts` "pattern 2 (inner div)" assertion.
+
+### Changed
+- **`audit-releases.yml`** — added `SKIP_TAGS="v3.77.1"` so the weekly audit no longer fails on the source-only `v3.77.1` tag that was superseded before assets were uploaded.
+
+---
+
+## [v3.77.3] — 2026-06-19 Task Next dead-code cleanup
 
 ### Removed
 - **`task-next-ui.ts` dead code** — deleted the orphaned `tryClickAndAdvance`, `doNextTask`, `resolveRequestedTaskCount` helpers, the `ClickContext`/`TaskNextLoopCtx` interfaces, and the now-unused `getSettingsOverrides` / `isReturnButtonVisible` imports left over from the v3.74.0 paste-only refactor. Fixes CI typecheck `TS6133` failures.
 
 ---
+
 
 ## [v3.77.1] — 2026-06-19 Maintenance release
 
