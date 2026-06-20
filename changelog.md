@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
-## [v3.77.3] — 2026-06-19 Task Next dead-code cleanup
+## [v3.77.4] — 2026-06-19 Task Next dead-code cleanup
 
 ### Removed
 - **`task-next-ui.ts` dead code** — deleted the orphaned `tryClickAndAdvance`, `doNextTask`, `resolveRequestedTaskCount` helpers, the `ClickContext`/`TaskNextLoopCtx` interfaces, and the now-unused `getSettingsOverrides` / `isReturnButtonVisible` imports left over from the v3.74.0 paste-only refactor. Fixes CI typecheck `TS6133` failures.
