@@ -31,6 +31,7 @@ re-deriving it from chat history.
 | 11 | [11-explain-like-layman.md](./prompts/11-explain-like-layman.md) | Explain Like I'm a Layman (v1) | `explain like layman`, `explain like i'm five`, `eli5`, `eli-layman` | active |
 | 12 | [12-next-steps-v7.md](./prompts/12-next-steps-v7.md) | Next ${N} Steps (v7) — single-task append (Issue 126) | `next 1`, `next 2`, `next 3`, `next 4`, `next 5`, `next 8`, `next n steps`, `next n tasks` | active |
 | 13 | [13-plan-steps-v7.md](./prompts/13-plan-steps-v7.md) | Plan ${N} (v7) — Evidence Enforcement, single-task append (Issue 126) | `plan 2`, `plan 3`, `plan 5`, `plan 8`, `plan 10`, `plan 12`, `plan 14`, `plan 15`, `plan 18`, `plan 20`, `plan 22`, `plan 25`, `plan 28`, `plan 30`, `plan 32`, `plan 35`, `plan 38`, `plan 40`, `plan 42`, `plan 45`, `plan 48`, `plan 50`, `plan 52`, `plan 55`, `plan 58`, `plan 60`, `plan 70`, `plan 80`, `plan 100`, `plan 150`, `plan 200` | active |
+| 14 | [14-release.md](./prompts/14-release.md) | Release (bump version + changelog + readme pin + aggregate prompts) — mirror of `standalone-scripts/prompts/22-release/prompt.md` | `release`, `bump version`, `bump version + add changelog + pin to root readme` | active |
 ## Dropdown-shipped subset (canonical, v3.59.x)
 
 These 8 prompts are exposed in the macro-controller chat-box dropdown

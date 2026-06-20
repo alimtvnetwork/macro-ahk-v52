@@ -4,7 +4,7 @@
 
 When the user says **release** (or any trigger phrase above), perform the full release ceremony in a single turn. Do **not** ask for confirmation. Do **not** open plan mode. Just do it.
 
-> **Mirror location:** This prompt MUST also be saved as a human-readable mirror at `.lovable/prompts/XX-release.md` (where `XX` is the next free numeric prefix in that folder, e.g. `14-release.md`). The mirror body must stay byte-identical to this canonical source (`standalone-scripts/prompts/22-release/prompt.md`). When editing this prompt, update the mirror in the same turn and add a row to `.lovable/prompts.md`.
+> **Mirror location:** This prompt MUST also be saved as a human-readable mirror at `.lovable/prompts/XX-release.md` (where `XX` is the next free numeric prefix in that folder, e.g. `14-release.md`). The mirror body must stay byte-identical to the canonical source (`standalone-scripts/prompts/22-release/prompt.md`). When editing this prompt, update the mirror in the same turn and add a row to `.lovable/prompts.md`.
 
 ## Mandatory steps (all of them, in order)
 
