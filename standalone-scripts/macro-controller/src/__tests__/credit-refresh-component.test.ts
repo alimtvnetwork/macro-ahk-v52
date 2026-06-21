@@ -10,7 +10,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WorkspaceCredit } from '../types';
 import { CreditFetchOutcome } from '../credit-balance-update/credit-fetch-outcome';
 import { buildButtonRow } from '../ui/panel-controls';
-import { renderLoopWorkspaceList, invalidateWsDropdownHash } from '../ws-list-renderer';
 import { loopCreditState, state } from '../shared-state';
 
 const hoisted = vi.hoisted(() => ({
@@ -110,7 +109,6 @@ beforeEach(async () => {
     loopCreditState.perWorkspace = [newFreeWorkspace()];
     loopCreditState.lastCheckedAt = 1;
     state.workspaceName = 'New Free';
-    invalidateWsDropdownHash();
     hoisted.getBearerTokenSpy.mockResolvedValue('bearer-token');
     hoisted.proOneRefreshSpy.mockResolvedValue(undefined);
     hoisted.fetchSpy.mockResolvedValue({
@@ -129,6 +127,8 @@ beforeEach(async () => {
     controller.__resetCreditFetchControllerForTests();
     const cache = await import('../credit-balance-update/credit-balance-cache');
     cache.clearCreditBalanceUpdateMemoryCache();
+    const renderer = await import('../ws-list-renderer');
+    renderer.invalidateWsDropdownHash();
 });
 
 afterEach(() => {
@@ -138,7 +138,8 @@ afterEach(() => {
 
 describe('💰 Credits button — new-free row render after fan-out (plan 01 step 8c)', () => {
     it('replaces the Pending skeleton with a non-zero progressbar within the repaint budget', async () => {
-        renderLoopWorkspaceList(loopCreditState.perWorkspace, state.workspaceName, '');
+        const renderer = await import('../ws-list-renderer');
+        renderer.renderLoopWorkspaceList(loopCreditState.perWorkspace, state.workspaceName, '');
         expect(document.querySelector('#loop-ws-list .marco-skeleton')).not.toBeNull();
 
         const deps = {
