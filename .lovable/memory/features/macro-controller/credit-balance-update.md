@@ -1,6 +1,6 @@
 ---
 name: credit-balance-update
-description: v3.82.0 — Ktlo/Free/Cancelled workspaces fetch /workspaces/{id}/credit-balance on demand; resolver is mandatory for all credit UI numbers, filters, sorts, summaries, tooltip, CSV, refill-priority
+description: v3.88.0 — Ktlo/Free/Cancelled workspaces fetch /workspaces/{id}/credit-balance on demand; resolver is mandatory for all credit UI numbers; failure-log schema locked with SourceUrl key + Step 9 regression
 type: feature
 ---
 
