@@ -20,6 +20,8 @@ import {
 import { aggregateCreditTotals } from '../credit-totals';
 import { loopCreditState } from '../shared-state';
 import type { WorkspaceCredit } from '../types';
+import { CreditFetchOutcome } from '../credit-balance-update/credit-fetch-outcome';
+import { clearCreditBalanceUpdateMemoryCache, writeCreditBalanceUpdateCache } from '../credit-balance-update/credit-balance-cache';
 
 function ws(partial: Partial<WorkspaceCredit>): WorkspaceCredit {
   return {
@@ -43,11 +45,31 @@ function ws(partial: Partial<WorkspaceCredit>): WorkspaceCredit {
 beforeEach(() => {
   loopCreditState.perWorkspace = [];
   loopCreditState.lastCheckedAt = null;
+  clearCreditBalanceUpdateMemoryCache();
 });
 
 afterEach(() => {
   removeCreditTotalsModal();
+  clearCreditBalanceUpdateMemoryCache();
 });
+
+async function seedCachedBalance(workspaceId: string, remaining: number, total: number): Promise<void> {
+  await writeCreditBalanceUpdateCache(workspaceId, {
+    outcome: CreditFetchOutcome.ApiHit,
+    fetchedAt: Date.now(),
+    sourceUrl: 'test',
+    errorDetail: null,
+    balance: {
+      totalRemaining: remaining,
+      totalGranted: total,
+      dailyRemaining: 5,
+      dailyLimit: 5,
+      totalBillingPeriodUsed: Math.max(0, total - remaining),
+      expiringGrants: [],
+      grantTypeBalances: [],
+    },
+  });
+}
 
 describe('formatCount', () => {
   it('formats with thousands separators and no decimals', () => {
