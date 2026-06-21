@@ -85,62 +85,58 @@ export function saveTaskNextSettings(deps: TaskNextDeps) {
   });
 }
 
+function matchPromptBySlug(entries: ReadonlyArray<{ slug?: string; name?: string }>, aliases: Set<string>) {
+  for (const entry of entries) {
+    const entrySlug = (entry.slug || '').toLowerCase();
+    if (aliases.has(entrySlug)) return entry;
+  }
+  return null;
+}
+
+function matchPromptById(entries: ReadonlyArray<{ id?: string; name?: string }>, aliases: Set<string>) {
+  for (const entry of entries) {
+    const id = (entry.id || '').toLowerCase();
+    for (const alias of aliases) {
+      if (id === alias || id === 'default-' + alias || id.indexOf(alias) !== -1) return entry;
+    }
+  }
+  return null;
+}
+
+function matchPromptByDerivedSlugOrKeywords(entries: ReadonlyArray<{ name?: string }>, aliases: Set<string>) {
+  for (const entry of entries) {
+    const derivedSlug = (entry.name || '').toLowerCase().replace(/\s+/g, '-');
+    if (aliases.has(derivedSlug)) return entry;
+  }
+  for (const entry of entries) {
+    const name = (entry.name || '').toLowerCase();
+    if (name.indexOf('next') !== -1 && (name.indexOf('task') !== -1 || name.indexOf('step') !== -1)) return entry;
+  }
+  return null;
+}
+
 export function findNextTasksPrompt(deps: TaskNextDeps) {
   const promptsCfg = deps.getPromptsConfig();
   const entries = promptsCfg.entries || [];
   const targetSlug = taskNextState.settings.promptSlug || Label.NextTasks;
-  // Alias set — accept both the legacy ('next-tasks') and the renamed ('next-steps')
-  // canonical slug. Persisted DB entries / older fallbacks may still use the old slug
-  // even though Label.NextTasks now points at the new one.
   const aliases = new Set<string>([targetSlug, 'next-tasks', 'next-steps']);
 
-  // Diagnostic: log slug/id of every entry to confirm fields survived the pipeline
   const slugMap = entries.map(function(e) { return e.name + ' → slug=' + (e.slug || '⚠️ MISSING') + ', id=' + (e.id || '—'); });
   log('Task Next: Resolving target="' + targetSlug + '" (aliases=' + Array.from(aliases).join(',') + ') across ' + entries.length + ' entries:\n  ' + slugMap.join('\n  '), 'info');
 
-  // Priority 1: Exact slug field match against any alias
-  for (const entry of entries) {
-    const entrySlug = (entry.slug || '').toLowerCase();
-    if (aliases.has(entrySlug)) {
-      log('Task Next: Found prompt by slug field: "' + entry.name + '" (slug=' + entrySlug + ')', 'info');
-      return entry;
-    }
+  const found = matchPromptBySlug(entries, aliases)
+    || matchPromptById(entries, aliases)
+    || matchPromptByDerivedSlugOrKeywords(entries, aliases);
+  if (found) {
+    log('Task Next: Found prompt: "' + found.name + '" (slug=' + (found.slug || '—') + ', id=' + (found.id || '—') + ')', 'info');
+    return found;
   }
 
-  // Priority 2: Match by id field against any alias
-  for (const entry of entries) {
-    const id = (entry.id || '').toLowerCase();
-    for (const alias of aliases) {
-      if (id === alias || id === 'default-' + alias || id.indexOf(alias) !== -1) {
-        log('Task Next: Found prompt by id: "' + entry.name + '" (id=' + entry.id + ', alias=' + alias + ')', 'info');
-        return entry;
-      }
-    }
-  }
-
-  // Priority 3: Derive slug from name and match any alias
-  for (const entry of entries) {
-    const derivedSlug = (entry.name || '').toLowerCase().replace(/\s+/g, '-');
-    if (aliases.has(derivedSlug)) {
-      log('Task Next: Found prompt by derived name slug: "' + entry.name + '"', 'info');
-      return entry;
-    }
-  }
-
-  // Priority 4: Broader match — name contains "next" AND ("task" OR "step")
-  for (const entry of entries) {
-    const name = (entry.name || '').toLowerCase();
-    if (name.indexOf('next') !== -1 && (name.indexOf('task') !== -1 || name.indexOf('step') !== -1)) {
-      log('Task Next: Found prompt by name keywords: "' + entry.name + '"', 'info');
-      return entry;
-    }
-  }
-
-  // Last resort: DO NOT fall back to entries[0] — that caused the "Start Prompt" regression.
   log('Task Next: ❌ No prompt matched target slug "' + targetSlug + '" (aliases: next-tasks/next-steps) across ' + entries.length + ' entries. ' +
     'Ensure a prompt with slug "next-tasks" or "next-steps", or name containing "Next" + "Tasks"/"Steps", exists. Returning null — aborting.', 'error');
   return null;
 }
+
 
 
 /** Try to find the button via user-configured XPath. */
