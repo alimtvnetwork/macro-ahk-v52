@@ -1,0 +1,16 @@
+{
+  "version": "3.79.1",
+  "branch": "release/v3.79.1",
+  "sourceBranch": "main",
+  "commit": "71cb30b5f2f801eebf544470a36df779304abfe7",
+  "tag": "v3.79.1",
+  "assets": [],
+  "changelog": [
+    "**Task Next pasting stale text**: The two fallback prompt registries (`standalone-scripts/macro-controller/src/ui/prompt-loader.ts` `DEFAULT_PROMPTS` and `src/background/handlers/prompt-handler.ts` `getFallbackDefaultPrompts`) still held the old short \"Next, List out the remaining tasks...\" / single-line \"Plan Steps\" placeholders. They now embed the full v5 \"Next ${N} steps\" and v6 \"Plan ${N}\" canonical prompt bodies (from `standalone-scripts/prompts/13-next-tasks/prompt.md` and `14-plan-steps/prompt.md`), with names and slugs aligned to canonical (`next-steps`, `plan-steps`). Task Next button now pastes the updated prompt; Plan Steps appears with its full v6 body.",
+    "**default-prompt-content tests**: Updated to assert against the new v5/v6 content (`NEXT N STEPS`, `Definition of done`, `Banned actions`) instead of the deleted v3/v4 phrases."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-21T13:35:29Z",
+  "isLatest": false
+}
