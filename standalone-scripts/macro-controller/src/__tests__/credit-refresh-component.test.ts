@@ -105,6 +105,7 @@ async function flushMicrotasks(): Promise<void> {
 
 beforeEach(async () => {
     vi.useFakeTimers();
+    Object.defineProperty(window.HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: vi.fn() });
     document.body.innerHTML = '<div id="loop-ws-count-label"></div><input id="loop-ws-search" value=""><div id="loop-ws-list"></div>';
     loopCreditState.perWorkspace = [newFreeWorkspace()];
     loopCreditState.lastCheckedAt = 1;
