@@ -666,7 +666,7 @@ function renderWorkspaceFilterChips(container: HTMLElement, status: HTMLElement,
     for (const block of state.blocks) {
         container.appendChild(createWorkspaceFilterChip(block.ws, onChange));
     }
-    const visibleCount = state.blocks.length - state.hiddenWorkspaces.size;
+    const visibleCount = filterWorkspaceBlocksByVisibility(state.blocks, state.hiddenWorkspaces).length;
     status.textContent = state.blocks.length > 0 ? visibleCount + '/' + state.blocks.length + ' workspaces' : '';
 }
 
