@@ -1,0 +1,15 @@
+{
+  "version": "3.104.3",
+  "branch": "release/v3.104.3",
+  "sourceBranch": "main",
+  "commit": "1f6ea9747d4d8643de02b5ea8b45c052be805993",
+  "tag": "v3.104.3",
+  "assets": [],
+  "changelog": [
+    "Version bump: 3.104.2 → 3.104.3 (all version files synced)"
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-21T20:48:14Z",
+  "isLatest": false
+}
