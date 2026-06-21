@@ -1,3 +1,5 @@
+> **STATUS:** ✅ COMPLETED — archived 2026-06-21 (v3.92.0 plan-inventory correction). All 100 tasks are checked; final status is COMPLETE 100/100.
+
 # Prompt Macros — 100-Step Spec Authoring Plan
 
 **Created:** 2026-06-02 · **Revised:** 2026-06-02 (expanded 50 → 100, added Variables + Macro-Prompts folder)

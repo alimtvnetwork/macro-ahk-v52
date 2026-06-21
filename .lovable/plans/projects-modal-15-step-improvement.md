@@ -2,6 +2,8 @@
 
 **Scope**: macro-controller → Projects dialog + CSV export.
 **Created**: 2026-05-22. **Owner**: AI (execute one task per `next`).
+**Current cursor**: Task 1 — write `standalone-scripts/macro-controller/spec/projects-modal/00-overview.md` before touching implementation.
+**Status**: OPEN — the only active plan left in `.lovable/plans/` after the v3.92.0 inventory correction.
 
 ## Problems reported by user
 1. CSV export sometimes shows **project ID instead of project name** (some rows have name, some only ID).

@@ -1,3 +1,5 @@
+> **STATUS:** ✅ COMPLETED — archived 2026-06-21 (v3.92.0 plan-inventory correction). All 100 tasks are checked; final status is COMPLETE with audited score 100/100.
+
 # Spec Audit — Prompt-Macros — 100-Task Phased Plan
 
 **Created:** 2026-06-02

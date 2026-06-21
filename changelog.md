@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.92.0] — 2026-06-21
+
+### Changed
+
+- **Plan inventory correction.** Archived the two prompt-macro plans that were still listed as pending despite their own completed status: `06-prompt-macros-50-step.md` (100/100 tasks complete) and `07-spec-prompt-macros-audit-100.md` (audit complete, score 100/100). Added explicit `STATUS: ✅ COMPLETED` headers to both files.
+- **Open-plan cursor.** Marked `projects-modal-15-step-improvement.md` as the only active plan and pinned its current cursor to Task 1: write the Projects Modal overview/spec before implementation.
+
+---
+
 ## [v3.91.0] — 2026-06-21
 
 ### Changed
