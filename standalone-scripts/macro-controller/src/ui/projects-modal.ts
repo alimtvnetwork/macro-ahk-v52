@@ -78,11 +78,16 @@ interface ModalState {
     filterOpenOnly: boolean;
     /** Show only projects that have a GitHub repo configured. */
     filterHasRepo: boolean;
+    /** Workspace IDs hidden by the workspace multi-select filter. */
+    hiddenWorkspaces: Set<string>;
+    /** Repaints the workspace filter dropdown after async workspace loads. */
+    refreshWorkspaceFilter: (() => void) | null;
 }
 const state: ModalState = {
     blocks: [], tabIndex: null, exporting: false,
     searchQuery: '', collapsed: new Set<string>(),
     filterOpenOnly: false, filterHasRepo: false,
+    hiddenWorkspaces: new Set<string>(), refreshWorkspaceFilter: null,
 };
 
 const COLLAPSED_STORAGE_KEY = 'marco_projects_modal_collapsed_v1';
@@ -141,6 +146,7 @@ export function showProjectsModal(): void {
 /** Render the current blocks + filter into the body element. */
 function renderBody(body: HTMLElement): void {
     const tabIndex = state.tabIndex ?? { byProjectId: new Map(), byUrlProjectId: new Map() };
+    state.refreshWorkspaceFilter?.();
     body.innerHTML = renderAll(state.blocks, tabIndex, null, state.searchQuery);
     attachRowClicks(body);
 }
@@ -298,6 +304,8 @@ function attachRowClicks(body: HTMLElement): void {
                 const c = panel?.querySelector('[data-chip="repo"]') as HTMLButtonElement | null;
                 c?.click();
             }
+            state.hiddenWorkspaces.clear();
+            state.refreshWorkspaceFilter?.();
             renderBody(body);
             return;
         }
