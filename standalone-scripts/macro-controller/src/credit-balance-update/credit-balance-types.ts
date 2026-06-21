@@ -59,7 +59,7 @@ export interface CreditFetchResult {
 export interface CreditFailureLogPayload {
     readonly Reason: string;
     readonly ReasonDetail: string;
-    readonly Path: string;
+    readonly SourceUrl: string;
     readonly WorkspaceId: string;
     readonly Plan: Plan;
     readonly BearerPrefix: string | null;
