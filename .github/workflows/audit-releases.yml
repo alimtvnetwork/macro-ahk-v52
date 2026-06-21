@@ -100,7 +100,7 @@ jobs:
           # Tags superseded by a later patch release before assets were uploaded.
           # These are intentionally left source-only; the successor tag carries the assets.
           # See .gitmap/release/latest.json and changelog.md for the active version.
-          SKIP_TAGS="v3.77.1"
+          SKIP_TAGS="v3.77.1 v3.104.1"
 
           for TAG in $TAGS; do
             if echo " $SKIP_TAGS " | grep -q " $TAG "; then
