@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.81.0] — 2026-06-21
+
+### Added
+
+- **Task Next sequential queue for "Next N tasks"**: picking _Next 2 / 3 / 5 / 7 / 10 / 12 / 15 / 20 / 30 / 40_ — or any custom count — from the prompts-dropdown Task Next submenu now queues N cycles: paste prompt → submit (via `form#chat-input.requestSubmit()`) → await Lovable idle (Stop→Submit swap + Return-button gone, 800 ms confirmed-idle, 10 min hard timeout) → paste again. Previous behaviour silently pasted once and warned `Task Next: multi-run blocked` (v3.74.0 PASTE-ONLY cap), which is what produced the user report "it added every task all together but it should complete the 1st task and then the 2nd". The split-button LABEL (single click on "Task Next") and keyboard-handler presets keep their paste-once behaviour — only the submenu count rows + the custom `▶` row are wired to the queue. Escape cancels mid-queue and surfaces a toast (`🛑 Task Next queue cancelled at k/N`). Each cycle logs `[TaskNextQueue] cycle k/N done in …ms`; failures (paste, submit, idle-timeout, unexpected) abort fail-fast and log via `logError('Task Next queue', …)` per `mem://constraints/no-retry-policy`. New files: `standalone-scripts/macro-controller/src/ui/lovable-idle.ts` (shared `waitForLovableIdle()` helper) and tests `standalone-scripts/macro-controller/src/__tests__/task-next-queue.test.ts`. Modified: `task-next-ui.ts` (queue state + `runTaskNextQueue`), `prompt-dropdown.ts` (submenu + custom-count wiring).
+
+---
+
 ## [v3.80.0] — 2026-06-21
 
 ### Fixed
