@@ -452,7 +452,7 @@ function matchesExpiredWithCreditsFilter(ws: WorkspaceCredit): boolean {
   const sub = (ws.subscriptionStatus || '').toLowerCase().trim();
   if (sub === 'canceled' || sub === 'cancelled') return false;
   if (!isExpiredWs(ws)) return false;
-  if ((ws.available || 0) <= EXPIRED_WITH_CREDITS_MIN) return false;
+  if (resolveCreditSummary(ws).available <= EXPIRED_WITH_CREDITS_MIN) return false;
   return true;
 }
 
@@ -463,7 +463,7 @@ function isProOnlySortMode(mode: WsFilterState['creditSortMode']): boolean {
 
 /** Check sub-filters that gate on workspace credit/lifecycle state. */
 function passesCreditFilters(ws: WorkspaceCredit, fs: WsFilterState): boolean {
-  if (fs.minCredits > 0 && (ws.available || 0) < fs.minCredits) return false;
+  if (fs.minCredits > 0 && resolveCreditSummary(ws).available < fs.minCredits) return false;
   if (fs.expiredWithCredits && !matchesExpiredWithCreditsFilter(ws)) return false;
   if (fs.expiring && !isExpiringWs(ws)) return false;
   if (fs.refillSoon && !isRefillSoonWs(ws)) return false;
@@ -496,7 +496,7 @@ function passesFilters(ws: WorkspaceCredit, fs: WsFilterState): boolean {
  * graceful fallback.
  */
 function _expiredRecoveryScore(ws: WorkspaceCredit): number {
-  const credits = Math.max(ws.available || 0, 0);
+  const credits = Math.max(resolveCreditSummary(ws).available, 0);
   const days = Math.max(expiredDays(ws) || 0, 0);
   return credits * days + credits;
 }
