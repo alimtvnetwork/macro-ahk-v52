@@ -999,6 +999,18 @@ export function resolveCsvProjectName(project: ProjectEntry, tabIndex: OpenTabIn
     return openTabProjectName || project.name || project.id;
 }
 
+export function hasMissingCsvLastCommunication(lastMessageAt: string): boolean {
+    const normalized = lastMessageAt.trim().toLowerCase();
+
+    return normalized === '' || normalized === CSV_UPSTREAM_EMPTY_PLACEHOLDER;
+}
+
+export function normalizeCsvLastCommunication(lastMessageAt: string): string {
+    const isMissing = hasMissingCsvLastCommunication(lastMessageAt);
+
+    return isMissing ? CSV_MISSING_LAST_COMMUNICATION_LABEL : lastMessageAt;
+}
+
 function pickString(obj: Record<string, unknown>, keys: ReadonlyArray<string>): string {
     for (const k of keys) {
         const v = obj[k];
