@@ -19,7 +19,7 @@ Mirror files in `.lovable/prompts/` MUST stay byte-identical (after
 | 5 | Memory | `write-memory` | Write Memory | no | [`03-write-memory.md`](../../.lovable/prompts/03-write-memory.md) | `write memory`, `end memory`, `update memory` |
 | 6 | next | `next-steps` | Next ${N} steps | yes | [`12-next-steps-v7.md`](../../.lovable/prompts/12-next-steps-v7.md) | `next 1`, `next 2`, `next 3`, `next 4`, `next 5`, `next 8`, `next n steps`, `next n tasks` |
 | 7 | Plan | `plan-steps` | Plan ${N} | yes | [`13-plan-steps-v7.md`](../../.lovable/prompts/13-plan-steps-v7.md) / bundled source [`standalone-scripts/prompts/14-plan-steps`](../../standalone-scripts/prompts/14-plan-steps) | `plan 2`, `plan 3`, `plan 5`, `plan 8`, `plan 10`, `plan 12`, `plan 14`, `plan 15`, `plan 18`, `plan 20`, `plan 22`, `plan 25`, `plan 28`, `plan 30`, `plan 32`, `plan 35`, `plan 38`, `plan 40`, `plan 42`, `plan 45`, `plan 48`, `plan 50`, `plan 52`, `plan 55`, `plan 58`, `plan 60`, `plan 70`, `plan 80`, `plan 100`, `plan 150`, `plan 200` |
-| 8 | Proofread | `proofread` | Proofread | no | [`07-proof-read.md`](../../.lovable/prompts/07-proof-read.md) | `proofread`, `proof read`, `rewrite`, `rewrite next`, `next` (in proofread mode) |
+| 8 | Proofread | `proofread` | Proofread | no | [`07-proofread.md`](../../.lovable/prompts/07-proofread.md) | `proofread`, `proof read`, `rewrite`, `rewrite next`, `next` (in proofread mode) |
 
 ## Dynamic-prompt expansion contract
 
