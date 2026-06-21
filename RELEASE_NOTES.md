@@ -1,4 +1,4 @@
-# Marco Chrome Extension v3.103.0
+# Marco Chrome Extension v3.104.0
 
 ## Added
 
@@ -11,5 +11,5 @@
 
 ## Verification
 
-- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.103.0.
+- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.104.0.
 - `bunx vitest run standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts` → 1 file, 16 tests passed.
