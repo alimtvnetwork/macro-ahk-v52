@@ -242,6 +242,7 @@ export function subscribeCreditFetchSettings(): void {
 export function __resetCreditFetchControllerForTests(): void {
     timeoutMs = DEFAULT_TIMEOUT_MS;
     inFlight.clear();
+    creditResolvedListeners.clear();
     if (settingsUnsubscribe) {
         settingsUnsubscribe();
         settingsUnsubscribe = null;
