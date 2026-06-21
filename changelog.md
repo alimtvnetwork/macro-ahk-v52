@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.81.1] — 2026-06-21
+
+### Docs
+
+- **Credit-bar call-site audit (`.lovable/audits/2026-06-21-credit-field-call-sites.md`)**: completed Plan Step 2 from `.lovable/plan.md`. Enumerated every raw `ws.available / ws.totalCredits / ws.dailyLimit` read in `standalone-scripts/macro-controller/src` and tagged each as enrichment / resolver / **legacy-direct** / logging-only. Found 5 P0 surfaces (`ws-list-renderer.ts:455/466/499/724-756/774-775` + `ui/credit-totals-modal.ts:165-167,233,501-514`), 3 P1 surfaces (`ui/summary-bar/compute-summary.ts`, `ui/ui-status-renderer.ts:194-204`, `ws-hover-card.ts:422`), 2 P2 export surfaces (`ui/projects-modal.ts`, `log-csv-export.ts`) that bypass `resolveCreditSummary(ws)`. Plan Step 3 (renderer migration) must cover the 5 P0 + 3 P1 sites in one PR. No runtime change.
+
+---
+
 ## [v3.81.0] — 2026-06-21
 
 ### Added
