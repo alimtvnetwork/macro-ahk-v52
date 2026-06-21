@@ -25,6 +25,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.103.0] — 2026-06-21
+
+### Added
+
+- **Projects Modal Task 15 — final changelog sweep.** Added in-app `changelog-modal.ts` entries for v3.97.0, v3.99.0, v3.100.0, v3.101.0, v3.102.0, so the in-extension changelog now reflects every Projects Modal change from the 15-step plan. Plan closed.
+
+### Tests
+
+- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.103.0.
+
+---
+
+
+
 
 ## [v3.102.0] — 2026-06-21
 
