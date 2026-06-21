@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.100.0] — 2026-06-21
+
+### Added
+
+- **Projects Modal Task 12 — credits-used min/max filter.** Added two numeric inputs ("Credits used: min – max") to the Projects dialog filter rail. Workspaces whose `WorkspaceCredit.used` falls outside the inclusive `[min, max]` range are hidden before any per-row filtering runs. Empty inputs mean "no bound" on that side.
+- **Zero-results panel observability.** The "No projects match your filters" panel now lists the active credits range (e.g. `credits 50–200`) alongside search, open-tab, repo, and workspace chips.
+- **Clear all filters resets credits range.** Both numeric inputs are emptied and `state.creditsUsedMin` / `state.creditsUsedMax` reset to `null`.
+
+### Tests
+
+- Added `isWorkspaceWithinCreditsRange()` coverage in `standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts` (in-range, below-min, above-max, null/null open bounds, inclusive boundaries).
+- `bunx vitest run standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts` → **1 file, 10 tests passed**.
+
+---
+
 ## [v3.99.0] — 2026-06-21
 
 ### Added

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   filterWorkspaceBlocksByVisibility,
   isWorkspaceFilterVisible,
+  isWorkspaceWithinCreditsRange,
   isCsvProjectNameFallback,
   resolveCsvProjectName,
   type OpenTabIndex,
@@ -81,5 +82,27 @@ describe('Projects modal workspace filter', () => {
     const blocks = [workspaceBlock('workspace-1'), workspaceBlock('workspace-2')];
 
     expect(filterWorkspaceBlocksByVisibility(blocks, new Set(['workspace-2']))).toEqual([workspaceBlock('workspace-1')]);
+  });
+});
+describe('Projects modal credits-used range filter (Task 12)', () => {
+  it('keeps a workspace when used falls within [min, max]', () => {
+    expect(isWorkspaceWithinCreditsRange(50, 0, 100)).toBe(true);
+  });
+
+  it('excludes a workspace when used is below min', () => {
+    expect(isWorkspaceWithinCreditsRange(10, 50, null)).toBe(false);
+  });
+
+  it('excludes a workspace when used is above max', () => {
+    expect(isWorkspaceWithinCreditsRange(200, null, 100)).toBe(false);
+  });
+
+  it('null/null bounds keep every workspace', () => {
+    expect(isWorkspaceWithinCreditsRange(0, null, null)).toBe(true);
+    expect(isWorkspaceWithinCreditsRange(9999, null, null)).toBe(true);
+  });
+
+  it('inclusive boundaries are honoured', () => {
+    expect(isWorkspaceWithinCreditsRange(50, 50, 50)).toBe(true);
   });
 });

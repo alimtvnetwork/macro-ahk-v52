@@ -82,12 +82,17 @@ interface ModalState {
     hiddenWorkspaces: Set<string>;
     /** Repaints the workspace filter dropdown after async workspace loads. */
     refreshWorkspaceFilter: (() => void) | null;
+    /** Minimum workspace credits-used (inclusive); null = no lower bound. */
+    creditsUsedMin: number | null;
+    /** Maximum workspace credits-used (inclusive); null = no upper bound. */
+    creditsUsedMax: number | null;
 }
 const state: ModalState = {
     blocks: [], tabIndex: null, exporting: false,
     searchQuery: '', collapsed: new Set<string>(),
     filterOpenOnly: false, filterHasRepo: false,
     hiddenWorkspaces: new Set<string>(), refreshWorkspaceFilter: null,
+    creditsUsedMin: null, creditsUsedMax: null,
 };
 
 const COLLAPSED_STORAGE_KEY = 'marco_projects_modal_collapsed_v1';
@@ -121,6 +126,8 @@ export function showProjectsModal(): void {
     state.exporting = false;
     state.searchQuery = '';
     state.hiddenWorkspaces = new Set<string>();
+    state.creditsUsedMin = null;
+    state.creditsUsedMax = null;
 
     const panel = createPanel();
     const titleBar = createTitleBar(panel);
@@ -307,6 +314,12 @@ function attachRowClicks(body: HTMLElement): void {
                 c?.click();
             }
             state.hiddenWorkspaces.clear();
+            state.creditsUsedMin = null;
+            state.creditsUsedMax = null;
+            const minInput = panel?.querySelector('[data-credits-min]') as HTMLInputElement | null;
+            const maxInput = panel?.querySelector('[data-credits-max]') as HTMLInputElement | null;
+            if (minInput) minInput.value = '';
+            if (maxInput) maxInput.value = '';
             state.refreshWorkspaceFilter?.();
             renderBody(body);
             return;
@@ -345,8 +358,14 @@ function renderAll(blocks: ReadonlyArray<WorkspaceBlock>, tabIndex: OpenTabIndex
     const onlyOpen = state.filterOpenOnly;
     const onlyRepo = state.filterHasRepo;
     const hasWorkspaceFilter = state.hiddenWorkspaces.size > 0;
-    const filterActive = q !== '' || onlyOpen || onlyRepo || hasWorkspaceFilter;
-    const workspaceBlocks = filterWorkspaceBlocksByVisibility(blocks, state.hiddenWorkspaces);
+    const creditsMin = state.creditsUsedMin;
+    const creditsMax = state.creditsUsedMax;
+    const hasCreditsFilter = creditsMin !== null || creditsMax !== null;
+    const filterActive = q !== '' || onlyOpen || onlyRepo || hasWorkspaceFilter || hasCreditsFilter;
+    const visibleByWorkspace = filterWorkspaceBlocksByVisibility(blocks, state.hiddenWorkspaces);
+    const workspaceBlocks = visibleByWorkspace.filter(function (b) {
+        return isWorkspaceWithinCreditsRange(b.ws.used ?? 0, creditsMin, creditsMax);
+    });
 
     const filtered: WorkspaceBlock[] = filterActive
         ? workspaceBlocks.map(function (b) {
@@ -389,6 +408,11 @@ function renderAll(blocks: ReadonlyArray<WorkspaceBlock>, tabIndex: OpenTabIndex
         if (onlyOpen) activeChips.push('open-in-tab');
         if (onlyRepo) activeChips.push('has-repo');
         if (hasWorkspaceFilter) activeChips.push('workspace filter');
+        if (hasCreditsFilter) {
+            const lo = creditsMin === null ? '−∞' : String(creditsMin);
+            const hi = creditsMax === null ? '+∞' : String(creditsMax);
+            activeChips.push('credits ' + lo + '–' + hi);
+        }
         html += '<div style="text-align:center;padding:24px 12px;color:' + cPanelFgDim + ';font-size:11px;'
             + 'border:1px dashed rgba(124,58,237,0.35);border-radius:6px;margin-top:4px;">'
             + '<div style="font-size:22px;margin-bottom:6px;opacity:0.6;">🔍</div>'
@@ -413,6 +437,17 @@ export function isWorkspaceFilterVisible(workspaceId: string, hiddenWorkspaceIds
 
 export function filterWorkspaceBlocksByVisibility<T extends WorkspaceVisibilityBlock>(blocks: ReadonlyArray<T>, hiddenWorkspaceIds: ReadonlySet<string>): T[] {
     return blocks.filter(function (block) { return isWorkspaceFilterVisible(block.ws.id, hiddenWorkspaceIds); });
+}
+
+/**
+ * Task 12 — credits-used min/max filter.
+ * `min` and `max` are inclusive bounds; `null` means "no bound on that side".
+ * `used` is `WorkspaceCredit.used` (current billing-period spend).
+ */
+export function isWorkspaceWithinCreditsRange(used: number, min: number | null, max: number | null): boolean {
+    if (min !== null && used < min) return false;
+    if (max !== null && used > max) return false;
+    return true;
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
@@ -656,10 +691,58 @@ function createSearchBar(onChange: () => void): HTMLElement {
     row2.appendChild(workspaceChips);
     row2.appendChild(workspaceStatus);
 
+    const row3 = createCreditsRangeRow(onChange);
+
     wrap.appendChild(row1);
     wrap.appendChild(row2);
+    wrap.appendChild(row3);
     paintWorkspaceFilters();
     return wrap;
+}
+
+function createCreditsRangeRow(onChange: () => void): HTMLElement {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:6px;font-size:10px;flex-wrap:wrap;color:#64748b;';
+
+    const label = document.createElement('span');
+    label.textContent = 'Credits used:';
+
+    function makeInput(attr: string, placeholder: string, getValue: () => number | null, setValue: (n: number | null) => void): HTMLInputElement {
+        const input = document.createElement('input');
+        input.setAttribute(attr, '1');
+        input.type = 'number';
+        input.min = '0';
+        input.placeholder = placeholder;
+        const initial = getValue();
+        input.value = initial === null ? '' : String(initial);
+        input.style.cssText = 'width:70px;background:rgba(0,0,0,0.35);color:#f1f5f9;border:1px solid rgba(124,58,237,0.30);'
+            + 'border-radius:4px;padding:2px 6px;font-size:10px;font-family:inherit;outline:none;';
+        input.addEventListener('input', function () {
+            const raw = input.value.trim();
+            if (raw === '') { setValue(null); onChange(); return; }
+            const n = Number(raw);
+            if (Number.isFinite(n) && n >= 0) { setValue(n); onChange(); return; }
+            setValue(null);
+            onChange();
+        });
+        input.addEventListener('keydown', function (e) { e.stopPropagation(); });
+        return input;
+    }
+
+    const minInput = makeInput('data-credits-min', 'min',
+        function () { return state.creditsUsedMin; },
+        function (n) { state.creditsUsedMin = n; });
+    const dash = document.createElement('span');
+    dash.textContent = '–';
+    const maxInput = makeInput('data-credits-max', 'max',
+        function () { return state.creditsUsedMax; },
+        function (n) { state.creditsUsedMax = n; });
+
+    row.appendChild(label);
+    row.appendChild(minInput);
+    row.appendChild(dash);
+    row.appendChild(maxInput);
+    return row;
 }
 
 function renderWorkspaceFilterChips(container: HTMLElement, status: HTMLElement, onChange: () => void): void {
