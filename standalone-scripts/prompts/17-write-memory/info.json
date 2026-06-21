@@ -2,7 +2,7 @@
   "Id": "default-write-memory",
   "Title": "Write Memory",
   "Slug": "write-memory",
-  "Version": "1.0.0",
+  "Version": "1.1.0",
   "Author": "marco",
   "Categories": [
     "onboarding"
