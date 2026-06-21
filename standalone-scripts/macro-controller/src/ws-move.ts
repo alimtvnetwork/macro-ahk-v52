@@ -291,84 +291,81 @@ async function handleMoveAuthFailure(
 // executeMove — core PUT request via SDK
 // ============================================
 
+async function resolveMoveToken(isRetry: boolean): Promise<string> {
+  try {
+    return await getBearerToken(isRetry ? { force: true } : undefined);
+  } catch (caught: unknown) {
+    logError('executeMove.getBearerToken', 'token fetch threw', caught);
+    return resolveToken();
+  }
+}
+
+async function buildMoveHeaders(): Promise<Record<string, string>> {
+  const castleToken = await getCastleRequestToken();
+  const headers: Record<string, string> = {};
+  if (castleToken) headers['x-castle-request-token'] = castleToken;
+  logSub('Castle token: ' + (castleToken ? 'present (len=' + castleToken.length + ')' : 'MISSING — request may be blocked'), 1);
+  return headers;
+}
+
+async function handleMoveResponse(
+  resp: { status: number; data: unknown; ok: boolean },
+  projectId: string,
+  targetWorkspaceId: string,
+  targetWorkspaceName: string,
+  token: string,
+  isRetry: boolean,
+  label: string,
+): Promise<void> {
+  if (isCastleDenied(resp.status, resp.data)) {
+    const castleMsg = extractCastleMessage(resp.data);
+    logError('Move blocked', 'Castle 403 castle_denied — ' + castleMsg);
+    updateLoopMoveStatus('error', 'Blocked by Lovable security (castle_denied)');
+    showToast('Move blocked by Lovable security: ' + castleMsg + ' Verify your account on lovable.dev, then retry.', 'error', { noStop: true });
+    clearDelegationState();
+    return;
+  }
+  if (isAuthFailure(resp.status) && !isRetry) {
+    await handleMoveAuthFailure(projectId, targetWorkspaceId, targetWorkspaceName, token, resp.status);
+    return;
+  }
+  if (resp.ok) {
+    log('Move response: ' + resp.status + label, 'success');
+    handleMoveSuccess(targetWorkspaceName, label);
+    return;
+  }
+  logError('ws-move', 'Move response: ' + resp.status + label);
+  const bodyPreview = JSON.stringify(resp.data).substring(0, 500);
+  logError('Move failed', 'HTTP ' + resp.status + ' | body: ' + bodyPreview);
+  updateLoopMoveStatus('error', 'HTTP ' + resp.status + ': ' + bodyPreview.substring(0, 80));
+  log('Move failed — verifying workspace session is still valid...', 'warn');
+  verifyWorkspaceSessionAfterFailure('move');
+}
+
 async function executeMove(
   projectId: string,
   targetWorkspaceId: string,
   targetWorkspaceName: string,
   isRetry: boolean,
 ): Promise<void> {
-  // Use unified getBearerToken() contract — on retry, force a fresh fetch
-  // so we never re-send the token that just got 401/403'd.
-  let token = '';
-  try {
-    token = await getBearerToken(isRetry ? { force: true } : undefined);
-  } catch (caught: unknown) {
-    logError('executeMove.getBearerToken', 'token fetch threw', caught);
-    token = resolveToken();
-  }
-
-  if (!token) {
-    handleMoveNoToken();
-
-    return;
-  }
+  const token = await resolveMoveToken(isRetry);
+  if (!token) { handleMoveNoToken(); return; }
 
   const label = isRetry ? ' (auth-retry)' : '';
   log('=== MOVE TO WORKSPACE ===' + label, 'delegate');
   log('PUT /projects/' + projectId + '/move-to-workspace', 'delegate');
   logSub('Target: ' + targetWorkspaceName + ' (id=' + targetWorkspaceId + ')', 1);
   logSub('Auth: Bearer ' + token.substring(0, 12) + '...REDACTED', 1);
-
   updateLoopMoveStatus('loading', 'Moving to ' + targetWorkspaceName + '...');
 
-  // Resolve a fresh Castle request token — Lovable's risk engine rejects
-  // PUT /move-to-workspace without `x-castle-request-token` (403
-  // castle_denied). Tokens are single-use, so we mint one per call.
-  const castleToken = await getCastleRequestToken();
-  const moveHeaders: Record<string, string> = {};
-  if (castleToken) moveHeaders['x-castle-request-token'] = castleToken;
-  logSub('Castle token: ' + (castleToken ? 'present (len=' + castleToken.length + ')' : 'MISSING — request may be blocked'), 1);
+  const moveHeaders = await buildMoveHeaders();
 
   try {
     const resp = await window.marco!.api!.workspace.move(projectId, targetWorkspaceId, {
       baseUrl: CREDIT_API_BASE,
       headers: moveHeaders,
     });
-
-
-    if (isCastleDenied(resp.status, resp.data)) {
-      const castleMsg = extractCastleMessage(resp.data);
-      logError('Move blocked', 'Castle 403 castle_denied — ' + castleMsg);
-      updateLoopMoveStatus('error', 'Blocked by Lovable security (castle_denied)');
-      showToast('Move blocked by Lovable security: ' + castleMsg + ' Verify your account on lovable.dev, then retry.', 'error', { noStop: true });
-      clearDelegationState();
-
-      return;
-    }
-
-    if (isAuthFailure(resp.status) && !isRetry) {
-      await handleMoveAuthFailure(projectId, targetWorkspaceId, targetWorkspaceName, token, resp.status);
-
-      return;
-    }
-
-    if (resp.ok) {
-      log('Move response: ' + resp.status + label, 'success');
-    } else {
-      logError('ws-move', 'Move response: ' + resp.status + label);
-    }
-
-    if (!resp.ok) {
-      const bodyPreview = JSON.stringify(resp.data).substring(0, 500);
-      logError('Move failed', 'HTTP ' + resp.status + ' | body: ' + bodyPreview);
-      updateLoopMoveStatus('error', 'HTTP ' + resp.status + ': ' + bodyPreview.substring(0, 80));
-      log('Move failed — verifying workspace session is still valid...', 'warn');
-      verifyWorkspaceSessionAfterFailure('move');
-
-      return;
-    }
-
-    handleMoveSuccess(targetWorkspaceName, label);
+    await handleMoveResponse(resp, projectId, targetWorkspaceId, targetWorkspaceName, token, isRetry, label);
   } catch (err) {
     logError('Move error', '' + (err as Error).message);
     updateLoopMoveStatus('error', (err as Error).message);
@@ -376,6 +373,7 @@ async function executeMove(
     verifyWorkspaceSessionAfterFailure('move');
   }
 }
+
 
 // ============================================
 // executeSwitchContext — fallback GET request when no project ID
