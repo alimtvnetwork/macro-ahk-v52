@@ -2,8 +2,8 @@
 
 **Scope**: macro-controller → Projects dialog + CSV export.
 **Created**: 2026-05-22. **Owner**: AI (execute one task per `next`).
-**Current cursor**: Task 15 — final changelog/version sweep. Tasks 1–14 shipped (Task 3 fixed CSV name fallback v3.97.0; Tasks 4–6 SQLite cache via `projects-cache.ts` + wired through `projects-modal.ts`; Task 7 `projectsCacheTtlHours` setting in `settings-store`/`settings-modal`; Task 8 fetch-delay setting; Task 9 workspace header shows credits; Task 10 search input; Task 11 workspace multi-select filter v3.99.0; Task 12 credits-used min/max range filter v3.100.0; Task 13 CSV lastCommunication cleanup v3.101.0; Task 14 SQLite cache short-circuit + hit/miss observability v3.102.0). Cursor advanced 2026-06-21 at v3.102.0.
-**Status**: OPEN — the only active plan left in `.lovable/plans/` after the v3.92.0 inventory correction.
+**Current cursor**: CLOSED — all 15 tasks shipped. Final sweep landed v3.103.0 (in-app `changelog-modal.ts` updated with v3.97.0, v3.99.0, v3.100.0, v3.101.0, v3.102.0 entries).
+**Status**: ✅ CLOSED 2026-06-21 at v3.103.0.
 
 ## Problems reported by user
 1. CSV export sometimes shows **project ID instead of project name** (some rows have name, some only ID).
@@ -35,7 +35,7 @@
 | 12 | ✅ **Credits-used filter**: numeric min/max range hides workspaces whose `WorkspaceCredit.used` falls outside the inclusive range; reset by Clear all filters. | Shipped v3.100.0; `projects-modal-csv.test.ts` covers `isWorkspaceWithinCreditsRange()` (in-range, below-min, above-max, null bounds, inclusive boundaries). |
 | 13 | ✅ **Replace `(no data returned by API)` rows**: CSV `lastCommunication` now normalizes blank and upstream placeholder values to `—`, and logs the count of normalized rows. | Shipped v3.101.0; `projects-modal-csv.test.ts` covers blank, placeholder, real timestamp values, cleanup log message generation, and the logging path firing. |
 | 14 | ✅ **Verified SQLite end-to-end**: `loadAndRender()` skips `projects.list` when the cache row is fresh; logs `cache hit/miss ws=…` per workspace and `load complete — cacheHits=X cacheMisses=Y bypass=Z` summary so cache effect is visible in the activity log. Refresh button still bypasses. | Shipped v3.102.0. |
-| 15 | **Update changelog + bump version** (`constants.ts`, manifest, scripts in sync). Note all behavior changes in `changelog-modal.ts`. | ✅ Released as v3.5.1 on 2026-05-22. |
+| 15 | ✅ **Final sweep**: `changelog-modal.ts` now lists v3.97.0/v3.99.0/v3.100.0/v3.101.0/v3.102.0 Projects Modal entries; root `readme.md` pin and all instruction.ts files in sync at v3.103.0. Plan closed. | Shipped v3.103.0. |
 
 ## Notes / Constraints
 - Honor `mem://constraints/no-retry-policy` — single attempt per network call; delay is throttle, not retry.

@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.103.0] — 2026-06-21
+
+### Added
+
+- **Projects Modal Task 15 — final changelog sweep.** Added in-app `changelog-modal.ts` entries for v3.97.0 (CSV name fallback), v3.99.0 (workspace multi-select filter), v3.100.0 (credits-used range filter), v3.101.0 (CSV `lastCommunication` cleanup) and v3.102.0 (SQLite cache short-circuit + hit/miss logging), so the in-extension changelog now reflects every Projects Modal change from the 15-step plan.
+- **Plan closure.** `.lovable/plans/projects-modal-15-step-improvement.md` cursor advanced to "closed" — all 15 tasks shipped.
+
+### Tests
+
+- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.103.0.
+- `bunx vitest run standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts` → 1 file, 16 tests passed.
+
+---
+
 ## [v3.102.0] — 2026-06-21
 
 ### Added
@@ -19,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 - `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.102.0.
 
 ---
+
 
 ## [v3.101.0] — 2026-06-21
 
