@@ -18,7 +18,28 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
+  { ver: 'v3.102.0', date: '2026-06-21', changes: [
+    'Projects modal: SQLite cache short-circuits projects.list fetches when fresh (within TTL)',
+    'Projects modal: per-workspace cache hit/miss logs + load-complete summary (cacheHits/cacheMisses/bypass)',
+    'Refresh button still bypasses cache for a forced re-fetch'
+  ]},
+  { ver: 'v3.101.0', date: '2026-06-21', changes: [
+    'Projects modal CSV: blank and "(no data returned by API)" lastCommunication values normalized to —',
+    'Activity log records "Projects: CSV lastCommunication normalized for N row(s)" when cleanup runs'
+  ]},
+  { ver: 'v3.100.0', date: '2026-06-21', changes: [
+    'Projects modal: credits-used min/max numeric filter hides workspaces outside the inclusive range',
+    'Zero-results panel lists active credits range alongside other active filters'
+  ]},
+  { ver: 'v3.99.0', date: '2026-06-21', changes: [
+    'Projects modal: workspace multi-select filter chips hide/show whole workspace blocks',
+    '"Clear all filters" now resets workspace visibility too'
+  ]},
+  { ver: 'v3.97.0', date: '2026-06-21', changes: [
+    'Projects modal CSV: project-name fallback chain (projects.list → open-tab → id) replaces id-only rows'
+  ]},
   { ver: 'v3.43.0', date: '2026-05-31', changes: [
+
     'Integrated SQLite database prompts.macro for communication history',
     'Conditional delay system based on page element detection (e.g. Return button)',
     'Settings: Added auto-detect delay toggle and 22s default timing',
