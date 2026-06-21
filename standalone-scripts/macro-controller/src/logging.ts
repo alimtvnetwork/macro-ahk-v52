@@ -169,9 +169,24 @@ export function getDisplayProjectName(): string {
     return titleMatch[1].trim();
   }
 
-  // Priority 4: truncated project ID
+  // Priority 4: no real name resolved — surface failure, don't disguise the
+  // project UUID as a name (v3.93.1). Logging once per page so we can see which
+  // upstream source is broken (almost always a stale PROJECT_NAME_XPATH).
   const pid = getProjectIdFromUrl();
-  return pid ? pid.substring(0, 8) : 'Unknown Project';
+  if (!state._projectNameFallbackLogged) {
+    state._projectNameFallbackLogged = true;
+    log(
+      'getDisplayProjectName: no name resolved — customDisplayName=' + (state.customDisplayName ? 'set' : 'empty')
+      + ', projectNameFromApi=' + (state.projectNameFromApi ? 'set' : 'empty')
+      + ', projectNameFromDom=' + (state.projectNameFromDom ? 'set' : 'empty')
+      + ', documentTitle=' + JSON.stringify(document.title || '')
+      + ', XPath=' + CONFIG.PROJECT_NAME_XPATH
+      + ', projectId=' + (pid || 'none'),
+      'warn'
+    );
+  }
+  return pid ? '⟳ ' + pid.substring(0, 8) + '…' : 'Unknown Project';
+
 }
 
 export function getLogStorageKey(): string {

@@ -156,4 +156,5 @@ export const state: ControllerState = {
   lastRetryError: null,
   __cycleInFlight: false,
   __cycleRetryPending: false,
+  _projectNameFallbackLogged: false,
 };
