@@ -20,6 +20,8 @@ import { applyFilters, type FilterState } from '../ui/credit-totals-modal';
 
 import type { WorkspaceCredit } from '../types/credit-types';
 import type { WorkspaceDisplayKind } from '../workspace-display-status';
+import { CreditFetchOutcome } from '../credit-balance-update/credit-fetch-outcome';
+import { clearCreditBalanceUpdateMemoryCache, writeCreditBalanceUpdateCache } from '../credit-balance-update/credit-balance-cache';
 
 function ws(over: Partial<WorkspaceCredit>): WorkspaceCredit {
     return {
@@ -35,7 +37,26 @@ function ws(over: Partial<WorkspaceCredit>): WorkspaceCredit {
 
 beforeEach(() => {
     document.body.innerHTML = '';
+    clearCreditBalanceUpdateMemoryCache();
 });
+
+async function seedSummaryCache(workspaceId: string, remaining: number, total: number): Promise<void> {
+    await writeCreditBalanceUpdateCache(workspaceId, {
+        outcome: CreditFetchOutcome.ApiHit,
+        fetchedAt: Date.now(),
+        sourceUrl: 'test',
+        errorDetail: null,
+        balance: {
+            totalRemaining: remaining,
+            totalGranted: total,
+            dailyRemaining: 0,
+            dailyLimit: 0,
+            totalBillingPeriodUsed: Math.max(0, total - remaining),
+            expiringGrants: [],
+            grantTypeBalances: [],
+        },
+    });
+}
 
 describe('computeSummaryDetails', () => {
     it('returns EMPTY shape for empty input', () => {
@@ -59,6 +80,17 @@ describe('computeSummaryDetails', () => {
         expect(d.free.dailyAvailable).toBe(35);
         expect(d.free.workspacesWithFree).toBe(2);
         expect(d.grand.availableSpendable).toBe(185);
+    });
+
+    it('uses resolver-backed credit totals for pro summary values', async () => {
+        await seedSummaryCache('cached-pro', 88, 120);
+        const rows = [
+            ws({ id: 'cached-pro', plan: 'pro_0', available: 0, totalCredits: 0 }),
+        ];
+        const d = computeSummaryDetails(rows);
+        expect(d.pro.creditsAvailable).toBe(88);
+        expect(d.pro.creditsTotal).toBe(120);
+        expect(d.grand.availableSpendable).toBe(88);
     });
 
     it('tallies expiringByKind + creditsExpiringAvailable using resolver', () => {
