@@ -439,6 +439,17 @@ export function filterWorkspaceBlocksByVisibility<T extends WorkspaceVisibilityB
     return blocks.filter(function (block) { return isWorkspaceFilterVisible(block.ws.id, hiddenWorkspaceIds); });
 }
 
+/**
+ * Task 12 — credits-used min/max filter.
+ * `min` and `max` are inclusive bounds; `null` means "no bound on that side".
+ * `used` is `WorkspaceCredit.used` (current billing-period spend).
+ */
+export function isWorkspaceWithinCreditsRange(used: number, min: number | null, max: number | null): boolean {
+    if (min !== null && used < min) return false;
+    if (max !== null && used > max) return false;
+    return true;
+}
+
 // eslint-disable-next-line sonarjs/cognitive-complexity
 function renderBlock(b: WorkspaceBlock, tabIndex: OpenTabIndex): string {
     const wsName = b.ws.fullName || b.ws.name || b.ws.id;
