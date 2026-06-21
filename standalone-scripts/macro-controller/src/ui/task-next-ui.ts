@@ -82,62 +82,59 @@ export function findNextTasksPrompt(deps: TaskNextDeps) {
   const promptsCfg = deps.getPromptsConfig();
   const entries = promptsCfg.entries || [];
   const targetSlug = taskNextState.settings.promptSlug || Label.NextTasks;
+  // Alias set — accept both the legacy ('next-tasks') and the renamed ('next-steps')
+  // canonical slug. Persisted DB entries / older fallbacks may still use the old slug
+  // even though Label.NextTasks now points at the new one.
+  const aliases = new Set<string>([targetSlug, 'next-tasks', 'next-steps']);
 
   // Diagnostic: log slug/id of every entry to confirm fields survived the pipeline
   const slugMap = entries.map(function(e) { return e.name + ' → slug=' + (e.slug || '⚠️ MISSING') + ', id=' + (e.id || '—'); });
-  log('Task Next: Resolving target="' + targetSlug + '" across ' + entries.length + ' entries:\n  ' + slugMap.join('\n  '), 'info');
+  log('Task Next: Resolving target="' + targetSlug + '" (aliases=' + Array.from(aliases).join(',') + ') across ' + entries.length + ' entries:\n  ' + slugMap.join('\n  '), 'info');
 
-  // Priority 1: Exact slug field match (from info.json)
+  // Priority 1: Exact slug field match against any alias
   for (const entry of entries) {
     const entrySlug = (entry.slug || '').toLowerCase();
-
-    if (entrySlug === targetSlug) {
-      log('Task Next: Found prompt by slug field: "' + entry.name + '"', 'info');
-
+    if (aliases.has(entrySlug)) {
+      log('Task Next: Found prompt by slug field: "' + entry.name + '" (slug=' + entrySlug + ')', 'info');
       return entry;
     }
   }
 
-  // Priority 2: Match by id field
+  // Priority 2: Match by id field against any alias
   for (const entry of entries) {
     const id = (entry.id || '').toLowerCase();
-
-    if (id === targetSlug || id === 'default-' + targetSlug || id.indexOf(targetSlug) !== -1) {
-      log('Task Next: Found prompt by id: "' + entry.name + '" (id=' + entry.id + ')', 'info');
-
-      return entry;
+    for (const alias of aliases) {
+      if (id === alias || id === 'default-' + alias || id.indexOf(alias) !== -1) {
+        log('Task Next: Found prompt by id: "' + entry.name + '" (id=' + entry.id + ', alias=' + alias + ')', 'info');
+        return entry;
+      }
     }
   }
 
-  // Priority 3: Derive slug from name and match
+  // Priority 3: Derive slug from name and match any alias
   for (const entry of entries) {
     const derivedSlug = (entry.name || '').toLowerCase().replace(/\s+/g, '-');
-
-    if (derivedSlug === targetSlug) {
+    if (aliases.has(derivedSlug)) {
       log('Task Next: Found prompt by derived name slug: "' + entry.name + '"', 'info');
-
       return entry;
     }
   }
 
-  // Priority 4: Broader match — any prompt with 'next' and 'task' in name
+  // Priority 4: Broader match — name contains "next" AND ("task" OR "step")
   for (const entry of entries) {
     const name = (entry.name || '').toLowerCase();
-
-    if (name.indexOf('next') !== -1 && name.indexOf('task') !== -1) {
+    if (name.indexOf('next') !== -1 && (name.indexOf('task') !== -1 || name.indexOf('step') !== -1)) {
       log('Task Next: Found prompt by name keywords: "' + entry.name + '"', 'info');
-
       return entry;
     }
   }
 
-  // Last resort: DO NOT fall back to entries[0] — this caused the regression where
-  // "Start Prompt" was incorrectly used as next task content.
-  // Instead, return null so the caller can show a proper error message.
-  log('Task Next: ❌ No prompt matched target slug "' + targetSlug + '" across ' + entries.length + ' entries. ' +
-    'Ensure a prompt with slug="next-tasks" or name="Next Tasks" exists. Returning null — aborting.', 'error');
+  // Last resort: DO NOT fall back to entries[0] — that caused the "Start Prompt" regression.
+  log('Task Next: ❌ No prompt matched target slug "' + targetSlug + '" (aliases: next-tasks/next-steps) across ' + entries.length + ' entries. ' +
+    'Ensure a prompt with slug "next-tasks" or "next-steps", or name containing "Next" + "Tasks"/"Steps", exists. Returning null — aborting.', 'error');
   return null;
 }
+
 
 /** Try to find the button via user-configured XPath. */
 function findButtonByXPath(): HTMLElement | null {
