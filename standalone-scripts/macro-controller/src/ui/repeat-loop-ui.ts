@@ -12,7 +12,7 @@ import { showPasteToast, findPasteTarget } from './prompt-utils';
 import { getPromptsConfig } from './prompt-manager';
 import { getByXPath, isReturnButtonVisible } from '../xpath-utils';
 import { findAddToTasksButton } from './task-next-ui';
-import { cPanelFg, cPrimary, cPrimaryLight, cSectionBg } from '../shared-state';
+import { cPanelFg, cPrimaryLight, cSectionBg } from '../shared-state';
 
 const PRESETS = [1, 5, 10, 25, 50, 100] as const;
 const DELAY_PRESETS_SEC = [5, 8, 12, 15, 20, 30, 60] as const;
