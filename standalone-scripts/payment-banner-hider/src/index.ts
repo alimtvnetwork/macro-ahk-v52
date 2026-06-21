@@ -19,7 +19,7 @@ import {
     type PaymentBannerHiderApi,
 } from "./types";
 
-const VERSION = "3.81.1";
+const VERSION = "3.82.0";
 
 export class PaymentBannerHider implements PaymentBannerHiderApi {
     public readonly version = VERSION;
