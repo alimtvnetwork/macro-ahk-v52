@@ -85,62 +85,58 @@ export function saveTaskNextSettings(deps: TaskNextDeps) {
   });
 }
 
+function matchPromptBySlug(entries: ReadonlyArray<{ slug?: string; name?: string }>, aliases: Set<string>) {
+  for (const entry of entries) {
+    const entrySlug = (entry.slug || '').toLowerCase();
+    if (aliases.has(entrySlug)) return entry;
+  }
+  return null;
+}
+
+function matchPromptById(entries: ReadonlyArray<{ id?: string; name?: string }>, aliases: Set<string>) {
+  for (const entry of entries) {
+    const id = (entry.id || '').toLowerCase();
+    for (const alias of aliases) {
+      if (id === alias || id === 'default-' + alias || id.indexOf(alias) !== -1) return entry;
+    }
+  }
+  return null;
+}
+
+function matchPromptByDerivedSlugOrKeywords(entries: ReadonlyArray<{ name?: string }>, aliases: Set<string>) {
+  for (const entry of entries) {
+    const derivedSlug = (entry.name || '').toLowerCase().replace(/\s+/g, '-');
+    if (aliases.has(derivedSlug)) return entry;
+  }
+  for (const entry of entries) {
+    const name = (entry.name || '').toLowerCase();
+    if (name.indexOf('next') !== -1 && (name.indexOf('task') !== -1 || name.indexOf('step') !== -1)) return entry;
+  }
+  return null;
+}
+
 export function findNextTasksPrompt(deps: TaskNextDeps) {
   const promptsCfg = deps.getPromptsConfig();
   const entries = promptsCfg.entries || [];
   const targetSlug = taskNextState.settings.promptSlug || Label.NextTasks;
-  // Alias set — accept both the legacy ('next-tasks') and the renamed ('next-steps')
-  // canonical slug. Persisted DB entries / older fallbacks may still use the old slug
-  // even though Label.NextTasks now points at the new one.
   const aliases = new Set<string>([targetSlug, 'next-tasks', 'next-steps']);
 
-  // Diagnostic: log slug/id of every entry to confirm fields survived the pipeline
   const slugMap = entries.map(function(e) { return e.name + ' → slug=' + (e.slug || '⚠️ MISSING') + ', id=' + (e.id || '—'); });
   log('Task Next: Resolving target="' + targetSlug + '" (aliases=' + Array.from(aliases).join(',') + ') across ' + entries.length + ' entries:\n  ' + slugMap.join('\n  '), 'info');
 
-  // Priority 1: Exact slug field match against any alias
-  for (const entry of entries) {
-    const entrySlug = (entry.slug || '').toLowerCase();
-    if (aliases.has(entrySlug)) {
-      log('Task Next: Found prompt by slug field: "' + entry.name + '" (slug=' + entrySlug + ')', 'info');
-      return entry;
-    }
+  const found = matchPromptBySlug(entries, aliases)
+    || matchPromptById(entries, aliases)
+    || matchPromptByDerivedSlugOrKeywords(entries, aliases);
+  if (found) {
+    log('Task Next: Found prompt: "' + found.name + '" (slug=' + (found.slug || '—') + ', id=' + (found.id || '—') + ')', 'info');
+    return found;
   }
 
-  // Priority 2: Match by id field against any alias
-  for (const entry of entries) {
-    const id = (entry.id || '').toLowerCase();
-    for (const alias of aliases) {
-      if (id === alias || id === 'default-' + alias || id.indexOf(alias) !== -1) {
-        log('Task Next: Found prompt by id: "' + entry.name + '" (id=' + entry.id + ', alias=' + alias + ')', 'info');
-        return entry;
-      }
-    }
-  }
-
-  // Priority 3: Derive slug from name and match any alias
-  for (const entry of entries) {
-    const derivedSlug = (entry.name || '').toLowerCase().replace(/\s+/g, '-');
-    if (aliases.has(derivedSlug)) {
-      log('Task Next: Found prompt by derived name slug: "' + entry.name + '"', 'info');
-      return entry;
-    }
-  }
-
-  // Priority 4: Broader match — name contains "next" AND ("task" OR "step")
-  for (const entry of entries) {
-    const name = (entry.name || '').toLowerCase();
-    if (name.indexOf('next') !== -1 && (name.indexOf('task') !== -1 || name.indexOf('step') !== -1)) {
-      log('Task Next: Found prompt by name keywords: "' + entry.name + '"', 'info');
-      return entry;
-    }
-  }
-
-  // Last resort: DO NOT fall back to entries[0] — that caused the "Start Prompt" regression.
   log('Task Next: ❌ No prompt matched target slug "' + targetSlug + '" (aliases: next-tasks/next-steps) across ' + entries.length + ' entries. ' +
     'Ensure a prompt with slug "next-tasks" or "next-steps", or name containing "Next" + "Tasks"/"Steps", exists. Returning null — aborting.', 'error');
   return null;
 }
+
 
 
 /** Try to find the button via user-configured XPath. */
@@ -257,84 +253,87 @@ function dispatchTaskNextSubmit(): boolean {
  * N === 1 delegates to the legacy paste-once `runTaskNextLoop` so the
  * split-button label keeps its v3.79.x behaviour (paste, do NOT submit).
  */
+const TASK_NEXT_QUEUE_LABEL = 'Task Next queue';
+
+type CycleStatus = 'ok' | 'paste-failed' | 'submit-failed' | 'idle-cancelled' | 'idle-timeout' | 'cancelled';
+
+async function runTaskNextCycle(
+  deps: TaskNextDeps,
+  promptText: string,
+  k: number,
+  n: number,
+  waitForLovableIdle: typeof import('./lovable-idle').waitForLovableIdle,
+): Promise<CycleStatus> {
+  if (taskNextState.cancelled) return 'cancelled';
+  const cycleStart = Date.now();
+  const promptsCfg = deps.getPromptsConfig();
+  const outcome = pasteIntoEditor(promptText, promptsCfg, deps.getByXPath);
+  if (String(outcome) === 'failed') return 'paste-failed';
+  if (!dispatchTaskNextSubmit()) return 'submit-failed';
+  const idleResult = await waitForLovableIdle({
+    isCancelled: function() { return taskNextState.cancelled; },
+  });
+  if (idleResult === 'cancelled') return 'idle-cancelled';
+  if (idleResult === 'timeout') return 'idle-timeout';
+  taskNextState.queue.completed = k + 1;
+  log('[TaskNextQueue] cycle ' + (k + 1) + '/' + n + ' done in ' + (Date.now() - cycleStart) + 'ms', 'info');
+  showPasteToast('🔁 Task Next queue: ' + (k + 1) + '/' + n, false);
+  return 'ok';
+}
+
+function reportCycleStatus(status: CycleStatus, k: number, n: number): void {
+  const at = (k + 1) + '/' + n;
+  if (status === 'cancelled') {
+    showPasteToast('🛑 Task Next queue cancelled at ' + k + '/' + n, false);
+    log('[TaskNextQueue] cancelled at cycle ' + k + '/' + n, 'warn');
+  } else if (status === 'paste-failed') {
+    logError(TASK_NEXT_QUEUE_LABEL, 'cycle ' + at + ' — paste failed; aborting queue');
+    showPasteToast('❌ Task Next queue: paste failed at ' + at, true);
+  } else if (status === 'submit-failed') {
+    logError(TASK_NEXT_QUEUE_LABEL, 'cycle ' + at + ' — no form#chat-input and no submit button; aborting queue');
+    showPasteToast('❌ Task Next queue: submit failed at ' + at, true);
+  } else if (status === 'idle-cancelled') {
+    showPasteToast('🛑 Task Next queue cancelled at ' + at, false);
+    log('[TaskNextQueue] cancelled mid-idle at cycle ' + at, 'warn');
+  } else if (status === 'idle-timeout') {
+    logError(TASK_NEXT_QUEUE_LABEL, 'cycle ' + at + ' — idle gate timed out after 10 min; aborting queue');
+    showPasteToast('❌ Task Next queue: timed out waiting at ' + at, true);
+  }
+}
+
 export async function runTaskNextQueue(deps: TaskNextDeps, count: number): Promise<void> {
   const n = Math.max(1, Math.floor(count) || 1);
-
-  if (n === 1) {
-    runTaskNextLoop(deps, 1);
-    return;
-  }
-
+  if (n === 1) { runTaskNextLoop(deps, 1); return; }
   if (taskNextState.running) {
     log('Task Next queue: already running — ignoring re-entry', 'warn');
     return;
   }
-
   const prompt = findNextTasksPrompt(deps);
   if (!prompt || !prompt.text) {
-    logError('Task Next queue', '"Next Tasks" prompt not found — aborting queue of ' + n);
+    logError(TASK_NEXT_QUEUE_LABEL, '"Next Tasks" prompt not found — aborting queue of ' + n);
     showPasteToast('❌ "Next Tasks" prompt not found', true);
     return;
   }
-
   // Lazy import to dodge a circular dep (lovable-idle.ts → task-next-ui.ts for findAddToTasksButton).
   const { waitForLovableIdle } = await import('./lovable-idle');
 
   taskNextState.running = true;
   taskNextState.cancelled = false;
   taskNextState.queue = { total: n, completed: 0, running: true, startedAt: Date.now() };
-
   log('[TaskNextQueue] starting queue of ' + n + ' — Escape to cancel', 'info');
   showPasteToast('🔁 Task Next queue: 0/' + n + ' — Escape to cancel', false);
 
   try {
     for (let k = 0; k < n; k++) {
-      if (taskNextState.cancelled) {
-        showPasteToast('🛑 Task Next queue cancelled at ' + k + '/' + n, false);
-        log('[TaskNextQueue] cancelled at cycle ' + k + '/' + n, 'warn');
-        break;
-      }
-
-      const cycleStart = Date.now();
-      const promptsCfg = deps.getPromptsConfig();
-      const outcome = pasteIntoEditor(prompt.text, promptsCfg, deps.getByXPath);
-      if (String(outcome) === 'failed') {
-        logError('Task Next queue', 'cycle ' + (k + 1) + '/' + n + ' — paste failed; aborting queue');
-        showPasteToast('❌ Task Next queue: paste failed at ' + (k + 1) + '/' + n, true);
-        break;
-      }
-
-      if (!dispatchTaskNextSubmit()) {
-        logError('Task Next queue', 'cycle ' + (k + 1) + '/' + n + ' — no form#chat-input and no submit button; aborting queue');
-        showPasteToast('❌ Task Next queue: submit failed at ' + (k + 1) + '/' + n, true);
-        break;
-      }
-
-      const idleResult = await waitForLovableIdle({
-        isCancelled: function() { return taskNextState.cancelled; },
-      });
-      if (idleResult === 'cancelled') {
-        showPasteToast('🛑 Task Next queue cancelled at ' + (k + 1) + '/' + n, false);
-        log('[TaskNextQueue] cancelled mid-idle at cycle ' + (k + 1) + '/' + n, 'warn');
-        break;
-      }
-      if (idleResult === 'timeout') {
-        logError('Task Next queue', 'cycle ' + (k + 1) + '/' + n + ' — idle gate timed out after 10 min; aborting queue');
-        showPasteToast('❌ Task Next queue: timed out waiting at ' + (k + 1) + '/' + n, true);
-        break;
-      }
-
-      taskNextState.queue.completed = k + 1;
-      log('[TaskNextQueue] cycle ' + (k + 1) + '/' + n + ' done in ' + (Date.now() - cycleStart) + 'ms', 'info');
-      showPasteToast('🔁 Task Next queue: ' + (k + 1) + '/' + n, false);
+      const status = await runTaskNextCycle(deps, prompt.text, k, n, waitForLovableIdle);
+      if (status !== 'ok') { reportCycleStatus(status, k, n); break; }
     }
-
     if (!taskNextState.cancelled && taskNextState.queue.completed >= n) {
       showPasteToast('✅ Task Next queue finished ' + n + '/' + n, false);
       log('[TaskNextQueue] completed ' + n + '/' + n + ' in ' + (Date.now() - taskNextState.queue.startedAt) + 'ms', 'info');
     }
   } catch (err) {
-    logError('Task Next queue', 'unexpected failure at cycle ' + (taskNextState.queue.completed + 1) + '/' + n, err);
+    logError(TASK_NEXT_QUEUE_LABEL, 'unexpected failure at cycle ' + (taskNextState.queue.completed + 1) + '/' + n, err);
     showPasteToast('❌ Task Next queue: unexpected error at ' + (taskNextState.queue.completed + 1) + '/' + n, true);
   } finally {
     taskNextState.queue.running = false;
@@ -342,6 +341,7 @@ export async function runTaskNextQueue(deps: TaskNextDeps, count: number): Promi
     taskNextState.cancelled = false;
   }
 }
+
 
 // Escape key cancel handler — call once at init
 export function setupTaskNextCancelHandler() {

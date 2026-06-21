@@ -368,7 +368,60 @@ function renderEmpty(text: string): string {
     return '<div style="color:' + cPanelFgDim + ';font-size:11px;padding:6px;">' + escapeHtml(text) + '</div>';
 }
 
-// eslint-disable-next-line sonarjs/cognitive-complexity
+function buildZeroResultsPanel(
+    q: string,
+    onlyOpen: boolean,
+    onlyRepo: boolean,
+    hasWorkspaceFilter: boolean,
+    creditsMin: number | null,
+    creditsMax: number | null,
+): string {
+    const activeChips: string[] = [];
+    if (q) activeChips.push('search "' + escapeHtml(q) + '"');
+    if (onlyOpen) activeChips.push('open-in-tab');
+    if (onlyRepo) activeChips.push('has-repo');
+    if (hasWorkspaceFilter) activeChips.push('workspace filter');
+    if (creditsMin !== null || creditsMax !== null) {
+        const lo = creditsMin === null ? '−∞' : String(creditsMin);
+        const hi = creditsMax === null ? '+∞' : String(creditsMax);
+        activeChips.push('credits ' + lo + '–' + hi);
+    }
+    return '<div style="text-align:center;padding:24px 12px;color:' + cPanelFgDim + ';font-size:11px;'
+        + 'border:1px dashed rgba(124,58,237,0.35);border-radius:6px;margin-top:4px;">'
+        + '<div style="font-size:22px;margin-bottom:6px;opacity:0.6;">🔍</div>'
+        + '<div style="color:#cbd5e1;margin-bottom:6px;">No projects match your filters.</div>'
+        + '<div style="font-size:10px;margin-bottom:10px;">Active: ' + activeChips.join(' · ') + '</div>'
+        + '<button data-clear-filters="1" type="button" '
+        +   'style="background:rgba(124,58,237,0.25);border:1px solid ' + cPrimary + ';color:#e9d5ff;'
+        +   'padding:4px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-family:monospace;">'
+        +   'Clear all filters</button>'
+        + '</div>';
+}
+
+function applyProjectFilters(
+    workspaceBlocks: ReadonlyArray<WorkspaceBlock>,
+    q: string,
+    onlyOpen: boolean,
+    onlyRepo: boolean,
+    tabIndex: OpenTabIndex,
+): WorkspaceBlock[] {
+    return workspaceBlocks.map(function (b) {
+        if (!b.projects) return b;
+        const projects = b.projects.filter(function (p) {
+            if (q && !(
+                p.name.toLowerCase().includes(q)
+                || p.id.toLowerCase().includes(q)
+                || p.githubRepo.toLowerCase().includes(q)
+                || p.githubBranch.toLowerCase().includes(q)
+            )) return false;
+            if (onlyOpen && !isOpen(p.id, tabIndex)) return false;
+            if (onlyRepo && !p.githubRepo) return false;
+            return true;
+        });
+        return { ws: b.ws, projects, error: b.error, loading: b.loading };
+    });
+}
+
 function renderAll(blocks: ReadonlyArray<WorkspaceBlock>, tabIndex: OpenTabIndex, capturedAt: string | null, query: string): string {
     const q = (query || '').trim().toLowerCase();
     const onlyOpen = state.filterOpenOnly;
@@ -384,21 +437,7 @@ function renderAll(blocks: ReadonlyArray<WorkspaceBlock>, tabIndex: OpenTabIndex
     });
 
     const filtered: WorkspaceBlock[] = filterActive
-        ? workspaceBlocks.map(function (b) {
-            if (!b.projects) return b;
-            const projects = b.projects.filter(function (p) {
-                if (q && !(
-                    p.name.toLowerCase().includes(q)
-                    || p.id.toLowerCase().includes(q)
-                    || p.githubRepo.toLowerCase().includes(q)
-                    || p.githubBranch.toLowerCase().includes(q)
-                )) return false;
-                if (onlyOpen && !isOpen(p.id, tabIndex)) return false;
-                if (onlyRepo && !p.githubRepo) return false;
-                return true;
-            });
-            return { ws: b.ws, projects, error: b.error, loading: b.loading };
-        })
+        ? applyProjectFilters(workspaceBlocks, q, onlyOpen, onlyRepo, tabIndex)
         : workspaceBlocks.slice();
 
     const totalOpen = tabIndex.byProjectId.size + tabIndex.byUrlProjectId.size;
@@ -413,35 +452,16 @@ function renderAll(blocks: ReadonlyArray<WorkspaceBlock>, tabIndex: OpenTabIndex
         + '</div>';
     let visibleBlocks = 0;
     for (const b of filtered) {
-        // Hide workspace block entirely when filter is active and yields no projects.
         if (filterActive && (b.projects?.length ?? 0) === 0 && !b.loading && !b.error) continue;
         html += renderBlock(b, tabIndex);
         visibleBlocks++;
     }
     if (filterActive && matchCount === 0 && visibleBlocks === 0) {
-        const activeChips: string[] = [];
-        if (q) activeChips.push('search "' + escapeHtml(q) + '"');
-        if (onlyOpen) activeChips.push('open-in-tab');
-        if (onlyRepo) activeChips.push('has-repo');
-        if (hasWorkspaceFilter) activeChips.push('workspace filter');
-        if (hasCreditsFilter) {
-            const lo = creditsMin === null ? '−∞' : String(creditsMin);
-            const hi = creditsMax === null ? '+∞' : String(creditsMax);
-            activeChips.push('credits ' + lo + '–' + hi);
-        }
-        html += '<div style="text-align:center;padding:24px 12px;color:' + cPanelFgDim + ';font-size:11px;'
-            + 'border:1px dashed rgba(124,58,237,0.35);border-radius:6px;margin-top:4px;">'
-            + '<div style="font-size:22px;margin-bottom:6px;opacity:0.6;">🔍</div>'
-            + '<div style="color:#cbd5e1;margin-bottom:6px;">No projects match your filters.</div>'
-            + '<div style="font-size:10px;margin-bottom:10px;">Active: ' + activeChips.join(' · ') + '</div>'
-            + '<button data-clear-filters="1" type="button" '
-            +   'style="background:rgba(124,58,237,0.25);border:1px solid ' + cPrimary + ';color:#e9d5ff;'
-            +   'padding:4px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-family:monospace;">'
-            +   'Clear all filters</button>'
-            + '</div>';
+        html += buildZeroResultsPanel(q, onlyOpen, onlyRepo, hasWorkspaceFilter, creditsMin, creditsMax);
     }
     return html;
 }
+
 
 interface WorkspaceVisibilityBlock {
     readonly ws: Pick<WorkspaceCredit, 'id'>;

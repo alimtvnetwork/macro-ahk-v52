@@ -10,6 +10,7 @@ import { cPanelBg, cPanelFg, cPanelText, cPrimary, cSectionBg, cSuccess, lModalR
 import { DATE_CHANGELOG_2026_03_21 as DATE_2026_03_21 } from '../constants';
 
 const DATE_2026_05_14 = '2026-05-14';
+const DATE_2026_06_21 = '2026-06-21';
 
 export interface ChangelogEntry {
   ver: string;
@@ -18,30 +19,30 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
-  { ver: 'v3.104.0', date: '2026-06-21', changes: [
+  { ver: 'v3.104.0', date: DATE_2026_06_21, changes: [
     'Move-to-Workspace now sends x-castle-request-token header (Castle.io risk engine)',
     'Castle token minted per request via window._castle(createRequestToken); fallback logs MISSING and the server returns 403 castle_denied',
     'New spec: spec/workspace-move/00-api-contract.md'
   ]},
 
-  { ver: 'v3.102.0', date: '2026-06-21', changes: [
+  { ver: 'v3.102.0', date: DATE_2026_06_21, changes: [
     'Projects modal: SQLite cache short-circuits projects.list fetches when fresh (within TTL)',
     'Projects modal: per-workspace cache hit/miss logs + load-complete summary (cacheHits/cacheMisses/bypass)',
     'Refresh button still bypasses cache for a forced re-fetch'
   ]},
-  { ver: 'v3.101.0', date: '2026-06-21', changes: [
+  { ver: 'v3.101.0', date: DATE_2026_06_21, changes: [
     'Projects modal CSV: blank and "(no data returned by API)" lastCommunication values normalized to —',
     'Activity log records "Projects: CSV lastCommunication normalized for N row(s)" when cleanup runs'
   ]},
-  { ver: 'v3.100.0', date: '2026-06-21', changes: [
+  { ver: 'v3.100.0', date: DATE_2026_06_21, changes: [
     'Projects modal: credits-used min/max numeric filter hides workspaces outside the inclusive range',
     'Zero-results panel lists active credits range alongside other active filters'
   ]},
-  { ver: 'v3.99.0', date: '2026-06-21', changes: [
+  { ver: 'v3.99.0', date: DATE_2026_06_21, changes: [
     'Projects modal: workspace multi-select filter chips hide/show whole workspace blocks',
     '"Clear all filters" now resets workspace visibility too'
   ]},
-  { ver: 'v3.97.0', date: '2026-06-21', changes: [
+  { ver: 'v3.97.0', date: DATE_2026_06_21, changes: [
     'Projects modal CSV: project-name fallback chain (projects.list → open-tab → id) replaces id-only rows'
   ]},
   { ver: 'v3.43.0', date: '2026-05-31', changes: [
