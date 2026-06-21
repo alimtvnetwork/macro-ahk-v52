@@ -310,7 +310,7 @@ export async function runTaskNextQueue(deps: TaskNextDeps, count: number): Promi
   }
   const prompt = findNextTasksPrompt(deps);
   if (!prompt || !prompt.text) {
-    logError('Task Next queue', '"Next Tasks" prompt not found — aborting queue of ' + n);
+    logError(TASK_NEXT_QUEUE_LABEL, '"Next Tasks" prompt not found — aborting queue of ' + n);
     showPasteToast('❌ "Next Tasks" prompt not found', true);
     return;
   }
