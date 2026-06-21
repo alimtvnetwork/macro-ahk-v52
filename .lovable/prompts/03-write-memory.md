@@ -1,95 +1,170 @@
-# Write Memory (full protocol — v3.0)
+---
+title: Write Memory
+slug: write-memory
+---
 
-> **Version:** 3.0
-> **Trigger phrases:** "write memory", "end memory", "update memory"
-> **Purpose:** Persist everything learned, done, and pending at the end of a session so the next AI starts with zero context loss.
+# Write Memory (a.k.a. "End Memory")
 
-This is the **v3** write-memory protocol. It supersedes [`02-write-memory.md`](./02-write-memory.md) by adding two requirements:
+> **Purpose:** Persist everything the AI learned, did, decided, and left undone in this session — so the next AI session (which has full amnesia) can resume with zero context loss.
 
-1. **CI/CD issues folder** — every CI/CD failure is logged in `.lovable/cicd-issues/XX-name.md` and indexed in `.lovable/cicd-index.md`.
-2. **Verbatim spec capture** — when the user gives a "bigger spec" in chat, persist the verbatim text into both the spec tree (`spec/...`) AND a memory pointer so the next AI can reconstruct intent exactly.
+## Must Write
 
-All other phases match v2.0. Both must stay in sync.
+Can you please update the root README file regarding how the folder structure is and which file the AI can read, and it can full project with attention, how it can create code, add unit test, add new feature, spec and everything. So all this file needs to be mentioned, in the root README and also mentioned in the, uh, .lovable folder inside the memory md file (.lovable/what-to-read.md). Add a file called what to read. Okay, do you understand? Can you please do this one?
+
+Don't put any files to `mem://` directly save all files to specific folder.
+
+> **Trigger phrases:** `write memory` · `end memory` · `update memory` · end of a task batch
 
 ---
 
-## Phase 1 — Audit current state (silent)
+## 0. Pre-flight — Read Before You Write
 
-Inventory:
+Before doing anything, the AI **must** read these files (if they exist) to ground itself:
 
-- **Done this session:** every completed task, every file created/modified/deleted, every decision and why.
-- **Pending:** started-but-not-finished, discussed-but-not-started, blockers/dependencies.
-- **Learned:** new patterns, gotchas, edge cases, user preferences (explicit or implicit).
-- **What went wrong:** bugs + root causes, failed approaches + why, things never to repeat.
-- **Verbatim specs:** any large blocks of user-provided text that define requirements.
+1. `.lovable/memory/index.md` — master index of memory
+2. `.lovable/coding-guidelines.md` — project coding rules (see §10 below)
+3. `.lovable/plan.md` — active roadmap
+4. `.lovable/suggestions.md` — open and closed suggestions
+5. `.lovable/strictly-avoid.md` — hard prohibitions
+6. `.lovable/cicd-index.md` — CI/CD issue index
+7. `.lovable/prompts/index.md` — prompt registry
+8. `.lovable/memory/workflow/` — current workflow state
+9. Any `spec/` or `spec/error-manage/` folder if present
+
+If any of the above is missing, **create it** as part of this run (see §10 and §11 for templates).
+
+Also, **before writing**, ask the user (only if genuinely ambiguous):
+
+- "Is there any conversation context I might be missing?"
+- "Should I treat this batch as a milestone or a checkpoint?"
+
+If nothing is ambiguous, proceed silently.
 
 ---
 
-## Phase 2 — Update memory files
+## 1. Core Principle
+
+> The memory system is the project's brain. If you did something and didn't write it down, it didn't happen. If something is pending and you didn't record it, it will be lost. **Write as if the next AI has amnesia — because it does.**
+
+Rules that override convenience:
+
+- **Never lose conversation context.** Capture user prompts verbatim when they contain specs, decisions, or preferences.
+- **Never delete history** — mark done, move to `## Completed`, never erase.
+- **Never overwrite blindly** — always read before write.
+- **Never leave orphans** — every file must be indexed.
+- **Lowercase, hyphen-separated, numeric-prefixed filenames** (`01-thing-name.md`).
+- **Never create `.lovable/memories/`** (with `s`). The correct path is `.lovable/memory/`.
+
+---
+
+## 2. Phase 1 — Audit the Session
+
+Internally answer (do not dump to user unless asked):
+
+**Done**
+
+- Every task completed (features, fixes, refactors)
+- Every file created / modified / deleted
+- Every decision made and why
+
+**Pending**
+
+- Tasks started but unfinished
+- Tasks discussed but not started
+- Blockers / dependencies
+
+**Learned**
+
+- New patterns, conventions, gotchas
+- User preferences (explicit or implicit)
+
+**Wrong**
+
+- Bugs and root causes
+- Failed approaches
+- Things to never repeat
+
+---
+
+## 3. Phase 2 — Update Memory Files
 
 **Target:** `.lovable/memory/`
 
-1. Read `.lovable/memory/index.md` first — never duplicate.
-2. For each existing memory file affected, append (do not overwrite). Mark completed items `✅`.
-3. New knowledge with no home → new file `XX-descriptive-name.md` (lowercase-hyphenated, numeric prefix). Immediately update `index.md`.
-4. Workflow state files use status markers: `✅ Done` · `🔄 In Progress` · `⏳ Pending` · `🚫 Blocked — [reason]` · `🚫 Avoid — [reason]`
-5. **Always tick** completed items in `mem://workflow/13-next-commands` and append new requests there.
-6. **Verbatim user specs** → store the raw text under `spec/<area>/NN-name.md` AND add a one-line pointer in `mem://workflow/` so the next AI knows it exists.
+1. **Read** `.lovable/memory/index.md`. Do not create duplicates.
+2. **Update existing files** — add new info in the right section, mark items `[x]` or `✅`, **never truncate unrelated entries**.
+3. **Create new files** when a topic doesn't fit anywhere: `.lovable/memory/XX-descriptive-name.md` (XX = next sequence, starting `01`). **Immediately** add it to `index.md` in the same operation.
+4. **Update workflow state** in `.lovable/memory/workflow/` with status markers:
+
+| Status       | Marker                  |
+| ------------ | ----------------------- |
+| Done         | `✅ Done`               |
+| In Progress  | `🔄 In Progress`        |
+| Pending      | `⏳ Pending`            |
+| Blocked      | `🚫 Blocked — [reason]` |
+| Avoid / Skip | `🚫 Avoid — [reason]`   |
+
+**Anything the user said to skip or avoid** goes into `.lovable/memory/avoid/XX-name.md` and is referenced from `.lovable/strictly-avoid.md`.
 
 ---
 
-## Phase 3 — Update plans & suggestions
+## 4. Phase 3 — Plans & Suggestions
 
-### 3A — Plan (single file)
+### 4A. Plan — `.lovable/plan.md` (single file)
 
-**Target:** `.lovable/plan.md`
+- Update task statuses.
+- Add new tasks discovered this session.
+- Move fully-complete items to a `## Completed` section at the bottom (do not delete).
 
-- Update statuses, add new tasks, move fully-complete items to a `## Completed` section at the bottom.
-- Single source of truth for the roadmap.
-
-### 3B — Suggestions (single file)
-
-**Target:** `.lovable/suggestions.md`
+### 4B. Suggestions — `.lovable/suggestions.md` (single file)
 
 ```markdown
 ## Active Suggestions
+
 ### [Title]
-- **Status:** Pending | In Review | Approved | Rejected | Deferred
+- **Status:** Pending | In Review | Approved | Rejected
 - **Priority:** High | Medium | Low
-- **Description:** What and why
-- **Added:** [date or session ref]
+- **Description:** what & why
+- **Added:** [session ref]
 
 ## Implemented Suggestions
+
 ### [Title]
-- **Implemented:** [date or session ref]
-- **Notes:** Implementation details
+- **Implemented:** [session ref]
+- **Notes:** details / commit / file
 ```
 
-When implemented: move from Active → Implemented, add notes, reference commit/file/task.
+When implemented: move from Active → Implemented and add notes.
 
-> The historical archive `.lovable/memory/suggestions/01-suggestions-tracker.md` (S-001 … S-055) is preserved for ID lookups.
+### 4C. Lovable suggestions folder
+
+Capture all Lovable-originated suggestions verbatim into:
+
+- `.lovable/suggestions/XX-suggestion-name.md`
+- `.lovable/suggestions/index.md` (summary index)
+
+These are in addition to `suggestions.md` (the high-level single file). Do not duplicate content — the per-file version is the verbatim capture, `suggestions.md` is the tracker.
 
 ---
 
-## Phase 4 — Update issues
+## 5. Phase 4 — Issues
 
-### 4A — Pending issues
-
-**Target:** `.lovable/pending-issues/XX-short-description.md`
+### 5A. Pending — `.lovable/pending-issues/XX-short-description.md`
 
 ```markdown
-# [Title]
+# [Issue Title]
+
 ## Description
-## Root Cause   (or "Under investigation.")
+## Root Cause (or "Under investigation")
 ## Steps to Reproduce
 ## Attempted Solutions
-## Priority
-## Blocked By (if applicable)
+- [ ] Approach 1 — [result]
+## Priority High | Medium | Low
+## Blocked By (if any)
 ```
 
-### 4B — Solved issues
+### 5B. Solved — `.lovable/solved-issues/XX-short-description.md`
 
-When fixed, **move** the file from `pending-issues/` → `solved-issues/` and append:
+On resolution, **move** the file and append:
 
 ```markdown
 ## Solution
@@ -98,107 +173,190 @@ When fixed, **move** the file from `pending-issues/` → `solved-issues/` and ap
 ## What NOT to Repeat
 ```
 
-### 4C — Strictly avoided patterns
-
-If a solved issue exposes a pattern that must never recur, add to `.lovable/strictly-avoid.md`:
+### 5C. Strictly Avoid — `.lovable/strictly-avoid.md`
 
 ```markdown
-- **[Pattern Name]:** [why forbidden]. See: `.lovable/solved-issues/XX-filename.md`
+- **[Pattern]:** [why forbidden]. See: `.lovable/solved-issues/XX-name.md`
 ```
-
-### 4D — Deferred / skipped tasks
-
-Any task the user asks to skip or avoid → record under `.lovable/memory/preferences/` (or `constraints/`) AND surface in the "Deferred — Do NOT auto-recommend" section of `plan.md` and `mem://workflow/13-next-commands`.
-
-### 4E — CI/CD issues (NEW in v3.0)
-
-**Target:** `.lovable/cicd-issues/XX-issue-name.md` (sequence starts at `01`)
-
-Every CI/CD failure (build, lint, typecheck, test runner, GitHub Actions, release pipeline) gets its own file:
-
-```markdown
-# [CI/CD Issue Title]
-## Pipeline / Workflow
-## Description
-## First Seen
-## Root Cause   (or "Under investigation.")
-## Status   ✅ Resolved | 🔄 In Progress | ⏳ Pending | 🚫 Blocked
-## Fix
-## Prevention
-## References
-```
-
-**Index:** `.lovable/cicd-index.md` — single summary file listing every CI/CD issue with status, priority, link.
-
-Rules:
-1. Collect all known CI/CD issues into this folder. Do not duplicate — check the index first.
-2. Resolved CI/CD issues stay in `.lovable/cicd-issues/` with `## Status ✅ Resolved` (do NOT move to `solved-issues/` — CI/CD issues have their own lifecycle and tend to recur).
-3. The index is updated in the same operation as creating/modifying any CI/CD issue file.
 
 ---
 
-## Phase 5 — Consistency validation
+## 6. Phase 5 — CI/CD Issues
 
-1. **Index integrity** — every file in `.lovable/memory/` (recursive) listed in `index.md`. Every file in `.lovable/cicd-issues/` listed in `.lovable/cicd-index.md`.
-2. **Cross-reference** — every `✅ Done` in `plan.md` has evidence (memory entry, solved issue, or code change). Every actionable pending issue is reflected in `plan.md` or `suggestions.md`. No file in both `pending-issues/` and `solved-issues/`.
-3. **Orphans** — no memory file without an index entry; no "Implemented" suggestion without code evidence; no solved issue missing `## Solution`.
-4. **Verbatim spec coverage** — any large user-provided spec from this session has both a `spec/...` file and a memory pointer.
-5. **Final confirmation** — emit:
+Track every CI/CD issue encountered, **without duplication**.
+
+- File: `.lovable/cicd-issues/XX-issue-name.md` (XX from `01`)
+- Index: `.lovable/cicd-index.md` — short summary list of all CI/CD issues
+
+Before adding a new one, scan the index to confirm it isn't already recorded.
+
+---
+
+## 7. Phase 6 — Capture Recent Specs Verbatim
+
+If the user provided a sizeable spec, decision, or directive this session:
+
+- Save the **verbatim** text to `.lovable/memory/specs/XX-spec-slug.md`
+- Add a one-line summary in `.lovable/memory/index.md`
+- If it changes the roadmap, also reflect in `plan.md`
+
+Never paraphrase specs — quote them. The next AI must see what the user actually said.
+
+---
+
+## 8. Phase 7 — Consistency Validation
+
+After all writes:
+
+1. **Index integrity** — every file under `.lovable/memory/` (recursively) is listed in `index.md`.
+2. **Cross-references** — every `✅ Done` in `plan.md` has evidence (memory entry, solved issue, or code change). Every actionable pending issue is reflected in `plan.md` or `suggestions.md`.
+3. **No file** exists in both `pending-issues/` and `solved-issues/`.
+4. **No orphans** — no memory file without an index entry; no "Implemented" suggestion without code evidence; no solved issue missing `## Solution`.
+
+### Final response template
 
 ```
 ✅ Memory update complete.
+
 Session Summary:
-- Tasks completed: [X]
-- Tasks pending: [Y]
-- New memory files created: [Z]
-- Issues resolved: [N]
-- Issues opened: [M]
-- Suggestions added: [S]
-- Suggestions implemented: [T]
-- CI/CD issues recorded: [C]
+- Tasks completed: X
+- Tasks pending: Y
+- New memory files: Z
+- Issues resolved: N
+- Issues opened: M
+- Suggestions added/implemented: S / T
+- CI/CD issues recorded: C
 
 Files modified:
-- [list every file touched during this memory update]
+- [list]
 
-Inconsistencies found and fixed:
-- [list any, or "None"]
+Inconsistencies fixed:
+- [list or "None"]
 
-The next AI session can pick up from: [current state + next logical step]
+Next session can resume from: [state + next logical step]
 ```
 
 ---
 
-## File naming & structure rules
+## 9. File Naming & Structure
 
-| Rule | Example |
-|---|---|
-| Numeric prefix | `01-auth-flow.md` |
-| Lowercase hyphenated | `03-error-handling.md` ✅ / `03_Error_Handling.md` ❌ |
-| Plans → single file | `.lovable/plan.md` |
-| Suggestions → single file | `.lovable/suggestions.md` |
-| Pending issues → one file each | `.lovable/pending-issues/XX-name.md` |
-| Solved issues → one file each | `.lovable/solved-issues/XX-name.md` |
-| CI/CD issues → one file each | `.lovable/cicd-issues/XX-name.md` |
-| CI/CD index → single file | `.lovable/cicd-index.md` |
-| Memory grouped by topic | `.lovable/memory/workflow/`, `.lovable/memory/architecture/`, … |
-| Completed items → `## Completed` section in same file | Never `completed/` sub-folders |
+| Rule                              | Example                                                                                                       |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Numeric prefix                    | `01-auth-flow.md`                                                                                             |
+| Lowercase + hyphen                | `03-error-handling.md` ✅ / `03_Error_Handling.md` ❌                                                         |
+| Plans → single file               | `.lovable/plan.md`                                                                                            |
+| Suggestions tracker → single file | `.lovable/suggestions.md`                                                                                     |
+| Per-suggestion capture            | `.lovable/suggestions/XX-name.md` + `index.md`                                                                |
+| Issues → one file each            | `.lovable/pending-issues/01-name.md`                                                                          |
+| Memory grouped by topic           | `.lovable/memory/workflow/`, `.lovable/memory/decisions/`, `.lovable/memory/specs/`, `.lovable/memory/avoid/` |
+| Completed items                   | `## Completed` section in same file (never a `completed/` folder)                                             |
 
-> ⚠️ Path is `.lovable/memory/` — never `.lovable/memories/`.
+### Canonical layout
+
+```
+.lovable/
+├── overview.md
+├── strictly-avoid.md
+├── user-preferences.md
+├── plan.md
+├── prompt.md                       # references prompts/index.md
+├── coding-guidelines.md
+├── cicd-index.md
+├── suggestions.md
+├── suggestions/
+│   ├── index.md
+│   └── 01-name.md
+├── prompts/
+│   ├── index.md
+│   └── 01-write-memory.md
+├── memory/
+│   ├── index.md
+│   ├── workflow/
+│   ├── decisions/
+│   ├── specs/
+│   ├── avoid/
+│   └── [topic]/
+├── pending-issues/
+├── solved-issues/
+└── cicd-issues/
+```
+
+**Restructure** any existing folder that doesn't match this layout (rename, move, re-index). Never delete content during restructure — move it.
 
 ---
 
-## Anti-corruption rules
+## 10. Coding Guidelines — Must Exist
 
-1. **Never delete history** — mark done, move to completed sections; never remove entirely.
-2. **Never overwrite blindly** — read before write; preserve existing content.
-3. **Never leave orphans** — every file indexed; every reference resolves.
-4. **Never split what should be unified** — plans and suggestions each live in ONE file.
-5. **Never mix states** — pending and solved are mutually exclusive; same for done/in-progress.
-6. **Never skip the index update** — creating a memory or CI/CD issue file and updating the index is a single operation.
-7. **Never assume the next AI knows anything** — write for a stranger with only the files.
-8. **Skipped/avoided tasks** → entry in `.lovable/strictly-avoid.md` (or memory `preferences/` / `constraints/`) AND in plan.md "Deferred" section.
-9. **Never lose conversation content** — verbatim user specs go into the file system, not just chat history.
+The AI **must** ensure `.lovable/coding-guidelines.md` exists. If missing, create it with the content below. If it exists, **enhance** it (merge, don't overwrite) and keep it lowercase-hyphenated.
+
+The file must also explicitly list paths the AI should read on every coding task (e.g. `spec/`, `spec/error-manage/`, language-specific guidelines, Boolean guidelines, Enum guidelines, error-management guidelines).
+
+### Required content (seed)
+
+```markdown
+# Coding Guidelines
+
+> Read before writing any code. Also read: spec/, spec/error-manage/ (if present),
+> language-specific guidelines, Boolean guidelines, Enum guidelines, error-management guidelines.
+
+1. Functions ≤ 8 lines.
+2. No nested ifs.
+3. Ifs stay simple — prefer positive conditions, no negatives.
+4. Follow Boolean guidelines: boolean names are prefixed `is` or `has`; no negative names.
+5. Use proper types — never `any` / `unknown` / `interface{}` / wide-open types. `Generic<T>` is fine.
+6. Never swallow errors — every `catch` logs per the error-management + logging guidelines.
+7. No file or class > 80–100 lines.
+8. No magic strings or numbers — use Enum or Constants.
+9. Definitions live in their own files, not inline.
+10. Reusability is the highest priority — keep code DRY.
+11. React/TS components: as small as possible, reusable. For many components, draft a mermaid diagram in the plan first.
+12. If `spec/error-manage/` exists, every error handler must follow it.
+13. Prefer immutable, single-assignment variables (Rust-style). Mutate only loop indices or where strictly necessary.
+14. Assets go in `/assets/XX-folder-name/XX-file-name.<ext>` with numeric sequence prefixes.
+15. Enums and constants live in dedicated files, not inline.
+```
+
+If new rules emerge in a session, append them here and note them in `.lovable/memory/index.md`.
 
 ---
 
-*Sync with `01-write-memory.md` and `02-write-memory.md`.*
+## 11. Prompt Registry
+
+- This prompt lives at `.lovable/prompts/01-write-memory.md`.
+- Maintain `.lovable/prompts/index.md` describing each prompt (id, title, trigger phrases, purpose).
+- Maintain `.lovable/prompt.md` as a top-level pointer to `prompts/index.md`.
+- When a new reusable prompt is added, create `.lovable/prompts/XX-name.md` and update the index in the same operation.
+
+---
+
+## 12. Anti-Corruption Rules (Hard)
+
+1. Never delete history.
+2. Never overwrite blindly — read first.
+3. Never leave orphans — index everything.
+4. Never split what should be unified (`plan.md`, `suggestions.md` stay single files).
+5. Never mix states (pending vs solved, done vs in-progress).
+6. Never skip an index update in the same op as a file creation.
+7. Never assume the next AI knows anything.
+8. Never act on this prompt unless the user explicitly triggers it.
+9. Never lose conversation context — when in doubt, capture verbatim.
+
+---
+
+## 13. Meta — Improve This Prompt
+
+At the end of every memory write, the AI should ask itself:
+
+> "Did anything this session reveal a gap, ambiguity, or missing rule in this prompt?"
+
+If yes:
+
+1. Propose the improvement to the user in one short paragraph.
+2. On approval, update `.lovable/prompts/01-write-memory.md` and bump a `## Changelog` entry at the bottom.
+3. Reflect the change in `.lovable/prompts/index.md`.
+
+---
+
+## Changelog
+
+- `v1` — initial enhanced version derived from the user's original "Write Memory" prompt.
