@@ -1,3 +1,5 @@
+> **STATUS:** ✅ COMPLETED — archived 2026-06-21 (v3.91.0 plan-inventory sweep). All steps shipped; see changelog + memory references.
+
 # 20-Step Plan — Credit Totals upgrade + Macro/Prompts UX fixes
 
 **Trigger:** User request 2026-05-25 — Credit Totals modal needs drag-drop, sort, filter, double-click → projects, project-count column, bigger fonts, more colorful numbers, hover rows, CSV button in modal. Prompts panel Next-task list misplaced (should be right-side dropdown). Macro Controller must NOT auto-execute (other scripts like dashboard/payment-skip MAY). Plan Task button broken — full RCA required. Every fix ships with unit + E2E tests (per `mem://preferences/test-with-features`).

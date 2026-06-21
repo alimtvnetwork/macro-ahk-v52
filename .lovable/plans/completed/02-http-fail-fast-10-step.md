@@ -1,3 +1,5 @@
+> **STATUS:** ✅ COMPLETED — archived 2026-06-21 (v3.91.0 plan-inventory sweep). All steps shipped; see changelog + memory references.
+
 # HTTP Fail-Fast Enforcement — 10-Step Plan
 
 **Goal:** Make every agent-driven and runtime HTTP call obey the HTTP Fail-Fast policy. One 4xx/5xx = stop, report, wait. No retry. No fanout. Prevents Lovable platform throttling/blocks caused by repeated failure storms (e.g., project Git checks returning 405).

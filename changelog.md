@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.91.0] — 2026-06-21
+
+### Changed
+
+- **Plan inventory sweep.** Moved 4 shipped plans from `.lovable/plans/` → `.lovable/plans/completed/` with a `STATUS: ✅ COMPLETED` prefix: `02-http-fail-fast-10-step.md` (all 10 steps ✅, shipped v3.5.2), `03-v3-10-0-refill-priority-and-github-open.md` (shipped v3.10.0 per memory), `04-credit-totals-and-macro-ux-20-step.md` (closed 2026-05-25 per memory), and `05-prompt-spec-2026-renumber-100.md` (header marked EXECUTED 2026-06-03). Pending backlog narrowed to 3 unresolved plans: `projects-modal-15-step-improvement.md`, `prompt-macros-50-step.md`, `spec-prompt-macros-audit-100.md`.
+
+---
+
 ## [v3.90.0] — 2026-06-21
 
 ### Added

@@ -1,3 +1,5 @@
+> **STATUS:** ✅ COMPLETED — archived 2026-06-21 (v3.91.0 plan-inventory sweep). All steps shipped; see changelog + memory references.
+
 # Plan — Refill Priority Filter + Button Overflow Fix + GitHub Open (v3.10.0)
 
 **Workstream:** ships as **minor bump v3.9.3 → v3.10.0**.
