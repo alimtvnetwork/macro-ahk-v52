@@ -46,11 +46,13 @@ export async function getCastleRequestToken(): Promise<string> {
         return '';
     }
     try {
-        const raced = await Promise.race<Promise<string | undefined> | Promise<null>>([
-            Promise.resolve(castle('createRequestToken') as Promise<string> | string | undefined)
-                .then(function (v) { return typeof v === 'string' ? v : ''; }),
-            new Promise<null>(function (resolve) { setTimeout(function () { resolve(null); }, CASTLE_TIMEOUT_MS); }),
-        ]);
+        const tokenPromise: Promise<string | null> = Promise.resolve(
+            castle('createRequestToken') as Promise<string> | string | undefined,
+        ).then(function (v) { return typeof v === 'string' ? v : ''; });
+        const timeoutPromise: Promise<string | null> = new Promise(function (resolve) {
+            setTimeout(function () { resolve(null); }, CASTLE_TIMEOUT_MS);
+        });
+        const raced = await Promise.race<Promise<string | null>>([tokenPromise, timeoutPromise]);
         if (raced == null) {
             log('Castle: createRequestToken timed out after ' + CASTLE_TIMEOUT_MS + 'ms', 'warn');
             return '';
