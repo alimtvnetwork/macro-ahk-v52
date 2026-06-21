@@ -38,6 +38,7 @@ Most likely combo: **#1 + #4** — the renderer was never migrated to the resolv
 ## Progress log
 
 - **v3.82.0 — 2026-06-21:** Fixed the confirmed legacy-direct reader root cause for Plan Steps 3/8/10 and the deeper daily-only aggregate-zero root cause. Migrated workspace-list credit filters/sorts/max-total scaling, Credit Totals modal table cells/filters/sorts, top summary-bar aggregates, focused-workspace status bar, and hover-card daily value to `resolveCreditSummary(ws)`. Added resolver-backed regression tests, daily-only `/credit-balance` overlay tests, and mapped `pro_3` as a known inline-only plan. Verification: targeted Vitest suite `8 passed / 101 tests passed`; `node scripts/check-version-sync.mjs` → `✅ All versions in sync: 3.82.0`.
+- **v3.83.0 — 2026-06-21 (Step 6):** Replaced the invisible em-dash placeholder in `ws-list-renderer.ts` with a real skeleton/error bar. Pending → animated `marco-skeleton` shimmer bar (160×8px), Timeout/Missing → thin red 2px bar; both preserve the slot so the row never reflows when the resolver completes. Tooltips updated to point users at the 💰 Credits button for refresh/retry. Version files synced (`✅ All versions in sync: 3.83.0`).
 
 ## Pending tasks scanned from `.lovable/`
 
