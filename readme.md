@@ -6,8 +6,8 @@
 
 > **Browser automation for workspace management, credit monitoring, and AI-driven macro execution** — built as a Manifest V3 Chrome extension with a modular standalone script architecture.
 
-&#x200B;<!-- Build & Release --> [![CI](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/macro-ahk-v51/ci.yml?branch=main&label=CI&logo=github&style=flat-square)](https://github.com/alimtvnetwork/macro-ahk-v51/actions/workflows/ci.yml) <!-- Repo activity --> [![Issues](https://img.shields.io/github/issues/alimtvnetwork/macro-ahk-v51?style=flat-square&logo=github)](https://github.com/alimtvnetwork/macro-ahk-v51/issues) [![Pull Requests](https://img.shields.io/github/issues-pr/alimtvnetwork/macro-ahk-v51?style=flat-square&logo=github)](https://github.com/alimtvnetwork/macro-ahk-v51/pulls) [![Repo Size](https://img.shields.io/github/repo-size/alimtvnetwork/macro-ahk-v51?style=flat-square)](https://github.com/alimtvnetwork/macro-ahk-v51)
-&#x200B;<!-- Community --> <!-- (intentionally empty — see mem://constraints/no-static-mockup-badges) --> <!-- Code-quality --> [![Security Issues](https://img.shields.io/github/issues-search/alimtvnetwork/macro-ahk-v51?query=is%3Aissue%20label%3Asecurity&label=security&style=flat-square&logo=github)](https://github.com/alimtvnetwork/macro-ahk-v51/issues?q=is%3Aissue+label%3Asecurity) [![Dependency PRs](https://img.shields.io/github/issues-pr-raw/alimtvnetwork/macro-ahk-v51?label=dependency%20PRs&style=flat-square&logo=dependabot)](https://github.com/alimtvnetwork/macro-ahk-v51/pulls?q=is%3Apr+label%3Adependencies) <!-- Stack & standards --> [![License](https://img.shields.io/github/license/alimtvnetwork/macro-ahk-v51?style=flat-square)](#license)
+&#x200B;<!-- Build & Release --> [![CI](https://img.shields.io/github/actions/workflow/status/aukgit/macro-ahk-v51/ci.yml?branch=main&label=CI&logo=github&style=flat-square)](https://github.com/aukgit/macro-ahk-v51/actions/workflows/ci.yml) <!-- Repo activity --> [![Issues](https://img.shields.io/github/issues/aukgit/macro-ahk-v51?style=flat-square&logo=github)](https://github.com/aukgit/macro-ahk-v51/issues) [![Pull Requests](https://img.shields.io/github/issues-pr/aukgit/macro-ahk-v51?style=flat-square&logo=github)](https://github.com/aukgit/macro-ahk-v51/pulls) [![Repo Size](https://img.shields.io/github/repo-size/aukgit/macro-ahk-v51?style=flat-square)](https://github.com/aukgit/macro-ahk-v51)
+&#x200B;<!-- Community --> <!-- (intentionally empty — see mem://constraints/no-static-mockup-badges) --> <!-- Code-quality --> [![Security Issues](https://img.shields.io/github/issues-search/aukgit/macro-ahk-v51?query=is%3Aissue%20label%3Asecurity&label=security&style=flat-square&logo=github)](https://github.com/aukgit/macro-ahk-v51/issues?q=is%3Aissue+label%3Asecurity) [![Dependency PRs](https://img.shields.io/github/issues-pr-raw/aukgit/macro-ahk-v51?label=dependency%20PRs&style=flat-square&logo=dependabot)](https://github.com/aukgit/macro-ahk-v51/pulls?q=is%3Apr+label%3Adependencies) <!-- Stack & standards --> [![License](https://img.shields.io/github/license/aukgit/macro-ahk-v51?style=flat-square)](#license)
 
 <img src="docs/assets/marco-extension-hero.png" alt="Marco Chrome Extension — Projects view inside the options page" width="820" />
 
@@ -26,13 +26,13 @@ For quick local testing — downloads the release ZIP **into the current folder 
 **Windows · PowerShell — latest into `.\marco-extension`:**
 
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/download-extension.ps1 | iex
+irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/download-extension.ps1 | iex
 ```
 
 **Windows · PowerShell — pin a version + custom folder name (env-var form, works with `irm | iex`):**
 
 ```powershell
-$env:MARCO_DL_VERSION='v3.104.0'; $env:MARCO_DL_FOLDER='marco'; irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/download-extension.ps1 | iex
+$env:MARCO_DL_VERSION='v3.104.0'; $env:MARCO_DL_FOLDER='marco'; irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/download-extension.ps1 | iex
 ```
 
 **Windows · PowerShell — run a local clone with explicit flags:**
@@ -46,27 +46,27 @@ After it finishes, load the resulting folder via `chrome://extensions → Load u
 ### 🪟 Windows · PowerShell installer (latest)
 
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.ps1 | iex
 ```
 
 ### 🐧 macOS · Linux · Bash installer (latest)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.sh | bash
 ```
 
 ### 📌 Pinned version (`v3.104.0`)
 
 ```powershell
 # Windows · PowerShell
-irm https://github.com/alimtvnetwork/macro-ahk-v51/releases/download/v3.104.0/install.ps1 | iex
+irm https://github.com/aukgit/macro-ahk-v51/releases/download/v3.104.0/install.ps1 | iex
 
 
 ```
 
 ```bash
 # macOS · Linux · Bash
-curl -fsSL https://github.com/alimtvnetwork/macro-ahk-v51/releases/download/v3.104.0/install.sh | bash
+curl -fsSL https://github.com/aukgit/macro-ahk-v51/releases/download/v3.104.0/install.sh | bash
 
 
 ```
