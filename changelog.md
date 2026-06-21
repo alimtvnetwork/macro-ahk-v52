@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.86.0] — 2026-06-21
+
+### Added
+
+- **Plan 01 Step 8b** — extracted `buildCreditPlaceholderBarHtml(isPending, dashTooltip)` from `ws-list-renderer.ts` and added `credit-placeholder-bar.test.ts` (3 tests) covering Pending → `.marco-skeleton` 8px shimmer, Timeout/Missing → 2px red warning bar, both pinned to 160px slot width so resolver completion never reflows the row.
+
 ## [v3.85.0] — 2026-06-21
 
 ### Added
