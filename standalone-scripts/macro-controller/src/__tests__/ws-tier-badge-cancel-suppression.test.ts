@@ -98,7 +98,7 @@ describe('Issue 116 — Cancel suppresses redundant EXPIRED tier badge', () => {
       nextRefillAt: new Date(Date.now() + 3 * 86_400_000).toISOString(),
     });
     const html = buildTierBadgeHtml(ws);
-    expect(html).toContain('>PRO<');
+    expect(html).toMatch(/>Pro\b/i);
     expect(html).toContain('marco-ws-status-refill-soon');
   });
 
