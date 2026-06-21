@@ -461,6 +461,8 @@ export interface ControllerState {
   __cycleInFlight: boolean;
   /** Internal: true while a retry is scheduled. */
   __cycleRetryPending: boolean;
+  /** Internal: true once getDisplayProjectName() has logged its fallback diagnostic (v3.93.1). */
+  _projectNameFallbackLogged: boolean;
 }
 
 // Forward import for PromptsConfig → PromptEntry dependency
