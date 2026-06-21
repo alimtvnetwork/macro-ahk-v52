@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.94.0] — 2026-06-21
+
+### Fixed
+
+- **Workspace badge — `ktlo_2` plan now renders as "Light 2", not "Pro".** Root cause: `plan-mapper.ts` only mapped exact `ktlo`/`lite` to `Plan.Ktlo`, and `resolveWsTier()` in `credit-parser.ts` only matched the same two literals to `WsTierValue.LITE`. Lovable ships Lite-tier workspaces on the wire as `ktlo_<N>` (e.g. `plan: "ktlo_2"`), so they fell through to the "has billing → PRO" branch and the badge rendered `PRO`. Fix: (1) `mapPlanFromWire()` now treats `ktlo`, `lite`, and any `ktlo_<N>` prefix as `Plan.Ktlo`; (2) `resolveWsTier()` matches the same prefix → `LITE`; (3) new `resolveTierBadgeLabel()` in `ws-list-renderer.ts` renders `ktlo_<N>` as `Light <N>` while keeping plain `ktlo`/`lite` as `LITE`. Affects: `standalone-scripts/macro-controller/src/credit-balance-update/plan-mapper.ts`, `credit-parser.ts:55-56`, `ws-list-renderer.ts:626-651`.
+
+---
+
 ## [v3.93.0] — 2026-06-21
 
 ### Changed
