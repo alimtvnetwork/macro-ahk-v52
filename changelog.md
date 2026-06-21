@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.97.0] — 2026-06-21
+
+### Fixed
+
+- **Projects Modal CSV project names now use the open-tab fallback.** `exportCsv()` previously wrote `projectName: task.project.name` after `fetchProjects()` had already replaced blank `projects.list` names with the project id. The CSV export now resolves names through `resolveCsvProjectName()`: keep the real list name when present, use the already-loaded open-tab `projectName` when the list name is blank/id-only, then fall back to id only when no human-readable name exists. A single info log records how many rows used the fallback.
+
+### Tests
+
+- Added `standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts` covering: list-name wins, open-tab fallback replaces id-only names, and id fallback remains when no name exists.
+- `bunx vitest run standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts` → **1 file, 3 tests passed**.
+- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.97.0.
+
+---
+
 ## [v3.96.0] — 2026-06-21
 
 ### Changed

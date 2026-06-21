@@ -2,7 +2,7 @@
 
 **Scope**: macro-controller → Projects dialog + CSV export.
 **Created**: 2026-05-22. **Owner**: AI (execute one task per `next`).
-**Current cursor**: Task 3 — fix project-name resolution in CSV (fallback chain: tab title → SQLite cache → `projects.get`). Tasks 1 (spec at `standalone-scripts/macro-controller/spec/projects-modal/00-overview.md`) and 2 (Q52 405 root-cause + removal of per-project `projects.get`, see `projects-modal.ts:728-735`) already shipped — verified 2026-06-21 at v3.92.0.
+**Current cursor**: Task 4 — add SQLite table coverage for project cache schema. Tasks 1–3 shipped; Task 3 fixed CSV project-name fallback via `resolveCsvProjectName()` and verified 2026-06-21 at v3.97.0.
 **Status**: OPEN — the only active plan left in `.lovable/plans/` after the v3.92.0 inventory correction.
 
 ## Problems reported by user
@@ -23,7 +23,7 @@
 |---|------|---------|
 | 1 | **Spec doc**: write `standalone-scripts/macro-controller/spec/projects-modal/00-overview.md` explaining current `git fetch + last communication` flow (calls `marco.api.projects.get`, parses `github_repo`, `github_branch`, `last_message_at`), why 405 happens, and target behavior. | User can read spec to understand. |
 | 2 | **Investigate 405**: log the actual URL/method `sdk.api.projects.get` uses; document in spec; if endpoint deprecated, switch to GraphQL `getProject` or remove. | Root cause documented. |
-| 3 | **Fix project-name resolution in CSV**: when `projects.list` returns blank name, fall back to (a) currently-open-tab title, (b) cached SQLite entry, (c) `projects.get` response. Never emit row where `projectName === projectId`. | Every CSV row has a real name when one exists. |
+| 3 | ✅ **Fixed project-name resolution in CSV**: when `projects.list` returns blank/id-only name, CSV falls back to the currently-open-tab project name via `GET_OPEN_LOVABLE_TABS`; id is emitted only when no human-readable name exists. `projects.get` remains removed because the route returns 405. | Shipped v3.97.0; `projects-modal-csv.test.ts` covers list-name win, open-tab fallback, and id-only fallback. |
 | 4 | **SQLite tables**: create migration adding `MacroProjectCache (ProjectId, WorkspaceId, Name, GithubRepo, GithubBranch, LastMessageAt, FetchedAt, ExpiresAt)` and `MacroProjectListCache (WorkspaceId, ProjectsJson, FetchedAt, ExpiresAt)`. PascalCase per existing storage convention. | Schema ready. |
 | 5 | **Cache write path**: after every successful `projects.list` + `projects.get`, upsert into SQLite with TTL. | Persisted. |
 | 6 | **Cache read path**: on dialog open + before each network fetch, read from SQLite; if `ExpiresAt > now`, skip the network call. | Network reduced. |

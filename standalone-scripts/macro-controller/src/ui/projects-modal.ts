@@ -25,7 +25,7 @@ import type { DraggableElement, WorkspaceCredit } from '../types';
 
 const DIALOG_ID = 'marco-projects-modal';
 
-interface OpenTabRow {
+export interface OpenTabRow {
     readonly tabId: number | null;
     readonly title: string;
     readonly url: string;
@@ -43,7 +43,7 @@ interface OpenTabsResponse {
     readonly errorMessage?: string;
 }
 
-interface ProjectEntry {
+export interface ProjectEntry {
     readonly id: string;
     readonly name: string;
     /** From projects.list response; blank if upstream omits it. */
@@ -60,7 +60,7 @@ interface WorkspaceBlock {
 }
 
 /** Open tab info indexed by projectId AND by URL fragment for fallback matching. */
-interface OpenTabIndex {
+export interface OpenTabIndex {
     byProjectId: Map<string, OpenTabRow>;
     byUrlProjectId: Map<string, OpenTabRow>;
 }
@@ -763,6 +763,9 @@ function exportCsv(statusEl: HTMLElement): void {
     statusEl.textContent = 'Building CSV…';
 
     const exportedAt = new Date().toISOString();
+    const fallbackCount = tasks.filter(function (task) {
+        return isCsvProjectNameFallback(task.project, tabIndex);
+    }).length;
     const rows: ExportRow[] = tasks.map(function (task) {
         return {
             workspaceId: task.ws.id,
@@ -770,7 +773,7 @@ function exportCsv(statusEl: HTMLElement): void {
             creditsUsed: task.ws.totalCreditsUsed ?? task.ws.used ?? 0,
             creditsTotal: task.ws.totalCredits ?? task.ws.limit ?? 0,
             projectId: task.project.id,
-            projectName: task.project.name,
+            projectName: resolveCsvProjectName(task.project, tabIndex),
             isOpenInChrome: isOpen(task.project.id, tabIndex) ? 'yes' : 'no',
             gitRepo: task.project.githubRepo,
             gitBranch: task.project.githubBranch,
@@ -789,7 +792,40 @@ function exportCsv(statusEl: HTMLElement): void {
     statusEl.style.color = '#10b981';
     statusEl.textContent = '✓ Exported ' + rows.length + ' project'
         + (rows.length === 1 ? '' : 's') + ' → ' + filename;
+    if (fallbackCount > 0) {
+        log('Projects: CSV project-name fallback used for ' + fallbackCount + ' row(s)', 'info');
+    }
     log('Projects: CSV export complete (' + rows.length + ' rows)', 'info');
+}
+
+function hasListProjectName(project: ProjectEntry): boolean {
+    const trimmedName = project.name.trim();
+
+    return trimmedName !== '' && trimmedName !== project.id;
+}
+
+function findOpenTab(projectId: string, tabIndex: OpenTabIndex): OpenTabRow | null {
+    return tabIndex.byProjectId.get(projectId) ?? tabIndex.byUrlProjectId.get(projectId) ?? null;
+}
+
+export function isCsvProjectNameFallback(project: ProjectEntry, tabIndex: OpenTabIndex): boolean {
+    const hasProjectName = hasListProjectName(project);
+    if (hasProjectName) {
+        return false;
+    }
+    const openTabProjectName = findOpenTab(project.id, tabIndex)?.projectName?.trim() ?? '';
+
+    return openTabProjectName !== '';
+}
+
+export function resolveCsvProjectName(project: ProjectEntry, tabIndex: OpenTabIndex): string {
+    const hasProjectName = hasListProjectName(project);
+    if (hasProjectName) {
+        return project.name;
+    }
+    const openTabProjectName = findOpenTab(project.id, tabIndex)?.projectName?.trim() ?? '';
+
+    return openTabProjectName || project.name || project.id;
 }
 
 function pickString(obj: Record<string, unknown>, keys: ReadonlyArray<string>): string {
