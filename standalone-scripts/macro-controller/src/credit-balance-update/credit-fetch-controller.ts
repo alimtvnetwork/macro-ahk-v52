@@ -204,6 +204,12 @@ export async function requestCredits(ws: WorkspaceCredit): Promise<CreditFetchRe
         })
         .finally(function (): void {
             inFlight.delete(ws.id);
+        })
+        .then(function (settled: CreditFetchResult): CreditFetchResult {
+            // Plan 01 / Step 7: notify subscribers AFTER cache is written and
+            // inFlight is cleared, so the re-render reads the fresh value.
+            emitCreditResolved(ws.id, settled);
+            return settled;
         });
     inFlight.set(ws.id, promise);
     return promise;
