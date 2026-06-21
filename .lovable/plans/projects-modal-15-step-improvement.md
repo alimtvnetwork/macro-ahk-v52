@@ -33,7 +33,7 @@
 | 10 | **Search bar in dialog**: top input filters project rows (case-insensitive substring on name + id). | Searchable. |
 | 11 | ✅ **Workspace filter dropdown**: multi-select chips hide/show whole workspace blocks through `state.hiddenWorkspaces`; Clear all filters resets workspace visibility too. | Shipped v3.99.0; `projects-modal-csv.test.ts` covers workspace visibility filtering. |
 | 12 | ✅ **Credits-used filter**: numeric min/max range hides workspaces whose `WorkspaceCredit.used` falls outside the inclusive range; reset by Clear all filters. | Shipped v3.100.0; `projects-modal-csv.test.ts` covers `isWorkspaceWithinCreditsRange()` (in-range, below-min, above-max, null bounds, inclusive boundaries). |
-| 13 | ✅ **Replace `(no data returned by API)` rows**: CSV `lastCommunication` now normalizes blank and upstream placeholder values to `—`, and logs the count of normalized rows. | Shipped v3.101.0; `projects-modal-csv.test.ts` covers blank, placeholder, real timestamp values, and cleanup log message generation. |
+| 13 | ✅ **Replace `(no data returned by API)` rows**: CSV `lastCommunication` now normalizes blank and upstream placeholder values to `—`, and logs the count of normalized rows. | Shipped v3.101.0; `projects-modal-csv.test.ts` covers blank, placeholder, real timestamp values, cleanup log message generation, and the logging path firing. |
 | 14 | **Verify SQLite end-to-end**: open dialog, close, reopen — confirm second open hits cache (zero network in DevTools). Log cache hit/miss to activity log. | Verified. |
 | 15 | **Update changelog + bump version** (`constants.ts`, manifest, scripts in sync). Note all behavior changes in `changelog-modal.ts`. | ✅ Released as v3.5.1 on 2026-05-22. |
 
