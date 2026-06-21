@@ -963,10 +963,7 @@ function exportCsv(statusEl: HTMLElement): void {
     if (fallbackCount > 0) {
         log('Projects: CSV project-name fallback used for ' + fallbackCount + ' row(s)', 'info');
     }
-    const normalizedLogMessage = getCsvLastCommunicationNormalizedLogMessage(normalizedLastCommunicationCount);
-    if (normalizedLogMessage !== null) {
-        log(normalizedLogMessage, 'info');
-    }
+    logCsvLastCommunicationNormalization(normalizedLastCommunicationCount);
     log('Projects: CSV export complete (' + rows.length + ' rows)', 'info');
 }
 
@@ -1018,6 +1015,17 @@ export function getCsvLastCommunicationNormalizedLogMessage(normalizedCount: num
     }
 
     return 'Projects: CSV lastCommunication normalized for ' + normalizedCount + ' row(s)';
+}
+
+export function logCsvLastCommunicationNormalization(normalizedCount: number): boolean {
+    const normalizedLogMessage = getCsvLastCommunicationNormalizedLogMessage(normalizedCount);
+    if (normalizedLogMessage === null) {
+        return false;
+    }
+
+    log(normalizedLogMessage, 'info');
+
+    return true;
 }
 
 function pickString(obj: Record<string, unknown>, keys: ReadonlyArray<string>): string {
