@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.98.0] — 2026-06-21
+
+### Changed
+
+- **Projects-modal 15-step plan cursor synced.** Tasks 4–10 were already shipped in code (`projects-cache.ts` SQLite write/read, `projectsCacheTtlHours` setting wired through `settings-store` + `settings-modal`, search bar + `Open in tab` / `Has repo` filter chips in `projects-modal.ts`, workspace name + credits in dialog header), but `.lovable/plans/projects-modal-15-step-improvement.md` still listed cursor at Task 4. Plan now marks 4–10 ✅ and advances the cursor to Task 11 (workspace multi-select dropdown), so the next `next` lands on real work instead of re-validating shipped code.
+- No runtime behavior change; version bumped for plan/doc sync only.
+
+### Verification
+
+- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.98.0.
+
+---
+
 ## [v3.97.0] — 2026-06-21
 
 ### Fixed
