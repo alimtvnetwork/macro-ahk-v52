@@ -26,6 +26,7 @@ _None — all known CI/CD issues resolved._
 | 09 | [`09-ci-not-triggering-on-branch-commits.md`](./cicd-issues/09-ci-not-triggering-on-branch-commits.md) | CI Build not triggering on branch commits (post PR #45) | `.github/workflows/ci.yml` + `.github/workflows/ping.yml` | ✅ Resolved (workflow-side) | 2026-05-26 |
 | 10 | [`10-release-watcher-empty-version-guard.md`](./cicd-issues/10-release-watcher-empty-version-guard.md) | Release Watcher asset guard used empty version because `resolve-release` was not in direct `needs` | `.github/workflows/release-watcher.yml` | ✅ Resolved | 2026-05-26 |
 | 11 | [`11-audit-releases-ver-placeholder-collision.md`](./cicd-issues/11-audit-releases-ver-placeholder-collision.md) | Audit Releases mangled `VERSION.txt` into `<tag>SION.txt` because the `VER` placeholder collided with the literal substring inside `VERSION.txt` | `.github/workflows/audit-releases.yml` | ✅ Resolved | 2026-05-26 |
+| 12 | [`12-stale-repo-owner-ci-report-links.md`](./cicd-issues/12-stale-repo-owner-ci-report-links.md) | CI/CD status reports, badges, installers, and release docs pointed at stale `alimtvnetwork/macro-ahk-v51` instead of current `aukgit/macro-ahk-v51` | README + installer/release docs | ✅ Resolved | 2026-06-21 |
 
 ## Referenced specs
 
