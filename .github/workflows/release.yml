@@ -200,17 +200,24 @@ jobs:
       - name: Enforce lowercase .md filenames
         if: steps.version.outputs.skip != 'true'
         run: |
+          # Allow lowercase hyphen-case (foo-bar.md) OR ALL-CAPS docs
+          # (README.md, RELEASE_NOTES.md, CODE_OF_CONDUCT.md, etc.).
           VIOLATIONS=$(find . -name '*.md' \
             -not -path './node_modules/*' \
             -not -path './.git/*' \
             -not -path './skipped/*' \
-            | grep '[A-Z]' || true)
+            | while read -r f; do
+                base=$(basename "$f" .md)
+                if echo "$base" | grep -qE '^[a-z0-9][a-z0-9-]*$'; then continue; fi
+                if echo "$base" | grep -qE '^[A-Z0-9][A-Z0-9_-]*$'; then continue; fi
+                echo "$f"
+              done)
           if [ -n "$VIOLATIONS" ]; then
-            echo "::error::Uppercase .md filenames found — all .md files must be lowercase hyphen-case:"
+            echo "::error::Mixed-case .md filenames found — use lowercase hyphen-case or ALL-CAPS:"
             echo "$VIOLATIONS"
             exit 1
           fi
-          echo "✅ All .md filenames are lowercase"
+          echo "✅ All .md filenames follow naming convention"
 
       - name: Setup Node.js
         if: steps.version.outputs.skip != 'true'
