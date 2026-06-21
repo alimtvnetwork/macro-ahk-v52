@@ -419,7 +419,7 @@ function creditsCompactRow(ws: WorkspaceCredit): string {
     return compactRow('Credits', dashHtml);
   }
   const avail = summary.available;
-  const daily = Math.round(ws.dailyLimit || ws.dailyFree || 0);
+  const daily = Math.round(summary.dailyLimit || summary.daily || 0);
   const used = summary.totalUsed;
   const aColor = availableColor(avail, daily);
   const html = SPAN_COLOR_OPEN + aColor + ';font-weight:700;">' + avail + '</span>'
