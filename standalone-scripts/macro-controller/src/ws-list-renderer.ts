@@ -721,7 +721,7 @@ function buildWsRow(
 function computeMaxTotalCredits(workspaces: WorkspaceCredit[]): number {
   let maxTotalCredits = 1;
   for (const ws of workspaces) {
-    const mtc = Math.round(ws.totalCredits ?? calcTotalCredits(ws.freeGranted, ws.dailyLimit, ws.limit, ws.topupLimit, ws.rolloverLimit, ws.plan));
+    const mtc = Math.round(resolveCreditSummary(ws).total);
     if (mtc > maxTotalCredits) maxTotalCredits = mtc;
   }
   return maxTotalCredits;
@@ -771,8 +771,8 @@ export function filterAndSortWorkspaces(
   if (fs.creditSortMode !== 'none') {
     const desc = fs.creditSortMode === 'high' || fs.creditSortMode === 'pro-high';
     survivors.sort(function (a, b) {
-      const av = a.ws.available || 0;
-      const bv = b.ws.available || 0;
+      const av = resolveCreditSummary(a.ws).available;
+      const bv = resolveCreditSummary(b.ws).available;
       return desc ? bv - av : av - bv;
     });
   }
