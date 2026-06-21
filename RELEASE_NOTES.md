@@ -1,28 +1,27 @@
-# Marco Chrome Extension v3.96.0
+# Marco Chrome Extension v3.97.0
 
-## Changed
+## Fixed
 
-- **Hover-card plan chip + sub-header now use the canonical
-  `formatPlanDisplayLabel()` helper.** Reads `Pro 1`, `Light 2`, `Lite`
-  instead of the legacy uppercased `tier` bucket (`PRO`, `FREE`).
-- **Summary-bar `isProPlan` documented as strict-`pro_*`-only.**
-  Lite-tier workspaces are intentionally excluded from the Pro pill
-  aggregates; documented so the next refactor doesn't widen it.
-- **Memory rule added**: `mem://features/macro-controller/plan-display-label`.
+- **Projects Modal CSV project names now fall back to the open Lovable tab name**
+  when `projects.list` returns a blank/id-only name. The CSV keeps the API name
+  when present, uses the open-tab project name when available, and only emits the
+  project id when no human-readable name exists.
+- Added an info log: `Projects: CSV project-name fallback used for N row(s)`.
 
 ## Files changed
 
-- `standalone-scripts/macro-controller/src/ws-hover-card.ts`
-- `standalone-scripts/macro-controller/src/ui/summary-bar/compute-summary.ts`
-- `.lovable/memory/features/macro-controller/plan-display-label.md` (new)
-- `.lovable/memory/index.md`
-- Test snapshots: `__tests__/__snapshots__/ws-hover-card.snapshot.test.ts.snap`
+- `standalone-scripts/macro-controller/src/ui/projects-modal.ts`
+- `standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts` (new)
 
 ## Verification
 
-- `bunx vitest run plan-mapper credit-totals-csv credit-totals-modal ws-hover-card.snapshot`
-  → **4 files, 72 tests passed**.
-- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.96.0.
+- Before: missing project names were collapsed to project ids in `fetchProjects()`
+  and CSV exported that id.
+- After: `projects-modal-csv.test.ts` proves list names win, id-only names use
+  open-tab fallback, and id remains only when no real name exists.
+- `bunx vitest run standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts`
+  → **1 file, 3 tests passed**.
+- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.97.0.
 
 ---
 
