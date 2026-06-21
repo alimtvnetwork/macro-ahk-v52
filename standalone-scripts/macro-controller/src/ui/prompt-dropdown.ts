@@ -874,7 +874,7 @@ function filterByCategory<T extends { name: string; text: string; category?: str
 
 function renderTaskNextSubmenu(container: HTMLElement, ctx: PromptContext, taskNextDeps: TaskNextDeps): void {
   const promptsDropdown = ctx.promptsDropdown;
-  const { taskNextItem, taskNextSub } = _buildTaskNextMenuShell(promptsDropdown);
+  const { taskNextItem, taskNextSub } = _buildTaskNextMenuShell(promptsDropdown, taskNextDeps);
 
   _appendPresetCounts(taskNextSub, promptsDropdown, taskNextDeps);
   _appendCustomCountRow(taskNextSub, promptsDropdown, taskNextDeps);
