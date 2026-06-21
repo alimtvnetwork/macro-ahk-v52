@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.93.0] — 2026-06-21
+
+### Changed
+
+- **Projects Modal plan — cursor advanced.** Tasks 1 (spec at `standalone-scripts/macro-controller/spec/projects-modal/00-overview.md`) and 2 (Q52 `projects.get` 405 root-cause + removal of per-project call, see `src/ui/projects-modal.ts` lines 728–735) were already shipped and have now been marked complete. Cursor moved to Task 3: CSV project-name resolution fallback chain.
+
+---
+
 ## [v3.92.0] — 2026-06-21
 
 ### Changed
