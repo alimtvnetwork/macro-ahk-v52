@@ -625,12 +625,11 @@ function buildLegacyExpiredBadge(ws: WorkspaceCredit): string {
 
 // Tier-badge text is delegated to the shared plan-mapper formatter so the
 // badge, Credit Totals modal, hover card, and CSV all agree on labels.
-import { formatPlanDisplayLabel } from './credit-balance-update/plan-mapper';
-
 function resolveTierBadgeLabel(ws: WorkspaceCredit, fallback: string): string {
   const label = formatPlanDisplayLabel(ws.plan);
   return label || fallback;
 }
+
 
 
 /** Build the inner HTML for a workspace row. Exported for tests. */
