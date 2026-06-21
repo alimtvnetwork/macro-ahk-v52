@@ -12,3 +12,5 @@
 
 - Before: helper regressions passed but no test proved the real click-to-DOM repaint path.
 - After: `bunx vitest run standalone-scripts/macro-controller/src/__tests__/credit-refresh-component.test.ts` → **1/1 passed**.
+- Targeted suite: credit fan-out / placeholder / network-count / component regressions → **4 files, 12 tests passed**.
+- `node scripts/check-version-sync.mjs` → `✅ All versions in sync: 3.87.0`.
