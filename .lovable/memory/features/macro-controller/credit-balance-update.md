@@ -1,6 +1,6 @@
 ---
 name: credit-balance-update
-description: v3.50.0 — Ktlo/Free/Cancelled workspaces fetch /workspaces/{id}/credit-balance on demand; PascalCase enums; AbortController timeout; dual-layer cache; single-flight; resolver feeds tooltip, CSV, refill-priority
+description: v3.82.0 — Ktlo/Free/Cancelled workspaces fetch /workspaces/{id}/credit-balance on demand; resolver is mandatory for all credit UI numbers, filters, sorts, summaries, tooltip, CSV, refill-priority
 type: feature
 ---
 
@@ -36,8 +36,11 @@ fields in `/user/workspaces`, so the panel painted `0/0`. We now call
 - **Resolver is the single source of truth** for UI numbers. Anything
   rendering `available` or `total` for a row MUST call
   `resolveCreditSummary(ws)`:
+  - `ws-list-renderer.ts` row bars, max-total scaling, credit filters, and credit sorts
+  - `ui/credit-totals-modal.ts` table cells, table filters, table sorts, and CSV (`Daily,DailyLimit,Source` columns)
+  - `ui/summary-bar/compute-summary.ts` pro credit aggregates and expiring available totals
+  - `ui/ui-status-renderer.ts` focused-workspace credit bar and max-total scaling
   - `ws-hover-card.ts` Credits section (shows `Source` row when ≠ Inline)
-  - `ui/credit-totals-modal.ts` CSV (`Daily,DailyLimit,Source` columns)
   - `workspace-refill-priority.ts` (`resolvedAvailable(ws)`)
 
 ### Hydration
@@ -88,3 +91,7 @@ subscribeCreditFetchSettings();   // hot-reload on SAVE_SETTINGS
 - **Per-row repaint after enrichment:** every `.then()` inside `schedulePostParseEnrichment` (credit-fetch.ts) that calls `mc().updateUI()` MUST also call `repaintWorkspaceRowsAfterEnrichment(scope)` which funnels through `populateLoopWorkspaceDropdown()`. Three known scopes: `'pro_0'`, `'pro_1'`, `'ktlo/free/cancelled'`. Test: `__tests__/enrichment-repaints-list.test.ts`.
 
 - **All-zero grant rows force fetch:** `hasInlineCredits(ws)` returns false when `grant_type_balances` contains only zero-remaining/zero-granted entries (new-free fixtures), so the controller still issues `/credit-balance`.
+
+### v3.82.0 addendum — resolver-only credit UI migration
+
+The remaining legacy-direct readers from `.lovable/audits/2026-06-21-credit-field-call-sites.md` were migrated: workspace-list min-credit/expired/sort/max-total gates, Credit Totals modal table cells/filter/sort keys, summary-bar aggregates, focused-workspace status bar, and hover-card daily values now read `resolveCreditSummary(ws)`. Daily-only `/credit-balance` rows with `total_remaining=0,total_granted=0,daily_remaining>0,daily_limit>0` MUST render as available/total from daily credits, not `0/0`. `Plan.Pro3` is mapped as an inline-only known plan so resolver reads do not emit false CODE-RED logs for `pro_3` rows. Tests: `credit-totals-modal.test.ts`, `credit-totals-filter.test.ts`, `credit-totals-sort.test.ts`, `summary-tooltip-and-search.test.ts`, `ws-refill-soon-sort.test.ts`, `credit-summary-resolver-pending.test.ts`, `credit-fetch-controller.test.ts`, `plan-mapper.test.ts`.

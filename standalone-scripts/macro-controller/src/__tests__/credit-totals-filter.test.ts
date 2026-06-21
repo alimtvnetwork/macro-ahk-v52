@@ -5,6 +5,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { applyFilters, buildBreakdownTable, type FilterState } from '../ui/credit-totals-modal';
 import type { WorkspaceCredit } from '../types';
+import { CreditFetchOutcome } from '../credit-balance-update/credit-fetch-outcome';
+import { __writeCreditBalanceUpdateMemoryCacheForTests, clearCreditBalanceUpdateMemoryCache } from '../credit-balance-update/credit-balance-cache';
 
 function ws(partial: Partial<WorkspaceCredit>): WorkspaceCredit {
   return {
@@ -63,6 +65,29 @@ describe('applyFilters', () => {
     const input = ALL.slice();
     applyFilters(input, { low: true, empty: false, free: false });
     expect(input.map((w) => w.id)).toEqual(['healthy', 'low', 'empty', 'zero', 'free']);
+  });
+
+  it('uses resolver-backed remaining credits for low/empty filters', () => {
+    clearCreditBalanceUpdateMemoryCache();
+    __writeCreditBalanceUpdateMemoryCacheForTests('cached-low', {
+      outcome: CreditFetchOutcome.ApiHit,
+      fetchedAt: Date.now(),
+      sourceUrl: 'test',
+      errorDetail: null,
+      balance: {
+        totalRemaining: 42,
+        totalGranted: 100,
+        dailyRemaining: 5,
+        dailyLimit: 5,
+        totalBillingPeriodUsed: 58,
+        expiringGrants: [],
+        grantTypeBalances: [],
+      },
+    });
+    const out = applyFilters([
+      ws({ id: 'cached-low', fullName: 'Cached Low', available: 0, totalCredits: 0, plan: 'ktlo' }),
+    ], { low: true, empty: false, free: false });
+    expect(out.map((w) => w.id)).toEqual(['cached-low']);
   });
 });
 

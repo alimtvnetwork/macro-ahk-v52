@@ -15,6 +15,8 @@ export function mapPlanFromWire(wirePlan: string | null | undefined): Plan {
             return Plan.Pro0;
         case 'pro_1':
             return Plan.Pro1;
+        case 'pro_3':
+            return Plan.Pro3;
         case 'ktlo':
         case 'lite':
             return Plan.Ktlo;

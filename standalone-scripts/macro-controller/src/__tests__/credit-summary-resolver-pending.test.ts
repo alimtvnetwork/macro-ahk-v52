@@ -10,7 +10,8 @@ vi.mock('../credit-balance-update/credit-balance-fetcher', () => ({
 }));
 
 import { resolveCreditSummary } from '../credit-balance-update/credit-summary-resolver';
-import { clearCreditBalanceUpdateMemoryCache } from '../credit-balance-update/credit-balance-cache';
+import { __writeCreditBalanceUpdateMemoryCacheForTests, clearCreditBalanceUpdateMemoryCache } from '../credit-balance-update/credit-balance-cache';
+import { CreditFetchOutcome } from '../credit-balance-update/credit-fetch-outcome';
 
 function ws(partial: Partial<WorkspaceCredit>): WorkspaceCredit {
     return {
@@ -59,6 +60,28 @@ describe('resolveCreditSummary — Pending state (RCA 2026-06-06)', () => {
         expect(summary.source).toBe('Inline');
         expect(summary.renderDash).toBe(false);
         expect(summary.available).toBe(45);
+    });
+
+    it('uses daily credits when cached aggregate totals are zero', () => {
+        __writeCreditBalanceUpdateMemoryCacheForTests('daily_only', {
+            outcome: CreditFetchOutcome.ApiHit,
+            fetchedAt: Date.now(),
+            sourceUrl: 'test',
+            errorDetail: null,
+            balance: {
+                totalRemaining: 0,
+                totalGranted: 0,
+                dailyRemaining: 5,
+                dailyLimit: 5,
+                totalBillingPeriodUsed: 0,
+                expiringGrants: [],
+                grantTypeBalances: [],
+            },
+        });
+        const summary = resolveCreditSummary(ws({ id: 'daily_only', plan: 'free' }));
+        expect(summary.available).toBe(5);
+        expect(summary.total).toBe(5);
+        expect(summary.renderDash).toBe(false);
     });
 
     it('does not flip to Pending for plans that do not require /credit-balance', () => {

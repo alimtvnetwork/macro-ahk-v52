@@ -162,9 +162,10 @@ function pickSortValue(ws: WorkspaceCredit, key: SortKey): number | string {
   if (key === 'name') return (ws.fullName || ws.name || ws.id || '').toString();
   if (key === 'plan') return (ws.plan || '').toString();
   if (key === 'projects') return Number(ws.numProjects) || 0;
-  if (key === 'used') return Number(ws.totalCreditsUsed) || 0;
-  if (key === 'rem') return Number(ws.available) || 0;
-  return Number(ws.totalCredits) || 0;
+  const summary = resolveCreditSummary(ws);
+  if (key === 'used') return summary.totalUsed;
+  if (key === 'rem') return summary.available;
+  return summary.total;
 }
 
 /** Next sort dir in the cycle: none → desc (numeric) / asc (text) → asc/desc → none. */
@@ -230,7 +231,7 @@ export function applyFilters(
   return workspaces.filter((ws) => {
     if (hasQuery && !wsMatchesQuery(ws, filters.query)) return false;
     if (!anyChipActive) return true;
-    const rem = Number(ws.available);
+    const rem = resolveCreditSummary(ws).available;
     if (filters.low && rem < 100 && rem > 0) return true;
     if (filters.empty && rem <= 0) return true;
     if (filters.free && ws.hasFree) return true;
@@ -498,12 +499,13 @@ function buildRow(ws: WorkspaceCredit, index: number = 0): HTMLElement {
   projects.style.cssText = 'text-align:right;color:#94a3b8;font-weight:600;font-size:10px;';
   projects.textContent = projectsN > 0 ? String(projectsN) : '—';
 
-  const usedN = Number(ws.totalCreditsUsed);
+  const summary = resolveCreditSummary(ws);
+  const usedN = summary.totalUsed;
   const used = document.createElement('span');
   used.style.cssText = 'text-align:right;color:#fb923c;font-weight:700;font-size:11px;';
   used.textContent = formatCount(usedN);
 
-  const remN = Number(ws.available);
+  const remN = summary.available;
   const rem = document.createElement('span');
   const remColor = remN <= 0 ? cPanelFgDim : remN < 100 ? '#fbbf24' : '#86efac';
   rem.style.cssText = 'text-align:right;color:' + remColor + ';font-weight:700;font-size:11px;';
@@ -511,7 +513,7 @@ function buildRow(ws: WorkspaceCredit, index: number = 0): HTMLElement {
 
   const total = document.createElement('span');
   total.style.cssText = 'text-align:right;color:#a78bfa;font-weight:700;font-size:11px;';
-  total.textContent = formatCount(Number(ws.totalCredits));
+  total.textContent = formatCount(summary.total);
 
   row.appendChild(name);
   row.appendChild(plan);

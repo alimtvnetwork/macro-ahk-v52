@@ -452,7 +452,7 @@ function matchesExpiredWithCreditsFilter(ws: WorkspaceCredit): boolean {
   const sub = (ws.subscriptionStatus || '').toLowerCase().trim();
   if (sub === 'canceled' || sub === 'cancelled') return false;
   if (!isExpiredWs(ws)) return false;
-  if ((ws.available || 0) <= EXPIRED_WITH_CREDITS_MIN) return false;
+  if (resolveCreditSummary(ws).available <= EXPIRED_WITH_CREDITS_MIN) return false;
   return true;
 }
 
@@ -463,7 +463,7 @@ function isProOnlySortMode(mode: WsFilterState['creditSortMode']): boolean {
 
 /** Check sub-filters that gate on workspace credit/lifecycle state. */
 function passesCreditFilters(ws: WorkspaceCredit, fs: WsFilterState): boolean {
-  if (fs.minCredits > 0 && (ws.available || 0) < fs.minCredits) return false;
+  if (fs.minCredits > 0 && resolveCreditSummary(ws).available < fs.minCredits) return false;
   if (fs.expiredWithCredits && !matchesExpiredWithCreditsFilter(ws)) return false;
   if (fs.expiring && !isExpiringWs(ws)) return false;
   if (fs.refillSoon && !isRefillSoonWs(ws)) return false;
@@ -476,7 +476,7 @@ function passesFilters(ws: WorkspaceCredit, fs: WsFilterState): boolean {
   if (!matchesTextFilter(ws, fs.filter || '')) return false;
   if (fs.freeOnly && (ws.dailyFree || 0) <= 0) return false;
   if (fs.rolloverOnly && (ws.rollover || 0) <= 0) return false;
-  if (fs.billingOnly && (ws.billingAvailable || 0) <= 0) return false;
+  if (fs.billingOnly && resolveCreditSummary(ws).billingAvailable <= 0) return false;
   return passesCreditFilters(ws, fs);
 }
 
@@ -496,7 +496,7 @@ function passesFilters(ws: WorkspaceCredit, fs: WsFilterState): boolean {
  * graceful fallback.
  */
 function _expiredRecoveryScore(ws: WorkspaceCredit): number {
-  const credits = Math.max(ws.available || 0, 0);
+  const credits = Math.max(resolveCreditSummary(ws).available, 0);
   const days = Math.max(expiredDays(ws) || 0, 0);
   return credits * days + credits;
 }
@@ -721,7 +721,7 @@ function buildWsRow(
 function computeMaxTotalCredits(workspaces: WorkspaceCredit[]): number {
   let maxTotalCredits = 1;
   for (const ws of workspaces) {
-    const mtc = Math.round(ws.totalCredits ?? calcTotalCredits(ws.freeGranted, ws.dailyLimit, ws.limit, ws.topupLimit, ws.rolloverLimit, ws.plan));
+    const mtc = Math.round(resolveCreditSummary(ws).total);
     if (mtc > maxTotalCredits) maxTotalCredits = mtc;
   }
   return maxTotalCredits;
@@ -753,7 +753,7 @@ export function filterAndSortWorkspaces(
       const daysA = statusA.daysSince || 0;
       const daysB = statusB.daysSince || 0;
       if (daysB !== daysA) return daysB - daysA;
-      return (b.ws.available || 0) - (a.ws.available || 0);
+      return resolveCreditSummary(b.ws).available - resolveCreditSummary(a.ws).available;
     });
   } else if (viewState().getRefillPriority() || fs.refillSoon) {
     // v3.16.1 bug fix — When the "Refill-soon" filter is active, ALL surviving rows
@@ -771,8 +771,8 @@ export function filterAndSortWorkspaces(
   if (fs.creditSortMode !== 'none') {
     const desc = fs.creditSortMode === 'high' || fs.creditSortMode === 'pro-high';
     survivors.sort(function (a, b) {
-      const av = a.ws.available || 0;
-      const bv = b.ws.available || 0;
+      const av = resolveCreditSummary(a.ws).available;
+      const bv = resolveCreditSummary(b.ws).available;
       return desc ? bv - av : av - bv;
     });
   }

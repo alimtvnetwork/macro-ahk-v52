@@ -35,6 +35,10 @@ Most likely combo: **#1 + #4** — the renderer was never migrated to the resolv
 9. **Failure logging** — ensure every code path added in steps 4 + 7 funnels errors through `Logger.error('CreditBalanceUpdate.fetch', …)` with the mandatory schema (`Reason`, `ReasonDetail`, `WorkspaceId`, `BearerPrefix`, `ElapsedMs`, `SourceUrl`). No swallowed catches.
 10. **Version bump + memory sync** — bump `manifest.json` + `constants.ts` (per unified-versioning policy), update `mem://features/macro-controller/credit-balance-update` "Resolver is the single source of truth" bullet to add the progress-bar renderer to the enforced list, and append a row to plan close-out section. Run full audit (`node scripts/audit/check-must-memory-refs.mjs`, smoke-rescore, quarantine, tooltip-dict-gate) before declaring done.
 
+## Progress log
+
+- **v3.82.0 — 2026-06-21:** Fixed the confirmed legacy-direct reader root cause for Plan Steps 3/8/10 and the deeper daily-only aggregate-zero root cause. Migrated workspace-list credit filters/sorts/max-total scaling, Credit Totals modal table cells/filters/sorts, top summary-bar aggregates, focused-workspace status bar, and hover-card daily value to `resolveCreditSummary(ws)`. Added resolver-backed regression tests, daily-only `/credit-balance` overlay tests, and mapped `pro_3` as a known inline-only plan. Verification: targeted Vitest suite `8 passed / 101 tests passed`; `node scripts/check-version-sync.mjs` → `✅ All versions in sync: 3.82.0`.
+
 ## Pending tasks scanned from `.lovable/`
 
 No open `## Pending` / `## TODO` sections found in `.lovable/plan.md`, `.lovable/plans/*`, `.lovable/pending-issues/*` that aren't already tracked in their own files. Nothing to append.

@@ -4,6 +4,7 @@ import { CreditFetchOutcome } from './credit-fetch-outcome';
 import { readCreditBalanceUpdateCacheSync } from './credit-balance-cache';
 import { hasInlineCredits } from './credit-fetch-controller';
 import { mapPlanFromWire, shouldFetchCreditBalanceForPlan } from './plan-mapper';
+import { resolveDisplayAvailable, resolveDisplayTotal } from './credit-balance-display';
 
 export type CreditSummarySource = 'Inline' | 'Cache' | 'Timeout' | 'Missing' | 'Pending';
 
@@ -35,8 +36,8 @@ function inlineTotal(ws: WorkspaceCredit): number {
 function buildCachedSummary(ws: WorkspaceCredit, balance: NonNullable<ReturnType<typeof readCreditBalanceUpdateCacheSync>>['balance']): CreditSummary {
     const b = balance!;
     return {
-        available: Math.max(0, Math.round(b.totalRemaining)),
-        total: Math.max(0, Math.round(b.totalGranted)),
+        available: resolveDisplayAvailable(b),
+        total: resolveDisplayTotal(b),
         daily: Math.max(0, Math.round(b.dailyRemaining)),
         dailyLimit: Math.max(0, Math.round(b.dailyLimit)),
         billingAvailable: Math.max(0, Math.round(b.totalRemaining - b.dailyRemaining)),

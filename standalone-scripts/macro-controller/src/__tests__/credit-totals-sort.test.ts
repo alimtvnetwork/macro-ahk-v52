@@ -10,6 +10,8 @@ import {
   type SortState,
 } from '../ui/credit-totals-modal';
 import type { WorkspaceCredit } from '../types';
+import { CreditFetchOutcome } from '../credit-balance-update/credit-fetch-outcome';
+import { __writeCreditBalanceUpdateMemoryCacheForTests, clearCreditBalanceUpdateMemoryCache } from '../credit-balance-update/credit-balance-cache';
 
 function ws(partial: Partial<WorkspaceCredit>): WorkspaceCredit {
   return {
@@ -71,6 +73,30 @@ describe('sortWorkspaces', () => {
     const input = SAMPLE.slice();
     sortWorkspaces(input, { key: 'used', dir: 'desc' });
     expect(input.map((w) => w.id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('sorts by resolver-backed totals when raw workspace totals are 0/0', () => {
+    clearCreditBalanceUpdateMemoryCache();
+    __writeCreditBalanceUpdateMemoryCacheForTests('cached-high', {
+      outcome: CreditFetchOutcome.ApiHit,
+      fetchedAt: Date.now(),
+      sourceUrl: 'test',
+      errorDetail: null,
+      balance: {
+        totalRemaining: 300,
+        totalGranted: 300,
+        dailyRemaining: 5,
+        dailyLimit: 5,
+        totalBillingPeriodUsed: 0,
+        expiringGrants: [],
+        grantTypeBalances: [],
+      },
+    });
+    const out = sortWorkspaces([
+      ws({ id: 'raw-low', fullName: 'Raw Low', available: 20, totalCredits: 20 }),
+      ws({ id: 'cached-high', fullName: 'Cached High', plan: 'ktlo', available: 0, totalCredits: 0 }),
+    ], { key: 'rem', dir: 'desc' });
+    expect(out.map((w) => w.id)).toEqual(['cached-high', 'raw-low']);
   });
 });
 

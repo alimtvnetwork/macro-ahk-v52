@@ -19,6 +19,7 @@ describe('credit-balance-update plan mapper', () => {
     it.each([
         ['pro_0', Plan.Pro0],
         ['pro_1', Plan.Pro1],
+        ['pro_3', Plan.Pro3],
         ['ktlo', Plan.Ktlo],
         ['lite', Plan.Ktlo],
         ['free', Plan.Free],
@@ -45,6 +46,7 @@ describe('credit-balance-update plan mapper', () => {
         [Plan.Cancelled, true],
         [Plan.Pro0, true],
         [Plan.Pro1, false],
+        [Plan.Pro3, false],
         [Plan.Business, false],
         [Plan.Enterprise, false],
         [Plan.Unknown, false],

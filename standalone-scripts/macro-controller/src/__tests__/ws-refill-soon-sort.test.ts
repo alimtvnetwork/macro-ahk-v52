@@ -18,7 +18,10 @@ import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { sortByRefillPriority } from '../workspace-refill-priority';
+import { filterAndSortWorkspaces, setLoopWsCreditSortMode } from '../ws-list-renderer';
 import type { WorkspaceCredit } from '../types';
+import { CreditFetchOutcome } from '../credit-balance-update/credit-fetch-outcome';
+import { __writeCreditBalanceUpdateMemoryCacheForTests, clearCreditBalanceUpdateMemoryCache } from '../credit-balance-update/credit-balance-cache';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SRC = join(HERE, '..', 'ws-list-renderer.ts');
@@ -37,7 +40,7 @@ function mkWs(id: string, available: number, daysToRefill: number): WorkspaceCre
   return {
     id,
     name: id,
-    plan: 'pro',
+    plan: 'pro_1',
     available,
     used: 0,
     total: 205,
@@ -65,5 +68,32 @@ describe('sortByRefillPriority — screenshot scenario (all 1d, mixed credits)',
 
     // Highest available first; zero-credit rows fall to the bottom (id asc).
     expect(ids).toEqual(['A0087', 'A0084', 'A0088', 'A0086', 'A0081', 'A0082', 'A0083']);
+  });
+
+  it('filterAndSortWorkspaces credit sort uses resolver-backed available credits', () => {
+    clearCreditBalanceUpdateMemoryCache();
+    setLoopWsCreditSortMode('high');
+    __writeCreditBalanceUpdateMemoryCacheForTests('cached', {
+      outcome: CreditFetchOutcome.ApiHit,
+      fetchedAt: Date.now(),
+      sourceUrl: 'test',
+      errorDetail: null,
+      balance: {
+        totalRemaining: 120,
+        totalGranted: 120,
+        dailyRemaining: 5,
+        dailyLimit: 5,
+        totalBillingPeriodUsed: 0,
+        expiringGrants: [],
+        grantTypeBalances: [],
+      },
+    });
+    const rows = [
+      mkWs('raw', 40, 1),
+      { ...mkWs('cached', 0, 1), plan: 'ktlo', totalCredits: 0 },
+    ];
+    const sorted = filterAndSortWorkspaces(rows, '');
+    setLoopWsCreditSortMode('none');
+    expect(sorted.map((r) => r.ws.id)).toEqual(['cached', 'raw']);
   });
 });

@@ -157,6 +157,18 @@ export function clearCreditBalanceUpdateMemoryCache(): void {
     memoryCache.clear();
 }
 
+export function __writeCreditBalanceUpdateMemoryCacheForTests(
+    workspaceId: string,
+    result: CreditFetchResult,
+    ttlMs: number = DEFAULT_TTL_MS,
+    nowMs: number = Date.now(),
+): void {
+    if (!workspaceId) {
+        return;
+    }
+    memoryCache.set(workspaceId, buildEntry(workspaceId, result, ttlMs, nowMs));
+}
+
 export function makeCachedResult(result: CreditFetchResult): CreditFetchResult {
     if (!result.balance) {
         return result;
