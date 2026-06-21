@@ -623,19 +623,15 @@ function buildLegacyExpiredBadge(ws: WorkspaceCredit): string {
   return '<span style="font-size:10px;color:#fca5a5;background:rgba(127,29,29,0.55);padding:2px 5px;border-radius:3px;font-weight:600;margin-left:3px;vertical-align:middle;" data-marco-tip="' + tip + '">·' + days + 'd</span>';
 }
 
-/**
- * Resolve the tier-badge text. Lovable ships Lite tiers on the wire as
- * `ktlo_<N>` (e.g. `ktlo_2`). Render those as "Light N" so the badge
- * reflects the actual tier instead of the bucket label "LITE" or the
- * fallback "PRO".
- */
+// Tier-badge text is delegated to the shared plan-mapper formatter so the
+// badge, Credit Totals modal, hover card, and CSV all agree on labels.
+import { formatPlanDisplayLabel } from './credit-balance-update/plan-mapper';
+
 function resolveTierBadgeLabel(ws: WorkspaceCredit, fallback: string): string {
-  const plan = (ws.plan || '').toLowerCase().trim();
-  const ktloTier = /^ktlo_(\d+)$/.exec(plan);
-  if (ktloTier) return 'Light ' + ktloTier[1];
-  if (plan === 'ktlo' || plan === 'lite') return 'LITE';
-  return fallback;
+  const label = formatPlanDisplayLabel(ws.plan);
+  return label || fallback;
 }
+
 
 /** Build the inner HTML for a workspace row. Exported for tests. */
 export function buildTierBadgeHtml(ws: WorkspaceCredit): string {
