@@ -219,9 +219,23 @@ async function loadAndRender(body: HTMLElement, opts?: { bypassCache?: boolean }
     renderBody(body);
 
     // 4. Fetch each workspace's projects in parallel (single attempt — no
-    //    retry per mem://constraints/no-retry-policy). On success persist
+    //    retry per mem://constraints/no-retry-policy). Skip the network
+    //    call when the SQLite cache row is fresh (Task 14 verification:
+    //    second-open should hit cache → zero network). On success persist
     //    to the SQLite-backed projects-cache for the next open.
+    let cacheHits = 0;
+    let cacheMisses = 0;
     await Promise.all(workspaces.map(function (ws, i) {
+        if (!bypassCache && cachedRows[i]) {
+            cacheHits += 1;
+            log('Projects: cache hit ws=' + ws.id + ' — skipping projects.list fetch', 'info');
+            blocks[i] = { ws, projects: blocks[i].projects, error: null, loading: false };
+            state.blocks = blocks;
+            renderBody(body);
+            return Promise.resolve();
+        }
+        cacheMisses += 1;
+        log('Projects: cache miss ws=' + ws.id + ' — fetching projects.list', 'info');
         return fetchProjects(ws.id).then(function (projects) {
             blocks[i] = { ws, projects, error: null, loading: false };
             writeProjectListCache(ws.id, projects.map(function (p) {
@@ -244,7 +258,9 @@ async function loadAndRender(body: HTMLElement, opts?: { bypassCache?: boolean }
             renderBody(body);
         });
     }));
+    log('Projects: load complete — cacheHits=' + cacheHits + ' cacheMisses=' + cacheMisses + ' bypass=' + String(bypassCache), 'info');
 }
+
 
 async function loadOpenTabIndex(): Promise<OpenTabIndex> {
     const idx: OpenTabIndex = { byProjectId: new Map(), byUrlProjectId: new Map() };
