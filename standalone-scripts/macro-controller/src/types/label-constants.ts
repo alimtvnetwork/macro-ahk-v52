@@ -10,7 +10,7 @@ export enum Label {
   ExtensionBridge = 'Extension bridge ',
   DomainGuard = 'domain-guard',
   SourceExtension = 'marco-extension',
-  NextTasks = 'next-tasks',
+  NextTasks = 'next-steps',
   LogSessionCheck = '[SessionCheck/',
   LogXpathUtils = '[XPathUtils.',
   KeepingExistingWs = ': Keeping existing workspace: ',

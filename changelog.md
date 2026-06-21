@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.79.0] — 2026-06-21
+
+### Fixed
+
+- **Task Next button**: Aligned `Label.NextTasks` resolver slug from legacy `next-tasks` → `next-steps` to match the renamed canonical prompt (`standalone-scripts/prompts/13-next-tasks/info.json` Slug = `next-steps`). Previously the resolver only matched via the P2 id-substring fallback; P1 (exact slug) now matches directly, so the updated v5/v7 "Next ${N} Steps" prompt is pasted correctly when clicking Task Next.
+
+
+### Changed
+- Version bump: 3.78.0 → 3.79.0 (all version files synced)
+
+---
+
 ## [v3.78.0] — 2026-06-21 Release prompt mirror requirement
 
 ### Changed
