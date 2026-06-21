@@ -126,6 +126,8 @@ export function showProjectsModal(): void {
     state.exporting = false;
     state.searchQuery = '';
     state.hiddenWorkspaces = new Set<string>();
+    state.creditsUsedMin = null;
+    state.creditsUsedMax = null;
 
     const panel = createPanel();
     const titleBar = createTitleBar(panel);
