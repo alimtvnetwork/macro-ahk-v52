@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.83.0] — 2026-06-21
+
+### Fixed
+
+- **Workspace credit bar no longer collapses to an invisible em-dash while the resolver is fetching.** Plan 01 / Step 6: `ws-list-renderer.ts` now renders a 160×8px shimmer skeleton bar (reuses `.marco-skeleton` from `ui/skeleton.ts`) while `resolveCreditSummary(ws).source === 'Pending'`, and a thin red 2px bar when the request times out — both preserve the 160px slot so the table never reflows. Tooltips updated to "click 💰 Credits to refresh / retry" so the recovery path is discoverable.
+
+### Changed
+- Version bump: 3.82.0 → 3.83.0 (all version files synced)
+
+---
+
 ## [v3.82.0] — 2026-06-21
 
 ### Fixed

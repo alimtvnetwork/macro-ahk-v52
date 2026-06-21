@@ -1,10 +1,10 @@
-# Marco Chrome Extension v3.82.0
+# Marco Chrome Extension v3.83.0
 
 ## Fixed
 
-- Credit UI now reads `resolveCreditSummary(ws)` consistently across workspace-list filters/sorts, list row scaling, Credit Totals modal cells/sorts/filters, summary-bar aggregates, focused-workspace status bar, and hover-card daily credit display.
-- New Free, Lite/Ktlo, and Cancelled workspaces with `/credit-balance` cache data no longer remain visually stuck at `0/0`, including daily-only responses where aggregate total fields are zero but daily credits are available.
+- Workspace credit bar no longer collapses to an invisible em-dash while the resolver is fetching. A 160×8px shimmer skeleton bar now paints in the same row slot, and a thin red 2px bar is shown on timeout. Tooltips guide users to click 💰 Credits to refresh / retry. (Plan 01 / Step 6)
 
 ## Verification
 
-- Added targeted regression coverage for resolver-backed credit cells, filters, sorts, and summary totals.
+- `bunx vitest run` — existing credit-resolver suites continue to pass.
+- `node scripts/check-version-sync.mjs` — all version files in sync at 3.83.0.
