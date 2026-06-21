@@ -10,6 +10,13 @@ export function mapPlanFromWire(wirePlan: string | null | undefined): Plan {
         return Plan.Unknown;
     }
 
+    // `ktlo`, `lite`, `ktlo_2`, `ktlo_3`, … all collapse to Plan.Ktlo
+    // (Lovable ships Lite tiers as `ktlo_<N>` on the wire — see workspace
+    // payload `plan: "ktlo_2"`). Match prefix before exact-case switch.
+    if (normalized === 'lite' || normalized === 'ktlo' || normalized.startsWith('ktlo_')) {
+        return Plan.Ktlo;
+    }
+
     switch (normalized) {
         case 'pro_0':
             return Plan.Pro0;
@@ -17,9 +24,6 @@ export function mapPlanFromWire(wirePlan: string | null | undefined): Plan {
             return Plan.Pro1;
         case 'pro_3':
             return Plan.Pro3;
-        case 'ktlo':
-        case 'lite':
-            return Plan.Ktlo;
         case 'free':
             return Plan.Free;
         case 'cancelled':
