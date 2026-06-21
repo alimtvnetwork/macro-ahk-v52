@@ -1,6 +1,6 @@
 ---
 Slug: task-next-queue-sequential
-Status: open
+Status: resolved
 Created: 2026-06-21
 Reporter: user
 Related-Files:

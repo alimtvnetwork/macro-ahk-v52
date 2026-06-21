@@ -1,7 +1,7 @@
 ---
 Slug: task-next-queue-sequential
 Steps: 5
-Status: pending
+Status: completed
 Created: 2026-06-21
 ---
 
@@ -9,7 +9,7 @@ Created: 2026-06-21
 
 **Slug:** task-next-queue-sequential
 **Steps:** 5
-**Status:** pending
+**Status:** completed
 **Created:** 2026-06-21
 
 ## Context
