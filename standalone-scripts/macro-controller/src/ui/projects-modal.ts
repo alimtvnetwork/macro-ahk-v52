@@ -686,9 +686,11 @@ function createWorkspaceFilterChip(ws: WorkspaceCredit, onChange: () => void): H
 function toggleWorkspaceFilter(workspaceId: string): void {
     if (state.hiddenWorkspaces.has(workspaceId)) {
         state.hiddenWorkspaces.delete(workspaceId);
+        log('Projects: workspace filter changed (hidden=' + state.hiddenWorkspaces.size + ')', 'info');
         return;
     }
     state.hiddenWorkspaces.add(workspaceId);
+    log('Projects: workspace filter changed (hidden=' + state.hiddenWorkspaces.size + ')', 'info');
 }
 
 function paintWorkspaceFilterChip(button: HTMLButtonElement, ws: WorkspaceCredit): void {
