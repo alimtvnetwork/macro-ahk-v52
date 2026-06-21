@@ -281,26 +281,55 @@ function Invoke-PackageScriptDirect([string]$PackageDir, [string]$ScriptName) {
         # error survives the wrapper. Without this the PowerShell caller only
         # sees "ERROR: Build failed" and the actual stack disappears with cmd.exe.
         # See .lovable/question-and-ambiguity/56-windows-vite-build-failed-opaque.md
+        #
+        # IMPORTANT: piping a native exe through `Tee-Object` resets $LASTEXITCODE
+        # on some PowerShell hosts, so we must redirect to the log file via cmd.exe
+        # itself (`>>file 2>&1`) and stream a live copy back to the console with
+        # `Get-Content -Wait` running in a background job. That way $LASTEXITCODE
+        # truly reflects the child process and the log file is guaranteed to
+        # contain the full output regardless of host quirks.
         $logPath = Join-Path $PackageDir "build.error.log"
         try { Remove-Item $logPath -Force -ErrorAction SilentlyContinue } catch { <# log is best-effort #> }
+        New-Item -ItemType File -Path $logPath -Force | Out-Null
 
-        if ($IsWindows -or $env:OS -eq "Windows_NT") {
-            & cmd.exe /d /s /c "$scriptCommand 2>&1" | Tee-Object -FilePath $logPath
-        } else {
-            & /bin/sh -c "$scriptCommand 2>&1" | Tee-Object -FilePath $logPath
-        }
-        $capturedExit = $LASTEXITCODE
+        # Background tailer mirrors the log file to the console as the build runs.
+        $tailJob = Start-Job -ScriptBlock {
+            param($p)
+            Get-Content -Path $p -Wait -Tail 0
+        } -ArgumentList $logPath
 
-        if ($capturedExit -ne 0 -and (Test-Path $logPath)) {
-            Write-Host ""
-            Write-Host "──────── captured build output (tail of build.error.log) ────────" -ForegroundColor Red
-            try {
-                Get-Content $logPath -Tail 60 | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray }
-            } catch {
-                Write-Host "  [WARN] could not read $logPath ($($_.Exception.Message))" -ForegroundColor Yellow
+        try {
+            if ($IsWindows -or $env:OS -eq "Windows_NT") {
+                $quotedLog = '"' + $logPath + '"'
+                & cmd.exe /d /s /c "$scriptCommand >> $quotedLog 2>&1"
+            } else {
+                & /bin/sh -c "$scriptCommand >> '$logPath' 2>&1"
             }
-            Write-Host "─────────────────────────────────────────────────────────────────" -ForegroundColor Red
-            Write-Host "  Full log: $logPath" -ForegroundColor Yellow
+            $capturedExit = $LASTEXITCODE
+        } finally {
+            Start-Sleep -Milliseconds 250
+            Receive-Job $tailJob -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_ }
+            Stop-Job  $tailJob -ErrorAction SilentlyContinue | Out-Null
+            Remove-Job $tailJob -Force -ErrorAction SilentlyContinue | Out-Null
+        }
+
+        # Always surface the log path; dump the tail loudly on failure.
+        if (Test-Path $logPath) {
+            $logSize = (Get-Item $logPath).Length
+            if ($capturedExit -ne 0) {
+                Write-Host ""
+                Write-Host "──────── captured build output (tail of build.error.log) ────────" -ForegroundColor Red
+                try {
+                    Get-Content $logPath -Tail 80 | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray }
+                } catch {
+                    Write-Host "  [WARN] could not read $logPath ($($_.Exception.Message))" -ForegroundColor Yellow
+                }
+                Write-Host "─────────────────────────────────────────────────────────────────" -ForegroundColor Red
+                Write-Host "  Full log ($logSize bytes): $logPath" -ForegroundColor Yellow
+                Write-Host "  Paste the lines above (or the file contents) so the real error can be diagnosed." -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "  [WARN] build.error.log was not produced at $logPath" -ForegroundColor Yellow
         }
 
         return $capturedExit
