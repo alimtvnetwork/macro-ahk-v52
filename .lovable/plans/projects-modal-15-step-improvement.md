@@ -2,7 +2,7 @@
 
 **Scope**: macro-controller → Projects dialog + CSV export.
 **Created**: 2026-05-22. **Owner**: AI (execute one task per `next`).
-**Current cursor**: Task 14 — verify SQLite end-to-end. Tasks 1–13 shipped (Task 3 fixed CSV name fallback v3.97.0; Tasks 4–6 SQLite cache via `projects-cache.ts` + wired through `projects-modal.ts`; Task 7 `projectsCacheTtlHours` setting in `settings-store`/`settings-modal`; Task 8 fetch-delay setting; Task 9 workspace header shows credits; Task 10 search input; Task 11 workspace multi-select filter v3.99.0; Task 12 credits-used min/max range filter v3.100.0; Task 13 CSV lastCommunication cleanup v3.101.0). Cursor advanced 2026-06-21 at v3.101.0.
+**Current cursor**: Task 15 — final changelog/version sweep. Tasks 1–14 shipped (Task 3 fixed CSV name fallback v3.97.0; Tasks 4–6 SQLite cache via `projects-cache.ts` + wired through `projects-modal.ts`; Task 7 `projectsCacheTtlHours` setting in `settings-store`/`settings-modal`; Task 8 fetch-delay setting; Task 9 workspace header shows credits; Task 10 search input; Task 11 workspace multi-select filter v3.99.0; Task 12 credits-used min/max range filter v3.100.0; Task 13 CSV lastCommunication cleanup v3.101.0; Task 14 SQLite cache short-circuit + hit/miss observability v3.102.0). Cursor advanced 2026-06-21 at v3.102.0.
 **Status**: OPEN — the only active plan left in `.lovable/plans/` after the v3.92.0 inventory correction.
 
 ## Problems reported by user
