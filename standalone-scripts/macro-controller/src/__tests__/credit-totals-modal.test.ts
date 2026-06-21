@@ -21,7 +21,7 @@ import { aggregateCreditTotals } from '../credit-totals';
 import { loopCreditState } from '../shared-state';
 import type { WorkspaceCredit } from '../types';
 import { CreditFetchOutcome } from '../credit-balance-update/credit-fetch-outcome';
-import { clearCreditBalanceUpdateMemoryCache, writeCreditBalanceUpdateCache } from '../credit-balance-update/credit-balance-cache';
+import { __writeCreditBalanceUpdateMemoryCacheForTests, clearCreditBalanceUpdateMemoryCache } from '../credit-balance-update/credit-balance-cache';
 
 function ws(partial: Partial<WorkspaceCredit>): WorkspaceCredit {
   return {
@@ -53,8 +53,8 @@ afterEach(() => {
   clearCreditBalanceUpdateMemoryCache();
 });
 
-async function seedCachedBalance(workspaceId: string, remaining: number, total: number): Promise<void> {
-  await writeCreditBalanceUpdateCache(workspaceId, {
+function seedCachedBalance(workspaceId: string, remaining: number, total: number): void {
+  __writeCreditBalanceUpdateMemoryCacheForTests(workspaceId, {
     outcome: CreditFetchOutcome.ApiHit,
     fetchedAt: Date.now(),
     sourceUrl: 'test',
@@ -140,8 +140,8 @@ describe('buildBreakdownTable', () => {
     expect(text).toContain('pro_0');
   });
 
-  it('renders resolver-backed cache values instead of raw 0/0 cells', async () => {
-    await seedCachedBalance('cached', 77, 100);
+  it('renders resolver-backed cache values instead of raw 0/0 cells', () => {
+    seedCachedBalance('cached', 77, 100);
     const table = buildBreakdownTable([
       ws({ id: 'cached', fullName: 'Cached Ktlo', plan: 'ktlo', available: 0, totalCredits: 0 }),
     ]);
