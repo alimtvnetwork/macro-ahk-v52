@@ -162,9 +162,10 @@ function pickSortValue(ws: WorkspaceCredit, key: SortKey): number | string {
   if (key === 'name') return (ws.fullName || ws.name || ws.id || '').toString();
   if (key === 'plan') return (ws.plan || '').toString();
   if (key === 'projects') return Number(ws.numProjects) || 0;
-  if (key === 'used') return Number(ws.totalCreditsUsed) || 0;
-  if (key === 'rem') return Number(ws.available) || 0;
-  return Number(ws.totalCredits) || 0;
+  const summary = resolveCreditSummary(ws);
+  if (key === 'used') return summary.totalUsed;
+  if (key === 'rem') return summary.available;
+  return summary.total;
 }
 
 /** Next sort dir in the cycle: none → desc (numeric) / asc (text) → asc/desc → none. */
@@ -230,7 +231,7 @@ export function applyFilters(
   return workspaces.filter((ws) => {
     if (hasQuery && !wsMatchesQuery(ws, filters.query)) return false;
     if (!anyChipActive) return true;
-    const rem = Number(ws.available);
+    const rem = resolveCreditSummary(ws).available;
     if (filters.low && rem < 100 && rem > 0) return true;
     if (filters.empty && rem <= 0) return true;
     if (filters.free && ws.hasFree) return true;
