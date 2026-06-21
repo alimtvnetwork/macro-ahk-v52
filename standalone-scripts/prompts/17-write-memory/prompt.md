@@ -1,11 +1,17 @@
+---
+title: Write Memory
+slug: write-memory
+---
+
 # Write Memory (a.k.a. "End Memory")
 
 > **Purpose:** Persist everything the AI learned, did, decided, and left undone in this session — so the next AI session (which has full amnesia) can resume with zero context loss.
 
 ## Must Write
+
 Can you please update the root README file regarding how the folder structure is and which file the AI can read, and it can full project with attention, how it can create code, add unit test, add new feature, spec and everything. So all this file needs to be mentioned, in the root README and also mentioned in the, uh, .lovable folder inside the memory md file (.lovable/what-to-read.md). Add a file called what to read. Okay, do you understand? Can you please do this one?
 
-Don't put any files to `mem://` directly save all files to specific folder. 
+Don't put any files to `mem://` directly save all files to specific folder.
 
 > **Trigger phrases:** `write memory` · `end memory` · `update memory` · end of a task batch
 
@@ -115,7 +121,6 @@ Internally answer (do not dump to user unless asked):
 ## Active Suggestions
 
 ### [Title]
-
 - **Status:** Pending | In Review | Approved | Rejected
 - **Priority:** High | Medium | Low
 - **Description:** what & why
@@ -124,7 +129,6 @@ Internally answer (do not dump to user unless asked):
 ## Implemented Suggestions
 
 ### [Title]
-
 - **Implemented:** [session ref]
 - **Notes:** details / commit / file
 ```
@@ -150,17 +154,11 @@ These are in addition to `suggestions.md` (the high-level single file). Do not d
 # [Issue Title]
 
 ## Description
-
 ## Root Cause (or "Under investigation")
-
 ## Steps to Reproduce
-
 ## Attempted Solutions
-
 - [ ] Approach 1 — [result]
-
 ## Priority High | Medium | Low
-
 ## Blocked By (if any)
 ```
 
@@ -170,11 +168,8 @@ On resolution, **move** the file and append:
 
 ```markdown
 ## Solution
-
 ## Iteration Count
-
 ## Learning
-
 ## What NOT to Repeat
 ```
 
