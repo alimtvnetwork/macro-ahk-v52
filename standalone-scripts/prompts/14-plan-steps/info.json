@@ -2,7 +2,7 @@
   "Id": "default-plan-steps",
   "Title": "Plan ${N}",
   "Slug": "plan-steps",
-  "Version": "1.1.0",
+  "Version": "1.2.0",
   "Author": "marco",
   "Categories": [
     "Plan"
