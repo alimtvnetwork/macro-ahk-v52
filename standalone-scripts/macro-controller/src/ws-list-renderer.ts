@@ -696,11 +696,20 @@ function buildWsRow(
   // badge room to breathe without crowding adjacent rows.
   row.style.cssText = 'display:flex;align-items:center;gap:6px;padding:7px 8px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05);transition:background 0.15s;font-size:11px;' + wsRowBgStyle(isCurrent, isSel);
 
-  const dashTooltip = creditSummary.source === 'Pending'
+  const isPending = creditSummary.source === 'Pending';
+  const dashTooltip = isPending
     ? 'Fetching credit balance… click 💰 Credits to refresh'
-    : 'Credit-balance request timed out';
+    : 'Credit-balance request timed out — click 💰 Credits to retry';
+  // Step 6 (plan 01): never collapse to invisible. Pending → animated shimmer
+  // skeleton bar (reuses .marco-skeleton from ui/skeleton.ts). Timeout/Missing
+  // → thin red bar so the row stays visually anchored and the failure is
+  // discoverable. Both keep the same 160px min-width as the real credit bar
+  // so the table doesn't reflow when the resolver completes.
+  const placeholderBarHtml = isPending
+    ? '<span class="marco-skeleton" title="' + dashTooltip + '" style="display:inline-block;min-width:160px;height:8px;vertical-align:middle;"></span>'
+    : '<span title="' + dashTooltip + '" style="display:inline-block;min-width:160px;height:2px;background:' + cWarning + ';vertical-align:middle;border-radius:2px;opacity:0.85;"></span>';
   const creditBarHtml = creditSummary.renderDash
-    ? '<span title="' + dashTooltip + '" style="font-size:11px;color:' + cWarning + ';min-width:160px;display:inline-block;">—</span>'
+    ? placeholderBarHtml
     : renderCreditBar({
       totalCredits: creditSummary.total, available: creditSummary.available, totalUsed: creditSummary.totalUsed,
       freeRemaining: Math.round(ws.freeRemaining || 0), freeGranted: Math.round(ws.freeGranted || 0),
