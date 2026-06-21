@@ -196,8 +196,8 @@ function buildCreditBarsHtml(): string {
     return dashHtml;
   }
 
-  const df = Math.round(cws.dailyFree || 0);
-  const ro = Math.round(cws.rollover || 0);
+  const df = summary.daily;
+  const ro = summary.rollover;
   const ba = summary.billingAvailable;
   const fr = Math.round(cws.freeRemaining || 0);
   const _totalCapacity = summary.total;
