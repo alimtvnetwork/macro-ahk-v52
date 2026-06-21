@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.90.0] — 2026-06-21
+
+### Added
+
+- **Refill-priority × CreditResolved integration regression.** New `refill-priority-credit-resolved.test.ts` locks the chain `onCreditResolved → invalidateWsDropdownHash → populateLoopWorkspaceDropdown → sortByRefillPriority(resolveCreditSummary(ws))`: a Ktlo workspace with inline `available=0` ranks behind a Pro workspace; after a `/credit-balance` cache write the resolver returns 500, the refill score flips (9×500=4500 > 9×50=450), and the Ktlo workspace floats to the top. Prevents silent regression where freshly resolved credits stay pinned at score 0 until the next `/user/workspaces` poll.
+
+---
+
 ## [v3.89.0] — 2026-06-21
 
 ### Changed
