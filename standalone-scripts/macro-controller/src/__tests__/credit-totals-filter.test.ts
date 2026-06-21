@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { applyFilters, buildBreakdownTable, type FilterState } from '../ui/credit-totals-modal';
 import type { WorkspaceCredit } from '../types';
 import { CreditFetchOutcome } from '../credit-balance-update/credit-fetch-outcome';
-import { clearCreditBalanceUpdateMemoryCache, writeCreditBalanceUpdateCache } from '../credit-balance-update/credit-balance-cache';
+import { __writeCreditBalanceUpdateMemoryCacheForTests, clearCreditBalanceUpdateMemoryCache } from '../credit-balance-update/credit-balance-cache';
 
 function ws(partial: Partial<WorkspaceCredit>): WorkspaceCredit {
   return {
@@ -67,9 +67,9 @@ describe('applyFilters', () => {
     expect(input.map((w) => w.id)).toEqual(['healthy', 'low', 'empty', 'zero', 'free']);
   });
 
-  it('uses resolver-backed remaining credits for low/empty filters', async () => {
+  it('uses resolver-backed remaining credits for low/empty filters', () => {
     clearCreditBalanceUpdateMemoryCache();
-    await writeCreditBalanceUpdateCache('cached-low', {
+    __writeCreditBalanceUpdateMemoryCacheForTests('cached-low', {
       outcome: CreditFetchOutcome.ApiHit,
       fetchedAt: Date.now(),
       sourceUrl: 'test',
