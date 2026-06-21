@@ -110,6 +110,27 @@ describe('credit-fetch-controller', () => {
         expect(workspace.dailyFree).toBe(5);
     });
 
+    it('keeps daily-only credit-balance rows visible when aggregate totals are zero', async () => {
+        fetchWorkspaceCreditBalanceSpy.mockResolvedValueOnce({
+            ...apiResult(),
+            balance: {
+                totalRemaining: 0,
+                totalGranted: 0,
+                dailyRemaining: 5,
+                dailyLimit: 5,
+                totalBillingPeriodUsed: 0,
+                expiringGrants: [],
+                grantTypeBalances: [],
+            },
+        });
+        const workspace = ws({ plan: 'free' });
+
+        await requestCredits(workspace);
+
+        expect(workspace.available).toBe(5);
+        expect(workspace.totalCredits).toBe(5);
+    });
+
     it('returns ApiCacheHit on a second request inside the cache window', async () => {
         fetchWorkspaceCreditBalanceSpy.mockResolvedValueOnce(apiResult());
         const workspace = ws({ plan: 'free' });
