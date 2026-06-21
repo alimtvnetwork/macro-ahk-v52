@@ -102,6 +102,13 @@ async function flushMicrotasks(): Promise<void> {
     }
 }
 
+async function drainRepaintBudget(): Promise<void> {
+    for (let index = 0; index < 6; index++) {
+        await flushMicrotasks();
+        await vi.advanceTimersByTimeAsync(130);
+    }
+}
+
 beforeEach(async () => {
     vi.useFakeTimers();
     Object.defineProperty(window.HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: vi.fn() });
@@ -154,9 +161,7 @@ describe('💰 Credits button — new-free row render after fan-out (plan 01 ste
         const creditBtn = Array.from(btnRow.querySelectorAll('button')).find((button) => button.textContent?.includes('Credits'));
 
         creditBtn?.click();
-        await flushMicrotasks();
-        await vi.advanceTimersByTimeAsync(260);
-        await flushMicrotasks();
+        await drainRepaintBudget();
 
         const progress = document.querySelector('#loop-ws-list [role="progressbar"]') as HTMLElement | null;
         expect(hoisted.fetchSpy).toHaveBeenCalledTimes(1);
