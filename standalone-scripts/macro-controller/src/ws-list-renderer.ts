@@ -56,6 +56,7 @@ import { classifyFromStatus, type WorkspaceDisplayStatus } from './workspace-dis
 
 import { resolveBadgeStyle, diluteBadgeBg } from './workspace-badge-styles';
 import { resolveCreditSummary } from './credit-balance-update/credit-summary-resolver';
+import { onCreditResolved } from './credit-balance-update/credit-fetch-controller';
 
 
 const CSS_BG = ';background:';
