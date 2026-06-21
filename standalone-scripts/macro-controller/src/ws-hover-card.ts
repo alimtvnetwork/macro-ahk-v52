@@ -104,7 +104,7 @@ function pillHtml(status: WorkspaceStatus, ws?: WorkspaceCredit): string {
  */
 export function buildSubHeader(ws: WorkspaceCredit): string {
   const parts: string[] = [];
-  parts.push(escHtml(String(ws.tier || 'FREE')));
+  parts.push(escHtml(formatPlanDisplayLabel(ws.plan) || String(ws.tier || 'FREE')));
   if (ws.membershipRole || ws.role) parts.push(escHtml(String(ws.membershipRole || ws.role)));
   if (typeof ws.numProjects === 'number' && ws.numProjects > 0) {
     parts.push(ws.numProjects + ' project' + (ws.numProjects === 1 ? '' : 's'));
