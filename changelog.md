@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.82.0] — 2026-06-21
+
+### Fixed
+
+- **Credit bars and totals now use resolver-backed credit values end-to-end**: migrated workspace-list credit filters/sorts, row max-total scaling, Credit Totals modal sorting/filtering/table cells, top summary-bar aggregates, focused-workspace status bar, and hover-card daily display to `resolveCreditSummary(ws)`. This fixes new Free / Lite / Cancelled workspaces that received `/credit-balance` data but still behaved like `0/0` in legacy raw-field UI gates. Added regression coverage for resolver-backed list sorting, modal filtering/sorting/cells, and summary totals.
+
+---
+
 ## [v3.81.1] — 2026-06-21
 
 ### Docs
