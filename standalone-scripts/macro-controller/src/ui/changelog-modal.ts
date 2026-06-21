@@ -10,6 +10,7 @@ import { cPanelBg, cPanelFg, cPanelText, cPrimary, cSectionBg, cSuccess, lModalR
 import { DATE_CHANGELOG_2026_03_21 as DATE_2026_03_21 } from '../constants';
 
 const DATE_2026_05_14 = '2026-05-14';
+const DATE_2026_06_21 = '2026-06-21';
 
 export interface ChangelogEntry {
   ver: string;
