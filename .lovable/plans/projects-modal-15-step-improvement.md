@@ -2,7 +2,7 @@
 
 **Scope**: macro-controller → Projects dialog + CSV export.
 **Created**: 2026-05-22. **Owner**: AI (execute one task per `next`).
-**Current cursor**: Task 4 — add SQLite table coverage for project cache schema. Tasks 1–3 shipped; Task 3 fixed CSV project-name fallback via `resolveCsvProjectName()` and verified 2026-06-21 at v3.97.0.
+**Current cursor**: Task 11 — workspace multi-select filter dropdown. Tasks 1–10 shipped (Task 3 fixed CSV name fallback v3.97.0; Tasks 4–6 SQLite cache via `projects-cache.ts` + wired through `projects-modal.ts`; Task 7 `projectsCacheTtlHours` setting in `settings-store`/`settings-modal`; Task 8 fetch-delay setting; Task 9 workspace header shows credits; Task 10 search input). Cursor advanced 2026-06-21 at v3.98.0.
 **Status**: OPEN — the only active plan left in `.lovable/plans/` after the v3.92.0 inventory correction.
 
 ## Problems reported by user
