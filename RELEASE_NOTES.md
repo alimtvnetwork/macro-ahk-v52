@@ -1,15 +1,13 @@
-# Marco Chrome Extension v3.88.0
+# Marco Chrome Extension v3.89.0
 
 ## Changed
 
-- Plan 01 Step 9 — `/credit-balance` failure log schema lock. `CreditFailureLogPayload` renamed `Path` → `SourceUrl` so every `Logger.error('CreditBalanceUpdate.fetch', …)` entry matches the mandated keys (`Reason`, `ReasonDetail`, `WorkspaceId`, `BearerPrefix`, `ElapsedMs`, `SourceUrl`).
-
-## Added
-
-- `credit-fetch-failure-schema.test.ts` — 5-test regression covering MissingToken / AuthError-401 / Http5xx / NetworkError paths, asserting full schema presence, BearerPrefix redaction, and that the legacy `Path` key is gone.
+- Plan 01 Step 10 close-out: `mem://features/macro-controller/credit-balance-update` now reflects the full v3.88.0 failure-log schema (`SourceUrl`, 9 Reason codes, 12-char `BearerPrefix` redaction) and cites `credit-fetch-failure-schema.test.ts` as the enforcer.
 
 ## Verification
 
-- Before: payload still emitted `Path`, so Step 9 of Plan 01 was unverified.
-- After: `bunx vitest run …/credit-fetch-failure-schema.test.ts …/credit-balance-fetcher.test.ts` → **2 files, 9 tests passed**.
-- `node scripts/check-version-sync.mjs` → `✅ All versions in sync: 3.88.0`.
+- `node scripts/audit/check-must-memory-refs.mjs` → OK (every MUST/SHALL cites a `mem://` owner).
+- `node scripts/audit/check-quarantine.mjs` → OK.
+- `node scripts/audit/check-score-floor.mjs` → OK (composite 100 ≥ 99.5).
+- `bunx vitest run` on credit-fetch-failure-schema + balance-fetcher + new-free-network-count + placeholder-bar + refresh-component + button-fanout → **6 files / 21 tests passed**.
+- `node scripts/check-version-sync.mjs` → `✅ All versions in sync: 3.89.0`.

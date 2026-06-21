@@ -1,6 +1,6 @@
 ---
 name: credit-balance-update
-description: v3.82.0 — Ktlo/Free/Cancelled workspaces fetch /workspaces/{id}/credit-balance on demand; resolver is mandatory for all credit UI numbers, filters, sorts, summaries, tooltip, CSV, refill-priority
+description: v3.88.0 — Ktlo/Free/Cancelled workspaces fetch /workspaces/{id}/credit-balance on demand; resolver is mandatory for all credit UI numbers; failure-log schema locked with SourceUrl key + Step 9 regression
 type: feature
 ---
 
@@ -55,9 +55,11 @@ subscribeCreditFetchSettings();   // hot-reload on SAVE_SETTINGS
 ### Failure-log schema
 
 `Logger.error('CreditBalanceUpdate.fetch', …)` MUST include:
-`Reason` (`Timeout` | `HttpError` | `AuthError` | `ParseError` | `Skipped`),
-`ReasonDetail`, `WorkspaceId`, `BearerPrefix` (sanitized first 8 chars only),
-`ElapsedMs`, `SourceUrl`. See `credit-balance-logger.ts`.
+`Reason` (`Timeout` | `HttpError` | `Http4xx` | `Http5xx` | `AuthError` | `MissingToken` | `NetworkError` | `ParseError` | `Skipped`),
+`ReasonDetail`, `WorkspaceId`, `BearerPrefix` (sanitized first 12 chars + `…REDACTED`),
+`ElapsedMs`, `SourceUrl` (NOT `Path` — renamed v3.88.0). See `credit-balance-logger.ts` +
+`credit-balance-fetcher.ts` `buildFailurePayload()`. Locked by
+`__tests__/credit-fetch-failure-schema.test.ts` (5 paths, rejects legacy `Path` key).
 
 ### Tests
 

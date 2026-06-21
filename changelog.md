@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.89.0] — 2026-06-21
+
+### Changed
+
+- **Plan 01 Step 10 — close-out.** Synced `mem://features/macro-controller/credit-balance-update` to v3.88.0+ schema: `Reason` enum now lists all 9 outcomes (`Timeout | HttpError | Http4xx | Http5xx | AuthError | MissingToken | NetworkError | ParseError | Skipped`), `SourceUrl` (not legacy `Path`) is called out as the locked key, `BearerPrefix` correctly documented as 12-char + `…REDACTED` suffix, and the Step 9 regression test is named as the enforcer. Verified audits: `check-must-memory-refs` OK, `check-quarantine` OK, `check-score-floor` 100/100. Targeted credit suite **6 files / 21 tests passed**.
+
+---
+
 ## [v3.88.0] — 2026-06-21
 
 ### Changed
