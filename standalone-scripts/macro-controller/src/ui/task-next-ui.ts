@@ -85,7 +85,7 @@ export function saveTaskNextSettings(deps: TaskNextDeps) {
   });
 }
 
-function matchPromptBySlug(entries: ReadonlyArray<{ slug?: string; name?: string }>, aliases: Set<string>) {
+function matchPromptBySlug<T extends { slug?: string }>(entries: ReadonlyArray<T>, aliases: Set<string>): T | null {
   for (const entry of entries) {
     const entrySlug = (entry.slug || '').toLowerCase();
     if (aliases.has(entrySlug)) return entry;
@@ -93,7 +93,7 @@ function matchPromptBySlug(entries: ReadonlyArray<{ slug?: string; name?: string
   return null;
 }
 
-function matchPromptById(entries: ReadonlyArray<{ id?: string; name?: string }>, aliases: Set<string>) {
+function matchPromptById<T extends { id?: string }>(entries: ReadonlyArray<T>, aliases: Set<string>): T | null {
   for (const entry of entries) {
     const id = (entry.id || '').toLowerCase();
     for (const alias of aliases) {
@@ -103,7 +103,7 @@ function matchPromptById(entries: ReadonlyArray<{ id?: string; name?: string }>,
   return null;
 }
 
-function matchPromptByDerivedSlugOrKeywords(entries: ReadonlyArray<{ name?: string }>, aliases: Set<string>) {
+function matchPromptByDerivedSlugOrKeywords<T extends { name?: string }>(entries: ReadonlyArray<T>, aliases: Set<string>): T | null {
   for (const entry of entries) {
     const derivedSlug = (entry.name || '').toLowerCase().replace(/\s+/g, '-');
     if (aliases.has(derivedSlug)) return entry;
