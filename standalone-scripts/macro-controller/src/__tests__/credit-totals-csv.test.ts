@@ -38,8 +38,8 @@ describe('generateCsv', () => {
     const lines = csv.split('\r\n');
     expect(lines).toHaveLength(3);
     expect(lines[0]).toBe('Workspace,Plan,Projects,Used,Remaining,Total,Daily,DailyLimit,Source');
-    expect(lines[1]).toMatch(/^"Alpha","pro_3",7,320,80,400,0,5,(Inline|Cache|Missing)$/);
-    expect(lines[2]).toMatch(/^"Beta","pro_0",0,45,15,60,0,5,(Inline|Cache|Missing)$/);
+    expect(lines[1]).toMatch(/^"Alpha","Pro 3",7,320,80,400,0,5,(Inline|Cache|Missing)$/);
+    expect(lines[2]).toMatch(/^"Beta","Pro 0",0,45,15,60,0,5,(Inline|Cache|Missing)$/);
   });
 
   it('quotes names containing double quotes by doubling them', () => {
