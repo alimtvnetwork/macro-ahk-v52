@@ -155,6 +155,7 @@ export function removeProjectsModal(): void {
     const existing = document.getElementById(DIALOG_ID) as DraggableElement | null;
     if (!existing) return;
     if (existing.__cleanupDrag) existing.__cleanupDrag();
+    state.refreshWorkspaceFilter = null;
     existing.remove();
 }
 
@@ -633,6 +634,17 @@ function createSearchBar(onChange: () => void): HTMLElement {
     );
     chipRepo.setAttribute('data-chip', 'repo');
 
+    const workspaceChips = document.createElement('span');
+    workspaceChips.style.cssText = 'display:flex;align-items:center;gap:4px;flex-wrap:wrap;min-width:0;';
+
+    const workspaceStatus = document.createElement('span');
+    workspaceStatus.style.cssText = 'color:#64748b;margin-left:auto;white-space:nowrap;';
+
+    const paintWorkspaceFilters = function (): void {
+        renderWorkspaceFilterChips(workspaceChips, workspaceStatus, onChange);
+    };
+    state.refreshWorkspaceFilter = paintWorkspaceFilters;
+
     const chipsLabel = document.createElement('span');
     chipsLabel.textContent = 'Filter:';
     chipsLabel.style.cssText = 'color:#64748b;';
@@ -640,9 +652,12 @@ function createSearchBar(onChange: () => void): HTMLElement {
     row2.appendChild(chipsLabel);
     row2.appendChild(chipOpen);
     row2.appendChild(chipRepo);
+    row2.appendChild(workspaceChips);
+    row2.appendChild(workspaceStatus);
 
     wrap.appendChild(row1);
     wrap.appendChild(row2);
+    paintWorkspaceFilters();
     return wrap;
 }
 
