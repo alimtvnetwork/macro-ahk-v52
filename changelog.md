@@ -9,12 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ## [v3.79.3] — 2026-06-21
 
-### Added
-
 ### Fixed
 
-### Changed
-- Version bump: 3.79.2 → 3.79.3 (all version files synced)
+- **Task Next `"Next Tasks" prompt not found` toast**: `findNextTasksPrompt` now treats `next-tasks` and `next-steps` as aliases across all four resolution priorities (slug, id, derived-from-name, keyword), and the P4 keyword check accepts "step" in addition to "task". Persisted DB entries with the legacy slug `next-tasks` resolve correctly even after `Label.NextTasks` was repointed to `next-steps` in v3.79.0. (`standalone-scripts/macro-controller/src/ui/task-next-ui.ts`)
+
 
 ---
 
