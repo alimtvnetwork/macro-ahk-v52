@@ -35,7 +35,7 @@
 | 12 | ✅ **Credits-used filter**: numeric min/max range hides workspaces whose `WorkspaceCredit.used` falls outside the inclusive range; reset by Clear all filters. | Shipped v3.100.0; `projects-modal-csv.test.ts` covers `isWorkspaceWithinCreditsRange()` (in-range, below-min, above-max, null bounds, inclusive boundaries). |
 | 13 | ✅ **Replace `(no data returned by API)` rows**: CSV `lastCommunication` now normalizes blank and upstream placeholder values to `—`, and logs the count of normalized rows. | Shipped v3.101.0; `projects-modal-csv.test.ts` covers blank, placeholder, real timestamp values, cleanup log message generation, and the logging path firing. |
 | 14 | ✅ **Verified SQLite end-to-end**: `loadAndRender()` skips `projects.list` when the cache row is fresh; logs `cache hit/miss ws=…` per workspace and `load complete — cacheHits=X cacheMisses=Y bypass=Z` summary so cache effect is visible in the activity log. Refresh button still bypasses. | Shipped v3.102.0. |
-| 15 | **Update changelog + bump version** (`constants.ts`, manifest, scripts in sync). Note all behavior changes in `changelog-modal.ts`. | ✅ Released as v3.5.1 on 2026-05-22. |
+| 15 | ✅ **Final sweep**: `changelog-modal.ts` now lists v3.97.0/v3.99.0/v3.100.0/v3.101.0/v3.102.0 Projects Modal entries; root `readme.md` pin and all instruction.ts files in sync at v3.103.0. Plan closed. | Shipped v3.103.0. |
 
 ## Notes / Constraints
 - Honor `mem://constraints/no-retry-policy` — single attempt per network call; delay is throttle, not retry.
