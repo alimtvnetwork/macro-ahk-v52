@@ -259,11 +259,11 @@ Before changing **any** of the following, re-read this doc and update it:
 
 Marco ships alongside an AutoHotkey v2 sidecar that drives keyboard/mouse automation on Windows. The extension communicates with AHK scripts via `window.postMessage` bridges for native OS automation that Chrome extensions cannot perform directly.
 
-**Repository:** `https://github.com/alimtvnetwork/macro-ahk-v51`  
+**Repository:** `https://github.com/aukgit/macro-ahk-v51`  
 **Clone command:**
 
 ```bash
-git clone https://github.com/alimtvnetwork/macro-ahk-v51 "macro-ahk-v51"
+git clone https://github.com/aukgit/macro-ahk-v51 "macro-ahk-v51"
 ```
 
 Or via package.json script:

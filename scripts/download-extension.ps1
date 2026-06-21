@@ -28,7 +28,7 @@
   Default: `latest` (resolved via GitHub Releases API).
 
 .PARAMETER Repo
-  GitHub owner/repo. Default: alimtvnetwork/macro-ahk-v51
+  GitHub owner/repo. Default: aukgit/macro-ahk-v51
 
 .PARAMETER FolderName
   Name of the extracted folder, created under the current directory.
@@ -57,7 +57,7 @@
 [CmdletBinding()]
 param(
     [string]$Version    = $(if ($env:MARCO_DL_VERSION) { $env:MARCO_DL_VERSION } else { 'latest' }),
-    [string]$Repo       = $(if ($env:MARCO_DL_REPO)    { $env:MARCO_DL_REPO }    else { 'alimtvnetwork/macro-ahk-v51' }),
+    [string]$Repo       = $(if ($env:MARCO_DL_REPO)    { $env:MARCO_DL_REPO }    else { 'aukgit/macro-ahk-v51' }),
     [string]$FolderName = $(if ($env:MARCO_DL_FOLDER)  { $env:MARCO_DL_FOLDER }  else { 'marco-extension' })
 )
 

@@ -8,8 +8,8 @@
 
 | Goal | Command |
 |---|---|
-| Pinned to a release (recommended) | `curl -fsSL https://github.com/alimtvnetwork/macro-ahk-v51/releases/download/v2.228.0/install.sh \| bash` |
-| Latest release (auto-resolve) | `curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.sh \| bash` |
+| Pinned to a release (recommended) | `curl -fsSL https://github.com/aukgit/macro-ahk-v51/releases/download/v2.228.0/install.sh \| bash` |
+| Latest release (auto-resolve) | `curl -fsSL https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.sh \| bash` |
 | Force a specific version | `… \| bash -s -- --version v2.150.0` |
 | Custom directory | `… \| bash -s -- --dir ~/tools/marco-extension` |
 | Preview without installing | `… \| bash -s -- --dry-run` |
@@ -28,12 +28,12 @@ Downloads the installer **from the release itself**, which auto-pins via URL sel
 
 **Bash (Linux / macOS / Git-Bash):**
 ```bash
-curl -fsSL https://github.com/alimtvnetwork/macro-ahk-v51/releases/download/v2.228.0/install.sh | bash
+curl -fsSL https://github.com/aukgit/macro-ahk-v51/releases/download/v2.228.0/install.sh | bash
 ```
 
 **PowerShell (Windows):**
 ```powershell
-irm https://github.com/alimtvnetwork/macro-ahk-v51/releases/download/v2.228.0/install.ps1 | iex
+irm https://github.com/aukgit/macro-ahk-v51/releases/download/v2.228.0/install.ps1 | iex
 ```
 
 > Use this in `Dockerfile`, `Makefile`, GitHub Actions, etc. Reproducible across rebuilds.
@@ -46,12 +46,12 @@ Auto-resolves to the newest published release via the GitHub Releases API. Falls
 
 **Bash:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.sh | bash
 ```
 
 **PowerShell:**
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.ps1 | iex
 ```
 
 > Best for first-time users and casual installs.
@@ -64,22 +64,22 @@ Resolves the version, prints the plan (URL, target dir, checksum source), and **
 
 **Bash — pinned dry-run:**
 ```bash
-curl -fsSL https://github.com/alimtvnetwork/macro-ahk-v51/releases/download/v2.228.0/install.sh | bash -s -- --dry-run
+curl -fsSL https://github.com/aukgit/macro-ahk-v51/releases/download/v2.228.0/install.sh | bash -s -- --dry-run
 ```
 
 **Bash — discovery dry-run:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.sh | bash -s -- --dry-run
+curl -fsSL https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.sh | bash -s -- --dry-run
 ```
 
 **PowerShell — pinned dry-run:**
 ```powershell
-& ([scriptblock]::Create((irm https://github.com/alimtvnetwork/macro-ahk-v51/releases/download/v2.228.0/install.ps1))) -DryRun
+& ([scriptblock]::Create((irm https://github.com/aukgit/macro-ahk-v51/releases/download/v2.228.0/install.ps1))) -DryRun
 ```
 
 **PowerShell — discovery dry-run:**
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.ps1))) -DryRun
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.ps1))) -DryRun
 ```
 
 > The `& ([scriptblock]::Create(...))` wrapper is required to pass parameters to a script piped from `irm`. The simpler `irm ... | iex` form cannot accept arguments.
@@ -92,12 +92,12 @@ Override the default (`~/marco-extension` on Unix, `$HOME\marco-extension` on Wi
 
 **Bash:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.sh | bash -s -- --dir /opt/marco-extension
+curl -fsSL https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.sh | bash -s -- --dir /opt/marco-extension
 ```
 
 **PowerShell:**
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.ps1))) -InstallDir 'D:\Tools\marco-extension'
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.ps1))) -InstallDir 'D:\Tools\marco-extension'
 ```
 
 ---
@@ -106,13 +106,13 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/sc
 
 **Bash:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.sh \
+curl -fsSL https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.sh \
   | bash -s -- --version v2.228.0 --dir /opt/marco-extension --dry-run
 ```
 
 **PowerShell:**
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.ps1))) `
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.ps1))) `
     -Version v2.228.0 -InstallDir 'D:\Tools\marco-extension' -DryRun
 ```
 
@@ -126,14 +126,14 @@ Point the installer at an internal GitHub Enterprise or HTTP mirror.
 ```bash
 MARCO_API_BASE=https://ghe.corp.example/api/v3 \
 MARCO_DOWNLOAD_BASE=https://ghe.corp.example \
-  curl -fsSL https://ghe.corp.example/raw/alimtvnetwork/macro-ahk-v51/main/scripts/install.sh | bash
+  curl -fsSL https://ghe.corp.example/raw/aukgit/macro-ahk-v51/main/scripts/install.sh | bash
 ```
 
 **PowerShell:**
 ```powershell
 $env:MARCO_API_BASE      = 'https://ghe.corp.example/api/v3'
 $env:MARCO_DOWNLOAD_BASE = 'https://ghe.corp.example'
-irm https://ghe.corp.example/raw/alimtvnetwork/macro-ahk-v51/main/scripts/install.ps1 | iex
+irm https://ghe.corp.example/raw/aukgit/macro-ahk-v51/main/scripts/install.ps1 | iex
 ```
 
 ---
@@ -332,7 +332,7 @@ See [`tests/installer/fixtures/mock-server.cjs`](../tests/installer/fixtures/moc
 Both installers are open source and small (~800 lines each). To audit before piping into your shell:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.sh -o install.sh
+curl -fsSL https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.sh -o install.sh
 less install.sh                       # Read it
 sha256sum install.sh                  # Compare against the published hash
 bash install.sh --dry-run             # Preview without changes
@@ -342,7 +342,7 @@ bash install.sh                       # Run for real
 The same applies to `install.ps1`:
 
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.ps1 -OutFile install.ps1
+irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.ps1 -OutFile install.ps1
 Get-FileHash install.ps1 -Algorithm SHA256
 .\install.ps1 -DryRun
 .\install.ps1

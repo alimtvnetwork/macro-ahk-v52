@@ -51,8 +51,8 @@ upstream API ignores.
     "provider_type": "github",
     "connection_id": "13c494e6-c141-4f99-9938-9f733f2d2857",
     "repo_name": "macro-ahk-v51",
-    "repo_url": "https://github.com/alimtvnetwork/macro-ahk-v51",
-    "owner_name": "alimtvnetwork"
+    "repo_url": "https://github.com/aukgit/macro-ahk-v51",
+    "owner_name": "aukgit"
   }
 }
 ```
