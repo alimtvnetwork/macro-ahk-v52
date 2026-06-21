@@ -18,6 +18,7 @@ import { aggregateCreditTotals, type CreditTotals } from '../credit-totals';
 import { logError } from '../error-utils';
 import type { WorkspaceCredit } from '../types';
 import { resolveCreditSummary } from '../credit-balance-update/credit-summary-resolver';
+import { formatPlanDisplayLabel } from '../credit-balance-update/plan-mapper';
 import { makeDraggable } from './drag-window';
 
 const DIALOG_ID = 'marco-credit-totals-modal';
