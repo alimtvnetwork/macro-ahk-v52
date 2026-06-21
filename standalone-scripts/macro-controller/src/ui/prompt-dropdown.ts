@@ -12,7 +12,7 @@ import type { PromptEntry as LoaderPromptEntry, ResolvedPromptsConfig } from '..
 import { cPanelFg, cPanelFgDim, cPrimary, cPrimaryLight, cBtnMenuHover, lDropdownRadius } from '../shared-state';
 import { getByXPath } from '../xpath-utils';
 import { pasteIntoEditor, showPasteToast } from './prompt-utils';
-import { runTaskNextLoop, openTaskNextSettingsModal, type TaskNextDeps, findNextTasksPrompt } from './task-next-ui';
+import { runTaskNextLoop, runTaskNextQueue, openTaskNextSettingsModal, type TaskNextDeps, findNextTasksPrompt } from './task-next-ui';
 import { addTaskToQueue } from '../task-queue';
 import { getDisplayProjectName } from '../logging';
 
