@@ -882,7 +882,7 @@ function renderTaskNextSubmenu(container: HTMLElement, ctx: PromptContext, taskN
   container.appendChild(taskNextItem);
 }
 
-function _buildTaskNextMenuShell(promptsDropdown: HTMLElement): { taskNextItem: HTMLElement; taskNextSub: HTMLElement } {
+function _buildTaskNextMenuShell(promptsDropdown: HTMLElement, taskNextDeps: TaskNextDeps): { taskNextItem: HTMLElement; taskNextSub: HTMLElement } {
   const taskNextItem = document.createElement('div');
   taskNextItem.style.cssText = 'border-bottom:1px solid rgba(124,58,237,0.3);';
   const taskNextRow = document.createElement('div');
