@@ -810,7 +810,9 @@ function findOpenTab(projectId: string, tabIndex: OpenTabIndex): OpenTabRow | nu
 
 export function isCsvProjectNameFallback(project: ProjectEntry, tabIndex: OpenTabIndex): boolean {
     const hasProjectName = hasListProjectName(project);
-    if (hasProjectName) return false;
+    if (hasProjectName) {
+        return false;
+    }
     const openTabProjectName = findOpenTab(project.id, tabIndex)?.projectName?.trim() ?? '';
 
     return openTabProjectName !== '';
@@ -818,7 +820,9 @@ export function isCsvProjectNameFallback(project: ProjectEntry, tabIndex: OpenTa
 
 export function resolveCsvProjectName(project: ProjectEntry, tabIndex: OpenTabIndex): string {
     const hasProjectName = hasListProjectName(project);
-    if (hasProjectName) return project.name;
+    if (hasProjectName) {
+        return project.name;
+    }
     const openTabProjectName = findOpenTab(project.id, tabIndex)?.projectName?.trim() ?? '';
 
     return openTabProjectName || project.name || project.id;
