@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.78.0] — 2026-06-21 Release prompt mirror requirement
+
+### Changed
+- **Release prompt** — `standalone-scripts/prompts/22-release/prompt.md` now mandates a byte-identical human-readable mirror at `.lovable/prompts/XX-release.md` and registration in `.lovable/prompts.md`.
+- **Mirror created** — added `.lovable/prompts/14-release.md` (mirror of canonical release prompt) and updated `.lovable/prompts.md` registry.
+
+---
+
 ## [v3.77.4] — 2026-06-19 Banner pattern fix + CI audit skip
 
 ### Fixed
