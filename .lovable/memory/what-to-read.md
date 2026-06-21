@@ -21,6 +21,8 @@
 | 7 | `spec/00-overview.md` | Master index of the spec tree (slots 01–20 foundations, 21+ app tier) |
 | 8 | `spec/26-macro-controller/` | Macro Controller architecture, lifecycle, JSON contracts |
 | 9 | `changelog.md` + `standalone-scripts/macro-controller/changelog.md` | What shipped, when, and why |
+| 10 | `.lovable/cicd-profile.md` | **Fast triage** for any "CI not running / build broken / release didn't fire" report. Read BEFORE editing workflows. |
+| 11 | `.lovable/cicd-index.md` + `.lovable/cicd-issues/` | Per-incident CI/CD history (resolved issues kept — they recur). |
 
 ---
 
