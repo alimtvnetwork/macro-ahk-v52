@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.79.2] — 2026-06-21
+
+### Changed
+
+- **Repeat `▶ Start` button**: Replaced flat `cPrimary` background with a violet→indigo→blue diagonal gradient (`#7c3aed → #4f46e5 → #2563eb`) plus inset highlight and soft drop shadow. Stop state uses a matching red gradient (`#dc2626 → #b91c1c → #7f1d1d`). Added hover lift + brightness for a more tactile feel. (`standalone-scripts/macro-controller/src/ui/repeat-loop-ui.ts`)
+
+
+---
+
 ## [v3.79.1] — 2026-06-21
 
 ### Fixed

@@ -438,14 +438,20 @@ function renderControl(refs: ControlRefs): void {
   refs.delayInput.value = String(repeatLoopState.delaySec);
   refs.delayInput.disabled = repeatLoopState.running || repeatLoopState.waitMode !== WAIT_MODE_FIXED_DELAY;
   refs.delayInput.style.opacity = repeatLoopState.waitMode === WAIT_MODE_FIXED_DELAY ? '1' : '0.45';
+  const startGradient = 'linear-gradient(135deg,#7c3aed 0%,#4f46e5 50%,#2563eb 100%)';
+  const stopGradient = 'linear-gradient(135deg,#dc2626 0%,#b91c1c 50%,#7f1d1d 100%)';
+  const startShadow = '0 2px 6px rgba(79,70,229,0.45), inset 0 1px 0 rgba(255,255,255,0.18)';
+  const stopShadow = '0 2px 6px rgba(220,38,38,0.45), inset 0 1px 0 rgba(255,255,255,0.18)';
   if (repeatLoopState.running) {
     refs.action.textContent = '⏹ Stop';
-    refs.action.style.background = '#dc2626';
+    refs.action.style.background = stopGradient;
+    refs.action.style.boxShadow = stopShadow;
     const timer = formatPhaseTimer();
     refs.progress.textContent = repeatLoopState.completed + '/' + repeatLoopState.count + (timer ? ' • ' + timer : '');
   } else {
     refs.action.textContent = '▶ Start';
-    refs.action.style.background = cPrimary;
+    refs.action.style.background = startGradient;
+    refs.action.style.boxShadow = startShadow;
     refs.progress.textContent = repeatLoopState.completed > 0
       ? 'done ' + repeatLoopState.completed + '/' + repeatLoopState.count
       : '';
@@ -455,13 +461,23 @@ function renderControl(refs: ControlRefs): void {
 function buildActionButton(): HTMLButtonElement {
   const action = document.createElement('button');
   action.type = 'button';
-  action.style.cssText = 'padding:4px 12px;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;color:#fff;background:' + cPrimary + ';margin-left:auto;';
+  const startGradient = 'linear-gradient(135deg,#7c3aed 0%,#4f46e5 50%,#2563eb 100%)';
+  action.style.cssText = 'padding:5px 14px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#fff;background:' + startGradient + ';margin-left:auto;box-shadow:0 2px 6px rgba(79,70,229,0.45), inset 0 1px 0 rgba(255,255,255,0.18);transition:transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;';
+  action.onmouseenter = function () {
+    action.style.filter = 'brightness(1.08)';
+    action.style.transform = 'translateY(-1px)';
+  };
+  action.onmouseleave = function () {
+    action.style.filter = '';
+    action.style.transform = '';
+  };
   action.onclick = function () {
     if (repeatLoopState.running) stopRepeatLoop();
     else startRepeatLoop();
   };
   return action;
 }
+
 
 function buildCollapseButton(): HTMLButtonElement {
   const btn = document.createElement('button');
