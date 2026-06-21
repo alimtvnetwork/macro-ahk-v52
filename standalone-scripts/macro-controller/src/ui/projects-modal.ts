@@ -120,6 +120,7 @@ export function showProjectsModal(): void {
     state.tabIndex = null;
     state.exporting = false;
     state.searchQuery = '';
+    state.hiddenWorkspaces = new Set<string>();
 
     const panel = createPanel();
     const titleBar = createTitleBar(panel);
