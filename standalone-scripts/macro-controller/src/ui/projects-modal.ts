@@ -408,6 +408,11 @@ function renderAll(blocks: ReadonlyArray<WorkspaceBlock>, tabIndex: OpenTabIndex
         if (onlyOpen) activeChips.push('open-in-tab');
         if (onlyRepo) activeChips.push('has-repo');
         if (hasWorkspaceFilter) activeChips.push('workspace filter');
+        if (hasCreditsFilter) {
+            const lo = creditsMin === null ? '−∞' : String(creditsMin);
+            const hi = creditsMax === null ? '+∞' : String(creditsMax);
+            activeChips.push('credits ' + lo + '–' + hi);
+        }
         html += '<div style="text-align:center;padding:24px 12px;color:' + cPanelFgDim + ';font-size:11px;'
             + 'border:1px dashed rgba(124,58,237,0.35);border-radius:6px;margin-top:4px;">'
             + '<div style="font-size:22px;margin-bottom:6px;opacity:0.6;">🔍</div>'
