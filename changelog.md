@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.80.0] — 2026-06-21
+
+### Fixed
+
+- **`url-trigger` sentinel inject error flood**: `injectSentinel()` now downgrades Chrome's `"Cannot access contents of the page. Extension manifest must request permission to access the respective host."` refusal (and the related `"No tab with id"` / `"The tab was closed"` races) to a silent `clearTabDecision(tabId)` path. The upfront `isRestrictedUrl()` guard cannot know about NTP remote-content tabs, prerendered/discarded tabs, PDFs, or in-flight navigations — those are only knowable post-hoc via the script-injection failure, so they're now treated as restricted instead of being logged as a hard MARCO error every navigation. Unrelated errors still surface through `logCaughtError(BgLogTag.MARCO, …)` unchanged. (`src/background/url-trigger.ts:241-265`)
+
+---
+
 ## [v3.79.3] — 2026-06-21
 
 ### Fixed
