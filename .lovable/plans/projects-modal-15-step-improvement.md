@@ -2,7 +2,7 @@
 
 **Scope**: macro-controller → Projects dialog + CSV export.
 **Created**: 2026-05-22. **Owner**: AI (execute one task per `next`).
-**Current cursor**: Task 13 — replace `(no data returned by API)` rows. Tasks 1–12 shipped (Task 3 fixed CSV name fallback v3.97.0; Tasks 4–6 SQLite cache via `projects-cache.ts` + wired through `projects-modal.ts`; Task 7 `projectsCacheTtlHours` setting in `settings-store`/`settings-modal`; Task 8 fetch-delay setting; Task 9 workspace header shows credits; Task 10 search input; Task 11 workspace multi-select filter v3.99.0; Task 12 credits-used min/max range filter v3.100.0). Cursor advanced 2026-06-21 at v3.100.0.
+**Current cursor**: Task 14 — verify SQLite end-to-end. Tasks 1–13 shipped (Task 3 fixed CSV name fallback v3.97.0; Tasks 4–6 SQLite cache via `projects-cache.ts` + wired through `projects-modal.ts`; Task 7 `projectsCacheTtlHours` setting in `settings-store`/`settings-modal`; Task 8 fetch-delay setting; Task 9 workspace header shows credits; Task 10 search input; Task 11 workspace multi-select filter v3.99.0; Task 12 credits-used min/max range filter v3.100.0; Task 13 CSV lastCommunication cleanup v3.101.0). Cursor advanced 2026-06-21 at v3.101.0.
 **Status**: OPEN — the only active plan left in `.lovable/plans/` after the v3.92.0 inventory correction.
 
 ## Problems reported by user
@@ -33,7 +33,7 @@
 | 10 | **Search bar in dialog**: top input filters project rows (case-insensitive substring on name + id). | Searchable. |
 | 11 | ✅ **Workspace filter dropdown**: multi-select chips hide/show whole workspace blocks through `state.hiddenWorkspaces`; Clear all filters resets workspace visibility too. | Shipped v3.99.0; `projects-modal-csv.test.ts` covers workspace visibility filtering. |
 | 12 | ✅ **Credits-used filter**: numeric min/max range hides workspaces whose `WorkspaceCredit.used` falls outside the inclusive range; reset by Clear all filters. | Shipped v3.100.0; `projects-modal-csv.test.ts` covers `isWorkspaceWithinCreditsRange()` (in-range, below-min, above-max, null bounds, inclusive boundaries). |
-| 13 | **Replace `(no data returned by API)` rows**: if `last_message_at` missing, show "—" and don't pollute CSV. | Clean CSV. |
+| 13 | ✅ **Replace `(no data returned by API)` rows**: CSV `lastCommunication` now normalizes blank and upstream placeholder values to `—`, and logs the count of normalized rows. | Shipped v3.101.0; `projects-modal-csv.test.ts` covers blank, placeholder, real timestamp values, cleanup log message generation, and the logging path firing. |
 | 14 | **Verify SQLite end-to-end**: open dialog, close, reopen — confirm second open hits cache (zero network in DevTools). Log cache hit/miss to activity log. | Verified. |
 | 15 | **Update changelog + bump version** (`constants.ts`, manifest, scripts in sync). Note all behavior changes in `changelog-modal.ts`. | ✅ Released as v3.5.1 on 2026-05-22. |
 

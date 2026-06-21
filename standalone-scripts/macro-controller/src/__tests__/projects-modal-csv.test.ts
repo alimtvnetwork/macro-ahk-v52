@@ -2,9 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import {
   filterWorkspaceBlocksByVisibility,
+  getCsvLastCommunicationNormalizedLogMessage,
+  hasMissingCsvLastCommunication,
   isWorkspaceFilterVisible,
   isWorkspaceWithinCreditsRange,
   isCsvProjectNameFallback,
+  logCsvLastCommunicationNormalization,
+  normalizeCsvLastCommunication,
   resolveCsvProjectName,
   type OpenTabIndex,
   type OpenTabRow,
@@ -104,5 +108,39 @@ describe('Projects modal credits-used range filter (Task 12)', () => {
 
   it('inclusive boundaries are honoured', () => {
     expect(isWorkspaceWithinCreditsRange(50, 50, 50)).toBe(true);
+  });
+});
+
+describe('Projects modal CSV last communication cleanup', () => {
+  it('replaces blank lastCommunication values with an em dash', () => {
+    expect(normalizeCsvLastCommunication('')).toBe('—');
+    expect(normalizeCsvLastCommunication('   ')).toBe('—');
+  });
+
+  it('replaces upstream placeholder lastCommunication values with an em dash', () => {
+    expect(hasMissingCsvLastCommunication('(no data returned by API)')).toBe(true);
+    expect(normalizeCsvLastCommunication('(no data returned by API)')).toBe('—');
+  });
+
+  it('keeps real lastCommunication values untouched', () => {
+    const value = '2026-06-21T08:30:00.000Z';
+
+    expect(hasMissingCsvLastCommunication(value)).toBe(false);
+    expect(normalizeCsvLastCommunication(value)).toBe(value);
+  });
+
+  it('surfaces an observability log message when cleanup occurs', () => {
+    expect(getCsvLastCommunicationNormalizedLogMessage(2)).toBe('Projects: CSV lastCommunication normalized for 2 row(s)');
+  });
+
+  it('skips the cleanup log when no rows were normalized', () => {
+    expect(getCsvLastCommunicationNormalizedLogMessage(0)).toBeNull();
+  });
+
+  it('confirms the cleanup log path fires when rows were normalized', () => {
+    const messages: string[] = [];
+
+    expect(logCsvLastCommunicationNormalization(1, function (message) { messages.push(message); })).toBe(true);
+    expect(messages).toEqual(['Projects: CSV lastCommunication normalized for 1 row(s)']);
   });
 });
