@@ -8,8 +8,8 @@
 
 | Goal | Command |
 |---|---|
-| Pinned to a release (recommended) | `curl -fsSL https://github.com/alimtvnetwork/macro-ahk-v51/releases/download/v2.228.0/install.sh \| bash` |
-| Latest release (auto-resolve) | `curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v51/main/scripts/install.sh \| bash` |
+| Pinned to a release (recommended) | `curl -fsSL https://github.com/aukgit/macro-ahk-v51/releases/download/v2.228.0/install.sh \| bash` |
+| Latest release (auto-resolve) | `curl -fsSL https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/install.sh \| bash` |
 | Force a specific version | `… \| bash -s -- --version v2.150.0` |
 | Custom directory | `… \| bash -s -- --dir ~/tools/marco-extension` |
 | Preview without installing | `… \| bash -s -- --dry-run` |
@@ -28,12 +28,12 @@ Downloads the installer **from the release itself**, which auto-pins via URL sel
 
 **Bash (Linux / macOS / Git-Bash):**
 ```bash
-curl -fsSL https://github.com/alimtvnetwork/macro-ahk-v51/releases/download/v2.228.0/install.sh | bash
+curl -fsSL https://github.com/aukgit/macro-ahk-v51/releases/download/v2.228.0/install.sh | bash
 ```
 
 **PowerShell (Windows):**
 ```powershell
-irm https://github.com/alimtvnetwork/macro-ahk-v51/releases/download/v2.228.0/install.ps1 | iex
+irm https://github.com/aukgit/macro-ahk-v51/releases/download/v2.228.0/install.ps1 | iex
 ```
 
 > Use this in `Dockerfile`, `Makefile`, GitHub Actions, etc. Reproducible across rebuilds.
