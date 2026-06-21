@@ -344,7 +344,7 @@ function renderAll(blocks: ReadonlyArray<WorkspaceBlock>, tabIndex: OpenTabIndex
     const onlyRepo = state.filterHasRepo;
     const hasWorkspaceFilter = state.hiddenWorkspaces.size > 0;
     const filterActive = q !== '' || onlyOpen || onlyRepo || hasWorkspaceFilter;
-    const workspaceBlocks = blocks.filter(function (b) { return !state.hiddenWorkspaces.has(b.ws.id); });
+    const workspaceBlocks = filterWorkspaceBlocksByVisibility(blocks, state.hiddenWorkspaces);
 
     const filtered: WorkspaceBlock[] = filterActive
         ? workspaceBlocks.map(function (b) {
@@ -399,6 +399,18 @@ function renderAll(blocks: ReadonlyArray<WorkspaceBlock>, tabIndex: OpenTabIndex
             + '</div>';
     }
     return html;
+}
+
+interface WorkspaceVisibilityBlock {
+    readonly ws: Pick<WorkspaceCredit, 'id'>;
+}
+
+export function isWorkspaceFilterVisible(workspaceId: string, hiddenWorkspaceIds: ReadonlySet<string>): boolean {
+    return hiddenWorkspaceIds.has(workspaceId) === false;
+}
+
+export function filterWorkspaceBlocksByVisibility<T extends WorkspaceVisibilityBlock>(blocks: ReadonlyArray<T>, hiddenWorkspaceIds: ReadonlySet<string>): T[] {
+    return blocks.filter(function (block) { return isWorkspaceFilterVisible(block.ws.id, hiddenWorkspaceIds); });
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
