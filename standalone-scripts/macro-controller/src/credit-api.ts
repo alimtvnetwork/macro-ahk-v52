@@ -141,7 +141,7 @@ export function renderCreditBar(opts: CreditBarOpts): string {
   // fully consumed. Showing the denominator restores the plan-grant context.
   const fmtPair = (rem: number, lim: number): string => lim > 0 ? rem + '/' + lim : String(rem);
   let h = '<div style="display:flex;align-items:center;gap:8px;' + mt + wW + '">';
-  h += '<div title="' + bTitle + '" style="flex:none;height:' + bH + ';width:' + bW + ';min-width:' + bW + ';max-width:' + bW + ';background:' + cCbEmpty + ';border-radius:' + bR + ';overflow:hidden;display:flex;border:' + bBorder + ';' + bShadow + '">';
+  h += '<div role="progressbar" aria-label="Workspace credits" aria-valuemin="0" aria-valuemax="' + tc + '" aria-valuenow="' + av + '" title="' + bTitle + '" style="flex:none;height:' + bH + ';width:' + bW + ';min-width:' + bW + ';max-width:' + bW + ';background:' + cCbEmpty + ';border-radius:' + bR + ';overflow:hidden;display:flex;border:' + bBorder + ';' + bShadow + '">';
   h += '<div style="width:' + fillPct.toFixed(2) + '%;height:100%;display:flex;transition:width ' + trSlow + ' ease;">';
   h += '<div title="🎁 Bonus: ' + fr + CssFragment.StyleWidth + segments.free + CssFragment.BarSegmentTail + cCbBonus[0] + ',' + cCbBonus[1] + CssFragment.TransitionTail + trSlow + CssFragment.EaseClose;
   h += '<div title="💰 Monthly: ' + ba + '/' + bl + CssFragment.StyleWidth + segments.billing + CssFragment.BarSegmentTail + cCbBilling[0] + ',' + cCbBilling[1] + CssFragment.TransitionTail + trSlow + CssFragment.EaseClose;

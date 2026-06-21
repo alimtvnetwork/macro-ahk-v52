@@ -13,6 +13,7 @@
  * 0-0 state for free accounts or burns a redundant HTTP call for Pro accounts.
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import 'fake-indexeddb/auto';
 import type { WorkspaceCredit } from '../types';
 
 const hoisted = vi.hoisted(() => ({ fetchSpy: vi.fn() }));

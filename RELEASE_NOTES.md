@@ -1,14 +1,16 @@
-# Marco Chrome Extension v3.84.0
+# Marco Chrome Extension v3.87.0
 
 ## Added
 
-- `onCreditResolved(listener)` pub-sub on the credit-fetch controller — emitted once per `/credit-balance` completion (success or failure) after cache + in-flight cleanup.
+- `credit-refresh-component.test.ts` covers Plan 01 Step 8c end-to-end: click 💰 Credits on a new-free workspace, fan out to `/credit-balance`, repaint after `CreditResolved`, and assert a non-zero rendered progress bar.
 
-## Fixed
+## Changed
 
-- Workspace credit bars now repaint automatically when `/credit-balance` returns. `ws-list-renderer.ts` subscribes to `onCreditResolved`, debounces (120ms) parallel fan-out resolves into one render, invalidates the dropdown hash, and re-populates. (Plan 01 / Step 7, RCA #4)
+- `renderCreditBar()` now exposes `role="progressbar"` with `aria-valuenow`, `aria-valuemin`, and `aria-valuemax` while preserving the existing visual credit-bar HTML.
 
 ## Verification
 
-- `bunx vitest run` on credit-fetch-controller / credit-button-fanout / credit-summary-resolver-pending → **3 files, 23 tests passed**.
-- `node scripts/check-version-sync.mjs` → `✅ All versions in sync: 3.84.0`.
+- Before: helper regressions passed but no test proved the real click-to-DOM repaint path.
+- After: `bunx vitest run standalone-scripts/macro-controller/src/__tests__/credit-refresh-component.test.ts` → **1/1 passed**.
+- Targeted suite: credit fan-out / placeholder / network-count / component regressions → **4 files, 12 tests passed**.
+- `node scripts/check-version-sync.mjs` → `✅ All versions in sync: 3.87.0`.

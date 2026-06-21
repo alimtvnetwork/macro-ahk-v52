@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.87.0] — 2026-06-21
+
+### Added
+
+- **Plan 01 Step 8c component regression** — added `credit-refresh-component.test.ts`, which clicks the real 💰 Credits button against a new-free workspace fixture and verifies the Pending skeleton is replaced by a non-zero rendered row within the resolver repaint budget.
+
+### Changed
+
+- `renderCreditBar()` now emits semantic `role="progressbar"` markup with `aria-valuenow`, `aria-valuemin`, and `aria-valuemax`, giving the component test and assistive tech a stable credit-bar contract without changing the visual renderer.
+
+---
+
 ## [v3.86.0] — 2026-06-21
 
 ### Added
