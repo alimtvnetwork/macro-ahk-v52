@@ -1,13 +1,15 @@
-# Marco Chrome Extension v3.92.0
+# Marco Chrome Extension v3.93.0
 
 ## Changed
 
-- Plan inventory correction: archived the two prompt-macro plans that were already complete but still outside `completed/`.
-- Remaining open plan narrowed to exactly one file: `projects-modal-15-step-improvement.md`.
-- Added a current-cursor header to that open plan: Task 1 is the Projects Modal overview/spec.
+- Projects Modal 15-step plan: cursor advanced to Task 3. Tasks 1 (overview spec) and 2 (Q52 `projects.get` 405 fix) were already shipped; the plan file now reflects their completed status.
 
 ## Verification
 
-- Before: `ls .lovable/plans/` showed three apparent pending files.
-- After: `ls .lovable/plans/` shows only `projects-modal-15-step-improvement.md` plus folders.
-- `node scripts/check-version-sync.mjs` → `✅ All versions in sync: 3.92.0`.
+- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.93.0.
+- Spec file present at `standalone-scripts/macro-controller/spec/projects-modal/00-overview.md` (105 lines).
+- `projects-modal.ts:728-735` documents the 405 root cause and removal of the per-project call.
+
+---
+
+(See `changelog.md` for full history.)
