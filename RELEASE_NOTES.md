@@ -1,29 +1,28 @@
-# Marco Chrome Extension v3.95.0
+# Marco Chrome Extension v3.96.0
 
 ## Changed
 
-- **Unified plan labels** across workspace badge, Credit Totals modal, and
-  CSV export. New shared helper `formatPlanDisplayLabel()` in
-  `credit-balance-update/plan-mapper.ts` is now the single source of truth.
-  - `ktlo_2` → **Light 2**, `ktlo_3` → **Light 3**, `ktlo`/`lite` → **Lite**
-  - `pro_0` → **Pro 0**, `pro_3` → **Pro 3**, `business` → **Business**, etc.
+- **Hover-card plan chip + sub-header now use the canonical
+  `formatPlanDisplayLabel()` helper.** Reads `Pro 1`, `Light 2`, `Lite`
+  instead of the legacy uppercased `tier` bucket (`PRO`, `FREE`).
+- **Summary-bar `isProPlan` documented as strict-`pro_*`-only.**
+  Lite-tier workspaces are intentionally excluded from the Pro pill
+  aggregates; documented so the next refactor doesn't widen it.
+- **Memory rule added**: `mem://features/macro-controller/plan-display-label`.
 
 ## Files changed
 
-- `standalone-scripts/macro-controller/src/credit-balance-update/plan-mapper.ts`
-  (added `formatPlanDisplayLabel`)
-- `standalone-scripts/macro-controller/src/ws-list-renderer.ts`
-  (`resolveTierBadgeLabel` now delegates to the shared helper)
-- `standalone-scripts/macro-controller/src/ui/credit-totals-modal.ts`
-  (modal Plan cell + CSV Plan column use the shared helper)
-- Tests: `plan-mapper.test.ts`, `credit-totals-csv.test.ts`,
-  `credit-totals-modal.test.ts`
+- `standalone-scripts/macro-controller/src/ws-hover-card.ts`
+- `standalone-scripts/macro-controller/src/ui/summary-bar/compute-summary.ts`
+- `.lovable/memory/features/macro-controller/plan-display-label.md` (new)
+- `.lovable/memory/index.md`
+- Test snapshots: `__tests__/__snapshots__/ws-hover-card.snapshot.test.ts.snap`
 
 ## Verification
 
-- `bunx vitest run plan-mapper credit-totals-csv credit-totals-modal` →
-  **3 files, 64 tests passed**.
-- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.95.0.
+- `bunx vitest run plan-mapper credit-totals-csv credit-totals-modal ws-hover-card.snapshot`
+  → **4 files, 72 tests passed**.
+- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.96.0.
 
 ---
 

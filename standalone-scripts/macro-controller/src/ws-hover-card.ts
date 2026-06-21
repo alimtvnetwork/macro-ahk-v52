@@ -33,6 +33,7 @@ import {
 import { getWorkspaceLifecycleConfig, type WorkspaceLifecycleConfig } from './workspace-lifecycle-config';
 import { explainEffectiveStatus, type StatusExplanation } from './status-explainer';
 import { resolveCreditSummary } from './credit-balance-update/credit-summary-resolver';
+import { formatPlanDisplayLabel } from './credit-balance-update/plan-mapper';
 
 const HOVERCARD_ID = 'marco-ws-hovercard';
 const SEL_WS_ITEM = '.loop-ws-item';
@@ -103,7 +104,7 @@ function pillHtml(status: WorkspaceStatus, ws?: WorkspaceCredit): string {
  */
 export function buildSubHeader(ws: WorkspaceCredit): string {
   const parts: string[] = [];
-  parts.push(escHtml(String(ws.tier || 'FREE')));
+  parts.push(escHtml(formatPlanDisplayLabel(ws.plan) || String(ws.tier || 'FREE')));
   if (ws.membershipRole || ws.role) parts.push(escHtml(String(ws.membershipRole || ws.role)));
   if (typeof ws.numProjects === 'number' && ws.numProjects > 0) {
     parts.push(ws.numProjects + ' project' + (ws.numProjects === 1 ? '' : 's'));
@@ -394,7 +395,9 @@ function dateColor(daysUntilEvent: number, expired = false): string {
 }
 
 function planChipHtml(ws: WorkspaceCredit): string {
-  const plan = String(ws.tier || 'FREE').toUpperCase();
+  // Prefer the canonical plan label (`Light 2`, `Pro 3`, …) and fall back to
+  // the tier bucket only when no wire plan is present.
+  const plan = formatPlanDisplayLabel(ws.plan) || String(ws.tier || 'FREE');
   return '<span style="font-size:9px;color:' + C_ACCENT
     + ';background:rgba(103,232,249,0.12);border:1px solid rgba(103,232,249,0.35)'
     + ';padding:1px 5px;border-radius:3px;font-weight:700;letter-spacing:0.3px;'

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.96.0] — 2026-06-21
+
+### Changed
+
+- **Hover card now uses `formatPlanDisplayLabel`.** `ws-hover-card.ts → planChipHtml()` (line 397) and `buildSubHeader()` (line 107) previously rendered `String(ws.tier).toUpperCase()`, which showed `PRO` for `pro_1` workspaces and `FREE` for `ktlo_2` workspaces — inconsistent with the badge + Credit Totals modal. Both now delegate to the v3.95.0 shared helper, so the hover-card chip reads `Pro 1`, `Light 2`, `Lite`, etc., matching every other surface.
+- **Summary-bar `isProPlan` audit (`compute-summary.ts`).** Confirmed `pro_*` strict matching is intentional — Lite-tier workspaces (`ktlo_*`) MUST stay excluded from `DashboardSummary` aggregates to avoid double-counting against the Pro pill. Added a documentation comment to prevent the next agent from "fixing" it.
+- **Memory rule added** — `mem://features/macro-controller/plan-display-label` codifies `formatPlanDisplayLabel` as the single source of truth and lists forbidden inline patterns (`.toUpperCase()`, raw `ws.plan || '—'`, duplicate regexes).
+
+### Tests
+
+- `ws-hover-card.snapshot.test.ts` — 3 snapshots refreshed to reflect new chip labels (`Pro 1` instead of `PRO` for the `pro_1` fixture). 8/8 pass.
+- Full suite touched this turn (`plan-mapper`, `credit-totals-csv`, `credit-totals-modal`, `ws-hover-card.snapshot`) — **4 files, 72 tests passed**.
+- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.96.0.
+
+---
+
 ## [v3.95.0] — 2026-06-21
 
 ### Changed

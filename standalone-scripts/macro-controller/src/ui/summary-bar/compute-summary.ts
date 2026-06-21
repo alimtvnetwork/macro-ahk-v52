@@ -32,6 +32,18 @@ function num0(value: unknown): number {
     return Number.isFinite(n) ? n : 0;
 }
 
+/**
+ * Returns true ONLY for `pro_*` wire plans (`pro_0`, `pro_1`, `pro_3`, …).
+ *
+ * Lite-tier workspaces — `ktlo`, `lite`, `ktlo_2`, `ktlo_3` — are
+ * intentionally EXCLUDED from the "Pro" dashboard aggregates. They are
+ * surfaced separately via the workspace list, Credit Totals modal, and
+ * hover card (where `formatPlanDisplayLabel` renders them as "Lite" /
+ * "Light N"). The summary bar's `proCount` / `proCreditsAvailable` /
+ * `proCreditsTotal` MUST keep their narrow "Pro" semantics — widening
+ * this predicate to include `ktlo_*` would silently double-count Lite
+ * credits and break every consumer of `DashboardSummary`.
+ */
 function isProPlan(plan: string | undefined): boolean {
     if (typeof plan !== 'string') {
         return false;
