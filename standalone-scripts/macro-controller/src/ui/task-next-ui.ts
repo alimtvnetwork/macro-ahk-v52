@@ -290,13 +290,13 @@ function reportCycleStatus(status: CycleStatus, k: number, n: number): void {
     logError('Task Next queue', 'cycle ' + at + ' — paste failed; aborting queue');
     showPasteToast('❌ Task Next queue: paste failed at ' + at, true);
   } else if (status === 'submit-failed') {
-    logError('Task Next queue', 'cycle ' + at + ' — no form#chat-input and no submit button; aborting queue');
+    logError(TASK_NEXT_QUEUE_LABEL, 'cycle ' + at + ' — no form#chat-input and no submit button; aborting queue');
     showPasteToast('❌ Task Next queue: submit failed at ' + at, true);
   } else if (status === 'idle-cancelled') {
     showPasteToast('🛑 Task Next queue cancelled at ' + at, false);
     log('[TaskNextQueue] cancelled mid-idle at cycle ' + at, 'warn');
   } else if (status === 'idle-timeout') {
-    logError('Task Next queue', 'cycle ' + at + ' — idle gate timed out after 10 min; aborting queue');
+    logError(TASK_NEXT_QUEUE_LABEL, 'cycle ' + at + ' — idle gate timed out after 10 min; aborting queue');
     showPasteToast('❌ Task Next queue: timed out waiting at ' + at, true);
   }
 }
