@@ -476,7 +476,7 @@ function passesFilters(ws: WorkspaceCredit, fs: WsFilterState): boolean {
   if (!matchesTextFilter(ws, fs.filter || '')) return false;
   if (fs.freeOnly && (ws.dailyFree || 0) <= 0) return false;
   if (fs.rolloverOnly && (ws.rollover || 0) <= 0) return false;
-  if (fs.billingOnly && (ws.billingAvailable || 0) <= 0) return false;
+  if (fs.billingOnly && resolveCreditSummary(ws).billingAvailable <= 0) return false;
   return passesCreditFilters(ws, fs);
 }
 
@@ -753,7 +753,7 @@ export function filterAndSortWorkspaces(
       const daysA = statusA.daysSince || 0;
       const daysB = statusB.daysSince || 0;
       if (daysB !== daysA) return daysB - daysA;
-      return (b.ws.available || 0) - (a.ws.available || 0);
+      return resolveCreditSummary(b.ws).available - resolveCreditSummary(a.ws).available;
     });
   } else if (viewState().getRefillPriority() || fs.refillSoon) {
     // v3.16.1 bug fix — When the "Refill-soon" filter is active, ALL surviving rows
