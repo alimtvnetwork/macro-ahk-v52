@@ -1,11 +1,12 @@
-# Marco Chrome Extension v3.90.0
+# Marco Chrome Extension v3.91.0
 
-## Added
+## Changed
 
-- `refill-priority-credit-resolved.test.ts` — locks the resolver → refill-priority repaint chain. Before cache write, a Ktlo workspace (inline available=0) sits behind Pro (available=50). After `__writeCreditBalanceUpdateMemoryCacheForTests(ws-ktlo, 500)`, `sortByRefillPriority` flips the order on the next call (urgency window K=10, daysToRefill=1 → score 9×500 vs 9×50).
+- Plan inventory sweep: archived 4 shipped plans into `.lovable/plans/completed/` with explicit `STATUS: ✅ COMPLETED` headers (HTTP Fail-Fast, Refill-Priority + GitHub-open v3.10.0, Credit-Totals + Macro UX 20-step, Prompt-Spec 2026 renumber).
+- Pending plan backlog narrowed from 7 to 3: `projects-modal-15-step-improvement.md`, `prompt-macros-50-step.md`, `spec-prompt-macros-audit-100.md`.
 
 ## Verification
 
-- Before: only component-level test proved the dropdown repaints; nothing pinned that the refill-priority *sort key* recomputes from fresh resolver data.
-- After: `bunx vitest run …/refill-priority-credit-resolved.test.ts` → **1/1 passed**.
-- `node scripts/check-version-sync.mjs` → `✅ All versions in sync: 3.90.0`.
+- `ls .lovable/plans/` shows only 3 pending files plus `completed/` and `subtasks/` folders.
+- `ls .lovable/plans/completed/` shows 5 archived plans (01-05).
+- `node scripts/check-version-sync.mjs` → `✅ All versions in sync: 3.91.0`.
