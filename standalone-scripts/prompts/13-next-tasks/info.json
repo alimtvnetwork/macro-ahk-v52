@@ -13,7 +13,7 @@
   "ReplaceKey": "N",
   "ReplaceValues": ["1", "2", "3", "4", "5", "8"],
   "SlugTemplate": "next-${N}-steps",
-  "_slugRenamed": "2026-06-21: slug renamed next-tasks -> next-steps per user v5 prompt",
+  "SlugRenamedNote": "2026-06-21: slug renamed next-tasks -> next-steps per user v5 prompt",
   "CreatedAt": "2026-03-21T00:00:00Z",
   "UpdatedAt": "2026-06-19T00:00:00Z"
 }
