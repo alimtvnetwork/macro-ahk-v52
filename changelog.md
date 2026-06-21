@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 
 ---
 
+## [v3.85.0] — 2026-06-21
+
+### Added
+
+- **Plan 01 Step 8a/8d regression test** — `credit-new-free-network-count.test.ts` locks the network-call contract for new-free workspaces (limit=0 + all-zero `grant_type_balances` → exactly ONE `/credit-balance` call) and the Pro_1 inline-credit short-circuit (ZERO calls). Protects RCA #1/#3/#4 from credit-balance regression.
+
 ## [v3.84.0] — 2026-06-21
 
 ### Added
