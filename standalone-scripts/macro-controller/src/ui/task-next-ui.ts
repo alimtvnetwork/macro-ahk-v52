@@ -225,6 +225,124 @@ export function runTaskNextLoop(deps: TaskNextDeps, count: number) {
   showPasteToast('⏭ Task Next: pasted — click Submit to send', false);
 }
 
+/**
+ * Submit the chat form — same primitive as `repeat-loop-ui.dispatchChatSubmit`.
+ * Prefers `form#chat-input.requestSubmit()` over clicking the submit button so
+ * Lovable's own form-level handler runs (avoids brittle XPath drift).
+ */
+function dispatchTaskNextSubmit(): boolean {
+  const form = document.getElementById('chat-input');
+  if (form instanceof HTMLFormElement) {
+    if (typeof form.requestSubmit === 'function') form.requestSubmit();
+    else form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    return true;
+  }
+  const btn = findAddToTasksButton();
+  if (btn && !(btn as HTMLButtonElement).disabled) {
+    btn.click();
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Sequential queue: paste prompt #1 → submit → await Lovable idle → paste #2 →
+ * submit → await idle → … up to `count`. Cancellable via the existing Escape
+ * handler (`setupTaskNextCancelHandler` flips `taskNextState.cancelled`).
+ *
+ * Fail-fast per `mem://constraints/no-retry-policy`: any failed cycle (paste,
+ * submit, idle-timeout) aborts the rest and logs via `logError` with the
+ * cycle index + total in the message.
+ *
+ * N === 1 delegates to the legacy paste-once `runTaskNextLoop` so the
+ * split-button label keeps its v3.79.x behaviour (paste, do NOT submit).
+ */
+export async function runTaskNextQueue(deps: TaskNextDeps, count: number): Promise<void> {
+  const n = Math.max(1, Math.floor(count) || 1);
+
+  if (n === 1) {
+    runTaskNextLoop(deps, 1);
+    return;
+  }
+
+  if (taskNextState.running) {
+    log('Task Next queue: already running — ignoring re-entry', 'warn');
+    return;
+  }
+
+  const prompt = findNextTasksPrompt(deps);
+  if (!prompt || !prompt.text) {
+    logError('Task Next queue', '"Next Tasks" prompt not found — aborting queue of ' + n);
+    showPasteToast('❌ "Next Tasks" prompt not found', true);
+    return;
+  }
+
+  // Lazy import to dodge a circular dep (lovable-idle.ts → task-next-ui.ts for findAddToTasksButton).
+  const { waitForLovableIdle } = await import('./lovable-idle');
+
+  taskNextState.running = true;
+  taskNextState.cancelled = false;
+  taskNextState.queue = { total: n, completed: 0, running: true, startedAt: Date.now() };
+
+  log('[TaskNextQueue] starting queue of ' + n + ' — Escape to cancel', 'info');
+  showPasteToast('🔁 Task Next queue: 0/' + n + ' — Escape to cancel', false);
+
+  try {
+    for (let k = 0; k < n; k++) {
+      if (taskNextState.cancelled) {
+        showPasteToast('🛑 Task Next queue cancelled at ' + k + '/' + n, false);
+        log('[TaskNextQueue] cancelled at cycle ' + k + '/' + n, 'warn');
+        break;
+      }
+
+      const cycleStart = Date.now();
+      const promptsCfg = deps.getPromptsConfig();
+      const outcome = pasteIntoEditor(prompt.text, promptsCfg, deps.getByXPath);
+      if (String(outcome) === 'failed') {
+        logError('Task Next queue', 'cycle ' + (k + 1) + '/' + n + ' — paste failed; aborting queue');
+        showPasteToast('❌ Task Next queue: paste failed at ' + (k + 1) + '/' + n, true);
+        break;
+      }
+
+      if (!dispatchTaskNextSubmit()) {
+        logError('Task Next queue', 'cycle ' + (k + 1) + '/' + n + ' — no form#chat-input and no submit button; aborting queue');
+        showPasteToast('❌ Task Next queue: submit failed at ' + (k + 1) + '/' + n, true);
+        break;
+      }
+
+      const idleResult = await waitForLovableIdle({
+        isCancelled: function() { return taskNextState.cancelled; },
+      });
+      if (idleResult === 'cancelled') {
+        showPasteToast('🛑 Task Next queue cancelled at ' + (k + 1) + '/' + n, false);
+        log('[TaskNextQueue] cancelled mid-idle at cycle ' + (k + 1) + '/' + n, 'warn');
+        break;
+      }
+      if (idleResult === 'timeout') {
+        logError('Task Next queue', 'cycle ' + (k + 1) + '/' + n + ' — idle gate timed out after 10 min; aborting queue');
+        showPasteToast('❌ Task Next queue: timed out waiting at ' + (k + 1) + '/' + n, true);
+        break;
+      }
+
+      taskNextState.queue.completed = k + 1;
+      log('[TaskNextQueue] cycle ' + (k + 1) + '/' + n + ' done in ' + (Date.now() - cycleStart) + 'ms', 'info');
+      showPasteToast('🔁 Task Next queue: ' + (k + 1) + '/' + n, false);
+    }
+
+    if (!taskNextState.cancelled && taskNextState.queue.completed >= n) {
+      showPasteToast('✅ Task Next queue finished ' + n + '/' + n, false);
+      log('[TaskNextQueue] completed ' + n + '/' + n + ' in ' + (Date.now() - taskNextState.queue.startedAt) + 'ms', 'info');
+    }
+  } catch (err) {
+    logError('Task Next queue', 'unexpected failure at cycle ' + (taskNextState.queue.completed + 1) + '/' + n, err);
+    showPasteToast('❌ Task Next queue: unexpected error at ' + (taskNextState.queue.completed + 1) + '/' + n, true);
+  } finally {
+    taskNextState.queue.running = false;
+    taskNextState.running = false;
+    taskNextState.cancelled = false;
+  }
+}
+
 // Escape key cancel handler — call once at init
 export function setupTaskNextCancelHandler() {
   document.addEventListener('keydown', function(e) {
