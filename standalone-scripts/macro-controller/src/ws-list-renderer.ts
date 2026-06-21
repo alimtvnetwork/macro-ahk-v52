@@ -40,6 +40,7 @@ import type { WorkspaceStatus } from './credit-fetch';
 import { moveToWorkspace } from './workspace-management';
 import { attachWorkspaceHoverCard, hideWorkspaceHoverCard } from './ws-hover-card';
 import { autoDetectLoopCurrentWorkspace } from './workspace-detection';
+import { formatPlanDisplayLabel } from './credit-balance-update/plan-mapper';
 import {
   handleWsCheckboxClick,
   setLoopWsNavIndex,
