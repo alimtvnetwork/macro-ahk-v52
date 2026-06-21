@@ -2,7 +2,7 @@
 
 **Scope**: macro-controller → Projects dialog + CSV export.
 **Created**: 2026-05-22. **Owner**: AI (execute one task per `next`).
-**Current cursor**: Task 1 — write `standalone-scripts/macro-controller/spec/projects-modal/00-overview.md` before touching implementation.
+**Current cursor**: Task 3 — fix project-name resolution in CSV (fallback chain: tab title → SQLite cache → `projects.get`). Tasks 1 (spec at `standalone-scripts/macro-controller/spec/projects-modal/00-overview.md`) and 2 (Q52 405 root-cause + removal of per-project `projects.get`, see `projects-modal.ts:728-735`) already shipped — verified 2026-06-21 at v3.92.0.
 **Status**: OPEN — the only active plan left in `.lovable/plans/` after the v3.92.0 inventory correction.
 
 ## Problems reported by user
