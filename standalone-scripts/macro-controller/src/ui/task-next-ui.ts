@@ -333,7 +333,7 @@ export async function runTaskNextQueue(deps: TaskNextDeps, count: number): Promi
       log('[TaskNextQueue] completed ' + n + '/' + n + ' in ' + (Date.now() - taskNextState.queue.startedAt) + 'ms', 'info');
     }
   } catch (err) {
-    logError('Task Next queue', 'unexpected failure at cycle ' + (taskNextState.queue.completed + 1) + '/' + n, err);
+    logError(TASK_NEXT_QUEUE_LABEL, 'unexpected failure at cycle ' + (taskNextState.queue.completed + 1) + '/' + n, err);
     showPasteToast('❌ Task Next queue: unexpected error at ' + (taskNextState.queue.completed + 1) + '/' + n, true);
   } finally {
     taskNextState.queue.running = false;
