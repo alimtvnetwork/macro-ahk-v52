@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   filterWorkspaceBlocksByVisibility,
+  getCsvLastCommunicationNormalizedLogMessage,
   hasMissingCsvLastCommunication,
   isWorkspaceFilterVisible,
   isWorkspaceWithinCreditsRange,
@@ -125,5 +126,13 @@ describe('Projects modal CSV last communication cleanup', () => {
 
     expect(hasMissingCsvLastCommunication(value)).toBe(false);
     expect(normalizeCsvLastCommunication(value)).toBe(value);
+  });
+
+  it('surfaces an observability log message when cleanup occurs', () => {
+    expect(getCsvLastCommunicationNormalizedLogMessage(2)).toBe('Projects: CSV lastCommunication normalized for 2 row(s)');
+  });
+
+  it('skips the cleanup log when no rows were normalized', () => {
+    expect(getCsvLastCommunicationNormalizedLogMessage(0)).toBeNull();
   });
 });
