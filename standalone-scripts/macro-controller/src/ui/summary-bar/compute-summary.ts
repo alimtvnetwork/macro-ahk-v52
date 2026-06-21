@@ -23,6 +23,7 @@
 import type { WorkspaceCredit } from '../../types/credit-types';
 import type { WorkspaceDisplayKind } from '../../workspace-display-status';
 import { PRO_EXPIRING_KINDS, type DashboardSummary, type SummaryDetails } from './types';
+import { resolveCreditSummary } from '../../credit-balance-update/credit-summary-resolver';
 
 export type DisplayKindResolver = (ws: WorkspaceCredit) => WorkspaceDisplayKind;
 
@@ -66,8 +67,9 @@ export function computeDashboardSummary(
             continue;
         }
         proCount += 1;
-        proCreditsAvailable += num0(ws.available);
-        proCreditsTotal += num0(ws.totalCredits);
+        const summary = resolveCreditSummary(ws);
+        proCreditsAvailable += summary.available;
+        proCreditsTotal += summary.total;
 
         const kind = getDisplayKind(ws);
         if (PRO_EXPIRING_KINDS.has(kind)) {
@@ -130,9 +132,10 @@ export function computeSummaryDetails(
             continue;
         }
         proCount += 1;
-        const avail = num0(ws.available);
+        const summary = resolveCreditSummary(ws);
+        const avail = summary.available;
         proCreditsAvailable += avail;
-        proCreditsTotal += num0(ws.totalCredits);
+        proCreditsTotal += summary.total;
         const planKey = String(ws.plan).trim().toLowerCase();
         byPlan[planKey] = (byPlan[planKey] ?? 0) + 1;
         const kind = getDisplayKind(ws);
