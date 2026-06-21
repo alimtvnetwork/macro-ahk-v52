@@ -4,7 +4,7 @@
     { "canonical": "16-read-memory",       "mirror": "05-read-memory.md",                   "slug": "read-memory" },
     { "canonical": "17-write-memory",      "mirror": "03-write-memory.md",                  "slug": "write-memory" },
     { "canonical": "18-coding-guidelines", "mirror": "09-coding-guidelines.md",             "slug": "coding-guidelines" },
-    { "canonical": "20-proof-read",        "mirror": "07-proof-read.md",                    "slug": "proof-read" },
+    { "canonical": "20-proof-read",        "mirror": "07-proof-read.md",                    "slug": "proofread" },
     { "canonical": "13-next-tasks",        "mirror": "12-next-steps-v7.md",                 "slug": "next-steps" },
     { "canonical": "14-plan-steps",        "mirror": "13-plan-steps-v7.md",                 "slug": "plan-steps" },
     { "canonical": "22-release",           "mirror": "14-release.md",                       "slug": "release" }

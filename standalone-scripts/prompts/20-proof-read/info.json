@@ -1,8 +1,8 @@
 {
   "Id": "default-proof-read",
-  "Title": "Proofread / Rewrite",
-  "Slug": "proof-read",
-  "Version": "1.0.0",
+  "Title": "Proofread",
+  "Slug": "proofread",
+  "Version": "1.1.0",
   "Author": "marco",
   "Categories": [
     "writing"
