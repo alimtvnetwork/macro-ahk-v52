@@ -287,16 +287,16 @@ function reportCycleStatus(status: CycleStatus, k: number, n: number): void {
     showPasteToast('🛑 Task Next queue cancelled at ' + k + '/' + n, false);
     log('[TaskNextQueue] cancelled at cycle ' + k + '/' + n, 'warn');
   } else if (status === 'paste-failed') {
-    logError(TASK_NEXT_QUEUE_LABEL, 'cycle ' + at + ' — paste failed; aborting queue');
+    logError('Task Next queue', 'cycle ' + at + ' — paste failed; aborting queue');
     showPasteToast('❌ Task Next queue: paste failed at ' + at, true);
   } else if (status === 'submit-failed') {
-    logError(TASK_NEXT_QUEUE_LABEL, 'cycle ' + at + ' — no form#chat-input and no submit button; aborting queue');
+    logError('Task Next queue', 'cycle ' + at + ' — no form#chat-input and no submit button; aborting queue');
     showPasteToast('❌ Task Next queue: submit failed at ' + at, true);
   } else if (status === 'idle-cancelled') {
     showPasteToast('🛑 Task Next queue cancelled at ' + at, false);
     log('[TaskNextQueue] cancelled mid-idle at cycle ' + at, 'warn');
   } else if (status === 'idle-timeout') {
-    logError(TASK_NEXT_QUEUE_LABEL, 'cycle ' + at + ' — idle gate timed out after 10 min; aborting queue');
+    logError('Task Next queue', 'cycle ' + at + ' — idle gate timed out after 10 min; aborting queue');
     showPasteToast('❌ Task Next queue: timed out waiting at ' + at, true);
   }
 }
@@ -310,7 +310,7 @@ export async function runTaskNextQueue(deps: TaskNextDeps, count: number): Promi
   }
   const prompt = findNextTasksPrompt(deps);
   if (!prompt || !prompt.text) {
-    logError(TASK_NEXT_QUEUE_LABEL, '"Next Tasks" prompt not found — aborting queue of ' + n);
+    logError('Task Next queue', '"Next Tasks" prompt not found — aborting queue of ' + n);
     showPasteToast('❌ "Next Tasks" prompt not found', true);
     return;
   }
@@ -333,7 +333,7 @@ export async function runTaskNextQueue(deps: TaskNextDeps, count: number): Promi
       log('[TaskNextQueue] completed ' + n + '/' + n + ' in ' + (Date.now() - taskNextState.queue.startedAt) + 'ms', 'info');
     }
   } catch (err) {
-    logError(TASK_NEXT_QUEUE_LABEL, 'unexpected failure at cycle ' + (taskNextState.queue.completed + 1) + '/' + n, err);
+    logError('Task Next queue', 'unexpected failure at cycle ' + (taskNextState.queue.completed + 1) + '/' + n, err);
     showPasteToast('❌ Task Next queue: unexpected error at ' + (taskNextState.queue.completed + 1) + '/' + n, true);
   } finally {
     taskNextState.queue.running = false;
