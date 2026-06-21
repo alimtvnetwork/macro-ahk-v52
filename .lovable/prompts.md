@@ -24,7 +24,7 @@ re-deriving it from chat history.
 | 04 | [04-no-questions.md](./prompts/04-no-questions.md) | No-Questions Mode (40-task window) | `no question`, `not ques for 40`, `no-questions mode` | active |
 | 05 | [05-read-memory.md](./prompts/05-read-memory.md) | Read Memory | `read memory`, `recall memory`, `revise memory`, `revise prompt` | active |
 | 06 | [06-logo-create.md](./prompts/06-logo-create.md) | Logo Create (Projects/ scaffold, SVG + raster + palette + favicon + README) | `create logo`, `make logo`, `logo`, `create icon`, `make icon`, `logo create` | active |
-| 07 | [07-proof-read.md](./prompts/07-proof-read.md) | Proofread / Rewrite (DO NOT ACT — rewrite only) | `proofread`, `proof read`, `rewrite`, `rewrite next`, `next` (in proofread mode) | active |
+| 07 | [07-proofread.md](./prompts/07-proofread.md) | Proofread (DO NOT ACT — rewrite only) | `proofread`, `proof read`, `rewrite`, `rewrite next`, `next` (in proofread mode) | active |
 | 08 | [08-bump-version.md](./prompts/08-bump-version.md) | Bump Version (minor bump + changelog + README pin) | `bump version`, `bump minor`, `pre-bump`, `version bump`, `release bump` | active |
 | 09 | [09-coding-guidelines.md](./prompts/09-coding-guidelines.md) | Coding Guidelines (verbatim, 15 rules) | `coding guidelines`, `read coding guidelines` | active |
 | 10 | [10-lowercase-readme-and-sequence.md](./prompts/10-lowercase-readme-and-sequence.md) | Lowercase Readme + `NN-kebab.md` Convention | `lowercase readme`, `sequence slugs`, `file naming convention` | active |
