@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 ### Tests
 
 - Added `normalizeCsvLastCommunication()` / `hasMissingCsvLastCommunication()` / `getCsvLastCommunicationNormalizedLogMessage()` coverage in `standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts` for blank values, upstream placeholder values, real timestamps, and cleanup-log emission.
-- `bunx vitest run standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts` → expected **1 file, 15 tests passed**.
+- `bunx vitest run standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts` → **1 file, 15 tests passed**.
+- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.101.0.
 
 ---
 

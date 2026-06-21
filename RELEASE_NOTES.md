@@ -15,5 +15,5 @@
 
 ## Verification
 
-- `bunx vitest run standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts` → expected 1 file, 15 tests passed.
-- `node scripts/check-version-sync.mjs` → expected ✅ All versions in sync: 3.101.0.
+- `bunx vitest run standalone-scripts/macro-controller/src/__tests__/projects-modal-csv.test.ts` → 1 file, 15 tests passed.
+- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.101.0.
