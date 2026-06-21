@@ -1,0 +1,16 @@
+{
+  "version": "3.79.0",
+  "branch": "release/v3.79.0",
+  "sourceBranch": "main",
+  "commit": "bc01cba20c7c5ebe5991693dc8f2cf6c39a37198",
+  "tag": "v3.79.0",
+  "assets": [],
+  "changelog": [
+    "**Task Next button**: Aligned `Label.NextTasks` resolver slug from legacy `next-tasks` → `next-steps` to match the renamed canonical prompt (`standalone-scripts/prompts/13-next-tasks/info.json` Slug = `next-steps`). Previously the resolver only matched via the P2 id-substring fallback; P1 (exact slug) now matches directly, so the updated v5/v7 \"Next ${N} Steps\" prompt is pasted correctly when clicking Task Next.",
+    "Version bump: 3.78.0 → 3.79.0 (all version files synced)"
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-21T13:28:38Z",
+  "isLatest": false
+}
