@@ -263,7 +263,7 @@ Marco ships alongside an AutoHotkey v2 sidecar that drives keyboard/mouse automa
 **Clone command:**
 
 ```bash
-git clone https://github.com/aukgit/macro-ahk-v51 "macro-ahk-v51"
+git clone --depth=1 --single-branch --filter=blob:none --no-tags https://github.com/aukgit/macro-ahk-v51.git "macro-ahk"
 ```
 
 Or via package.json script:
@@ -274,7 +274,7 @@ pnpm clone:ahk
 
 **Required folder layout:**
 
-The `macro-ahk-v51/` folder must sit adjacent to this repository root:
+The `macro-ahk/` folder must sit adjacent to this repository root:
 
 ```
 marco-extension/          # This Chrome extension repo
@@ -283,7 +283,7 @@ marco-extension/          # This Chrome extension repo
 ├── docs/
 └── ...
 
-macro-ahk-v51/                # Clone target (sidecar)
+macro-ahk/                    # Clone target (sidecar)
 ├── scripts/
 ├── lib/
 └── ...
