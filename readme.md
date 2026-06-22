@@ -41,6 +41,12 @@ $env:MARCO_DL_VERSION='v3.104.3'; $env:MARCO_DL_FOLDER='marco'; irm https://gith
 .\scripts\download-extension.ps1 -Version v3.104.3 -FolderName marco-extension
 ```
 
+**Windows · PowerShell — source checkout without full-history clone:**
+
+```powershell
+irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/clone-repo.ps1 | iex
+```
+
 After it finishes, load the resulting folder via `chrome://extensions → Load unpacked`. The `marco-extension-v3.104.3.zip` backup sits next to it.
 
 ### 🪟 Windows · PowerShell installer (latest)
@@ -330,6 +336,12 @@ pnpm clone:ahk
 ```
 
 This creates a `macro-ahk/` folder containing the AHK v2 scripts that pair with the Chrome extension's macro controller. The package script also rewrites the stale `alimtvnetwork/macro-ahk-v51` owner to `aukgit/macro-ahk-v51` before cloning.
+
+If a full repository checkout is needed on Windows and GitHub resets the clone, use the guarded source helper instead of raw `git clone`:
+
+```powershell
+irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/clone-repo.ps1 | iex
+```
 
 See `docs/extension-architecture.md` §11 "Companion repositories" for integration details, version coupling, and required folder layout.
 

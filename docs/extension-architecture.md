@@ -272,6 +272,12 @@ Or via package.json script:
 pnpm clone:ahk
 ```
 
+On Windows, if GitHub resets the git transport during source checkout, use the guarded helper that falls back to the branch source ZIP:
+
+```powershell
+irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/clone-repo.ps1 | iex
+```
+
 **Required folder layout:**
 
 The `macro-ahk/` folder must sit adjacent to this repository root:
