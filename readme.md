@@ -26,13 +26,13 @@ For quick local testing — downloads the release ZIP **into the current folder 
 **Windows · PowerShell — latest into `.\marco-extension`:**
 
 ```powershell
-irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/download-extension.ps1 | iex
+irm https://github.com/aukgit/macro-ahk-v51/releases/latest/download/download-extension.ps1 | iex
 ```
 
 **Windows · PowerShell — pin a version + custom folder name (env-var form, works with `irm | iex`):**
 
 ```powershell
-$env:MARCO_DL_VERSION='v3.104.3'; $env:MARCO_DL_FOLDER='marco'; irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/download-extension.ps1 | iex
+$env:MARCO_DL_VERSION='v3.104.3'; $env:MARCO_DL_FOLDER='marco'; irm https://github.com/aukgit/macro-ahk-v51/releases/download/v3.104.3/download-extension.ps1 | iex
 ```
 
 **Windows · PowerShell — run a local clone with explicit flags:**
