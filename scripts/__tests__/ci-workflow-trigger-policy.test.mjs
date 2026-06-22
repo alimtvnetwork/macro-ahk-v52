@@ -22,6 +22,8 @@ const PING_WORKFLOW = resolve(REPO_ROOT, ".github/workflows/ping.yml");
 const AUDIT_RELEASES_WORKFLOW = resolve(REPO_ROOT, ".github/workflows/audit-releases.yml");
 const RELEASE_WATCHER_WORKFLOW = resolve(REPO_ROOT, ".github/workflows/release-watcher.yml");
 const RELEASE_WORKFLOW = resolve(REPO_ROOT, ".github/workflows/release.yml");
+const PACKAGE_JSON = resolve(REPO_ROOT, "package.json");
+const CLONE_AHK_SCRIPT = resolve(REPO_ROOT, "scripts/clone-ahk.mjs");
 
 /**
  * Naïve YAML top-level key extractor.  Only needs to recognise:
@@ -271,4 +273,19 @@ test("Release auditors require download-extension.ps1", () => {
 
     assert.match(auditSrc, /"download-extension\.ps1"/, "audit-releases.yml must require download-extension.ps1");
     assert.match(watcherSrc, /"download-extension\.ps1"/, "release-watcher.yml guard must require download-extension.ps1");
+});
+
+test("AHK sidecar clone is shallow and canonical-owner guarded", () => {
+    assert.ok(existsSync(PACKAGE_JSON), `File missing at ${PACKAGE_JSON}`);
+    assert.ok(existsSync(CLONE_AHK_SCRIPT), `File missing at ${CLONE_AHK_SCRIPT}`);
+
+    const pkg = JSON.parse(readFileSync(PACKAGE_JSON, "utf8"));
+    const script = readFileSync(CLONE_AHK_SCRIPT, "utf8");
+
+    assert.equal(pkg.scripts["clone:ahk"], "node scripts/clone-ahk.mjs", "clone:ahk must use the guarded helper, not raw git clone");
+    assert.match(script, /const CANONICAL_REPO = "aukgit\/macro-ahk-v51"/, "clone helper must use the canonical repo owner");
+    assert.match(script, /const STALE_REPO = "alimtvnetwork\/macro-ahk-v51"/, "clone helper must recognize the stale repo owner");
+    assert.match(script, /"--depth=1"/, "clone helper must use a shallow clone to avoid large transfers");
+    assert.match(script, /"--filter=blob:none"/, "clone helper must use partial clone filtering to reduce GitHub transfer size");
+    assert.match(script, /"--no-tags"/, "clone helper must avoid fetching tags for the sidecar clone");
 });
