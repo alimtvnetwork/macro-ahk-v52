@@ -62,6 +62,7 @@ jobs:
             "lovable-common-__VER__.zip"
             "lovable-owner-switch-__VER__.zip"
             "lovable-user-add-__VER__.zip"
+            "download-extension.ps1"
             "install.ps1"
             "install.sh"
             "VERSION.txt"
