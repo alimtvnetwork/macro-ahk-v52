@@ -20,6 +20,7 @@
 #   - lovable-dashboard-{VER}.zip  — standalone-scripts/lovable-dashboard/**
 #   - install.sh                   — Unified Bash installer (URL-pinned or latest)
 #   - download-extension.ps1       — Download-only PowerShell helper (latest/pinned release asset)
+#   - clone-repo.ps1               — Shallow source checkout helper with ZIP fallback
 #   - install.ps1                  — Unified PowerShell installer (URL-pinned or latest)
 #   - VERSION.txt                  — Plain-text version identifier
 #   - changelog.md                 — Project changelog (full)
@@ -574,6 +575,7 @@ jobs:
           cp scripts/install.sh  release-assets/install.sh
           cp scripts/install.ps1 release-assets/install.ps1
           cp scripts/download-extension.ps1 release-assets/download-extension.ps1
+          cp scripts/clone-repo.ps1 release-assets/clone-repo.ps1
           chmod +x release-assets/install.sh
 
           # ── VERSION.txt ──
@@ -700,6 +702,7 @@ jobs:
             echo "| \`prompts-${VER}.zip\` | Prompt templates |"
             echo "| \`changelog.md\` | Full project changelog |"
             echo "| \`download-extension.ps1\` | Download-only PowerShell helper for the extension ZIP |"
+            echo "| \`clone-repo.ps1\` | Shallow source checkout helper with ZIP fallback |"
             echo "| \`install.ps1\` | Unified PowerShell installer (URL-pinned to this release when fetched here) |"
             echo "| \`install.sh\` | Unified Bash installer (URL-pinned to this release when fetched here) |"
             echo "| \`VERSION.txt\` | Version identifier |"
@@ -789,6 +792,7 @@ jobs:
             "release-assets/lovable-user-add-${VER}.zip:1024"
             "release-assets/lovable-dashboard-${VER}.zip:1024"
             "release-assets/download-extension.ps1:512"
+            "release-assets/clone-repo.ps1:512"
             "release-assets/install.ps1:512"
             "release-assets/install.sh:512"
             "release-assets/VERSION.txt:1"
@@ -888,6 +892,7 @@ jobs:
             "lovable-user-add-${VER}.zip"
             "lovable-dashboard-${VER}.zip"
             "download-extension.ps1"
+            "clone-repo.ps1"
             "install.ps1"
             "install.sh"
             "VERSION.txt"

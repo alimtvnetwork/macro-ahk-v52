@@ -128,6 +128,10 @@ jobs:
             if [[ "${TAG_KEY}" > "${DOWNLOAD_HELPER_KEY}" || "${TAG_KEY}" == "${DOWNLOAD_HELPER_KEY}" ]]; then
               REQUIRED_FOR_TAG+=("download-extension.ps1")
             fi
+            CLONE_HELPER_KEY="$(version_key "v3.104.4")"
+            if [[ "${TAG_KEY}" > "${CLONE_HELPER_KEY}" || "${TAG_KEY}" == "${CLONE_HELPER_KEY}" ]]; then
+              REQUIRED_FOR_TAG+=("clone-repo.ps1")
+            fi
             for PAT in "${REQUIRED_FOR_TAG[@]}"; do
               EXPECTED="${PAT//__VER__/$VER}"
               if ! echo "$ASSETS" | grep -qx "$EXPECTED"; then

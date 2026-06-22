@@ -215,6 +215,7 @@ jobs:
             "lovable-user-add-${VER}.zip"
             "lovable-dashboard-${VER}.zip"
             "download-extension.ps1"
+            "clone-repo.ps1"
             "install.ps1"
             "install.sh"
             "VERSION.txt"
