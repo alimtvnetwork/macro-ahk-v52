@@ -887,6 +887,7 @@ jobs:
             "lovable-owner-switch-${VER}.zip"
             "lovable-user-add-${VER}.zip"
             "lovable-dashboard-${VER}.zip"
+            "download-extension.ps1"
             "install.ps1"
             "install.sh"
             "VERSION.txt"
