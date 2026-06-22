@@ -19,6 +19,7 @@
 #   - lovable-user-add-{VER}.zip   — standalone-scripts/lovable-user-add/**
 #   - lovable-dashboard-{VER}.zip  — standalone-scripts/lovable-dashboard/**
 #   - install.sh                   — Unified Bash installer (URL-pinned or latest)
+#   - download-extension.ps1       — Download-only PowerShell helper (latest/pinned release asset)
 #   - install.ps1                  — Unified PowerShell installer (URL-pinned or latest)
 #   - VERSION.txt                  — Plain-text version identifier
 #   - changelog.md                 — Project changelog (full)
@@ -572,6 +573,7 @@ jobs:
           # own download URL when fetched from /releases/download/{VER}/.
           cp scripts/install.sh  release-assets/install.sh
           cp scripts/install.ps1 release-assets/install.ps1
+          cp scripts/download-extension.ps1 release-assets/download-extension.ps1
           chmod +x release-assets/install.sh
 
           # ── VERSION.txt ──
@@ -697,6 +699,7 @@ jobs:
             echo "| \`lovable-dashboard-${VER}.zip\` | Lovable dashboard plugin |"
             echo "| \`prompts-${VER}.zip\` | Prompt templates |"
             echo "| \`changelog.md\` | Full project changelog |"
+            echo "| \`download-extension.ps1\` | Download-only PowerShell helper for the extension ZIP |"
             echo "| \`install.ps1\` | Unified PowerShell installer (URL-pinned to this release when fetched here) |"
             echo "| \`install.sh\` | Unified Bash installer (URL-pinned to this release when fetched here) |"
             echo "| \`VERSION.txt\` | Version identifier |"
