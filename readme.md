@@ -320,7 +320,7 @@ Works in **Chrome**, **Edge**, **Brave**, **Arc**, and other Chromium browsers.
 Marco ships alongside an AutoHotkey sidecar that drives keyboard/mouse automation on Windows. Clone it next to this repo:
 
 ```bash
-git clone https://github.com/aukgit/macro-ahk-v51 "macro-ahk-v51"
+git clone --depth=1 --single-branch --filter=blob:none --no-tags https://github.com/aukgit/macro-ahk-v51.git "macro-ahk"
 ```
 
 Or use the package.json script:
@@ -329,7 +329,7 @@ Or use the package.json script:
 pnpm clone:ahk
 ```
 
-This creates a `macro-ahk-v51/` folder containing the AHK v2 scripts that pair with the Chrome extension's macro controller.
+This creates a `macro-ahk/` folder containing the AHK v2 scripts that pair with the Chrome extension's macro controller. The package script also rewrites the stale `alimtvnetwork/macro-ahk-v51` owner to `aukgit/macro-ahk-v51` before cloning.
 
 See `docs/extension-architecture.md` §11 "Companion repositories" for integration details, version coupling, and required folder layout.
 
