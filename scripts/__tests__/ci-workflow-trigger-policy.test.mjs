@@ -246,8 +246,18 @@ test("Release pipeline publishes download-extension.ps1 as a first-class asset",
     );
     assert.match(
         src,
+        /cp scripts\/clone-repo\.ps1 release-assets\/clone-repo\.ps1/,
+        "release.yml must upload clone-repo.ps1 so users can avoid full-history source clones",
+    );
+    assert.match(
+        src,
         /release-assets\/download-extension\.ps1:512/,
         "release.yml required-asset gate must include download-extension.ps1",
+    );
+    assert.match(
+        src,
+        /release-assets\/clone-repo\.ps1:512/,
+        "release.yml required-asset gate must include clone-repo.ps1",
     );
     assert.match(
         src,
@@ -274,7 +284,9 @@ test("Release auditors require download-extension.ps1", () => {
     const watcherSrc = readFileSync(RELEASE_WATCHER_WORKFLOW, "utf8");
 
     assert.match(auditSrc, /"download-extension\.ps1"/, "audit-releases.yml must require download-extension.ps1");
+    assert.match(auditSrc, /"clone-repo\.ps1"/, "audit-releases.yml must require clone-repo.ps1 for new releases");
     assert.match(watcherSrc, /"download-extension\.ps1"/, "release-watcher.yml guard must require download-extension.ps1");
+    assert.match(watcherSrc, /"clone-repo\.ps1"/, "release-watcher.yml guard must require clone-repo.ps1");
 });
 
 test("AHK sidecar clone is shallow and canonical-owner guarded", () => {
