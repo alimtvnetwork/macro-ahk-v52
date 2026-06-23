@@ -71,7 +71,15 @@ function Install-ExtensionDependencies {
         Write-Host "  [WARN] Missing packages: $($missingPackages -join ', ')" -ForegroundColor Yellow
         Write-Host "  Auto-installing dependencies..." -ForegroundColor Yellow
         $effectiveInstallNow = Get-EffectivePnpmInstallCommand $script:EffectiveInstallCommand $script:PnpmMajor
-        Invoke-Expression $effectiveInstallNow
+        $previousNodeOptions = $env:NODE_OPTIONS
+        if ([string]::IsNullOrWhiteSpace($env:NODE_OPTIONS) -or $env:NODE_OPTIONS -notmatch '--max-old-space-size') {
+            $env:NODE_OPTIONS = (@($env:NODE_OPTIONS, "--max-old-space-size=8192") | Where-Object { $_ }) -join ' '
+        }
+        try {
+            Invoke-Expression $effectiveInstallNow
+        } finally {
+            $env:NODE_OPTIONS = $previousNodeOptions
+        }
         if ($LASTEXITCODE -ne 0) {
             Write-Host "  ERROR: Auto-install failed" -ForegroundColor Red
             exit 2
