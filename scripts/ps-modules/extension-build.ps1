@@ -32,7 +32,19 @@ function Install-ExtensionDependencies {
         Write-Host "  Command:  $effectiveInstallNow" -ForegroundColor DarkCyan
         Write-Host "  Cwd:      $(Get-Location)" -ForegroundColor DarkCyan
         Write-Host "  Linker:   $($script:EffectiveNodeLinker)" -ForegroundColor DarkCyan
-        Invoke-Expression $effectiveInstallNow
+
+        # Bump Node heap to avoid OOM during pnpm install (default ~4GB on Win x64
+        # is insufficient with cross-drive copy mode + large standalone workspace).
+        $previousNodeOptions = $env:NODE_OPTIONS
+        if ([string]::IsNullOrWhiteSpace($env:NODE_OPTIONS) -or $env:NODE_OPTIONS -notmatch '--max-old-space-size') {
+            $env:NODE_OPTIONS = (@($env:NODE_OPTIONS, "--max-old-space-size=8192") | Where-Object { $_ }) -join ' '
+            Write-Host "  Heap:     NODE_OPTIONS=$($env:NODE_OPTIONS)" -ForegroundColor DarkCyan
+        }
+        try {
+            Invoke-Expression $effectiveInstallNow
+        } finally {
+            $env:NODE_OPTIONS = $previousNodeOptions
+        }
         if ($LASTEXITCODE -ne 0) {
             Write-Host "  ERROR: Install failed" -ForegroundColor Red
             exit 2
