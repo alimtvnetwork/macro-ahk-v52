@@ -19,7 +19,7 @@ const instruction: ProjectInstruction<EmptySettings> = {
     SchemaVersion: "1.0",
     Name: "lovable-owner-switch",
     DisplayName: "Lovable Owner Switch",
-    Version: "3.104.3",
+    Version: "3.104.4",
     Description: "Bulk-switch Lovable workspace ownership from a CSV of LoginEmail → OwnerEmail rows.",
     World: InjectionWorld.Main,
     IsGlobal: false,
