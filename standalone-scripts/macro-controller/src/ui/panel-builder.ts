@@ -48,7 +48,7 @@ import {
   registerKeyboardHandlers,
 } from './panel-sections';
 import { startRedockObserver } from './redock-observer';
-import { buildRepeatPanelSection, mountRepeatInlineStrip } from './repeat-loop-ui';
+import { buildRepeatPanelSection } from './repeat-loop-ui';
 import { buildTaskSplitterPanelSection } from './task-splitter-ui';
 import { mountNextInlineStrip } from './next-inline-ui';
 import { mountTaskQueueReinjectionToast } from './task-queue-reinjection-toast';
@@ -246,8 +246,6 @@ export function createUI(deps: PanelBuilderDeps): void {
   // Record indicator (fixed position)
   document.body.appendChild(createRecordIndicator());
 
-  // Inline Repeat strip above Lovable's chat textarea (Ambiguity 126)
-  mountRepeatInlineStrip();
   // Inline Next strip — Steps + Delay, drains splitter queue with fixed delay
   mountNextInlineStrip(taskNextDeps);
 
