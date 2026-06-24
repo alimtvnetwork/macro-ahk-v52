@@ -1,0 +1,13 @@
+{
+  "version": "4.4.0",
+  "branch": "release/v4.4.0",
+  "sourceBranch": "main",
+  "tag": "v4.4.0",
+  "assets": [],
+  "changelog": [
+    "Plan and Next inline strips above the chat box now have a ▾/▸ collapse chevron on the right (click chevron or the label to toggle). Collapsed state persists across reloads via localStorage."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "isLatest": true
+}

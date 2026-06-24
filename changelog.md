@@ -1,5 +1,18 @@
 # Changelog
 
+## [v4.4.0] — 2026-06-24 Collapsible Plan / Next inline strips
+
+### Changed
+- Added a ▾/▸ collapse chevron to the right of both the 📋 Plan and ▶ Next inline strips above the chat box. Clicking the chevron — or the strip label — collapses/expands the controls.
+- Collapsed state persists across reloads in `localStorage` (`marco-next-inline-prefs` → `planCollapsed`, `nextCollapsed`).
+
+### Internal
+- Version pins moved 4.3.0 → 4.4.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, and the prompts bundle metadata.
+
+---
+
+
+
 ## [v4.3.0] — 2026-06-24 Plan strip: one-click presets + drop-up "More"
 
 ### Changed
