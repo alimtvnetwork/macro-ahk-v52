@@ -1,5 +1,13 @@
 # Changelog
 
+## [v4.0.0] — 2026-06-24
+
+### Changed
+- **Breaking:** Major version bump to v4.0.0.
+- Split-task inline UI under ▶ Next: cleaned styling, removed Repeat strip from chat box.
+- Lint cleanup in `next-inline-ui.ts` (extracted CSS hint constant).
+
+
 All notable changes to the Marco Chrome Extension are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
