@@ -153,6 +153,22 @@ function buildControl(deps: TaskNextDeps): HTMLElement {
   label.style.cssText = 'font-weight:600;color:' + cPrimaryLight + ';';
   root.appendChild(label);
 
+  const splitBtn = document.createElement('button');
+  splitBtn.type = 'button';
+  splitBtn.textContent = '✂ Split';
+  splitBtn.title = 'Read the chat box text and split it into the chosen number of steps';
+  splitBtn.style.cssText = 'padding:4px 10px;border:1px solid rgba(217,119,6,0.5);border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#fff;background:linear-gradient(135deg,#f59e0b 0%,#d97706 50%,#b45309 100%);box-shadow:0 2px 6px rgba(217,119,6,0.35), inset 0 1px 0 rgba(255,255,255,0.18);';
+  splitBtn.onclick = function () {
+    if (taskNextState.running || isSplitterRunning()) {
+      showPasteToast('⏸ Another run is in progress', true);
+      return;
+    }
+    void triggerSplitFromInline(state.steps);
+  };
+  root.appendChild(splitBtn);
+
+
+
   const stepsLbl = document.createElement('span'); stepsLbl.textContent = 'steps'; stepsLbl.style.cssText = 'font-size:10px;opacity:0.8;';
   root.appendChild(stepsLbl);
 
