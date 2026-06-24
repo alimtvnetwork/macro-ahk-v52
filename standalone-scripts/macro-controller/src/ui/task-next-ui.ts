@@ -13,6 +13,7 @@ import { showPasteToast, pasteIntoEditor } from './prompt-utils';
 import { cPanelBg, cPanelFg, cPrimary, cPrimaryLight } from '../shared-state';
 import { logError } from '../error-utils';
 import { Label } from '../types';
+import { getPersistentTaskQueue, resolveTaskQueueProjectId } from '../queue-control/task-queue-project-store';
 /** Settings shape for Task Next */
 export interface TaskNextSettings {
   [key: string]: TaskNextSettingValue;
@@ -182,20 +183,64 @@ export function findAddToTasksButton(): HTMLElement | null {
   return findButtonByXPath() || findButtonBySelectors();
 }
 
+type TaskNextPromptSource = 'queue' | 'legacy';
 
+interface TaskNextPromptSelection {
+  readonly text: string;
+  readonly source: TaskNextPromptSource;
+  readonly remaining: number;
+}
 
+interface TaskNextPromptResult {
+  readonly selection: TaskNextPromptSelection | null;
+  readonly failed: boolean;
+}
 
-export function runTaskNextLoop(deps: TaskNextDeps, count: number) {
-  if (taskNextState.running) {
-    log('Task Next: Already running', 'warn');
-    return;
+async function dequeueTaskNextPrompt(): Promise<TaskNextPromptResult> {
+  try {
+    const projectId = resolveTaskQueueProjectId();
+    const queue = getPersistentTaskQueue();
+    const item = await queue.dequeue(projectId);
+    if (!item) return { selection: null, failed: false };
+    const remaining = await queue.count(projectId);
+    log('Task Next: dequeued splitter task for project ' + projectId + ' (' + remaining + ' left)', 'info');
+    return { selection: { text: item.text, source: 'queue', remaining }, failed: false };
+  } catch (caught: CaughtError) {
+    logError('Task Next queue', 'dequeue failed before single Next injection; aborting fallback', caught);
+    showPasteToast('❌ Task Next: queue read failed', true);
+    return { selection: null, failed: true };
   }
+}
 
+function selectLegacyTaskNextPrompt(deps: TaskNextDeps): TaskNextPromptSelection | null {
   const prompt = findNextTasksPrompt(deps);
-
   if (!prompt || !prompt.text) {
     logError('Task Next', '"Next Tasks" prompt not found — aborting');
     showPasteToast('❌ "Next Tasks" prompt not found', true);
+    return null;
+  }
+  return { text: prompt.text, source: 'legacy', remaining: 0 };
+}
+
+async function selectTaskNextPrompt(deps: TaskNextDeps): Promise<TaskNextPromptResult> {
+  const queued = await dequeueTaskNextPrompt();
+  if (queued.failed || queued.selection) return queued;
+  return { selection: selectLegacyTaskNextPrompt(deps), failed: false };
+}
+
+function reportTaskNextPaste(selection: TaskNextPromptSelection): void {
+  if (selection.source === 'queue') {
+    showPasteToast('⏭ Task Next: pasted queued task (' + selection.remaining + ' left) — click Submit to send', false);
+    return;
+  }
+  showPasteToast('⏭ Task Next: pasted — click Submit to send', false);
+}
+
+
+
+export async function runTaskNextLoop(deps: TaskNextDeps, count: number): Promise<void> {
+  if (taskNextState.running) {
+    log('Task Next: Already running', 'warn');
     return;
   }
 
@@ -207,9 +252,13 @@ export function runTaskNextLoop(deps: TaskNextDeps, count: number) {
   if (requested > 1) {
     log('Task Next: multi-run blocked; pasting once only. Use Repeat Start for repeats.', 'warn');
   }
+  const result = await selectTaskNextPrompt(deps);
+  if (result.failed || !result.selection) {
+    return;
+  }
 
   const promptsCfg = deps.getPromptsConfig();
-  const outcome = pasteIntoEditor(prompt.text, promptsCfg, deps.getByXPath);
+  const outcome = pasteIntoEditor(result.selection.text, promptsCfg, deps.getByXPath);
 
   if (String(outcome) === 'failed') {
     logError('Task Next', 'Failed to inject prompt');
@@ -217,8 +266,8 @@ export function runTaskNextLoop(deps: TaskNextDeps, count: number) {
     return;
   }
 
-  log('Task Next: pasted prompt (no auto-submit)', 'info');
-  showPasteToast('⏭ Task Next: pasted — click Submit to send', false);
+  log('Task Next: pasted ' + result.selection.source + ' prompt (no auto-submit)', 'info');
+  reportTaskNextPaste(result.selection);
 }
 
 /**
