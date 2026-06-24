@@ -50,6 +50,7 @@ import {
 import { startRedockObserver } from './redock-observer';
 import { buildRepeatPanelSection, mountRepeatInlineStrip } from './repeat-loop-ui';
 import { buildTaskSplitterPanelSection } from './task-splitter-ui';
+import { mountNextInlineStrip } from './next-inline-ui';
 import { mountTaskQueueReinjectionToast } from './task-queue-reinjection-toast';
 import { createSummaryBar, type SummaryBarHandle } from './summary-bar/component';
 import { computeDashboardSummary, computeSummaryDetails, type DisplayKindResolver } from './summary-bar';
