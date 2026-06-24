@@ -314,18 +314,33 @@ function buildControl(deps: TaskNextDeps): HTMLElement {
 // ── Mount above chat box ────────────────────────────────────────────
 
 const INLINE_ID = 'marco-next-inline';
+const SPLIT_ID = 'marco-split-inline';
 
 function tryMountInline(deps: TaskNextDeps): boolean {
-  if (document.getElementById(INLINE_ID)) return true;
+  if (document.getElementById(INLINE_ID) && document.getElementById(SPLIT_ID)) return true;
   const target = findPasteTarget(getPromptsConfig(), (xp) => getByXPath(xp) as Element | null);
   if (!target) return false;
   const host = (target.closest && target.closest('form')) || target.parentElement;
   if (!host || !host.parentElement) return false;
-  const strip = buildControl(deps);
-  strip.id = INLINE_ID;
-  strip.style.margin = '4px 0';
-  host.parentElement.insertBefore(strip, host);
-  log('NextInline: strip mounted above chat box', 'info');
+
+  if (!document.getElementById(INLINE_ID)) {
+    const strip = buildControl(deps);
+    strip.id = INLINE_ID;
+    strip.style.margin = '4px 0 2px';
+    host.parentElement.insertBefore(strip, host);
+  }
+  if (!document.getElementById(SPLIT_ID)) {
+    const splitStrip = buildSplitStrip();
+    splitStrip.id = SPLIT_ID;
+    splitStrip.style.margin = '0 0 4px';
+    const nextStrip = document.getElementById(INLINE_ID);
+    if (nextStrip && nextStrip.parentElement) {
+      nextStrip.parentElement.insertBefore(splitStrip, nextStrip.nextSibling);
+    } else {
+      host.parentElement.insertBefore(splitStrip, host);
+    }
+  }
+  log('NextInline: strips mounted (next + split) above chat box', 'info');
   return true;
 }
 
@@ -336,7 +351,8 @@ export function mountNextInlineStrip(deps: TaskNextDeps): void {
   if (_observer) return;
   _observer = new MutationObserver(function () {
     if (typeof document === 'undefined' || !document.body) return;
-    if (!document.getElementById(INLINE_ID)) tryMountInline(deps);
+    if (!document.getElementById(INLINE_ID) || !document.getElementById(SPLIT_ID)) tryMountInline(deps);
   });
   _observer.observe(document.body, { childList: true, subtree: true });
 }
+
