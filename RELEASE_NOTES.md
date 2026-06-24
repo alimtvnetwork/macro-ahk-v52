@@ -1,29 +1,16 @@
-# Marco Chrome Extension v4.3.0
+# Marco Chrome Extension v4.4.0
 
 ## Changed
 
-- **📋 Plan inline strip — one-click presets.** The highlighted preset
-  numbers (5, 10, 12, 15, 30) render directly in the strip and
-  **clicking a number immediately appends `Plan ${N}`** to the chat
-  box. No more "type a number → click Plan" two-step.
-
-- **`More ▴` drop-up.** A new drop-up button opens a 6-column grid of
-  every plan size (5 through 200). Clicking a number appends the plan
-  and auto-closes the panel. Click outside to dismiss.
-
-- The redundant Plan steps `<input>` was removed — the preset buttons
-  and drop-up are the only entry points.
+- **Collapse chevrons on inline strips.** The 📋 Plan and ▶ Next
+  strips above the chat box now show a ▾/▸ chevron on the right edge.
+  Click the chevron — or the strip label — to collapse/expand. State
+  persists across reloads in `localStorage` under
+  `marco-next-inline-prefs` (`planCollapsed`, `nextCollapsed`).
 
 ## Internal
 
-- Version pins bumped 4.2.0 → 4.3.0 across all manifests,
-  `instruction.ts` files, `shared-state.ts`, the prompts bundle
-  metadata, and the root readme.
-
-## Verification
-
-- Open Lovable → Plan strip shows: `📋 Plan · click a number to add ·
-  [5] [10] [12] [15] [30] · More ▴`.
-- Click `[10]` → toast confirms `Plan 10` appended to chat box.
-- Click `More ▴` → drop-up appears above with all sizes; click `45` →
-  appends and closes.
+- Version pins bumped 4.3.0 → 4.4.0 across `version.json`,
+  `manifest.json`, `src/shared/constants.ts`, all
+  `standalone-scripts/**/instruction.ts`, `shared-state.ts`,
+  `payment-banner-hider/src/index.ts`, and the prompts bundle metadata.
