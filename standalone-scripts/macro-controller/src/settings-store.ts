@@ -67,6 +67,13 @@ export interface SettingsOverrides {
    */
   creditFetchDelayMs?: number;
 
+  /** Task Splitter: auto-enqueue parsed subtasks after split. Default true. */
+  splitterAutoEnqueue?: boolean;
+  /** Persistent task-queue max size per project. Default 200. */
+  maxQueueSize?: number;
+
+
+
 
   /**
    * Per-workspace lifecycle overrides keyed by workspace id (string UUID).
