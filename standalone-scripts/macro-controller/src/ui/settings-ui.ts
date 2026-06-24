@@ -298,6 +298,23 @@ function _importOverridesJson(
   void generalResult;
 }
 
+function _applyTimingInputOverrides(inputs: NonNullable<TimingPanelResult['inputs']>, next: Partial<SettingsOverrides>): void {
+  if (inputs.nextSubmissionDelaySeconds) {
+    next.nextSubmissionDelaySeconds = parseInt(inputs.nextSubmissionDelaySeconds.value, 10);
+  }
+  if (inputs.creditPollIntervalSeconds) {
+    next.creditPollIntervalSeconds = parseInt(inputs.creditPollIntervalSeconds.value, 10);
+  }
+  if (inputs.maxQueueSize) {
+    const v = parseInt(inputs.maxQueueSize.value, 10);
+    if (!isNaN(v) && v > 0) next.maxQueueSize = v;
+  }
+  if (inputs.creditFetchDelayMs) {
+    const v = parseInt(inputs.creditFetchDelayMs.value, 10);
+    if (!isNaN(v)) next.creditFetchDelayMs = Math.max(500, Math.min(15000, v));
+  }
+}
+
 async function _persistOverrideToggles(generalResult: GeneralPanelResult, timingResult: TimingPanelResult): Promise<void> {
   const current = getSettingsOverrides() as SettingsOverrides;
   const next: Partial<SettingsOverrides> = { ...current };
@@ -316,21 +333,9 @@ async function _persistOverrideToggles(generalResult: GeneralPanelResult, timing
   }
 
   if (timingResult.inputs) {
-    if (timingResult.inputs.nextSubmissionDelaySeconds) {
-      next.nextSubmissionDelaySeconds = parseInt(timingResult.inputs.nextSubmissionDelaySeconds.value, 10);
-    }
-    if (timingResult.inputs.creditPollIntervalSeconds) {
-      next.creditPollIntervalSeconds = parseInt(timingResult.inputs.creditPollIntervalSeconds.value, 10);
-    }
-    if (timingResult.inputs.maxQueueSize) {
-      const v = parseInt(timingResult.inputs.maxQueueSize.value, 10);
-      if (!isNaN(v) && v > 0) next.maxQueueSize = v;
-    }
-    if (timingResult.inputs.creditFetchDelayMs) {
-      const v = parseInt(timingResult.inputs.creditFetchDelayMs.value, 10);
-      if (!isNaN(v)) next.creditFetchDelayMs = Math.max(500, Math.min(15000, v));
-    }
+    _applyTimingInputOverrides(timingResult.inputs, next);
   }
+
 
 
   await saveSettingsOverrides(next);
