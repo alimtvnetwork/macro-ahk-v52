@@ -1,0 +1,15 @@
+{
+  "version": "4.2.0",
+  "branch": "release/v4.2.0",
+  "sourceBranch": "main",
+  "tag": "v4.2.0",
+  "assets": [],
+  "changelog": [
+    "Inline chat strips reordered: 📋 Plan (top) → ▶ Next (middle) → 🔁 Repeat (bottom, closest to the chat box). The action buttons stay right-aligned in a consistent vertical stack, matching the natural workflow (plan first, queue next steps, then repeat-loop).",
+    "Root readme.md install snippets and pinned-version badges bumped from v4.0.0 to v4.2.0.",
+    "Version pins synced to 4.2.0 across manifest, constants, every standalone-script instruction.ts, shared-state, payment-banner-hider, and the prompts bundle metadata."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "isLatest": true
+}
