@@ -575,3 +575,23 @@ function buildControl(): HTMLElement {
 export function buildTaskSplitterPanelSection(): HTMLElement {
   return buildControl();
 }
+
+/**
+ * External trigger — used by the inline "✂ Split" button above the chat box.
+ * Updates the step count, then runs the same break-into-steps flow as the
+ * panel's "✂ Break into steps" button.
+ */
+export async function triggerSplitFromInline(stepCount: number): Promise<void> {
+  const n = clamp(stepCount, STEP_MIN, STEP_MAX);
+  if (n !== state.stepCount) {
+    state.stepCount = n;
+    persist();
+    notify();
+  }
+  await breakIntoSteps();
+}
+
+export function isSplitterRunning(): boolean {
+  return state.running;
+}
+
