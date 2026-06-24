@@ -27,6 +27,7 @@ import { cPanelFg, cPrimaryLight, cSectionBg } from '../shared-state';
 const STEP_PRESETS = [2, 5, 10, 20] as const;
 const DELAY_PRESETS_SEC = [5, 10, 15, 30, 60] as const;
 const STORAGE_KEY = 'marco-next-inline-prefs';
+const CSS_HINT_LABEL = 'font-size:10px;opacity:0.8;';
 
 interface NextState {
   steps: number;
@@ -155,7 +156,7 @@ function buildSplitStrip(): HTMLElement {
 
   const stepsLbl = document.createElement('span');
   stepsLbl.textContent = 'into';
-  stepsLbl.style.cssText = 'font-size:10px;opacity:0.8;';
+  stepsLbl.style.cssText = CSS_HINT_LABEL;
   root.appendChild(stepsLbl);
 
   const stepsInput = document.createElement('input');
@@ -167,7 +168,7 @@ function buildSplitStrip(): HTMLElement {
 
   const unitLbl = document.createElement('span');
   unitLbl.textContent = 'steps';
-  unitLbl.style.cssText = 'font-size:10px;opacity:0.8;';
+  unitLbl.style.cssText = CSS_HINT_LABEL;
   root.appendChild(unitLbl);
 
   for (const n of [2, 5, 10, 20] as const) {
@@ -198,7 +199,7 @@ function buildSplitStrip(): HTMLElement {
 
 
 function buildStepsSection(root: HTMLElement): void {
-  const stepsLbl = document.createElement('span'); stepsLbl.textContent = 'steps'; stepsLbl.style.cssText = 'font-size:10px;opacity:0.8;';
+  const stepsLbl = document.createElement('span'); stepsLbl.textContent = 'steps'; stepsLbl.style.cssText = CSS_HINT_LABEL;
   root.appendChild(stepsLbl);
   const stepsInput = document.createElement('input');
   stepsInput.type = 'number'; stepsInput.min = '1'; stepsInput.max = '100';
@@ -220,7 +221,7 @@ function buildStepsSection(root: HTMLElement): void {
 }
 
 function buildDelaySection(root: HTMLElement): void {
-  const delayLbl = document.createElement('span'); delayLbl.textContent = 'delay'; delayLbl.style.cssText = 'font-size:10px;opacity:0.8;';
+  const delayLbl = document.createElement('span'); delayLbl.textContent = 'delay'; delayLbl.style.cssText = CSS_HINT_LABEL;
   root.appendChild(delayLbl);
   const delayInput = document.createElement('input');
   delayInput.type = 'number'; delayInput.min = '1'; delayInput.max = '3600';
