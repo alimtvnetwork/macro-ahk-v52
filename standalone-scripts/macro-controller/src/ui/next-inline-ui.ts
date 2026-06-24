@@ -227,7 +227,11 @@ function buildStepsSection(root: HTMLElement): void {
   for (const n of STEP_PRESETS) {
     const b = document.createElement('button');
     b.type = 'button'; b.textContent = String(n); b.title = 'Set step count to ' + n;
-    b.style.cssText = 'padding:2px 6px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:10px;';
+    const hi = STEP_PRESETS_HIGHLIGHT.has(n);
+    const bg = hi ? 'rgba(124,58,237,0.55)' : 'rgba(124,58,237,0.15)';
+    const bd = hi ? '1px solid rgba(124,58,237,0.85)' : '1px solid rgba(124,58,237,0.3)';
+    const fw = hi ? '700' : '500';
+    b.style.cssText = 'padding:2px 6px;background:' + bg + ';border:' + bd + ';border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:10px;font-weight:' + fw + ';';
     b.onclick = function () { state.steps = n; stepsInput.value = String(n); persist(); notify(); };
     root.appendChild(b);
   }
