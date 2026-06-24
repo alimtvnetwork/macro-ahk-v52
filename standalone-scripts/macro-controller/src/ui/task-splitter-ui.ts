@@ -16,7 +16,7 @@
 
 import { log } from '../logging';
 import { logError } from '../error-utils';
-import { showPasteToast, pasteIntoEditor } from './prompt-utils';
+import { showPasteToast, pasteIntoEditor, findPasteTarget } from './prompt-utils';
 import { getPromptsConfig } from './prompt-manager';
 import { getByXPath, isReturnButtonVisible } from '../xpath-utils';
 import { findAddToTasksButton } from './task-next-ui';
@@ -242,16 +242,26 @@ async function waitForCompletion(maxMs: number): Promise<void> {
 
 // ── actions ─────────────────────────────────────────────────────────
 
+function readEditorText(): string {
+  try {
+    const target = findPasteTarget(getPromptsConfig(), (xp) => getByXPath(xp) as Element | null);
+    if (!target) return '';
+    if (target instanceof HTMLTextAreaElement || target instanceof HTMLInputElement) return target.value || '';
+    return (target.textContent || '');
+  } catch (e) { log('TaskSplitter: readEditorText failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); return ''; }
+}
+
 async function breakIntoSteps(): Promise<void> {
   if (state.running) {
     showPasteToast('⏸ Task Splitter is already running', true);
     return;
   }
-  const text = state.bigText.trim();
+  const text = readEditorText().trim();
   if (!text) {
-    showPasteToast('❌ Task Splitter: paste an instruction first', true);
+    showPasteToast('❌ Task Splitter: type your instruction in the Lovable chat box first', true);
     return;
   }
+  state.bigText = text;
   state.running = true;
   state.cancelled = false;
   notify();
@@ -456,14 +466,12 @@ function buildControl(): HTMLElement {
   const body = document.createElement('div');
   body.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
 
-  // Textarea
-  const ta = document.createElement('textarea');
-  ta.placeholder = 'Paste one long instruction here…';
-  ta.rows = 3;
-  ta.value = state.bigText;
-  ta.style.cssText = 'width:100%;padding:6px 8px;background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';font-size:11px;box-sizing:border-box;resize:vertical;font-family:inherit;';
-  ta.oninput = function () { state.bigText = ta.value; persist(); };
-  body.appendChild(ta);
+  // Hint — text is read live from Lovable's own chat box (no second editor).
+  const hint = document.createElement('div');
+  hint.textContent = '↳ Reads the instruction directly from the Lovable chat box.';
+  hint.style.cssText = 'font-size:10px;opacity:0.7;font-style:italic;';
+  body.appendChild(hint);
+
 
   // Row 1: N + Delay
   const row1 = document.createElement('div');
@@ -534,7 +542,6 @@ function buildControl(): HTMLElement {
   const render = (): void => {
     body.style.display = state.collapsed ? 'none' : 'flex';
     chevron.textContent = state.collapsed ? '▸' : '▾';
-    ta.disabled = state.running;
     nInput.disabled = state.running;
     nInput.value = String(state.stepCount);
     dSel.disabled = state.running;

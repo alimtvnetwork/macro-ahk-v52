@@ -196,7 +196,7 @@ interface TaskNextPromptResult {
   readonly failed: boolean;
 }
 
-async function dequeueTaskNextPrompt(): Promise<TaskNextPromptResult> {
+export async function dequeueTaskNextPrompt(): Promise<TaskNextPromptResult> {
   try {
     const projectId = resolveTaskQueueProjectId();
     const queue = getPersistentTaskQueue();
@@ -332,7 +332,7 @@ function tryTaskNextSubmitButton(TAG: string): boolean {
   }
 }
 
-function dispatchTaskNextSubmit(): boolean {
+export function dispatchTaskNextSubmit(): boolean {
   const TAG = 'Task Next';
   if (typeof document === 'undefined' || !document.body) {
     showPasteToast('❌ ' + TAG + ': submit aborted — document not ready', true);
