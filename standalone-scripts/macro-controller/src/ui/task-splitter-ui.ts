@@ -632,4 +632,40 @@ export function isSplitterRunning(): boolean {
   return state.running;
 }
 
+/**
+ * Plan-paste trigger — appends the `Plan ${N}` library prompt onto whatever
+ * text is currently in the Lovable chat box. Does NOT submit. The user
+ * reviews/edits, then presses Send themselves.
+ */
+export async function triggerPlanPasteFromInline(stepCount: number): Promise<void> {
+  const n = clamp(stepCount, 2, 200);
+  if (state.running) {
+    showPasteToast('⏸ Task Splitter is already running', true);
+    return;
+  }
+  const planText = resolvePlanPrompt(n);
+  if (!planText) {
+    showPasteToast('❌ Plan: "Plan ${N}" prompt not found in library', true);
+    logError('TaskSplitter', 'plan-steps prompt missing (n=' + n + ')');
+    return;
+  }
+  const existing = readEditorText();
+  const combined = existing.trim().length > 0
+    ? existing.replace(/\s+$/, '') + '\n\n' + planText
+    : planText;
+  try {
+    const promptsCfg = getPromptsConfig();
+    const outcome = await pasteIntoEditor(combined, promptsCfg, (xp) => getByXPath(xp) as Element | null);
+    if (String(outcome) === 'failed') {
+      showPasteToast('❌ Plan: paste failed', true);
+      return;
+    }
+    showPasteToast('📋 Plan ' + n + ' appended — review and Send manually', false);
+  } catch (e) {
+    logError('TaskSplitter', 'triggerPlanPasteFromInline threw', e);
+    showPasteToast('❌ Plan: paste threw', true);
+  }
+}
+
+
 

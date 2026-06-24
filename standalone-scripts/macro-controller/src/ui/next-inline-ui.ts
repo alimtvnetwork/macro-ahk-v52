@@ -21,10 +21,18 @@ import {
   findNextTasksPrompt,
   type TaskNextDeps,
 } from './task-next-ui';
-import { triggerSplitFromInline, isSplitterRunning } from './task-splitter-ui';
+import { triggerPlanPasteFromInline, isSplitterRunning } from './task-splitter-ui';
 import { cPanelFg, cPrimaryLight, cSectionBg } from '../shared-state';
 
-const STEP_PRESETS = [2, 5, 10, 20] as const;
+const STEP_PRESETS = [1, 2, 3, 5, 8, 10, 15] as const;
+const STEP_PRESETS_HIGHLIGHT = new Set<number>([5, 10]);
+const PLAN_PRESETS = [
+  5, 10, 12, 15, 18, 20, 22, 25, 28, 30, 32, 35, 38, 40, 42, 45, 48, 50,
+  52, 55, 58, 60, 70, 80, 100, 125, 150, 200,
+] as const;
+const PLAN_PRESETS_HIGHLIGHT = new Set<number>([5, 10, 12, 15, 30]);
+const PLAN_MIN = 2;
+const PLAN_MAX = 200;
 const DELAY_PRESETS_SEC = [5, 10, 15, 30, 60] as const;
 const STORAGE_KEY = 'marco-next-inline-prefs';
 const CSS_HINT_LABEL = 'font-size:10px;opacity:0.8;';
@@ -58,7 +66,7 @@ function hydrate(): void {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const o = JSON.parse(raw) as { steps?: number; delaySec?: number };
-    if (typeof o.steps === 'number' && o.steps >= 1) state.steps = Math.min(100, Math.floor(o.steps));
+    if (typeof o.steps === 'number' && o.steps >= 1) state.steps = Math.min(200, Math.floor(o.steps));
     if (typeof o.delaySec === 'number' && o.delaySec >= 1) state.delaySec = Math.min(3600, Math.floor(o.delaySec));
   } catch (e) { log('NextInline: hydrate failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
 }
@@ -145,12 +153,13 @@ function stopNextQueue(): void {
 
 // ── UI ──────────────────────────────────────────────────────────────
 
+
 function buildSplitStrip(): HTMLElement {
   const root = document.createElement('div');
   root.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 6px;background:' + cSectionBg + ';border:1px solid rgba(245,158,11,0.35);border-radius:6px;font-family:system-ui,-apple-system,sans-serif;color:' + cPanelFg + ';font-size:11px;box-sizing:border-box;';
 
   const label = document.createElement('span');
-  label.textContent = '✂ Split';
+  label.textContent = '📋 Plan';
   label.style.cssText = 'font-weight:600;color:#fbbf24;';
   root.appendChild(label);
 
@@ -160,9 +169,9 @@ function buildSplitStrip(): HTMLElement {
   root.appendChild(stepsLbl);
 
   const stepsInput = document.createElement('input');
-  stepsInput.type = 'number'; stepsInput.min = '2'; stepsInput.max = '20';
-  stepsInput.value = String(Math.min(20, Math.max(2, state.steps)));
-  stepsInput.style.cssText = 'width:50px;padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(245,158,11,0.35);border-radius:4px;color:' + cPanelFg + ';font-size:11px;';
+  stepsInput.type = 'number'; stepsInput.min = String(PLAN_MIN); stepsInput.max = String(PLAN_MAX);
+  stepsInput.value = String(Math.min(PLAN_MAX, Math.max(PLAN_MIN, state.steps)));
+  stepsInput.style.cssText = 'width:56px;padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(245,158,11,0.35);border-radius:4px;color:' + cPanelFg + ';font-size:11px;';
   stepsInput.dataset.role = 'split-steps-input';
   root.appendChild(stepsInput);
 
@@ -171,29 +180,33 @@ function buildSplitStrip(): HTMLElement {
   unitLbl.style.cssText = CSS_HINT_LABEL;
   root.appendChild(unitLbl);
 
-  for (const n of [2, 5, 10, 20] as const) {
+  for (const n of PLAN_PRESETS) {
     const b = document.createElement('button');
-    b.type = 'button'; b.textContent = String(n); b.title = 'Split into ' + n + ' steps';
-    b.style.cssText = 'padding:2px 6px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:10px;';
+    b.type = 'button'; b.textContent = String(n); b.title = 'Plan into ' + n + ' steps';
+    const highlighted = PLAN_PRESETS_HIGHLIGHT.has(n);
+    const bg = highlighted ? 'rgba(245,158,11,0.55)' : 'rgba(245,158,11,0.12)';
+    const border = highlighted ? '1px solid rgba(245,158,11,0.85)' : '1px solid rgba(245,158,11,0.3)';
+    const weight = highlighted ? '700' : '500';
+    b.style.cssText = 'padding:2px 6px;background:' + bg + ';border:' + border + ';border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:10px;font-weight:' + weight + ';';
     b.onclick = function () { stepsInput.value = String(n); };
     root.appendChild(b);
   }
 
-  const splitBtn = document.createElement('button');
-  splitBtn.type = 'button';
-  splitBtn.textContent = '✂ Split';
-  splitBtn.title = 'Send the "Plan ${N}" library prompt for the chosen step count';
-  splitBtn.dataset.role = 'split-btn';
-  splitBtn.style.cssText = 'margin-left:auto;padding:5px 14px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#1a1a2e;background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%);box-shadow:0 2px 6px rgba(245,158,11,0.45), inset 0 1px 0 rgba(255,255,255,0.25);';
-  splitBtn.onclick = function () {
+  const planBtn = document.createElement('button');
+  planBtn.type = 'button';
+  planBtn.textContent = '📋 Plan';
+  planBtn.title = 'Append the "Plan ${N}" prompt to the chat box (does NOT submit)';
+  planBtn.dataset.role = 'plan-btn';
+  planBtn.style.cssText = 'margin-left:auto;padding:5px 14px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#1a1a2e;background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%);box-shadow:0 2px 6px rgba(245,158,11,0.45), inset 0 1px 0 rgba(255,255,255,0.25);';
+  planBtn.onclick = function () {
     if (taskNextState.running || isSplitterRunning()) {
       showPasteToast('⏸ Another run is in progress', true);
       return;
     }
-    const n = Math.max(2, Math.min(20, parseInt(stepsInput.value, 10) || 5));
-    void triggerSplitFromInline(n);
+    const n = Math.max(PLAN_MIN, Math.min(PLAN_MAX, parseInt(stepsInput.value, 10) || 10));
+    void triggerPlanPasteFromInline(n);
   };
-  root.appendChild(splitBtn);
+  root.appendChild(planBtn);
   return root;
 }
 
@@ -214,7 +227,11 @@ function buildStepsSection(root: HTMLElement): void {
   for (const n of STEP_PRESETS) {
     const b = document.createElement('button');
     b.type = 'button'; b.textContent = String(n); b.title = 'Set step count to ' + n;
-    b.style.cssText = 'padding:2px 6px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:10px;';
+    const hi = STEP_PRESETS_HIGHLIGHT.has(n);
+    const bg = hi ? 'rgba(124,58,237,0.55)' : 'rgba(124,58,237,0.15)';
+    const bd = hi ? '1px solid rgba(124,58,237,0.85)' : '1px solid rgba(124,58,237,0.3)';
+    const fw = hi ? '700' : '500';
+    b.style.cssText = 'padding:2px 6px;background:' + bg + ';border:' + bd + ';border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:10px;font-weight:' + fw + ';';
     b.onclick = function () { state.steps = n; stepsInput.value = String(n); persist(); notify(); };
     root.appendChild(b);
   }

@@ -1,27 +1,27 @@
-# Marco Chrome Extension v3.104.0
+# Marco Chrome Extension v4.1.0
 
-## Fixed
+## Changed
 
-- **Move-to-Workspace now sends the Castle request token.** Lovable's
-  `/projects/:id/move-to-workspace` PUT requires
-  `x-castle-request-token` (Castle.io risk engine) or it replies
-  `403 castle_denied`. The extension now mints a one-shot token via
-  `window._castle('createRequestToken')` from MAIN world on every move
-  call and forwards it to the API. Cookies (`__cuid`, `cid`) continue
-  to ride along via the existing `withCredentials:true` axios client.
-- **Observability.** Each move logs
-  `Castle token: present (len=…)` / `MISSING — request may be blocked`
-  and the Castle helper logs `request token resolved` / `timed out` /
-  `window._castle missing`.
+- **Inline `📋 Plan` strip (renamed from ✂ Split).** The amber strip below
+  the Lovable chat box now appends the `Plan ${N}` library prompt onto
+  whatever you've already typed — it no longer auto-submits. Review, tweak,
+  then press Send yourself.
+- **Expanded Plan presets.** Quick-pick buttons: 5, 10, 12, 15, 18, 20, 22,
+  25, 28, 30, 32, 35, 38, 40, 42, 45, 48, 50, 52, 55, 58, 60, 70, 80, 100,
+  125, 150, 200. Highlighted picks (stronger amber): **5, 10, 12, 15, 30**.
+- **Trimmed Next presets.** `▶ Next` strip presets: 1, 2, 3, 5, 8, 10, 15.
+  Highlighted: **5, 10**. Manual entry still accepts up to 200.
 
-## Added
+## Internal
 
-- New spec `standalone-scripts/macro-controller/spec/workspace-move/00-api-contract.md`
-  capturing the v2 request shape, where the Castle token comes from,
-  no-retry behaviour on `castle_denied`, and the full response matrix.
+- New export `triggerPlanPasteFromInline(n)` in `task-splitter-ui.ts`
+  performs append-without-submit via `pasteIntoEditor` on the chat target.
+- Legacy `triggerSplitFromInline` export kept for back-compat (unused by
+  the inline strip).
 
 ## Verification
 
-- `node scripts/check-version-sync.mjs` → ✅ All versions in sync: 3.104.0.
-- `bunx vitest run standalone-scripts/macro-controller/src/__tests__/` →
-  35 files passed, 99 tests passed.
+- `pnpm run lint` — clean (no new errors).
+- Manual: open Lovable, type a sentence, click `📋 Plan` with `15`
+  selected — chat box now contains your sentence followed by the
+  `Plan 15` prompt body and is NOT submitted.
