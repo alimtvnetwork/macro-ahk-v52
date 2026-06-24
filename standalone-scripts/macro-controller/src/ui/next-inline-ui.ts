@@ -144,15 +144,7 @@ function stopNextQueue(): void {
 
 // ── UI ──────────────────────────────────────────────────────────────
 
-function buildControl(deps: TaskNextDeps): HTMLElement {
-  const root = document.createElement('div');
-  root.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 6px;background:' + cSectionBg + ';border:1px solid rgba(124,58,237,0.25);border-radius:6px;font-family:system-ui,-apple-system,sans-serif;color:' + cPanelFg + ';font-size:11px;box-sizing:border-box;';
-
-  const label = document.createElement('span');
-  label.textContent = '▶ Next';
-  label.style.cssText = 'font-weight:600;color:' + cPrimaryLight + ';';
-  root.appendChild(label);
-
+function buildSplitButton(): HTMLElement {
   const splitBtn = document.createElement('button');
   splitBtn.type = 'button';
   splitBtn.textContent = '✂ Split';
@@ -165,23 +157,22 @@ function buildControl(deps: TaskNextDeps): HTMLElement {
     }
     void triggerSplitFromInline(state.steps);
   };
-  root.appendChild(splitBtn);
+  return splitBtn;
+}
 
-
-
+function buildStepsSection(root: HTMLElement): void {
   const stepsLbl = document.createElement('span'); stepsLbl.textContent = 'steps'; stepsLbl.style.cssText = 'font-size:10px;opacity:0.8;';
   root.appendChild(stepsLbl);
-
   const stepsInput = document.createElement('input');
   stepsInput.type = 'number'; stepsInput.min = '1'; stepsInput.max = '100';
   stepsInput.value = String(state.steps);
   stepsInput.style.cssText = 'width:54px;padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';font-size:11px;';
+  stepsInput.dataset.role = 'steps-input';
   stepsInput.oninput = function () {
     const v = parseInt(stepsInput.value, 10);
     if (v >= 1) { state.steps = Math.min(100, v); persist(); }
   };
   root.appendChild(stepsInput);
-
   for (const n of STEP_PRESETS) {
     const b = document.createElement('button');
     b.type = 'button'; b.textContent = String(n); b.title = 'Set step count to ' + n;
@@ -189,25 +180,22 @@ function buildControl(deps: TaskNextDeps): HTMLElement {
     b.onclick = function () { state.steps = n; stepsInput.value = String(n); persist(); notify(); };
     root.appendChild(b);
   }
+}
 
-  const sep = document.createElement('span');
-  sep.style.cssText = 'border-left:1px solid rgba(124,58,237,0.25);height:14px;margin:0 2px;';
-  root.appendChild(sep);
-
+function buildDelaySection(root: HTMLElement): void {
   const delayLbl = document.createElement('span'); delayLbl.textContent = 'delay'; delayLbl.style.cssText = 'font-size:10px;opacity:0.8;';
   root.appendChild(delayLbl);
-
   const delayInput = document.createElement('input');
   delayInput.type = 'number'; delayInput.min = '1'; delayInput.max = '3600';
   delayInput.value = String(state.delaySec);
   delayInput.style.cssText = 'width:54px;padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';font-size:11px;';
+  delayInput.dataset.role = 'delay-input';
   delayInput.oninput = function () {
     const v = parseInt(delayInput.value, 10);
     if (v >= 1) { state.delaySec = Math.min(3600, v); persist(); }
   };
   root.appendChild(delayInput);
   const sUnit = document.createElement('span'); sUnit.textContent = 's'; sUnit.style.cssText = 'font-size:10px;opacity:0.7;'; root.appendChild(sUnit);
-
   for (const s of DELAY_PRESETS_SEC) {
     const b = document.createElement('button');
     b.type = 'button'; b.textContent = s + 's'; b.title = 'Set delay to ' + s + 's';
@@ -215,27 +203,29 @@ function buildControl(deps: TaskNextDeps): HTMLElement {
     b.onclick = function () { state.delaySec = s; delayInput.value = String(s); persist(); notify(); };
     root.appendChild(b);
   }
+}
 
-  const progress = document.createElement('span');
-  progress.style.cssText = 'font-size:10px;color:' + cPrimaryLight + ';margin-left:4px;min-width:42px;';
-  root.appendChild(progress);
-
+function buildActionButton(deps: TaskNextDeps): HTMLButtonElement {
   const action = document.createElement('button');
   action.type = 'button';
   action.style.marginLeft = 'auto';
-
   const startGradient = 'linear-gradient(135deg,#7c3aed 0%,#4f46e5 50%,#2563eb 100%)';
-  const stopGradient = 'linear-gradient(135deg,#dc2626 0%,#b91c1c 50%,#7f1d1d 100%)';
   action.style.cssText = 'padding:5px 14px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#fff;background:' + startGradient + ';box-shadow:0 2px 6px rgba(79,70,229,0.45), inset 0 1px 0 rgba(255,255,255,0.18);';
   action.onclick = function () {
     if (taskNextState.running) stopNextQueue();
     else void runNextQueue(deps);
   };
-  root.appendChild(action);
+  return action;
+}
 
+function wireRender(root: HTMLElement, action: HTMLButtonElement, progress: HTMLElement): void {
+  const startGradient = 'linear-gradient(135deg,#7c3aed 0%,#4f46e5 50%,#2563eb 100%)';
+  const stopGradient = 'linear-gradient(135deg,#dc2626 0%,#b91c1c 50%,#7f1d1d 100%)';
+  const stepsInput = root.querySelector('input[data-role="steps-input"]') as HTMLInputElement | null;
+  const delayInput = root.querySelector('input[data-role="delay-input"]') as HTMLInputElement | null;
   const render = (): void => {
-    stepsInput.disabled = taskNextState.running;
-    delayInput.disabled = taskNextState.running;
+    if (stepsInput) stepsInput.disabled = taskNextState.running;
+    if (delayInput) delayInput.disabled = taskNextState.running;
     if (taskNextState.running) {
       action.textContent = '⏹ Stop';
       action.style.background = stopGradient;
@@ -254,9 +244,35 @@ function buildControl(deps: TaskNextDeps): HTMLElement {
     if (!document.body.contains(root)) { clearInterval(tickId); state.subscribers.delete(render); return; }
     if (taskNextState.running) render();
   }, 500);
+}
 
+function buildControl(deps: TaskNextDeps): HTMLElement {
+  const root = document.createElement('div');
+  root.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 6px;background:' + cSectionBg + ';border:1px solid rgba(124,58,237,0.25);border-radius:6px;font-family:system-ui,-apple-system,sans-serif;color:' + cPanelFg + ';font-size:11px;box-sizing:border-box;';
+
+  const label = document.createElement('span');
+  label.textContent = '▶ Next';
+  label.style.cssText = 'font-weight:600;color:' + cPrimaryLight + ';';
+  root.appendChild(label);
+  root.appendChild(buildSplitButton());
+  buildStepsSection(root);
+
+  const sep = document.createElement('span');
+  sep.style.cssText = 'border-left:1px solid rgba(124,58,237,0.25);height:14px;margin:0 2px;';
+  root.appendChild(sep);
+
+  buildDelaySection(root);
+
+  const progress = document.createElement('span');
+  progress.style.cssText = 'font-size:10px;color:' + cPrimaryLight + ';margin-left:4px;min-width:42px;';
+  root.appendChild(progress);
+
+  const action = buildActionButton(deps);
+  root.appendChild(action);
+  wireRender(root, action, progress);
   return root;
 }
+
 
 // ── Mount above chat box ────────────────────────────────────────────
 
