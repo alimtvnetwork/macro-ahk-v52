@@ -162,7 +162,9 @@ function sanitize(raw: unknown): SettingsOverrides {
     'enableNextSubmissionDelay',
     'autoDetectDelay',
     'retryOnFailure',
-    'pauseQueueOnError'
+    'pauseQueueOnError',
+    'splitterAutoEnqueue'
+
   ];
 
   booleanFields.forEach(f => {
