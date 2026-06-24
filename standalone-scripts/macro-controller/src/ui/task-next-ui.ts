@@ -359,7 +359,7 @@ function dispatchTaskNextSubmit(): boolean {
  */
 const TASK_NEXT_QUEUE_LABEL = 'Task Next queue';
 
-type CycleStatus = 'ok' | 'paste-failed' | 'submit-failed' | 'idle-cancelled' | 'idle-timeout' | 'cancelled';
+type CycleStatus = 'ok' | 'paste-failed' | 'submit-failed' | 'idle-cancelled' | 'idle-timeout' | 'cancelled' | 'queue-empty';
 
 async function resolveCyclePrompt(_deps: TaskNextDeps, legacyText: string): Promise<{ text: string; source: TaskNextPromptSource; remaining: number }> {
   const dequeued = await dequeueTaskNextPrompt();
@@ -379,6 +379,7 @@ async function runTaskNextCycle(
   const cycleStart = Date.now();
   const chosen = await resolveCyclePrompt(deps, legacyPromptText);
   if (chosen.remaining === -1) return 'paste-failed';
+  if (!chosen.text) return 'queue-empty';
   const promptsCfg = deps.getPromptsConfig();
   const outcome = pasteIntoEditor(chosen.text, promptsCfg, deps.getByXPath);
   if (String(outcome) === 'failed') return 'paste-failed';
@@ -399,6 +400,9 @@ function reportCycleStatus(status: CycleStatus, k: number, n: number): void {
   if (status === 'cancelled') {
     showPasteToast('🛑 Task Next queue cancelled at ' + k + '/' + n, false);
     log('[TaskNextQueue] cancelled at cycle ' + k + '/' + n, 'warn');
+  } else if (status === 'queue-empty') {
+    showPasteToast('✅ Task Next queue drained at ' + k + '/' + n + ' (no more items)', false);
+    log('[TaskNextQueue] queue empty at cycle ' + k + '/' + n + ' — stopping', 'info');
   } else if (status === 'paste-failed') {
     logError('Task Next queue', 'cycle ' + at + ' — paste failed; aborting queue');
     showPasteToast('❌ Task Next queue: paste failed at ' + at, true);
@@ -422,9 +426,16 @@ export async function runTaskNextQueue(deps: TaskNextDeps, count: number): Promi
     return;
   }
   const prompt = findNextTasksPrompt(deps);
-  if (!prompt || !prompt.text) {
-    logError(TASK_NEXT_QUEUE_LABEL, '"Next Tasks" prompt not found — aborting queue of ' + n);
-    showPasteToast('❌ "Next Tasks" prompt not found', true);
+  const legacyText = prompt && prompt.text ? prompt.text : '';
+  let queuedCount = 0;
+  try {
+    queuedCount = await getPersistentTaskQueue().count(resolveTaskQueueProjectId());
+  } catch (caught: CaughtError) {
+    logError(TASK_NEXT_QUEUE_LABEL, 'queue count probe failed before drain', caught);
+  }
+  if (!legacyText && queuedCount === 0) {
+    logError(TASK_NEXT_QUEUE_LABEL, '"Next Tasks" prompt not found AND splitter queue empty — aborting queue of ' + n);
+    showPasteToast('❌ No queued tasks and no "Next Tasks" prompt', true);
     return;
   }
   // Lazy import to dodge a circular dep (lovable-idle.ts → task-next-ui.ts for findAddToTasksButton).
@@ -438,7 +449,7 @@ export async function runTaskNextQueue(deps: TaskNextDeps, count: number): Promi
 
   try {
     for (let k = 0; k < n; k++) {
-      const status = await runTaskNextCycle(deps, prompt.text, k, n, waitForLovableIdle);
+      const status = await runTaskNextCycle(deps, legacyText, k, n, waitForLovableIdle);
       if (status !== 'ok') { reportCycleStatus(status, k, n); break; }
     }
     if (!taskNextState.cancelled && taskNextState.queue.completed >= n) {
