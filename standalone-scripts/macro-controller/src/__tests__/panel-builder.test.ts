@@ -279,8 +279,9 @@ describe('panel-builder', () => {
 
   it('checks the persisted splitter queue on UI mount', async () => {
     const mod = await import('../ui/task-queue-reinjection-toast');
+    const beforeCount = vi.mocked(mod.mountTaskQueueReinjectionToast).mock.calls.length;
     createUI(makeMockDeps());
-    expect(mod.mountTaskQueueReinjectionToast).toHaveBeenCalledTimes(1);
+    expect(mod.mountTaskQueueReinjectionToast).toHaveBeenCalledTimes(beforeCount + 1);
   });
 
   it('wires start/stop button click to deps.startLoop', () => {
