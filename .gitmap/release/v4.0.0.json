@@ -1,0 +1,17 @@
+{
+  "version": "4.0.0",
+  "branch": "release/v4.0.0",
+  "sourceBranch": "main",
+  "commit": "f7933690c982ef1aa9071587476688808462dbdb",
+  "tag": "v4.0.0",
+  "assets": [],
+  "changelog": [
+    "**Breaking:** Major version bump to v4.0.0.",
+    "Split-task inline UI under ▶ Next: cleaned styling, removed Repeat strip from chat box.",
+    "Lint cleanup in `next-inline-ui.ts` (extracted CSS hint constant)."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-24T16:22:14Z",
+  "isLatest": false
+}
