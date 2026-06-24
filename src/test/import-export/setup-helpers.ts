@@ -67,7 +67,35 @@ function installWasmFetchShim(): void {
     }
     throw new Error(`fetch shim: unexpected URL ${url}`);
   }) as typeof fetch;
+
+  // sql.js in Node falls back to fs.readFile when a URL string is given to
+  // locateFile. Patch fs.readFile{,Sync} to redirect any path containing
+  // "sql-wasm.wasm" to the real bundled wasm on disk.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const fs = require("node:fs") as typeof import("node:fs");
+  const origReadFile = fs.readFile.bind(fs);
+  const origReadFileSync = fs.readFileSync.bind(fs);
+  type ReadFileCb = (err: NodeJS.ErrnoException | null, data: Buffer) => void;
+  (fs as unknown as { readFile: unknown }).readFile = (
+    path: string, ...rest: unknown[]
+  ): void => {
+    if (typeof path === "string" && path.includes("sql-wasm.wasm")) {
+      const cb = rest[rest.length - 1] as ReadFileCb;
+      cb(null, wasmBytes);
+      return;
+    }
+    (origReadFile as unknown as (...a: unknown[]) => void)(path, ...rest);
+  };
+  (fs as unknown as { readFileSync: unknown }).readFileSync = (
+    path: string, ...rest: unknown[]
+  ): Buffer | string => {
+    if (typeof path === "string" && path.includes("sql-wasm.wasm")) {
+      return wasmBytes;
+    }
+    return (origReadFileSync as unknown as (...a: unknown[]) => Buffer | string)(path, ...rest);
+  };
 }
+
 
 /* ─── 3. URL.createObjectURL capture. ─── */
 const capturedBlobs: Blob[] = [];
@@ -143,15 +171,19 @@ async function buildCachedBundle(): Promise<CachedBundle> {
 }
 
 /* ─── 5. Helper: open the cached DB read-only via sql.js. ─── */
+function wasmFilePath(): string {
+  return resolve(process.cwd(), "node_modules/sql.js/dist/sql-wasm.wasm");
+}
+
 export async function openCachedDb(): Promise<Database> {
   const { dbBytes } = await loadCachedBundle();
-  const SQL = await initSqlJs({ locateFile: () => "sql-wasm.wasm" });
+  const SQL = await initSqlJs({ locateFile: () => wasmFilePath() });
   return new SQL.Database(dbBytes);
 }
 
 /* ─── 6. Helper: clone the cached DB for mutation tests. ─── */
 export async function cloneCachedDbInMemory(): Promise<Database> {
   const { dbBytes } = await loadCachedBundle();
-  const SQL = await initSqlJs({ locateFile: () => "sql-wasm.wasm" });
+  const SQL = await initSqlJs({ locateFile: () => wasmFilePath() });
   return new SQL.Database(new Uint8Array(dbBytes));
 }
