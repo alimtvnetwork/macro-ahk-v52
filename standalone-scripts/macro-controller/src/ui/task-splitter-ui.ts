@@ -151,9 +151,9 @@ function dispatchSubmit(): boolean {
   let form: HTMLElement | null = null;
   try { form = document.getElementById('chat-input'); }
   catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    showPasteToast('⚠ ' + TAG + ': getElementById threw (' + msg + ') — trying button', true);
-    log('TaskSplitter: getElementById threw — ' + msg, 'warn');
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    showPasteToast('⚠ ' + TAG + ': getElementById threw (' + errorMessage + ') — trying button', true);
+    log('TaskSplitter: getElementById threw — ' + errorMessage, 'warn');
   }
 
   if (form instanceof HTMLFormElement) {
@@ -165,8 +165,8 @@ function dispatchSubmit(): boolean {
       }
       return true;
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + msg + ') — falling back to button click', true);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + errorMessage + ') — falling back to button click', true);
       logError('TaskSplitter', 'form#chat-input.requestSubmit() threw — falling back to button click', e);
     }
   } else if (form) {
@@ -185,8 +185,8 @@ function dispatchSubmit(): boolean {
       showPasteToast('✅ ' + TAG + ': submitted via submit-button fallback', false);
       return true;
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      showPasteToast('❌ ' + TAG + ': button click threw (' + msg + ')', true);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      showPasteToast('❌ ' + TAG + ': button click threw (' + errorMessage + ')', true);
       logError('TaskSplitter', 'submit-button .click() threw', e);
     }
   } else {
@@ -199,8 +199,8 @@ function dispatchSubmit(): boolean {
 
 async function pasteAndSubmit(text: string): Promise<boolean> {
   try {
-    const cfg = getPromptsConfig();
-    const outcome = await pasteIntoEditor(text, cfg, (xp) => getByXPath(xp) as Element | null);
+    const promptsConfig = getPromptsConfig();
+    const outcome = await pasteIntoEditor(text, promptsConfig, (xp) => getByXPath(xp) as Element | null);
     if (String(outcome) === 'failed') {
       log('TaskSplitter: pasteIntoEditor returned failed', 'warn');
       return false;

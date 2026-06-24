@@ -218,9 +218,9 @@ function dispatchChatSubmit(): boolean {
   let form: HTMLElement | null = null;
   try { form = document.getElementById('chat-input'); }
   catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    showPasteToast('⚠ ' + TAG + ': getElementById threw (' + msg + ')', true);
-    log('Repeat: getElementById threw — ' + msg, 'warn');
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    showPasteToast('⚠ ' + TAG + ': getElementById threw (' + errorMessage + ')', true);
+    log('Repeat: getElementById threw — ' + errorMessage, 'warn');
   }
 
   if (form instanceof HTMLFormElement) {
@@ -232,9 +232,9 @@ function dispatchChatSubmit(): boolean {
       }
       return true;
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + msg + ') — trying button', true);
-      log('Repeat: form#chat-input.requestSubmit() threw — falling back to button click: ' + msg, 'warn');
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + errorMessage + ') — trying button', true);
+      log('Repeat: form#chat-input.requestSubmit() threw — falling back to button click: ' + errorMessage, 'warn');
     }
   } else if (form) {
     showPasteToast('⚠ ' + TAG + ': #chat-input is <' + form.tagName.toLowerCase() + '>, not <form> — using button', true);
@@ -252,9 +252,9 @@ function dispatchChatSubmit(): boolean {
       showPasteToast('✅ ' + TAG + ': submitted via submit-button fallback', false);
       return true;
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      showPasteToast('❌ ' + TAG + ': button click threw (' + msg + ')', true);
-      log('Repeat: submit-button .click() threw — ' + msg, 'warn');
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      showPasteToast('❌ ' + TAG + ': button click threw (' + errorMessage + ')', true);
+      log('Repeat: submit-button .click() threw — ' + errorMessage, 'warn');
     }
   } else {
     showPasteToast('❌ ' + TAG + ': no enabled submit button — submit failed', true);
