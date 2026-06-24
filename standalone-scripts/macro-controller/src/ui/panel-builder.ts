@@ -48,7 +48,7 @@ import {
   registerKeyboardHandlers,
 } from './panel-sections';
 import { startRedockObserver } from './redock-observer';
-import { buildRepeatPanelSection, mountRepeatInlineStrip } from './repeat-loop-ui';
+import { buildRepeatPanelSection } from './repeat-loop-ui';
 import { buildTaskSplitterPanelSection } from './task-splitter-ui';
 import { mountNextInlineStrip } from './next-inline-ui';
 import { mountTaskQueueReinjectionToast } from './task-queue-reinjection-toast';
