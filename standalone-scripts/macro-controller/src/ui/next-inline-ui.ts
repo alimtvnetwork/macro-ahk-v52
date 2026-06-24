@@ -154,6 +154,47 @@ function stopNextQueue(): void {
 // ── UI ──────────────────────────────────────────────────────────────
 
 
+function planClickHandler(n: number): void {
+  if (taskNextState.running || isSplitterRunning()) {
+    showPasteToast('⏸ Another run is in progress', true);
+    return;
+  }
+  const clamped = Math.max(PLAN_MIN, Math.min(PLAN_MAX, n));
+  void triggerPlanPasteFromInline(clamped);
+}
+
+function makePresetButton(n: number, highlighted: boolean): HTMLButtonElement {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.textContent = String(n);
+  b.title = 'Append "Plan ' + n + '" to the chat box (click to add)';
+  const bg = highlighted ? 'rgba(245,158,11,0.55)' : 'rgba(245,158,11,0.12)';
+  const border = highlighted ? '1px solid rgba(245,158,11,0.85)' : '1px solid rgba(245,158,11,0.3)';
+  const weight = highlighted ? '700' : '500';
+  b.style.cssText = 'padding:3px 8px;background:' + bg + ';border:' + border + ';border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:11px;font-weight:' + weight + ';';
+  b.onclick = function () { planClickHandler(n); };
+  return b;
+}
+
+function buildPlanDropup(anchor: HTMLElement): HTMLElement {
+  const panel = document.createElement('div');
+  panel.style.cssText = 'position:absolute;bottom:calc(100% + 4px);right:0;display:none;grid-template-columns:repeat(6,auto);gap:4px;padding:8px;background:#1a1a2e;border:1px solid rgba(245,158,11,0.6);border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,0.5);z-index:2147483646;';
+  panel.dataset.role = 'plan-dropup';
+  for (const n of PLAN_PRESETS) {
+    const b = makePresetButton(n, PLAN_PRESETS_HIGHLIGHT.has(n));
+    b.addEventListener('click', function () { panel.style.display = 'none'; });
+    panel.appendChild(b);
+  }
+  anchor.appendChild(panel);
+  const closer = (ev: MouseEvent): void => {
+    if (panel.style.display === 'none') return;
+    if (ev.target instanceof Node && anchor.contains(ev.target)) return;
+    panel.style.display = 'none';
+  };
+  document.addEventListener('click', closer, true);
+  return panel;
+}
+
 function buildSplitStrip(): HTMLElement {
   const root = document.createElement('div');
   root.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 6px;background:' + cSectionBg + ';border:1px solid rgba(245,158,11,0.35);border-radius:6px;font-family:system-ui,-apple-system,sans-serif;color:' + cPanelFg + ';font-size:11px;box-sizing:border-box;';
@@ -163,50 +204,33 @@ function buildSplitStrip(): HTMLElement {
   label.style.cssText = 'font-weight:600;color:#fbbf24;';
   root.appendChild(label);
 
-  const stepsLbl = document.createElement('span');
-  stepsLbl.textContent = 'into';
-  stepsLbl.style.cssText = CSS_HINT_LABEL;
-  root.appendChild(stepsLbl);
+  const hint = document.createElement('span');
+  hint.textContent = 'click a number to add';
+  hint.style.cssText = CSS_HINT_LABEL;
+  root.appendChild(hint);
 
-  const stepsInput = document.createElement('input');
-  stepsInput.type = 'number'; stepsInput.min = String(PLAN_MIN); stepsInput.max = String(PLAN_MAX);
-  stepsInput.value = String(Math.min(PLAN_MAX, Math.max(PLAN_MIN, state.steps)));
-  stepsInput.style.cssText = 'width:56px;padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(245,158,11,0.35);border-radius:4px;color:' + cPanelFg + ';font-size:11px;';
-  stepsInput.dataset.role = 'split-steps-input';
-  root.appendChild(stepsInput);
-
-  const unitLbl = document.createElement('span');
-  unitLbl.textContent = 'steps';
-  unitLbl.style.cssText = CSS_HINT_LABEL;
-  root.appendChild(unitLbl);
-
+  // Inline highlighted presets — one-click add
   for (const n of PLAN_PRESETS) {
-    const b = document.createElement('button');
-    b.type = 'button'; b.textContent = String(n); b.title = 'Plan into ' + n + ' steps';
-    const highlighted = PLAN_PRESETS_HIGHLIGHT.has(n);
-    const bg = highlighted ? 'rgba(245,158,11,0.55)' : 'rgba(245,158,11,0.12)';
-    const border = highlighted ? '1px solid rgba(245,158,11,0.85)' : '1px solid rgba(245,158,11,0.3)';
-    const weight = highlighted ? '700' : '500';
-    b.style.cssText = 'padding:2px 6px;background:' + bg + ';border:' + border + ';border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:10px;font-weight:' + weight + ';';
-    b.onclick = function () { stepsInput.value = String(n); };
-    root.appendChild(b);
+    if (!PLAN_PRESETS_HIGHLIGHT.has(n)) continue;
+    root.appendChild(makePresetButton(n, true));
   }
 
-  const planBtn = document.createElement('button');
-  planBtn.type = 'button';
-  planBtn.textContent = '📋 Plan';
-  planBtn.title = 'Append the "Plan ${N}" prompt to the chat box (does NOT submit)';
-  planBtn.dataset.role = 'plan-btn';
-  planBtn.style.cssText = 'margin-left:auto;padding:5px 14px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#1a1a2e;background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%);box-shadow:0 2px 6px rgba(245,158,11,0.45), inset 0 1px 0 rgba(255,255,255,0.25);';
-  planBtn.onclick = function () {
-    if (taskNextState.running || isSplitterRunning()) {
-      showPasteToast('⏸ Another run is in progress', true);
-      return;
-    }
-    const n = Math.max(PLAN_MIN, Math.min(PLAN_MAX, parseInt(stepsInput.value, 10) || 10));
-    void triggerPlanPasteFromInline(n);
+  // Drop-up "More" button
+  const moreWrap = document.createElement('span');
+  moreWrap.style.cssText = 'position:relative;margin-left:auto;display:inline-block;';
+  const moreBtn = document.createElement('button');
+  moreBtn.type = 'button';
+  moreBtn.textContent = 'More ▴';
+  moreBtn.title = 'Show all plan sizes';
+  moreBtn.dataset.role = 'plan-more-btn';
+  moreBtn.style.cssText = 'padding:5px 14px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#1a1a2e;background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%);box-shadow:0 2px 6px rgba(245,158,11,0.45), inset 0 1px 0 rgba(255,255,255,0.25);';
+  moreWrap.appendChild(moreBtn);
+  const panel = buildPlanDropup(moreWrap);
+  moreBtn.onclick = function (ev) {
+    ev.stopPropagation();
+    panel.style.display = panel.style.display === 'grid' ? 'none' : 'grid';
   };
-  root.appendChild(planBtn);
+  root.appendChild(moreWrap);
   return root;
 }
 

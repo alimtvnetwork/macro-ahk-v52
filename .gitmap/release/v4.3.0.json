@@ -1,0 +1,15 @@
+{
+  "version": "4.3.0",
+  "branch": "release/v4.3.0",
+  "sourceBranch": "main",
+  "tag": "v4.3.0",
+  "assets": [],
+  "changelog": [
+    "📋 Plan inline strip: clicking a preset number (5, 10, 12, 15, 30) now immediately appends `Plan ${N}` to the chat box — no separate Plan button.",
+    "Added a `More ▴` drop-up panel that opens a 6-column grid with every plan size (5–200); clicking a number appends the plan and auto-closes. Click outside to dismiss.",
+    "Removed the redundant Plan steps input — preset buttons are the only entry point now."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "isLatest": true
+}

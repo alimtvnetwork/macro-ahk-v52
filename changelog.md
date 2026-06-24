@@ -1,5 +1,19 @@
 # Changelog
 
+## [v4.3.0] — 2026-06-24 Plan strip: one-click presets + drop-up "More"
+
+### Changed
+- **📋 Plan inline strip redesign**: only the highlighted presets (5, 10, 12, 15, 30) render inline now, and **clicking the number immediately appends `Plan ${N}`** to the chat box — no separate "Plan" button, no extra step.
+- Added a **`More ▴` drop-up** that opens a 6-column grid of every plan size (5–200). Clicking a number in the drop-up appends the plan and auto-closes the panel. Click outside to dismiss.
+- Removes the steps `<input>` from the Plan strip (it duplicated the preset buttons and was the root cause of the cluttered "I have to click number then click Plan" flow).
+
+### Internal
+- Version pins moved 4.2.0 → 4.3.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, and the prompts bundle metadata.
+
+---
+
+
+
 ## [v4.2.0] — 2026-06-24 Inline strip reorder (Plan → Next → Repeat)
 
 ### Changed
