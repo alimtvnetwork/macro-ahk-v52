@@ -400,6 +400,9 @@ function reportCycleStatus(status: CycleStatus, k: number, n: number): void {
   if (status === 'cancelled') {
     showPasteToast('🛑 Task Next queue cancelled at ' + k + '/' + n, false);
     log('[TaskNextQueue] cancelled at cycle ' + k + '/' + n, 'warn');
+  } else if (status === 'queue-empty') {
+    showPasteToast('✅ Task Next queue drained at ' + k + '/' + n + ' (no more items)', false);
+    log('[TaskNextQueue] queue empty at cycle ' + k + '/' + n + ' — stopping', 'info');
   } else if (status === 'paste-failed') {
     logError('Task Next queue', 'cycle ' + at + ' — paste failed; aborting queue');
     showPasteToast('❌ Task Next queue: paste failed at ' + at, true);
