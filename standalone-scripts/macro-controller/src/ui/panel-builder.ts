@@ -49,6 +49,7 @@ import {
 } from './panel-sections';
 import { startRedockObserver } from './redock-observer';
 import { buildRepeatPanelSection, mountRepeatInlineStrip } from './repeat-loop-ui';
+import { buildTaskSplitterPanelSection } from './task-splitter-ui';
 import { createSummaryBar, type SummaryBarHandle } from './summary-bar/component';
 import { computeDashboardSummary, computeSummaryDetails, type DisplayKindResolver } from './summary-bar';
 import { subscribeVisibleWorkspaces } from '../visible-workspaces-store';
@@ -185,8 +186,10 @@ export function createUI(deps: PanelBuilderDeps): void {
   // child, so it is excluded from this list.
   // Repeat-loop control — chat-box repeat selector (Ambiguity 126)
   const repeatPanelSection = buildRepeatPanelSection();
+  // Task Splitter — paste long instruction → Plan N → Next N steps (2026-06-24)
+  const taskSplitterSection = buildTaskSplitterPanelSection();
 
-  plCtx.bodyElements = [status, infoRow, summaryBar.root, btnRow, wsDropSection, taskQueueSection, repeatPanelSection, toolsSection];
+  plCtx.bodyElements = [status, infoRow, summaryBar.root, btnRow, wsDropSection, taskQueueSection, repeatPanelSection, taskSplitterSection, toolsSection];
 
   // Assembly
   ui.appendChild(titleRow);
@@ -197,6 +200,7 @@ export function createUI(deps: PanelBuilderDeps): void {
   ui.appendChild(wsDropSection);
   ui.appendChild(taskQueueSection);
   ui.appendChild(repeatPanelSection);
+  ui.appendChild(taskSplitterSection);
   ui.appendChild(toolsSection);
 
 
