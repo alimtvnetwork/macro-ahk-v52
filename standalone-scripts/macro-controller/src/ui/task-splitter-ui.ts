@@ -22,6 +22,11 @@ import { getByXPath, isReturnButtonVisible } from '../xpath-utils';
 import { findAddToTasksButton } from './task-next-ui';
 import { cPanelFg, cPrimaryLight, cSectionBg } from '../shared-state';
 import type { PromptEntry } from '../types';
+import { getSplitterPrompt } from './task-splitter-prompt';
+import { parseSplitterSubtasks, SplitterParseError } from './task-splitter-parse';
+import { readLatestSplitterReply } from './task-splitter-dom';
+import { waitForLovableIdle } from './lovable-idle';
+import { getPersistentTaskQueue, resolveTaskQueueProjectId } from '../queue-control/task-queue-project-store';
 
 const DELAY_PRESETS_SEC = [2, 5, 10, 15, 30, 60] as const;
 const STEP_MIN = 2;
@@ -117,16 +122,6 @@ function findPromptBySlug(slug: string): PromptEntry | null {
     if ((e.slug || '').toLowerCase().indexOf(target) !== -1) return e;
   }
   return null;
-}
-
-function resolveSplitPrompt(): PromptEntry | null {
-  if (state.splitPromptSlug) {
-    const p = findPromptBySlug(state.splitPromptSlug);
-    if (p) return p;
-  }
-  // Auto: plan-${N}
-  return findPromptBySlug('plan-' + state.stepCount)
-      || findPromptBySlug('plan-steps');
 }
 
 function resolvePerStepPrompt(): PromptEntry | null {
@@ -246,19 +241,59 @@ async function waitForCompletion(maxMs: number): Promise<void> {
 // ── actions ─────────────────────────────────────────────────────────
 
 async function breakIntoSteps(): Promise<void> {
-  const text = state.bigText.trim();
-  if (!text) { showPasteToast('❌ Task Splitter: paste an instruction first', true); return; }
-  const split = resolveSplitPrompt();
-  if (!split || !split.text) {
-    logError('TaskSplitter', 'split prompt not found (slug="' + state.splitPromptSlug + '" / auto plan-' + state.stepCount + ')');
-    showPasteToast('❌ Task Splitter: split prompt not found', true);
+  if (state.running) {
+    showPasteToast('⏸ Task Splitter is already running', true);
     return;
   }
-  const combined = text + '\n\n' + split.text;
-  log('TaskSplitter: sending split message (' + combined.length + ' chars) via prompt "' + split.name + '"', 'info');
-  const ok = await pasteAndSubmit(combined);
+  const text = state.bigText.trim();
+  if (!text) {
+    showPasteToast('❌ Task Splitter: paste an instruction first', true);
+    return;
+  }
+  state.running = true;
+  state.cancelled = false;
+  notify();
+  try {
+    await sendSplitterPromptAndQueue(text, state.stepCount);
+  } finally {
+    state.running = false;
+    state.cancelled = false;
+    notify();
+  }
+}
+
+async function sendSplitterPromptAndQueue(text: string, expectedN: number): Promise<void> {
+  const prompt = getSplitterPrompt({ rawInstruction: text, n: expectedN });
+  log('TaskSplitter: sending split JSON prompt (' + prompt.length + ' chars, n=' + expectedN + ')', 'info');
+  const ok = await pasteAndSubmit(prompt);
   if (!ok) { showPasteToast('❌ Task Splitter: paste/submit failed', true); return; }
-  showPasteToast('✂ Task Splitter: split sent — waiting for the plan reply', false);
+  showPasteToast('✂ Task Splitter: split sent — waiting for JSON reply', false);
+  const idle = await waitForLovableIdle({ isCancelled: function () { return state.cancelled; } });
+  if (idle !== 'idle') { showPasteToast('❌ Task Splitter: idle wait ' + idle, true); return; }
+  await parseAndEnqueueLatestReply(expectedN);
+}
+
+async function parseAndEnqueueLatestReply(expectedN: number): Promise<void> {
+  try {
+    const rawReply = readLatestSplitterReply(document);
+    const subtasks = parseSplitterSubtasks(rawReply, expectedN);
+    const projectId = resolveTaskQueueProjectId();
+    const added = await getPersistentTaskQueue().enqueueMany(projectId, subtasks);
+    log('TaskSplitter: enqueued ' + added.length + '/' + expectedN + ' tasks for project ' + projectId, 'info');
+    showPasteToast('✅ Task Splitter: queued ' + added.length + ' tasks', false);
+  } catch (caught: CaughtError) {
+    reportSplitterParseFailure(caught, expectedN);
+  }
+}
+
+function reportSplitterParseFailure(caught: CaughtError, expectedN: number): void {
+  if (caught instanceof SplitterParseError) {
+    logError('TaskSplitter.parse', JSON.stringify(caught.failure), caught);
+    showPasteToast('❌ Splitter parse failed (got ' + caught.failure.ReceivedN + ' of ' + expectedN + ')', true);
+    return;
+  }
+  logError('TaskSplitter.parse', 'Unexpected splitter queue failure for ExpectedN=' + expectedN, caught);
+  showPasteToast('❌ Splitter parse failed (got 0 of ' + expectedN + ')', true);
 }
 
 async function sendOneStep(): Promise<boolean> {
