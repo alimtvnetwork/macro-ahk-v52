@@ -577,9 +577,10 @@ export function buildTaskSplitterPanelSection(): HTMLElement {
 }
 
 /**
- * External trigger — used by the inline "✂ Split" button above the chat box.
- * Updates the step count, then runs the same break-into-steps flow as the
- * panel's "✂ Break into steps" button.
+ * External trigger — used by the inline "✂ Split" strip below the Next strip.
+ * Resolves the `Plan ${N}` library prompt for the chosen step count and
+ * pastes + submits it. No queue/parse pipeline — the user just wants the
+ * planning prompt fired with the selected N.
  */
 export async function triggerSplitFromInline(stepCount: number): Promise<void> {
   const n = clamp(stepCount, STEP_MIN, STEP_MAX);
@@ -588,10 +589,47 @@ export async function triggerSplitFromInline(stepCount: number): Promise<void> {
     persist();
     notify();
   }
-  await breakIntoSteps();
+  if (state.running) {
+    showPasteToast('⏸ Task Splitter is already running', true);
+    return;
+  }
+  const prompt = resolvePlanPrompt(n);
+  if (!prompt) {
+    showPasteToast('❌ Split: "Plan ${N}" prompt not found in library', true);
+    logError('TaskSplitter', 'plan-steps prompt missing (n=' + n + ')');
+    return;
+  }
+  state.running = true;
+  notify();
+  try {
+    const ok = await pasteAndSubmit(prompt);
+    if (ok) showPasteToast('✂ Split: sent "Plan ' + n + '"', false);
+    else showPasteToast('❌ Split: paste/submit failed', true);
+  } finally {
+    state.running = false;
+    notify();
+  }
+}
+
+function resolvePlanPrompt(n: number): string | null {
+  const entries = getPromptsConfig().entries || [];
+  const want = String(n);
+  for (const e of entries) {
+    if ((e.parentSlug || '').toLowerCase() === 'plan-steps' && e.variantValue === want) {
+      return e.text || null;
+    }
+  }
+  for (const e of entries) {
+    const slug = (e.slug || '').toLowerCase();
+    if (slug === 'plan-steps' || slug.indexOf('plan-steps') !== -1) {
+      return (e.text || '').split('${N}').join(want);
+    }
+  }
+  return null;
 }
 
 export function isSplitterRunning(): boolean {
   return state.running;
 }
+
 
