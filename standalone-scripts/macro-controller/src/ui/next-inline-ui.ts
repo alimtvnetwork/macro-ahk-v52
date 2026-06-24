@@ -153,6 +153,22 @@ function buildControl(deps: TaskNextDeps): HTMLElement {
   label.style.cssText = 'font-weight:600;color:' + cPrimaryLight + ';';
   root.appendChild(label);
 
+  const splitBtn = document.createElement('button');
+  splitBtn.type = 'button';
+  splitBtn.textContent = '✂ Split';
+  splitBtn.title = 'Read the chat box text and split it into the chosen number of steps';
+  splitBtn.style.cssText = 'padding:4px 10px;border:1px solid rgba(217,119,6,0.5);border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#fff;background:linear-gradient(135deg,#f59e0b 0%,#d97706 50%,#b45309 100%);box-shadow:0 2px 6px rgba(217,119,6,0.35), inset 0 1px 0 rgba(255,255,255,0.18);';
+  splitBtn.onclick = function () {
+    if (taskNextState.running || isSplitterRunning()) {
+      showPasteToast('⏸ Another run is in progress', true);
+      return;
+    }
+    void triggerSplitFromInline(state.steps);
+  };
+  root.appendChild(splitBtn);
+
+
+
   const stepsLbl = document.createElement('span'); stepsLbl.textContent = 'steps'; stepsLbl.style.cssText = 'font-size:10px;opacity:0.8;';
   root.appendChild(stepsLbl);
 
@@ -204,22 +220,10 @@ function buildControl(deps: TaskNextDeps): HTMLElement {
   progress.style.cssText = 'font-size:10px;color:' + cPrimaryLight + ';margin-left:4px;min-width:42px;';
   root.appendChild(progress);
 
-  const splitBtn = document.createElement('button');
-  splitBtn.type = 'button';
-  splitBtn.textContent = '✂ Split';
-  splitBtn.title = 'Read the chat box text and split it into the chosen number of steps';
-  splitBtn.style.cssText = 'padding:5px 10px;border:1px solid rgba(124,58,237,0.35);border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#fff;background:linear-gradient(135deg,#f59e0b 0%,#d97706 50%,#b45309 100%);box-shadow:0 2px 6px rgba(217,119,6,0.35), inset 0 1px 0 rgba(255,255,255,0.18);margin-left:auto;';
-  splitBtn.onclick = function () {
-    if (taskNextState.running || isSplitterRunning()) {
-      showPasteToast('⏸ Another run is in progress', true);
-      return;
-    }
-    void triggerSplitFromInline(state.steps);
-  };
-  root.appendChild(splitBtn);
-
   const action = document.createElement('button');
   action.type = 'button';
+  action.style.marginLeft = 'auto';
+
   const startGradient = 'linear-gradient(135deg,#7c3aed 0%,#4f46e5 50%,#2563eb 100%)';
   const stopGradient = 'linear-gradient(135deg,#dc2626 0%,#b91c1c 50%,#7f1d1d 100%)';
   action.style.cssText = 'padding:5px 14px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#fff;background:' + startGradient + ';box-shadow:0 2px 6px rgba(79,70,229,0.45), inset 0 1px 0 rgba(255,255,255,0.18);';
