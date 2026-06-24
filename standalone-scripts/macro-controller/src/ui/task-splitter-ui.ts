@@ -27,6 +27,8 @@ import { parseSplitterSubtasks, SplitterParseError } from './task-splitter-parse
 import { readLatestSplitterReply } from './task-splitter-dom';
 import { waitForLovableIdle } from './lovable-idle';
 import { getPersistentTaskQueue, resolveTaskQueueProjectId } from '../queue-control/task-queue-project-store';
+import { getSettingsOverrides } from '../settings-store';
+
 
 const DELAY_PRESETS_SEC = [2, 5, 10, 15, 30, 60] as const;
 const STEP_MIN = 2;
@@ -277,14 +279,26 @@ async function parseAndEnqueueLatestReply(expectedN: number): Promise<void> {
   try {
     const rawReply = readLatestSplitterReply(document);
     const subtasks = parseSplitterSubtasks(rawReply, expectedN);
+    const overrides = getSettingsOverrides();
+    if (overrides.splitterAutoEnqueue === false) {
+      log('TaskSplitter: auto-enqueue disabled — parsed ' + subtasks.length + ' subtasks, skipped enqueue', 'info');
+      showPasteToast('ℹ Task Splitter: parsed ' + subtasks.length + ' (auto-enqueue off)', false);
+      return;
+    }
     const projectId = resolveTaskQueueProjectId();
-    const added = await getPersistentTaskQueue().enqueueMany(projectId, subtasks);
+    const maxQueueSize = overrides.maxQueueSize;
+    const added = await getPersistentTaskQueue().enqueueMany(
+      projectId,
+      subtasks,
+      maxQueueSize ? { maxQueueSize } : undefined,
+    );
     log('TaskSplitter: enqueued ' + added.length + '/' + expectedN + ' tasks for project ' + projectId, 'info');
     showPasteToast('✅ Task Splitter: queued ' + added.length + ' tasks', false);
   } catch (caught: CaughtError) {
     reportSplitterParseFailure(caught, expectedN);
   }
 }
+
 
 function reportSplitterParseFailure(caught: CaughtError, expectedN: number): void {
   if (caught instanceof SplitterParseError) {

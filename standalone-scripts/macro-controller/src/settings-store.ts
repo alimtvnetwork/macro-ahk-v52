@@ -67,6 +67,13 @@ export interface SettingsOverrides {
    */
   creditFetchDelayMs?: number;
 
+  /** Task Splitter: auto-enqueue parsed subtasks after split. Default true. */
+  splitterAutoEnqueue?: boolean;
+  /** Persistent task-queue max size per project. Default 200. */
+  maxQueueSize?: number;
+
+
+
 
   /**
    * Per-workspace lifecycle overrides keyed by workspace id (string UUID).
@@ -129,7 +136,9 @@ function sanitize(raw: unknown): SettingsOverrides {
     'hoverCardHideGracePeriodMs',
     'nextSubmissionDelaySeconds',
     'creditPollIntervalSeconds',
-    'maxTaskRetries'
+    'maxTaskRetries',
+    'maxQueueSize'
+
   ];
 
   numericFields.forEach(f => {
@@ -153,7 +162,9 @@ function sanitize(raw: unknown): SettingsOverrides {
     'enableNextSubmissionDelay',
     'autoDetectDelay',
     'retryOnFailure',
-    'pauseQueueOnError'
+    'pauseQueueOnError',
+    'splitterAutoEnqueue'
+
   ];
 
   booleanFields.forEach(f => {

@@ -312,6 +312,7 @@ async function _persistOverrideToggles(generalResult: GeneralPanelResult, timing
     next.enableNextSubmissionDelay = timingResult.automationToggles.enableNextSubmissionDelay?.checked ?? true;
     next.autoDetectDelay = timingResult.automationToggles.autoDetectDelay?.checked ?? true;
     next.retryOnFailure = timingResult.automationToggles.retryOnFailure?.checked ?? true;
+    next.splitterAutoEnqueue = timingResult.automationToggles.splitterAutoEnqueue?.checked ?? true;
   }
 
   if (timingResult.inputs) {
@@ -321,11 +322,16 @@ async function _persistOverrideToggles(generalResult: GeneralPanelResult, timing
     if (timingResult.inputs.creditPollIntervalSeconds) {
       next.creditPollIntervalSeconds = parseInt(timingResult.inputs.creditPollIntervalSeconds.value, 10);
     }
+    if (timingResult.inputs.maxQueueSize) {
+      const v = parseInt(timingResult.inputs.maxQueueSize.value, 10);
+      if (!isNaN(v) && v > 0) next.maxQueueSize = v;
+    }
     if (timingResult.inputs.creditFetchDelayMs) {
       const v = parseInt(timingResult.inputs.creditFetchDelayMs.value, 10);
       if (!isNaN(v)) next.creditFetchDelayMs = Math.max(500, Math.min(15000, v));
     }
   }
+
 
   await saveSettingsOverrides(next);
 }

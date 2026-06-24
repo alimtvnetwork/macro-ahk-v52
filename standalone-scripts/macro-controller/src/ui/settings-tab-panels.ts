@@ -136,10 +136,16 @@ export function buildTimingPanel(makeField: MakeFieldFn): TimingPanelResult {
   inputs['creditPollIntervalSeconds'] = pollField.input;
   panel.appendChild(pollField.row);
 
+  // Splitter queue max size
+  const maxQField = makeField('Max Queue Size', String(overrides.maxQueueSize ?? 200), { type: 'number', hint: 'Maximum persisted splitter tasks per project.' });
+  inputs['maxQueueSize'] = maxQField.input;
+  panel.appendChild(maxQField.row);
+
   // Credit-balance fetch timeout slider (Step 46) — Ktlo/Free/Cancelled.
   const cbField = _buildCreditFetchDelaySlider(overrides.creditFetchDelayMs ?? 3000);
   inputs['creditFetchDelayMs'] = cbField.input;
   panel.appendChild(cbField.row);
+
 
   // Toggles for Delay and Retry
   const automationToggles = _buildAutomationToggles(panel, overrides);
@@ -187,6 +193,8 @@ function _buildAutomationToggles(panel: HTMLElement, overrides: SettingsOverride
     { key: 'enableNextSubmissionDelay', label: 'Enable Submission Delay', value: overrides.enableNextSubmissionDelay !== false, hint: 'Wait between prompts in the queue.' },
     { key: 'autoDetectDelay', label: 'Auto-detect delay', value: overrides.autoDetectDelay !== false, hint: 'Automatically wait if Return button is detected.' },
     { key: 'retryOnFailure', label: 'Retry on Failure', value: overrides.retryOnFailure !== false, hint: 'Hold and retry prompts if injection fails.' },
+    { key: 'splitterAutoEnqueue', label: 'Splitter Auto-Enqueue', value: overrides.splitterAutoEnqueue !== false, hint: 'Auto-add parsed subtasks to the persistent queue.' },
+
   ];
   const toggles: Record<string, HTMLInputElement> = {};
 
