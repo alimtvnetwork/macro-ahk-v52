@@ -50,6 +50,13 @@ vi.mock("@/lib/message-client", () => ({
 }));
 
 /* ─── 2. WASM loader shim — sql.js fetches sql-wasm.wasm by URL. ─── */
+function isSqlWasmPath(path: string | URL): boolean {
+  if (typeof path === "string") {
+    return path.includes("sql-wasm.wasm");
+  }
+  return path.href.includes("sql-wasm.wasm") || path.pathname.includes("sql-wasm.wasm");
+}
+
 function installWasmFetchShim(): void {
   const wasmPath = resolve(process.cwd(), "node_modules/sql.js/dist/sql-wasm.wasm");
   const wasmBytes = readFileSync(wasmPath);
@@ -68,9 +75,9 @@ function installWasmFetchShim(): void {
     throw new Error(`fetch shim: unexpected URL ${url}`);
   }) as typeof fetch;
 
-  // sql.js in Node falls back to fs.readFile when a URL string is given to
-  // locateFile. Patch fs.readFile{,Sync} to redirect any path containing
-  // "sql-wasm.wasm" to the real bundled wasm on disk.
+  // sql.js in Node falls back to fs.readFile when a URL is given to locateFile.
+  // Emscripten converts https://.../sql-wasm.wasm into a URL object before the
+  // fs call, so the shim must catch both string paths and URL objects.
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const fs = require("node:fs") as typeof import("node:fs");
   const origReadFile = fs.readFile.bind(fs);
@@ -79,7 +86,7 @@ function installWasmFetchShim(): void {
   (fs as unknown as { readFile: unknown }).readFile = (
     path: string, ...rest: unknown[]
   ): void => {
-    if (typeof path === "string" && path.includes("sql-wasm.wasm")) {
+    if (isSqlWasmPath(path)) {
       const cb = rest[rest.length - 1] as ReadFileCb;
       cb(null, wasmBytes);
       return;
@@ -89,7 +96,7 @@ function installWasmFetchShim(): void {
   (fs as unknown as { readFileSync: unknown }).readFileSync = (
     path: string, ...rest: unknown[]
   ): Buffer | string => {
-    if (typeof path === "string" && path.includes("sql-wasm.wasm")) {
+    if (isSqlWasmPath(path)) {
       return wasmBytes;
     }
     return (origReadFileSync as unknown as (...a: unknown[]) => Buffer | string)(path, ...rest);
