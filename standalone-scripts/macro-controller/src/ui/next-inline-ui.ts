@@ -27,7 +27,7 @@ import { cPanelFg, cPrimaryLight, cSectionBg } from '../shared-state';
 const STEP_PRESETS = [2, 5, 10, 20] as const;
 const DELAY_PRESETS_SEC = [5, 10, 15, 30, 60] as const;
 const STORAGE_KEY = 'marco-next-inline-prefs';
-const CSS_HINT_LABEL = CSS_HINT_LABEL;
+const CSS_HINT_LABEL = 'font-size:10px;opacity:0.8;';
 
 interface NextState {
   steps: number;
