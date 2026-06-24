@@ -208,21 +208,21 @@ function setPhase(phase: RepeatPhase, durationMs: number): void {
  * could miss). Falls back to button.click() only when the form is
  * absent.
  */
-function dispatchChatSubmit(): boolean {
-  const TAG = 'Repeat';
-  if (typeof document === 'undefined' || !document.body) {
-    showPasteToast('❌ ' + TAG + ': submit aborted — document not ready', true);
-    log('Repeat: submit aborted — document/body not available', 'warn');
-    return false;
-  }
-  let form: HTMLElement | null = null;
-  try { form = document.getElementById('chat-input'); }
-  catch (e) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
-    showPasteToast('⚠ ' + TAG + ': getElementById threw (' + errorMessage + ')', true);
-    log('Repeat: getElementById threw — ' + errorMessage, 'warn');
-  }
+function errMsg(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
+}
 
+function getRepeatChatForm(TAG: string): HTMLElement | null {
+  try { return document.getElementById('chat-input'); }
+  catch (e) {
+    const m = errMsg(e);
+    showPasteToast('⚠ ' + TAG + ': getElementById threw (' + m + ')', true);
+    log('Repeat: getElementById threw — ' + m, 'warn');
+    return null;
+  }
+}
+
+function tryRepeatSubmitForm(TAG: string, form: HTMLElement | null): boolean {
   if (form instanceof HTMLFormElement) {
     try {
       if (typeof form.requestSubmit === 'function') form.requestSubmit();
@@ -232,9 +232,9 @@ function dispatchChatSubmit(): boolean {
       }
       return true;
     } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + errorMessage + ') — trying button', true);
-      log('Repeat: form#chat-input.requestSubmit() threw — falling back to button click: ' + errorMessage, 'warn');
+      const m = errMsg(e);
+      showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + m + ') — trying button', true);
+      log('Repeat: form#chat-input.requestSubmit() threw — falling back to button click: ' + m, 'warn');
     }
   } else if (form) {
     showPasteToast('⚠ ' + TAG + ': #chat-input is <' + form.tagName.toLowerCase() + '>, not <form> — using button', true);
@@ -242,25 +242,41 @@ function dispatchChatSubmit(): boolean {
   } else {
     showPasteToast('⚠ ' + TAG + ': no #chat-input form — using button fallback', true);
   }
-
-  let btn: HTMLElement | null = null;
-  try { btn = findAddToTasksButton(); }
-  catch (e) { log('Repeat: findAddToTasksButton threw — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
-  if (btn && !(btn as HTMLButtonElement).disabled) {
-    try {
-      btn.click();
-      showPasteToast('✅ ' + TAG + ': submitted via submit-button fallback', false);
-      return true;
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      showPasteToast('❌ ' + TAG + ': button click threw (' + errorMessage + ')', true);
-      log('Repeat: submit-button .click() threw — ' + errorMessage, 'warn');
-    }
-  } else {
-    showPasteToast('❌ ' + TAG + ': no enabled submit button — submit failed', true);
-  }
   return false;
 }
+
+function tryRepeatSubmitButton(TAG: string): boolean {
+  let btn: HTMLElement | null = null;
+  try { btn = findAddToTasksButton(); }
+  catch (e) { log('Repeat: findAddToTasksButton threw — ' + errMsg(e), 'warn'); }
+  if (!btn || (btn as HTMLButtonElement).disabled) {
+    showPasteToast('❌ ' + TAG + ': no enabled submit button — submit failed', true);
+    return false;
+  }
+  try {
+    btn.click();
+    showPasteToast('✅ ' + TAG + ': submitted via submit-button fallback', false);
+    return true;
+  } catch (e) {
+    const m = errMsg(e);
+    showPasteToast('❌ ' + TAG + ': button click threw (' + m + ')', true);
+    log('Repeat: submit-button .click() threw — ' + m, 'warn');
+    return false;
+  }
+}
+
+function dispatchChatSubmit(): boolean {
+  const TAG = 'Repeat';
+  if (typeof document === 'undefined' || !document.body) {
+    showPasteToast('❌ ' + TAG + ': submit aborted — document not ready', true);
+    log('Repeat: submit aborted — document/body not available', 'warn');
+    return false;
+  }
+  const form = getRepeatChatForm(TAG);
+  if (tryRepeatSubmitForm(TAG, form)) return true;
+  return tryRepeatSubmitButton(TAG);
+}
+
 
 /** Returns true if iteration submitted successfully; false if loop should break. */
 async function submitOneIteration(): Promise<boolean> {
