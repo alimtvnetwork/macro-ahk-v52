@@ -361,7 +361,7 @@ const TASK_NEXT_QUEUE_LABEL = 'Task Next queue';
 
 type CycleStatus = 'ok' | 'paste-failed' | 'submit-failed' | 'idle-cancelled' | 'idle-timeout' | 'cancelled';
 
-async function resolveCyclePrompt(deps: TaskNextDeps, legacyText: string): Promise<{ text: string; source: TaskNextPromptSource; remaining: number }> {
+async function resolveCyclePrompt(_deps: TaskNextDeps, legacyText: string): Promise<{ text: string; source: TaskNextPromptSource; remaining: number }> {
   const dequeued = await dequeueTaskNextPrompt();
   if (dequeued.failed) return { text: '', source: 'queue', remaining: -1 };
   if (dequeued.selection) return { text: dequeued.selection.text, source: 'queue', remaining: dequeued.selection.remaining };
