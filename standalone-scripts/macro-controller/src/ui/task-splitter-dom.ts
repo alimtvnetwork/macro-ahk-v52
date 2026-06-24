@@ -14,9 +14,8 @@ function cleanText(value: string | null): string {
 
 function isSplitterCandidate(element: Element): boolean {
     const text = cleanText(element.textContent);
-    const hasJsonShape = text.includes("subtasks") && text.includes("{") && text.includes("}");
 
-    return hasJsonShape;
+    return text.includes("subtasks") && text.includes("{") && text.includes("}");
 }
 
 function getCandidateElements(doc: Document): Element[] {
