@@ -136,7 +136,7 @@ function wireSummaryBarSubscription(summaryBar: SummaryBarHandle): void {
   });
 }
 
-function mountUiContainer(container: Element, ui: HTMLElement): void {
+function mountUiContainer(container: Node, ui: HTMLElement): void {
   container.appendChild(ui);
   void mountTaskQueueReinjectionToast();
 }
