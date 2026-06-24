@@ -359,7 +359,7 @@ function dispatchTaskNextSubmit(): boolean {
  */
 const TASK_NEXT_QUEUE_LABEL = 'Task Next queue';
 
-type CycleStatus = 'ok' | 'paste-failed' | 'submit-failed' | 'idle-cancelled' | 'idle-timeout' | 'cancelled';
+type CycleStatus = 'ok' | 'paste-failed' | 'submit-failed' | 'idle-cancelled' | 'idle-timeout' | 'cancelled' | 'queue-empty';
 
 async function resolveCyclePrompt(_deps: TaskNextDeps, legacyText: string): Promise<{ text: string; source: TaskNextPromptSource; remaining: number }> {
   const dequeued = await dequeueTaskNextPrompt();
@@ -379,6 +379,7 @@ async function runTaskNextCycle(
   const cycleStart = Date.now();
   const chosen = await resolveCyclePrompt(deps, legacyPromptText);
   if (chosen.remaining === -1) return 'paste-failed';
+  if (!chosen.text) return 'queue-empty';
   const promptsCfg = deps.getPromptsConfig();
   const outcome = pasteIntoEditor(chosen.text, promptsCfg, deps.getByXPath);
   if (String(outcome) === 'failed') return 'paste-failed';
