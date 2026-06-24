@@ -142,6 +142,33 @@ function mountUiContainer(container: Node, ui: HTMLElement): void {
   void mountTaskQueueReinjectionToast();
 }
 
+interface PanelChildren {
+  titleRow: HTMLElement;
+  summaryBar: { root: HTMLElement };
+  status: HTMLElement;
+  infoRow: HTMLElement;
+  btnRow: HTMLElement;
+  wsDropSection: HTMLElement;
+  taskQueueSection: HTMLElement;
+  repeatPanelSection: HTMLElement;
+  taskSplitterSection: HTMLElement;
+  toolsSection: HTMLElement;
+}
+
+function assemblePanelChildren(ui: HTMLElement, c: PanelChildren): void {
+  ui.appendChild(c.titleRow);
+  ui.appendChild(c.summaryBar.root);
+  ui.appendChild(c.status);
+  ui.appendChild(c.infoRow);
+  ui.appendChild(c.btnRow);
+  ui.appendChild(c.wsDropSection);
+  ui.appendChild(c.taskQueueSection);
+  ui.appendChild(c.repeatPanelSection);
+  ui.appendChild(c.taskSplitterSection);
+  ui.appendChild(c.toolsSection);
+}
+
+
  
 export function createUI(deps: PanelBuilderDeps): void {
   let container = getByXPath(CONFIG.CONTROLS_XPATH);
