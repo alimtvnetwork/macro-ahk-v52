@@ -112,6 +112,10 @@ vi.mock('../ui/task-next-ui', () => ({
   setupTaskNextCancelHandler: vi.fn(),
 }));
 
+vi.mock('../ui/task-queue-reinjection-toast', () => ({
+  mountTaskQueueReinjectionToast: vi.fn(() => Promise.resolve()),
+}));
+
 vi.mock('../ui/save-prompt', () => ({
   injectSavePromptButton: vi.fn(),
 }));
@@ -271,6 +275,12 @@ describe('panel-builder', () => {
     const mod = await import('../ui/keyboard-handlers');
     createUI(makeMockDeps());
     expect(mod.registerKeyboardHandlers).toHaveBeenCalled();
+  });
+
+  it('checks the persisted splitter queue on UI mount', async () => {
+    const mod = await import('../ui/task-queue-reinjection-toast');
+    createUI(makeMockDeps());
+    expect(mod.mountTaskQueueReinjectionToast).toHaveBeenCalledTimes(1);
   });
 
   it('wires start/stop button click to deps.startLoop', () => {
