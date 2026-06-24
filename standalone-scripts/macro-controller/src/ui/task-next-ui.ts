@@ -449,7 +449,7 @@ export async function runTaskNextQueue(deps: TaskNextDeps, count: number): Promi
 
   try {
     for (let k = 0; k < n; k++) {
-      const status = await runTaskNextCycle(deps, prompt.text, k, n, waitForLovableIdle);
+      const status = await runTaskNextCycle(deps, legacyText, k, n, waitForLovableIdle);
       if (status !== 'ok') { reportCycleStatus(status, k, n); break; }
     }
     if (!taskNextState.cancelled && taskNextState.queue.completed >= n) {
