@@ -367,23 +367,34 @@ function buildControl(deps: TaskNextDeps): HTMLElement {
 
   const label = document.createElement('span');
   label.textContent = '▶ Next';
-  label.style.cssText = 'font-weight:600;color:' + cPrimaryLight + ';';
+  label.style.cssText = 'font-weight:600;color:' + cPrimaryLight + ';cursor:pointer;';
   root.appendChild(label);
-  buildStepsSection(root);
 
-
+  const body = document.createElement('span');
+  body.dataset.role = 'next-body';
+  body.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1;';
+  buildStepsSection(body);
   const sep = document.createElement('span');
   sep.style.cssText = 'border-left:1px solid rgba(124,58,237,0.25);height:14px;margin:0 2px;';
-  root.appendChild(sep);
-
-  buildDelaySection(root);
-
+  body.appendChild(sep);
+  buildDelaySection(body);
   const progress = document.createElement('span');
   progress.style.cssText = 'font-size:10px;color:' + cPrimaryLight + ';margin-left:4px;min-width:42px;';
-  root.appendChild(progress);
-
+  body.appendChild(progress);
   const action = buildActionButton(deps);
-  root.appendChild(action);
+  body.appendChild(action);
+  root.appendChild(body);
+
+  const applyCollapse = (): void => { body.style.display = state.nextCollapsed ? 'none' : 'flex'; };
+  const chevron = makeChevron(() => state.nextCollapsed, () => {
+    state.nextCollapsed = !state.nextCollapsed;
+    persist();
+    applyCollapse();
+  });
+  root.appendChild(chevron);
+  label.onclick = function () { chevron.click(); };
+  applyCollapse();
+
   wireRender(root, action, progress);
   return root;
 }
