@@ -242,16 +242,26 @@ async function waitForCompletion(maxMs: number): Promise<void> {
 
 // ── actions ─────────────────────────────────────────────────────────
 
+function readEditorText(): string {
+  try {
+    const target = findPasteTarget(getPromptsConfig(), (xp) => getByXPath(xp) as Element | null);
+    if (!target) return '';
+    if (target instanceof HTMLTextAreaElement || target instanceof HTMLInputElement) return target.value || '';
+    return (target.textContent || '');
+  } catch (e) { log('TaskSplitter: readEditorText failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); return ''; }
+}
+
 async function breakIntoSteps(): Promise<void> {
   if (state.running) {
     showPasteToast('⏸ Task Splitter is already running', true);
     return;
   }
-  const text = state.bigText.trim();
+  const text = readEditorText().trim();
   if (!text) {
-    showPasteToast('❌ Task Splitter: paste an instruction first', true);
+    showPasteToast('❌ Task Splitter: type your instruction in the Lovable chat box first', true);
     return;
   }
+  state.bigText = text;
   state.running = true;
   state.cancelled = false;
   notify();
