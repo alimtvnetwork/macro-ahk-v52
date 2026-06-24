@@ -42,6 +42,8 @@ interface NextState {
   delaySec: number;
   completed: number;
   phaseDeadlineAt: number;
+  planCollapsed: boolean;
+  nextCollapsed: boolean;
   subscribers: Set<() => void>;
 }
 
@@ -50,13 +52,18 @@ const state: NextState = {
   delaySec: 10,
   completed: 0,
   phaseDeadlineAt: 0,
+  planCollapsed: false,
+  nextCollapsed: false,
   subscribers: new Set(),
 };
 
 function persist(): void {
   try {
     if (typeof localStorage === 'undefined') return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ steps: state.steps, delaySec: state.delaySec }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      steps: state.steps, delaySec: state.delaySec,
+      planCollapsed: state.planCollapsed, nextCollapsed: state.nextCollapsed,
+    }));
   } catch (e) { log('NextInline: persist failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
 }
 
@@ -65,12 +72,26 @@ function hydrate(): void {
     if (typeof localStorage === 'undefined') return;
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
-    const o = JSON.parse(raw) as { steps?: number; delaySec?: number };
+    const o = JSON.parse(raw) as { steps?: number; delaySec?: number; planCollapsed?: boolean; nextCollapsed?: boolean };
     if (typeof o.steps === 'number' && o.steps >= 1) state.steps = Math.min(200, Math.floor(o.steps));
     if (typeof o.delaySec === 'number' && o.delaySec >= 1) state.delaySec = Math.min(3600, Math.floor(o.delaySec));
+    if (typeof o.planCollapsed === 'boolean') state.planCollapsed = o.planCollapsed;
+    if (typeof o.nextCollapsed === 'boolean') state.nextCollapsed = o.nextCollapsed;
   } catch (e) { log('NextInline: hydrate failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
 }
 hydrate();
+
+function makeChevron(getCollapsed: () => boolean, onToggle: () => void): HTMLButtonElement {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.title = 'Collapse / expand';
+  btn.style.cssText = 'background:transparent;border:none;color:' + cPanelFg + ';cursor:pointer;font-size:11px;padding:0 4px;opacity:0.75;';
+  const render = (): void => { btn.textContent = getCollapsed() ? '▸' : '▾'; };
+  render();
+  btn.onclick = function (ev) { ev.stopPropagation(); onToggle(); render(); };
+  return btn;
+}
+
 
 function notify(): void {
   for (const s of state.subscribers) {
@@ -201,21 +222,23 @@ function buildSplitStrip(): HTMLElement {
 
   const label = document.createElement('span');
   label.textContent = '📋 Plan';
-  label.style.cssText = 'font-weight:600;color:#fbbf24;';
+  label.style.cssText = 'font-weight:600;color:#fbbf24;cursor:pointer;';
   root.appendChild(label);
+
+  const body = document.createElement('span');
+  body.dataset.role = 'plan-body';
+  body.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1;';
 
   const hint = document.createElement('span');
   hint.textContent = 'click a number to add';
   hint.style.cssText = CSS_HINT_LABEL;
-  root.appendChild(hint);
+  body.appendChild(hint);
 
-  // Inline highlighted presets — one-click add
   for (const n of PLAN_PRESETS) {
     if (!PLAN_PRESETS_HIGHLIGHT.has(n)) continue;
-    root.appendChild(makePresetButton(n, true));
+    body.appendChild(makePresetButton(n, true));
   }
 
-  // Drop-up "More" button
   const moreWrap = document.createElement('span');
   moreWrap.style.cssText = 'position:relative;margin-left:auto;display:inline-block;';
   const moreBtn = document.createElement('button');
@@ -230,7 +253,20 @@ function buildSplitStrip(): HTMLElement {
     ev.stopPropagation();
     panel.style.display = panel.style.display === 'grid' ? 'none' : 'grid';
   };
-  root.appendChild(moreWrap);
+  body.appendChild(moreWrap);
+
+  root.appendChild(body);
+
+  const applyCollapse = (): void => { body.style.display = state.planCollapsed ? 'none' : 'flex'; };
+  const chevron = makeChevron(() => state.planCollapsed, () => {
+    state.planCollapsed = !state.planCollapsed;
+    persist();
+    applyCollapse();
+  });
+  root.appendChild(chevron);
+  label.onclick = function () { chevron.click(); };
+  applyCollapse();
+
   return root;
 }
 
@@ -331,23 +367,34 @@ function buildControl(deps: TaskNextDeps): HTMLElement {
 
   const label = document.createElement('span');
   label.textContent = '▶ Next';
-  label.style.cssText = 'font-weight:600;color:' + cPrimaryLight + ';';
+  label.style.cssText = 'font-weight:600;color:' + cPrimaryLight + ';cursor:pointer;';
   root.appendChild(label);
-  buildStepsSection(root);
 
-
+  const body = document.createElement('span');
+  body.dataset.role = 'next-body';
+  body.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1;';
+  buildStepsSection(body);
   const sep = document.createElement('span');
   sep.style.cssText = 'border-left:1px solid rgba(124,58,237,0.25);height:14px;margin:0 2px;';
-  root.appendChild(sep);
-
-  buildDelaySection(root);
-
+  body.appendChild(sep);
+  buildDelaySection(body);
   const progress = document.createElement('span');
   progress.style.cssText = 'font-size:10px;color:' + cPrimaryLight + ';margin-left:4px;min-width:42px;';
-  root.appendChild(progress);
-
+  body.appendChild(progress);
   const action = buildActionButton(deps);
-  root.appendChild(action);
+  body.appendChild(action);
+  root.appendChild(body);
+
+  const applyCollapse = (): void => { body.style.display = state.nextCollapsed ? 'none' : 'flex'; };
+  const chevron = makeChevron(() => state.nextCollapsed, () => {
+    state.nextCollapsed = !state.nextCollapsed;
+    persist();
+    applyCollapse();
+  });
+  root.appendChild(chevron);
+  label.onclick = function () { chevron.click(); };
+  applyCollapse();
+
   wireRender(root, action, progress);
   return root;
 }
