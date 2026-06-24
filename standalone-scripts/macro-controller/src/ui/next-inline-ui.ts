@@ -341,24 +341,25 @@ function tryMountInline(deps: TaskNextDeps): boolean {
   const host = (target.closest && target.closest('form')) || target.parentElement;
   if (!host || !host.parentElement) return false;
 
-  if (!document.getElementById(INLINE_ID)) {
-    const strip = buildControl(deps);
-    strip.id = INLINE_ID;
-    strip.style.margin = '4px 0 2px';
-    host.parentElement.insertBefore(strip, host);
-  }
+  // Order top→bottom: Plan → Next → (Repeat strip mounts after, closest to chat)
   if (!document.getElementById(SPLIT_ID)) {
     const splitStrip = buildSplitStrip();
     splitStrip.id = SPLIT_ID;
-    splitStrip.style.margin = '0 0 4px';
-    const nextStrip = document.getElementById(INLINE_ID);
-    if (nextStrip && nextStrip.parentElement) {
-      nextStrip.parentElement.insertBefore(splitStrip, nextStrip.nextSibling);
+    splitStrip.style.margin = '4px 0 2px';
+    host.parentElement.insertBefore(splitStrip, host);
+  }
+  if (!document.getElementById(INLINE_ID)) {
+    const strip = buildControl(deps);
+    strip.id = INLINE_ID;
+    strip.style.margin = '0 0 2px';
+    const splitStrip = document.getElementById(SPLIT_ID);
+    if (splitStrip && splitStrip.parentElement) {
+      splitStrip.parentElement.insertBefore(strip, splitStrip.nextSibling);
     } else {
-      host.parentElement.insertBefore(splitStrip, host);
+      host.parentElement.insertBefore(strip, host);
     }
   }
-  log('NextInline: strips mounted (next + split) above chat box', 'info');
+  log('NextInline: strips mounted (plan + next) above chat box', 'info');
   return true;
 }
 
