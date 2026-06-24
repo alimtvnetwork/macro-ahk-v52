@@ -226,21 +226,21 @@ export function runTaskNextLoop(deps: TaskNextDeps, count: number) {
  * Prefers `form#chat-input.requestSubmit()` over clicking the submit button so
  * Lovable's own form-level handler runs (avoids brittle XPath drift).
  */
-function dispatchTaskNextSubmit(): boolean {
-  const TAG = 'Task Next';
-  if (typeof document === 'undefined' || !document.body) {
-    showPasteToast('❌ ' + TAG + ': submit aborted — document not ready', true);
-    log('Task Next: submit aborted — document/body not available', 'warn');
-    return false;
-  }
-  let form: HTMLElement | null = null;
-  try { form = document.getElementById('chat-input'); }
+function tnErrMsg(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
+}
+
+function getTaskNextForm(TAG: string): HTMLElement | null {
+  try { return document.getElementById('chat-input'); }
   catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
+    const msg = tnErrMsg(e);
     showPasteToast('⚠ ' + TAG + ': getElementById threw (' + msg + ')', true);
     log('Task Next: getElementById threw — ' + msg, 'warn');
+    return null;
   }
+}
 
+function tryTaskNextSubmitForm(TAG: string, form: HTMLElement | null): boolean {
   if (form instanceof HTMLFormElement) {
     try {
       if (typeof form.requestSubmit === 'function') form.requestSubmit();
@@ -250,7 +250,7 @@ function dispatchTaskNextSubmit(): boolean {
       }
       return true;
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
+      const msg = tnErrMsg(e);
       showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + msg + ') — trying button', true);
       logError('Task Next', 'form#chat-input.requestSubmit() threw — falling back to button click', e);
     }
@@ -260,25 +260,41 @@ function dispatchTaskNextSubmit(): boolean {
   } else {
     showPasteToast('⚠ ' + TAG + ': no #chat-input form — using button fallback', true);
   }
+  return false;
+}
 
+function tryTaskNextSubmitButton(TAG: string): boolean {
   let btn: HTMLElement | null = null;
   try { btn = findAddToTasksButton(); }
   catch (e) { logError('Task Next', 'findAddToTasksButton threw', e); }
-  if (btn && !(btn as HTMLButtonElement).disabled) {
-    try {
-      btn.click();
-      showPasteToast('✅ ' + TAG + ': submitted via submit-button fallback', false);
-      return true;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      showPasteToast('❌ ' + TAG + ': button click threw (' + msg + ')', true);
-      logError('Task Next', 'submit-button .click() threw', e);
-    }
-  } else {
+  if (!btn || (btn as HTMLButtonElement).disabled) {
     showPasteToast('❌ ' + TAG + ': no enabled submit button — submit failed', true);
+    return false;
   }
-  return false;
+  try {
+    btn.click();
+    showPasteToast('✅ ' + TAG + ': submitted via submit-button fallback', false);
+    return true;
+  } catch (e) {
+    const msg = tnErrMsg(e);
+    showPasteToast('❌ ' + TAG + ': button click threw (' + msg + ')', true);
+    logError('Task Next', 'submit-button .click() threw', e);
+    return false;
+  }
 }
+
+function dispatchTaskNextSubmit(): boolean {
+  const TAG = 'Task Next';
+  if (typeof document === 'undefined' || !document.body) {
+    showPasteToast('❌ ' + TAG + ': submit aborted — document not ready', true);
+    log('Task Next: submit aborted — document/body not available', 'warn');
+    return false;
+  }
+  const form = getTaskNextForm(TAG);
+  if (tryTaskNextSubmitForm(TAG, form)) return true;
+  return tryTaskNextSubmitButton(TAG);
+}
+
 
 /**
  * Sequential queue: paste prompt #1 → submit → await Lovable idle → paste #2 →

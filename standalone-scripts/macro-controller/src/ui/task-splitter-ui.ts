@@ -31,6 +31,7 @@ const DELAY_DEFAULT = 15;
 const STORAGE_KEY = 'marco-task-splitter-prefs';
 const POLL_MS = 500;
 const MAX_WAIT_MS = 10 * 60 * 1000;
+const ROW_STYLE = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;';
 
 interface SplitterState {
   bigText: string;
@@ -141,21 +142,21 @@ function resolvePerStepPrompt(): PromptEntry | null {
 
 // ── chat submit (mirrors repeat-loop-ui.dispatchChatSubmit) ─────────
 
-function dispatchSubmit(): boolean {
-  const TAG = 'Splitter';
-  if (typeof document === 'undefined' || !document.body) {
-    showPasteToast('❌ ' + TAG + ': submit aborted — document not ready', true);
-    log('TaskSplitter: submit aborted — document/body not available', 'warn');
-    return false;
-  }
-  let form: HTMLElement | null = null;
-  try { form = document.getElementById('chat-input'); }
-  catch (e) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
-    showPasteToast('⚠ ' + TAG + ': getElementById threw (' + errorMessage + ') — trying button', true);
-    log('TaskSplitter: getElementById threw — ' + errorMessage, 'warn');
-  }
+function errMsg(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
+}
 
+function getChatForm(TAG: string): HTMLElement | null {
+  try { return document.getElementById('chat-input'); }
+  catch (e) {
+    const m = errMsg(e);
+    showPasteToast('⚠ ' + TAG + ': getElementById threw (' + m + ') — trying button', true);
+    log('TaskSplitter: getElementById threw — ' + m, 'warn');
+    return null;
+  }
+}
+
+function trySubmitForm(TAG: string, form: HTMLElement | null): boolean {
   if (form instanceof HTMLFormElement) {
     try {
       if (typeof form.requestSubmit === 'function') form.requestSubmit();
@@ -165,8 +166,8 @@ function dispatchSubmit(): boolean {
       }
       return true;
     } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + errorMessage + ') — falling back to button click', true);
+      const m = errMsg(e);
+      showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + m + ') — falling back to button click', true);
       logError('TaskSplitter', 'form#chat-input.requestSubmit() threw — falling back to button click', e);
     }
   } else if (form) {
@@ -175,27 +176,43 @@ function dispatchSubmit(): boolean {
   } else {
     showPasteToast('⚠ ' + TAG + ': no #chat-input form — using button fallback', true);
   }
+  return false;
+}
 
+function trySubmitButton(TAG: string): boolean {
   let btn: HTMLElement | null = null;
   try { btn = findAddToTasksButton(); }
   catch (e) { logError('TaskSplitter', 'findAddToTasksButton threw', e); }
-  if (btn && !(btn as HTMLButtonElement).disabled) {
-    try {
-      btn.click();
-      showPasteToast('✅ ' + TAG + ': submitted via submit-button fallback', false);
-      return true;
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      showPasteToast('❌ ' + TAG + ': button click threw (' + errorMessage + ')', true);
-      logError('TaskSplitter', 'submit-button .click() threw', e);
-    }
-  } else {
+  if (!btn || (btn as HTMLButtonElement).disabled) {
     showPasteToast('❌ ' + TAG + ': no enabled submit button found — submit failed', true);
+    return false;
   }
+  try {
+    btn.click();
+    showPasteToast('✅ ' + TAG + ': submitted via submit-button fallback', false);
+    return true;
+  } catch (e) {
+    const m = errMsg(e);
+    showPasteToast('❌ ' + TAG + ': button click threw (' + m + ')', true);
+    logError('TaskSplitter', 'submit-button .click() threw', e);
+    return false;
+  }
+}
 
+function dispatchSubmit(): boolean {
+  const TAG = 'Splitter';
+  if (typeof document === 'undefined' || !document.body) {
+    showPasteToast('❌ ' + TAG + ': submit aborted — document not ready', true);
+    log('TaskSplitter: submit aborted — document/body not available', 'warn');
+    return false;
+  }
+  const form = getChatForm(TAG);
+  if (trySubmitForm(TAG, form)) return true;
+  if (trySubmitButton(TAG)) return true;
   log('TaskSplitter: submit failed — no form#chat-input and no enabled submit button', 'warn');
   return false;
 }
+
 
 async function pasteAndSubmit(text: string): Promise<boolean> {
   try {
@@ -401,7 +418,7 @@ function buildControl(): HTMLElement {
 
   // Row 1: N + Delay
   const row1 = document.createElement('div');
-  row1.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;';
+  row1.style.cssText = ROW_STYLE;
   const nLbl = document.createElement('span'); nLbl.textContent = 'Steps'; nLbl.style.opacity = '0.8';
   const nInput = makeInput(String(state.stepCount), '50px');
   nInput.type = 'number'; nInput.min = String(STEP_MIN); nInput.max = String(STEP_MAX);
@@ -422,7 +439,7 @@ function buildControl(): HTMLElement {
 
   // Row 2: Split prompt
   const row2 = document.createElement('div');
-  row2.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;';
+  row2.style.cssText = ROW_STYLE;
   const sLbl = document.createElement('span'); sLbl.textContent = 'Split'; sLbl.style.opacity = '0.8';
   const sSel = makeSelect();
   sSel.style.flex = '1';
@@ -433,7 +450,7 @@ function buildControl(): HTMLElement {
 
   // Row 3: Per-step prompt
   const row3 = document.createElement('div');
-  row3.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;';
+  row3.style.cssText = ROW_STYLE;
   const pLbl = document.createElement('span'); pLbl.textContent = 'Step'; pLbl.style.opacity = '0.8';
   const pSel = makeSelect();
   pSel.style.flex = '1';
@@ -444,7 +461,7 @@ function buildControl(): HTMLElement {
 
   // Row 4: action buttons
   const row4 = document.createElement('div');
-  row4.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;';
+  row4.style.cssText = ROW_STYLE;
   const breakBtn = makeBtn('✂ Break into steps', true);
   breakBtn.onclick = function () { void breakIntoSteps(); };
   const nextBtn = makeBtn('▶ Next', false);
