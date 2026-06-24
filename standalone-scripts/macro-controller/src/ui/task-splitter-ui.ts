@@ -142,21 +142,21 @@ function resolvePerStepPrompt(): PromptEntry | null {
 
 // ── chat submit (mirrors repeat-loop-ui.dispatchChatSubmit) ─────────
 
-function dispatchSubmit(): boolean {
-  const TAG = 'Splitter';
-  if (typeof document === 'undefined' || !document.body) {
-    showPasteToast('❌ ' + TAG + ': submit aborted — document not ready', true);
-    log('TaskSplitter: submit aborted — document/body not available', 'warn');
-    return false;
-  }
-  let form: HTMLElement | null = null;
-  try { form = document.getElementById('chat-input'); }
-  catch (e) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
-    showPasteToast('⚠ ' + TAG + ': getElementById threw (' + errorMessage + ') — trying button', true);
-    log('TaskSplitter: getElementById threw — ' + errorMessage, 'warn');
-  }
+function errMsg(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
+}
 
+function getChatForm(TAG: string): HTMLElement | null {
+  try { return document.getElementById('chat-input'); }
+  catch (e) {
+    const m = errMsg(e);
+    showPasteToast('⚠ ' + TAG + ': getElementById threw (' + m + ') — trying button', true);
+    log('TaskSplitter: getElementById threw — ' + m, 'warn');
+    return null;
+  }
+}
+
+function trySubmitForm(TAG: string, form: HTMLElement | null): boolean {
   if (form instanceof HTMLFormElement) {
     try {
       if (typeof form.requestSubmit === 'function') form.requestSubmit();
@@ -166,8 +166,8 @@ function dispatchSubmit(): boolean {
       }
       return true;
     } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + errorMessage + ') — falling back to button click', true);
+      const m = errMsg(e);
+      showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + m + ') — falling back to button click', true);
       logError('TaskSplitter', 'form#chat-input.requestSubmit() threw — falling back to button click', e);
     }
   } else if (form) {
@@ -176,27 +176,43 @@ function dispatchSubmit(): boolean {
   } else {
     showPasteToast('⚠ ' + TAG + ': no #chat-input form — using button fallback', true);
   }
+  return false;
+}
 
+function trySubmitButton(TAG: string): boolean {
   let btn: HTMLElement | null = null;
   try { btn = findAddToTasksButton(); }
   catch (e) { logError('TaskSplitter', 'findAddToTasksButton threw', e); }
-  if (btn && !(btn as HTMLButtonElement).disabled) {
-    try {
-      btn.click();
-      showPasteToast('✅ ' + TAG + ': submitted via submit-button fallback', false);
-      return true;
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      showPasteToast('❌ ' + TAG + ': button click threw (' + errorMessage + ')', true);
-      logError('TaskSplitter', 'submit-button .click() threw', e);
-    }
-  } else {
+  if (!btn || (btn as HTMLButtonElement).disabled) {
     showPasteToast('❌ ' + TAG + ': no enabled submit button found — submit failed', true);
+    return false;
   }
+  try {
+    btn.click();
+    showPasteToast('✅ ' + TAG + ': submitted via submit-button fallback', false);
+    return true;
+  } catch (e) {
+    const m = errMsg(e);
+    showPasteToast('❌ ' + TAG + ': button click threw (' + m + ')', true);
+    logError('TaskSplitter', 'submit-button .click() threw', e);
+    return false;
+  }
+}
 
+function dispatchSubmit(): boolean {
+  const TAG = 'Splitter';
+  if (typeof document === 'undefined' || !document.body) {
+    showPasteToast('❌ ' + TAG + ': submit aborted — document not ready', true);
+    log('TaskSplitter: submit aborted — document/body not available', 'warn');
+    return false;
+  }
+  const form = getChatForm(TAG);
+  if (trySubmitForm(TAG, form)) return true;
+  if (trySubmitButton(TAG)) return true;
   log('TaskSplitter: submit failed — no form#chat-input and no enabled submit button', 'warn');
   return false;
 }
+
 
 async function pasteAndSubmit(text: string): Promise<boolean> {
   try {
