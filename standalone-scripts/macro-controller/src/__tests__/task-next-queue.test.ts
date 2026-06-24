@@ -73,7 +73,25 @@ describe('Task Next sequential queue (Issue 01)', () => {
     expect(taskNextSrc).toMatch(/dequeue failed before single Next injection; aborting fallback/);
     expect(taskNextSrc).toMatch(/result\.failed \|\| !result\.selection/);
   });
+
+  it('multi-cycle runner mixes queue dequeue with legacy fallback per cycle', () => {
+    // resolveCyclePrompt: queue first, legacy only when queue empty + not failed.
+    expect(taskNextSrc).toMatch(/async function resolveCyclePrompt\(/);
+    expect(taskNextSrc).toMatch(/if \(dequeued\.failed\) return \{ text: '', source: 'queue', remaining: -1 \};/);
+    expect(taskNextSrc).toMatch(/if \(dequeued\.selection\) return \{ text: dequeued\.selection\.text, source: 'queue'/);
+    expect(taskNextSrc).toMatch(/return \{ text: legacyText, source: 'legacy', remaining: 0 \};/);
+  });
+
+  it('cycle runner calls resolveCyclePrompt with the legacy text per iteration', () => {
+    expect(taskNextSrc).toMatch(/const chosen = await resolveCyclePrompt\(deps, legacyPromptText\);/);
+  });
+
+  it('queue-drain failure surfaces via logError — never swallowed', () => {
+    // dequeueTaskNextPrompt catch branch must logError, not return silent success.
+    expect(taskNextSrc).toMatch(/logError\('Task Next queue', 'dequeue failed before single Next injection; aborting fallback'/);
+  });
 });
+
 
 describe('Submenu wiring routes count > 1 to the queue (prompt-dropdown.ts)', () => {
   it('imports runTaskNextQueue alongside runTaskNextLoop', () => {
