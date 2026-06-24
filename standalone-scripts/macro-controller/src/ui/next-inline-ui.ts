@@ -147,9 +147,11 @@ function stopNextQueue(): void {
 function buildSplitButton(): HTMLElement {
   const splitBtn = document.createElement('button');
   splitBtn.type = 'button';
-  splitBtn.textContent = '✂ Split';
+  splitBtn.innerHTML = '<span style="font-size:13px;line-height:1;">✂</span><span style="margin-left:4px;letter-spacing:0.3px;">Split into steps</span>';
   splitBtn.title = 'Read the chat box text and split it into the chosen number of steps';
-  splitBtn.style.cssText = 'padding:4px 10px;border:1px solid rgba(217,119,6,0.5);border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#fff;background:linear-gradient(135deg,#f59e0b 0%,#d97706 50%,#b45309 100%);box-shadow:0 2px 6px rgba(217,119,6,0.35), inset 0 1px 0 rgba(255,255,255,0.18);';
+  splitBtn.setAttribute('aria-label', 'Split into steps');
+  splitBtn.dataset.role = 'split-btn';
+  splitBtn.style.cssText = 'display:inline-flex;align-items:center;padding:5px 12px;border:1px solid #fbbf24;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,#f59e0b 0%,#d97706 50%,#b45309 100%);box-shadow:0 2px 8px rgba(245,158,11,0.55), inset 0 1px 0 rgba(255,255,255,0.25);text-shadow:0 1px 1px rgba(0,0,0,0.3);';
   splitBtn.onclick = function () {
     if (taskNextState.running || isSplitterRunning()) {
       showPasteToast('⏸ Another run is in progress', true);
