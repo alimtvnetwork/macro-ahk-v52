@@ -61,6 +61,18 @@ describe('Task Next sequential queue (Issue 01)', () => {
     expect(taskNextSrc).toMatch(/queue:\s*\{[\s\S]{0,200}total:\s*number;[\s\S]{0,200}completed:\s*number;/);
     expect(taskNextSrc).toMatch(/taskNextState\.queue\.completed = k \+ 1;/);
   });
+
+  it('single Next prefers persisted splitter queue before legacy prompt fallback', () => {
+    expect(taskNextSrc).toMatch(/getPersistentTaskQueue/);
+    expect(taskNextSrc).toMatch(/await queue\.dequeue\(projectId\)/);
+    expect(taskNextSrc).toMatch(/selectLegacyTaskNextPrompt\(deps\)/);
+    expect(taskNextSrc).toMatch(/pasteIntoEditor\(result\.selection\.text/);
+  });
+
+  it('single Next fail-fast aborts legacy fallback when queue read fails', () => {
+    expect(taskNextSrc).toMatch(/dequeue failed before single Next injection; aborting fallback/);
+    expect(taskNextSrc).toMatch(/result\.failed \|\| !result\.selection/);
+  });
 });
 
 describe('Submenu wiring routes count > 1 to the queue (prompt-dropdown.ts)', () => {
