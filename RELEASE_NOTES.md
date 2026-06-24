@@ -1,27 +1,27 @@
-# Marco Chrome Extension v4.1.0
+# Marco Chrome Extension v4.2.0
 
 ## Changed
 
-- **Inline `📋 Plan` strip (renamed from ✂ Split).** The amber strip below
-  the Lovable chat box now appends the `Plan ${N}` library prompt onto
-  whatever you've already typed — it no longer auto-submits. Review, tweak,
-  then press Send yourself.
-- **Expanded Plan presets.** Quick-pick buttons: 5, 10, 12, 15, 18, 20, 22,
-  25, 28, 30, 32, 35, 38, 40, 42, 45, 48, 50, 52, 55, 58, 60, 70, 80, 100,
-  125, 150, 200. Highlighted picks (stronger amber): **5, 10, 12, 15, 30**.
-- **Trimmed Next presets.** `▶ Next` strip presets: 1, 2, 3, 5, 8, 10, 15.
-  Highlighted: **5, 10**. Manual entry still accepts up to 200.
+- **Inline chat strips reordered** to match the natural workflow:
+  - 📋 **Plan** (top)
+  - ▶ **Next** (middle)
+  - 🔁 **Repeat** (bottom, closest to the chat box)
+
+  The previous Next-on-top / Plan-below layout was confusing. Action
+  buttons now stay right-aligned in a consistent vertical stack.
+
+- **Root `readme.md`** install snippets and pinned-version badges
+  bumped from `v4.0.0` → `v4.2.0`.
 
 ## Internal
 
-- New export `triggerPlanPasteFromInline(n)` in `task-splitter-ui.ts`
-  performs append-without-submit via `pasteIntoEditor` on the chat target.
-- Legacy `triggerSplitFromInline` export kept for back-compat (unused by
-  the inline strip).
+- Version pins moved 4.1.0 → 4.2.0 across `version.json`,
+  `manifest.json`, `src/shared/constants.ts`, every
+  `standalone-scripts/**/instruction.ts`, `shared-state.ts`,
+  `payment-banner-hider/src/index.ts`, and the prompts bundle metadata.
 
 ## Verification
 
-- `pnpm run lint` — clean (no new errors).
-- Manual: open Lovable, type a sentence, click `📋 Plan` with `15`
-  selected — chat box now contains your sentence followed by the
-  `Plan 15` prompt body and is NOT submitted.
+- Manual: open Lovable — the strips above the chat box now render as
+  Plan / Next / Repeat top-to-bottom, all three action buttons
+  right-aligned.
