@@ -222,21 +222,23 @@ function buildSplitStrip(): HTMLElement {
 
   const label = document.createElement('span');
   label.textContent = '📋 Plan';
-  label.style.cssText = 'font-weight:600;color:#fbbf24;';
+  label.style.cssText = 'font-weight:600;color:#fbbf24;cursor:pointer;';
   root.appendChild(label);
+
+  const body = document.createElement('span');
+  body.dataset.role = 'plan-body';
+  body.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1;';
 
   const hint = document.createElement('span');
   hint.textContent = 'click a number to add';
   hint.style.cssText = CSS_HINT_LABEL;
-  root.appendChild(hint);
+  body.appendChild(hint);
 
-  // Inline highlighted presets — one-click add
   for (const n of PLAN_PRESETS) {
     if (!PLAN_PRESETS_HIGHLIGHT.has(n)) continue;
-    root.appendChild(makePresetButton(n, true));
+    body.appendChild(makePresetButton(n, true));
   }
 
-  // Drop-up "More" button
   const moreWrap = document.createElement('span');
   moreWrap.style.cssText = 'position:relative;margin-left:auto;display:inline-block;';
   const moreBtn = document.createElement('button');
@@ -251,7 +253,20 @@ function buildSplitStrip(): HTMLElement {
     ev.stopPropagation();
     panel.style.display = panel.style.display === 'grid' ? 'none' : 'grid';
   };
-  root.appendChild(moreWrap);
+  body.appendChild(moreWrap);
+
+  root.appendChild(body);
+
+  const applyCollapse = (): void => { body.style.display = state.planCollapsed ? 'none' : 'flex'; };
+  const chevron = makeChevron(() => state.planCollapsed, () => {
+    state.planCollapsed = !state.planCollapsed;
+    persist();
+    applyCollapse();
+  });
+  root.appendChild(chevron);
+  label.onclick = function () { chevron.click(); };
+  applyCollapse();
+
   return root;
 }
 
