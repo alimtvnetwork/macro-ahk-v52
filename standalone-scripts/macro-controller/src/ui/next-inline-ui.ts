@@ -144,23 +144,58 @@ function stopNextQueue(): void {
 
 // ── UI ──────────────────────────────────────────────────────────────
 
-function buildSplitButton(): HTMLElement {
+function buildSplitStrip(): HTMLElement {
+  const root = document.createElement('div');
+  root.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 6px;background:' + cSectionBg + ';border:1px solid rgba(245,158,11,0.35);border-radius:6px;font-family:system-ui,-apple-system,sans-serif;color:' + cPanelFg + ';font-size:11px;box-sizing:border-box;';
+
+  const label = document.createElement('span');
+  label.textContent = '✂ Split';
+  label.style.cssText = 'font-weight:600;color:#fbbf24;';
+  root.appendChild(label);
+
+  const stepsLbl = document.createElement('span');
+  stepsLbl.textContent = 'into';
+  stepsLbl.style.cssText = 'font-size:10px;opacity:0.8;';
+  root.appendChild(stepsLbl);
+
+  const stepsInput = document.createElement('input');
+  stepsInput.type = 'number'; stepsInput.min = '2'; stepsInput.max = '20';
+  stepsInput.value = String(Math.min(20, Math.max(2, state.steps)));
+  stepsInput.style.cssText = 'width:50px;padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(245,158,11,0.35);border-radius:4px;color:' + cPanelFg + ';font-size:11px;';
+  stepsInput.dataset.role = 'split-steps-input';
+  root.appendChild(stepsInput);
+
+  const unitLbl = document.createElement('span');
+  unitLbl.textContent = 'steps';
+  unitLbl.style.cssText = 'font-size:10px;opacity:0.8;';
+  root.appendChild(unitLbl);
+
+  for (const n of [2, 5, 10, 20] as const) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = String(n); b.title = 'Split into ' + n + ' steps';
+    b.style.cssText = 'padding:2px 6px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:10px;';
+    b.onclick = function () { stepsInput.value = String(n); };
+    root.appendChild(b);
+  }
+
   const splitBtn = document.createElement('button');
   splitBtn.type = 'button';
-  splitBtn.innerHTML = '<span style="font-size:13px;line-height:1;">✂</span><span style="margin-left:4px;letter-spacing:0.3px;">Split into steps</span>';
-  splitBtn.title = 'Read the chat box text and split it into the chosen number of steps';
-  splitBtn.setAttribute('aria-label', 'Split into steps');
+  splitBtn.textContent = '✂ Split';
+  splitBtn.title = 'Send the "Plan ${N}" library prompt for the chosen step count';
   splitBtn.dataset.role = 'split-btn';
-  splitBtn.style.cssText = 'display:inline-flex;align-items:center;padding:5px 12px;border:1px solid #fbbf24;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,#f59e0b 0%,#d97706 50%,#b45309 100%);box-shadow:0 2px 8px rgba(245,158,11,0.55), inset 0 1px 0 rgba(255,255,255,0.25);text-shadow:0 1px 1px rgba(0,0,0,0.3);';
+  splitBtn.style.cssText = 'margin-left:auto;padding:5px 14px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#1a1a2e;background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%);box-shadow:0 2px 6px rgba(245,158,11,0.45), inset 0 1px 0 rgba(255,255,255,0.25);';
   splitBtn.onclick = function () {
     if (taskNextState.running || isSplitterRunning()) {
       showPasteToast('⏸ Another run is in progress', true);
       return;
     }
-    void triggerSplitFromInline(state.steps);
+    const n = Math.max(2, Math.min(20, parseInt(stepsInput.value, 10) || 5));
+    void triggerSplitFromInline(n);
   };
-  return splitBtn;
+  root.appendChild(splitBtn);
+  return root;
 }
+
 
 function buildStepsSection(root: HTMLElement): void {
   const stepsLbl = document.createElement('span'); stepsLbl.textContent = 'steps'; stepsLbl.style.cssText = 'font-size:10px;opacity:0.8;';
