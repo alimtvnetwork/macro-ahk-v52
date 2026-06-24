@@ -23,6 +23,27 @@ import { vi } from "vitest";
 
 import { buildFullFixture, type FixtureBundle } from "./build-fixture";
 
+const SQL_WASM_FILE_NAME = vi.hoisted(() => "sql-wasm.wasm");
+const SQL_WASM_PACKAGE_PATH = vi.hoisted(() => `node_modules/sql.js/dist/${SQL_WASM_FILE_NAME}`);
+
+vi.mock("sql.js", async () => {
+  const real = await vi.importActual<typeof import("sql.js")>("sql.js");
+  const { readFileSync: readLocalFileSync } = await import("node:fs");
+  const { resolve: resolveLocalPath } = await import("node:path");
+  const localWasmPath = resolveLocalPath(process.cwd(), SQL_WASM_PACKAGE_PATH);
+  const wasmBinary = readLocalFileSync(localWasmPath);
+  const initWithLocalWasm: typeof real.default = (config) => real.default({
+    ...config,
+    locateFile: () => localWasmPath,
+    wasmBinary,
+  });
+
+  return {
+    ...real,
+    default: initWithLocalWasm,
+  };
+});
+
 /* ─── 1. Mock the chrome bridge BEFORE importing sqlite-bundle. ─── */
 //
 // `vi.mock` is hoisted to the top of the module by Vitest, so the
@@ -52,18 +73,18 @@ vi.mock("@/lib/message-client", () => ({
 /* ─── 2. WASM loader shim — sql.js fetches sql-wasm.wasm by URL. ─── */
 function isSqlWasmPath(path: string | URL): boolean {
   if (typeof path === "string") {
-    return path.includes("sql-wasm.wasm");
+    return path.includes(SQL_WASM_FILE_NAME);
   }
-  return path.href.includes("sql-wasm.wasm") || path.pathname.includes("sql-wasm.wasm");
+  return path.href.includes(SQL_WASM_FILE_NAME) || path.pathname.includes(SQL_WASM_FILE_NAME);
 }
 
 function installWasmFetchShim(): void {
-  const wasmPath = resolve(process.cwd(), "node_modules/sql.js/dist/sql-wasm.wasm");
+  const wasmPath = resolve(process.cwd(), SQL_WASM_PACKAGE_PATH);
   const wasmBytes = readFileSync(wasmPath);
   const originalFetch: typeof fetch | undefined = globalThis.fetch?.bind(globalThis);
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-    if (url.includes("sql-wasm.wasm")) {
+    if (url.includes(SQL_WASM_FILE_NAME)) {
       return new Response(wasmBytes, {
         status: 200,
         headers: { "Content-Type": "application/wasm" },
@@ -179,7 +200,7 @@ async function buildCachedBundle(): Promise<CachedBundle> {
 
 /* ─── 5. Helper: open the cached DB read-only via sql.js. ─── */
 function wasmFilePath(): string {
-  return resolve(process.cwd(), "node_modules/sql.js/dist/sql-wasm.wasm");
+  return resolve(process.cwd(), SQL_WASM_PACKAGE_PATH);
 }
 
 export async function openCachedDb(): Promise<Database> {
