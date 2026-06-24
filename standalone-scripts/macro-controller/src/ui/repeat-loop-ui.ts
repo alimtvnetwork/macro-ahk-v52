@@ -209,32 +209,55 @@ function setPhase(phase: RepeatPhase, durationMs: number): void {
  * absent.
  */
 function dispatchChatSubmit(): boolean {
+  const TAG = 'Repeat';
   if (typeof document === 'undefined' || !document.body) {
+    showPasteToast('❌ ' + TAG + ': submit aborted — document not ready', true);
     log('Repeat: submit aborted — document/body not available', 'warn');
     return false;
   }
   let form: HTMLElement | null = null;
   try { form = document.getElementById('chat-input'); }
-  catch (e) { log('Repeat: getElementById threw — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
+  catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    showPasteToast('⚠ ' + TAG + ': getElementById threw (' + msg + ')', true);
+    log('Repeat: getElementById threw — ' + msg, 'warn');
+  }
 
   if (form instanceof HTMLFormElement) {
     try {
       if (typeof form.requestSubmit === 'function') form.requestSubmit();
-      else form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      else {
+        showPasteToast('⚠ ' + TAG + ': requestSubmit unsupported — using submit event', false);
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      }
       return true;
     } catch (e) {
-      log('Repeat: form#chat-input.requestSubmit() threw — falling back to button click: ' + (e instanceof Error ? e.message : String(e)), 'warn');
+      const msg = e instanceof Error ? e.message : String(e);
+      showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + msg + ') — trying button', true);
+      log('Repeat: form#chat-input.requestSubmit() threw — falling back to button click: ' + msg, 'warn');
     }
   } else if (form) {
-    log('Repeat: #chat-input is not <form> (got ' + form.tagName + ') — falling back to button click', 'warn');
+    showPasteToast('⚠ ' + TAG + ': #chat-input is <' + form.tagName.toLowerCase() + '>, not <form> — using button', true);
+    log('Repeat: #chat-input is not <form> (got ' + form.tagName + ')', 'warn');
+  } else {
+    showPasteToast('⚠ ' + TAG + ': no #chat-input form — using button fallback', true);
   }
 
   let btn: HTMLElement | null = null;
   try { btn = findAddToTasksButton(); }
   catch (e) { log('Repeat: findAddToTasksButton threw — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
   if (btn && !(btn as HTMLButtonElement).disabled) {
-    try { btn.click(); return true; }
-    catch (e) { log('Repeat: submit-button .click() threw — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
+    try {
+      btn.click();
+      showPasteToast('✅ ' + TAG + ': submitted via submit-button fallback', false);
+      return true;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      showPasteToast('❌ ' + TAG + ': button click threw (' + msg + ')', true);
+      log('Repeat: submit-button .click() threw — ' + msg, 'warn');
+    }
+  } else {
+    showPasteToast('❌ ' + TAG + ': no enabled submit button — submit failed', true);
   }
   return false;
 }

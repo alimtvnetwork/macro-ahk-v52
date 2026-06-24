@@ -142,37 +142,55 @@ function resolvePerStepPrompt(): PromptEntry | null {
 // ── chat submit (mirrors repeat-loop-ui.dispatchChatSubmit) ─────────
 
 function dispatchSubmit(): boolean {
-  // Guard 1: DOM must be present (script can run before document is ready
-  // in MAIN-world injections, or after Lovable unmounts the chat shell).
+  const TAG = 'Splitter';
   if (typeof document === 'undefined' || !document.body) {
+    showPasteToast('❌ ' + TAG + ': submit aborted — document not ready', true);
     log('TaskSplitter: submit aborted — document/body not available', 'warn');
     return false;
   }
-  // Guard 2: locate form#chat-input and verify it is actually a <form>.
   let form: HTMLElement | null = null;
   try { form = document.getElementById('chat-input'); }
-  catch (e) { log('TaskSplitter: getElementById threw — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
+  catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    showPasteToast('⚠ ' + TAG + ': getElementById threw (' + msg + ') — trying button', true);
+    log('TaskSplitter: getElementById threw — ' + msg, 'warn');
+  }
 
   if (form instanceof HTMLFormElement) {
     try {
       if (typeof form.requestSubmit === 'function') form.requestSubmit();
-      else form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      else {
+        showPasteToast('⚠ ' + TAG + ': requestSubmit unsupported — using submit event', false);
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      }
       return true;
     } catch (e) {
-      // requestSubmit throws if the form has an invalid submit button or is detached.
+      const msg = e instanceof Error ? e.message : String(e);
+      showPasteToast('⚠ ' + TAG + ': requestSubmit failed (' + msg + ') — falling back to button click', true);
       logError('TaskSplitter', 'form#chat-input.requestSubmit() threw — falling back to button click', e);
     }
   } else if (form) {
-    log('TaskSplitter: #chat-input exists but is not <form> (got ' + form.tagName + ') — falling back to button click', 'warn');
+    showPasteToast('⚠ ' + TAG + ': #chat-input is <' + form.tagName.toLowerCase() + '>, not <form> — using button', true);
+    log('TaskSplitter: #chat-input exists but is not <form> (got ' + form.tagName + ')', 'warn');
+  } else {
+    showPasteToast('⚠ ' + TAG + ': no #chat-input form — using button fallback', true);
   }
 
-  // Guard 3: button fallback, also wrapped.
   let btn: HTMLElement | null = null;
   try { btn = findAddToTasksButton(); }
   catch (e) { logError('TaskSplitter', 'findAddToTasksButton threw', e); }
   if (btn && !(btn as HTMLButtonElement).disabled) {
-    try { btn.click(); return true; }
-    catch (e) { logError('TaskSplitter', 'submit-button .click() threw', e); }
+    try {
+      btn.click();
+      showPasteToast('✅ ' + TAG + ': submitted via submit-button fallback', false);
+      return true;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      showPasteToast('❌ ' + TAG + ': button click threw (' + msg + ')', true);
+      logError('TaskSplitter', 'submit-button .click() threw', e);
+    }
+  } else {
+    showPasteToast('❌ ' + TAG + ': no enabled submit button found — submit failed', true);
   }
 
   log('TaskSplitter: submit failed — no form#chat-input and no enabled submit button', 'warn');
