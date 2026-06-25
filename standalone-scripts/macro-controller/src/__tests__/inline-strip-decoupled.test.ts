@@ -13,13 +13,15 @@ vi.mock('../shared-state', () => ({
   cPanelFg: '#fff', cPrimaryLight: '#fff', cSectionBg: '#000',
 }));
 
-const pasteToast = vi.fn();
-const pasteIntoEditor = vi.fn(async () => 'ok');
-const findPasteTarget = vi.fn(() => null);
+const mocks = vi.hoisted(() => ({
+  pasteToast: vi.fn(),
+  pasteIntoEditor: vi.fn(async () => 'ok'),
+  findPasteTarget: vi.fn(() => null),
+}));
 vi.mock('./prompt-utils', () => ({
-  showPasteToast: (...a: unknown[]) => pasteToast(...a),
-  pasteIntoEditor: (...a: unknown[]) => pasteIntoEditor(...a),
-  findPasteTarget: (...a: unknown[]) => findPasteTarget(...a),
+  showPasteToast: mocks.pasteToast,
+  pasteIntoEditor: mocks.pasteIntoEditor,
+  findPasteTarget: mocks.findPasteTarget,
 }));
 vi.mock('./prompt-manager', () => ({ getPromptsConfig: () => ({ entries: [] }) }));
 vi.mock('./task-splitter-ui', () => ({
@@ -43,8 +45,8 @@ const deps = {
 
 describe('inline strip decoupling (plan 09)', () => {
   beforeEach(() => {
-    pasteToast.mockClear();
-    pasteIntoEditor.mockClear();
+    mocks.pasteToast.mockClear();
+    mocks.pasteIntoEditor.mockClear();
   });
 
   it('INLINE_AUTOCHAIN_DISABLED is true (invariant)', () => {
@@ -53,11 +55,10 @@ describe('inline strip decoupling (plan 09)', () => {
 
   it('stageNextPrompt pastes the prompt body and never submits', async () => {
     await stageNextPrompt(deps, 3);
-    expect(pasteIntoEditor).toHaveBeenCalledTimes(1);
-    const [text] = pasteIntoEditor.mock.calls[0];
+    expect(mocks.pasteIntoEditor).toHaveBeenCalledTimes(1);
+    const [text] = mocks.pasteIntoEditor.mock.calls[0];
     expect(String(text)).toContain('LEGACY-NEXT-BODY');
-    // success toast, not error
-    expect(pasteToast).toHaveBeenCalledWith(
+    expect(mocks.pasteToast).toHaveBeenCalledWith(
       expect.stringContaining('staged'),
       false,
     );
@@ -70,7 +71,7 @@ describe('inline strip decoupling (plan 09)', () => {
       }),
     } as unknown as TaskNextDeps;
     await stageNextPrompt(customDeps, 5);
-    const [text] = pasteIntoEditor.mock.calls[0];
+    const [text] = mocks.pasteIntoEditor.mock.calls[0];
     expect(String(text)).toContain('VARIANT-5-BODY');
   });
 });
