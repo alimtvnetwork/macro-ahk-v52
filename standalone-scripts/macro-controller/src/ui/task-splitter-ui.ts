@@ -618,7 +618,6 @@ export function getLastPlanPromptSource(): PlanPromptSource { return lastPlanPro
 
 function logPlanSource(n: number, source: PlanPromptSource, detail: string): void {
   lastPlanPromptSource = source;
-  // eslint-disable-next-line no-console
   console.info('[TaskSplitter] resolvePlanPrompt n=' + n + ' source=' + source + ' (' + detail + ')');
 }
 
