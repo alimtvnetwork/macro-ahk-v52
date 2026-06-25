@@ -348,7 +348,7 @@ function wireRender(root: HTMLElement, action: HTMLButtonElement, progress: HTML
       const timer = state.phaseDeadlineAt > 0 && remain > 0 ? ' • next in ' + remain + 's' : '';
       progress.textContent = state.completed + '/' + state.steps + timer;
     } else {
-      action.textContent = '▶ Start';
+      action.textContent = '🔁 Repeat';
       action.style.background = startGradient;
       progress.textContent = state.completed > 0 ? 'done ' + state.completed + '/' + state.steps : '';
     }

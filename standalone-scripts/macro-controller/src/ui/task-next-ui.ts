@@ -247,7 +247,7 @@ export async function runTaskNextLoop(deps: TaskNextDeps, count: number): Promis
   // PASTE-ONLY behaviour (v3.74.0): the Next button (and any "Next N steps"
   // preset) must only paste the prompt into the chat box. It must NOT click
   // the submit button and must NOT loop / chain follow-up tasks. Repeated
-  // submissions belong exclusively to the Repeat `▶ Start` control.
+  // submissions belong exclusively to the `🔁 Repeat` control.
   const requested = Math.max(1, Math.floor(count) || 1);
   if (requested > 1) {
     log('Task Next: multi-run blocked; pasting once only. Use Repeat Start for repeats.', 'warn');

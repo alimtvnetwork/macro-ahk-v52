@@ -501,7 +501,7 @@ function renderControl(refs: ControlRefs): void {
     const timer = formatPhaseTimer();
     refs.progress.textContent = repeatLoopState.completed + '/' + repeatLoopState.count + (timer ? ' • ' + timer : '');
   } else {
-    refs.action.textContent = '▶ Start';
+    refs.action.textContent = '🔁 Repeat';
     refs.action.style.background = startGradient;
     refs.action.style.boxShadow = startShadow;
     refs.progress.textContent = repeatLoopState.completed > 0
