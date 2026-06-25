@@ -17,7 +17,7 @@
 import { log } from '../logging';
 import { logError } from '../error-utils';
 import { showPasteToast, pasteIntoEditor, findPasteTarget } from './prompt-utils';
-import { getPromptsConfig } from './prompt-manager';
+import { DEFAULT_PROMPTS, getPromptsConfig } from './prompt-manager';
 import { getByXPath, isReturnButtonVisible } from '../xpath-utils';
 import { findAddToTasksButton } from './task-next-ui';
 import { cPanelFg, cPrimaryLight, cSectionBg } from '../shared-state';
@@ -611,7 +611,8 @@ export async function triggerSplitFromInline(stepCount: number): Promise<void> {
   }
 }
 
-export type PlanPromptSource = 'window-config' | 'default-prompts' | 'parent-slug-variant' | 'not-found';
+type PlanPromptEntry = Pick<PromptEntry, 'slug' | 'name' | 'text' | 'replaceKey' | 'parentSlug' | 'variantValue'>;
+export type PlanPromptSource = 'window-config' | 'preamble-prompts' | 'default-prompts' | 'parent-slug-variant' | 'slug-variant' | 'not-found';
 let lastPlanPromptSource: PlanPromptSource = 'not-found';
 export function getLastPlanPromptSource(): PlanPromptSource { return lastPlanPromptSource; }
 
@@ -621,40 +622,66 @@ function logPlanSource(n: number, source: PlanPromptSource, detail: string): voi
   console.info('[TaskSplitter] resolvePlanPrompt n=' + n + ' source=' + source + ' (' + detail + ')');
 }
 
-function resolvePlanPrompt(n: number): string | null {
+function substitutePlanN(text: string, key: string, n: number): string {
+  return text.split('${' + key + '}').join(String(n));
+}
+
+function resolveRawPlanTemplate(entries: PlanPromptEntry[], n: number, source: PlanPromptSource, detail: string): string | null {
+  for (const entry of entries) {
+    const isPlanTemplate = (entry.slug || '').toLowerCase() === 'plan-steps';
+    const hasTemplate = entry.text.indexOf('${') >= 0;
+    if (isPlanTemplate && hasTemplate) {
+      const key = entry.replaceKey || 'N';
+      logPlanSource(n, source, detail + ', replaceKey=' + key);
+      return substitutePlanN(entry.text, key, n);
+    }
+  }
+  return null;
+}
+
+function resolveExpandedPlanVariant(entries: PlanPromptEntry[], n: number): string | null {
   const want = String(n);
-
-  // 1. Preferred: scan the RAW window config for the dynamic parent template
-  //    (carries the literal `${N}` placeholder). This lets us substitute ANY N.
-  const rawCfg = ((window as unknown as { __MARCO_CONFIG__?: { prompts?: { entries?: unknown[]; prompts?: unknown[] } } }).__MARCO_CONFIG__ || {}).prompts || {};
-  const rawEntries = (rawCfg.entries || rawCfg.prompts || []) as Array<{ slug?: string; text?: string; replaceKey?: string }>;
-  for (const r of rawEntries) {
-    if ((r.slug || '').toLowerCase() === 'plan-steps' && typeof r.text === 'string' && r.text.indexOf('${') >= 0) {
-      const key = r.replaceKey || 'N';
-      logPlanSource(n, 'window-config', '__MARCO_CONFIG__.prompts entry, replaceKey=' + key);
-      return r.text.split('${' + key + '}').join(want);
+  for (const entry of entries) {
+    if ((entry.parentSlug || '').toLowerCase() === 'plan-steps' && entry.variantValue === want) {
+      logPlanSource(n, 'parent-slug-variant', 'expanded parentSlug match for N=' + want);
+      return entry.text || null;
     }
   }
+  return null;
+}
 
-  // 2. Scan the merged prompts config (includes DEFAULT_PROMPTS) for the raw
-  //    parent template — same substitution path.
-  const entries = (getPromptsConfig().entries || []) as Array<{ slug?: string; parentSlug?: string; text?: string; replaceKey?: string; variantValue?: string }>;
-  for (const e of entries) {
-    if ((e.slug || '').toLowerCase() === 'plan-steps' && typeof e.text === 'string' && e.text.indexOf('${') >= 0) {
-      const key = e.replaceKey || 'N';
-      logPlanSource(n, 'default-prompts', 'getPromptsConfig() raw template, replaceKey=' + key);
-      return e.text.split('${' + key + '}').join(want);
+function resolveSlugPlanVariant(entries: PlanPromptEntry[], n: number): string | null {
+  const wantSlug = 'plan-' + n;
+  for (const entry of entries) {
+    const isSlugMatch = (entry.slug || '').toLowerCase() === wantSlug;
+    const isNameMatch = (entry.name || '').toLowerCase() === 'plan ' + n;
+    if (isSlugMatch || isNameMatch) {
+      logPlanSource(n, 'slug-variant', 'expanded slug/name match for N=' + n);
+      return entry.text || null;
     }
   }
+  return null;
+}
 
-  // 3. Fallback: matching expanded variant (only works for preset N values).
-  for (const e of entries) {
-    if ((e.parentSlug || '').toLowerCase() === 'plan-steps' && e.variantValue === want) {
-      logPlanSource(n, 'parent-slug-variant', 'expanded variant match for N=' + want);
-      return e.text || null;
-    }
-  }
-  logPlanSource(n, 'not-found', 'no plan-steps entry in window-config, default-prompts, or variants');
+function resolvePlanPrompt(n: number): string | null {
+  const rawCfg = (window.__MARCO_CONFIG__ || {}).prompts || {};
+  const rawWindowEntries = (rawCfg.entries || rawCfg.prompts || []) as PlanPromptEntry[];
+  const fromWindow = resolveRawPlanTemplate(rawWindowEntries, n, 'window-config', '__MARCO_CONFIG__.prompts raw entry');
+  if (fromWindow) return fromWindow;
+
+  const preambleEntries = (window.__MARCO_PROMPTS__ || []) as PlanPromptEntry[];
+  const fromPreamble = resolveRawPlanTemplate(preambleEntries, n, 'preamble-prompts', '__MARCO_PROMPTS__ raw entry');
+  if (fromPreamble) return fromPreamble;
+
+  const fromDefaults = resolveRawPlanTemplate(DEFAULT_PROMPTS, n, 'default-prompts', 'DEFAULT_PROMPTS raw entry');
+  if (fromDefaults) return fromDefaults;
+
+  const entries = (getPromptsConfig().entries || []) as PlanPromptEntry[];
+  const fromParent = resolveExpandedPlanVariant(entries, n);
+  if (fromParent) return fromParent;
+  const fromSlug = resolveSlugPlanVariant(entries, n);
+  if (fromSlug) return fromSlug;
+  logPlanSource(n, 'not-found', 'no raw template or expanded variant found');
   return null;
 }
 
