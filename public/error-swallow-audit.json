@@ -1,5 +1,5 @@
 {
-  "GeneratedAt": "2026-06-06T07:06:54.289Z",
+  "GeneratedAt": "2026-06-25T13:34:40.980Z",
   "Items": [
     {
       "Id": "9ce78a370955",
@@ -38,6 +38,24 @@
       "Snippet": "catch(function() {"
     },
     {
+      "Id": "abac89c5b27a",
+      "Severity": "P1",
+      "File": "standalone-scripts/macro-controller/src/ui/ui-updaters.ts",
+      "Line": 212,
+      "Rule": "no-empty-catch",
+      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
+      "Snippet": "catch (_e) {"
+    },
+    {
+      "Id": "c2572af4498b",
+      "Severity": "P1",
+      "File": "standalone-scripts/macro-controller/src/ui/ui-updaters.ts",
+      "Line": 220,
+      "Rule": "no-empty-catch",
+      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
+      "Snippet": "catch (_e) {"
+    },
+    {
       "Id": "b10f5432b34e",
       "Severity": "P1",
       "File": "standalone-scripts/macro-controller/src/visible-workspaces-store.ts",
@@ -54,6 +72,15 @@
       "Rule": "no-empty-catch",
       "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
       "Snippet": "catch (_e: unknown) {"
+    },
+    {
+      "Id": "1e4231497ada",
+      "Severity": "P2",
+      "File": "src/test/setup.ts",
+      "Line": 85,
+      "Rule": "no-empty-catch",
+      "Message": "Empty catch block — error is silently dropped, no Logger.error() call.",
+      "Snippet": "catch {"
     }
   ]
 }
