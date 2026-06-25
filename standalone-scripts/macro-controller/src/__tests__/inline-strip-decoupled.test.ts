@@ -18,17 +18,17 @@ const mocks = vi.hoisted(() => ({
   pasteIntoEditor: vi.fn(async () => 'ok'),
   findPasteTarget: vi.fn(() => null),
 }));
-vi.mock('./prompt-utils', () => ({
+vi.mock('../ui/prompt-utils', () => ({
   showPasteToast: mocks.pasteToast,
   pasteIntoEditor: mocks.pasteIntoEditor,
   findPasteTarget: mocks.findPasteTarget,
 }));
-vi.mock('./prompt-manager', () => ({ getPromptsConfig: () => ({ entries: [] }) }));
-vi.mock('./task-splitter-ui', () => ({
+vi.mock('../ui/prompt-manager', () => ({ getPromptsConfig: () => ({ entries: [] }) }));
+vi.mock('../ui/task-splitter-ui', () => ({
   triggerPlanPasteFromInline: vi.fn(),
   isSplitterRunning: () => false,
 }));
-vi.mock('./task-next-ui', () => ({
+vi.mock('../ui/task-next-ui', () => ({
   taskNextState: { running: false },
   findNextTasksPrompt: () => ({ text: 'LEGACY-NEXT-BODY' }),
 }));
