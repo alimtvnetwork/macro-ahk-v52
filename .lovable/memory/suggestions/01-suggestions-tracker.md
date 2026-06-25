@@ -1,8 +1,8 @@
 # Suggestions & Improvements Tracker
 
-**Last Updated**: 2026-04-09
-**Current Extension Version**: v2.128.0
-**Macro Controller Version**: v7.41
+**Last Updated**: 2026-06-25
+**Current Extension Version**: v4.6.0
+**Macro Controller Version**: v4.6.0
 **Active Codebase**: `standalone-scripts/macro-controller/`
 
 ---
