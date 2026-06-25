@@ -612,17 +612,26 @@ export async function triggerSplitFromInline(stepCount: number): Promise<void> {
 }
 
 function resolvePlanPrompt(n: number): string | null {
-  const entries = getPromptsConfig().entries || [];
   const want = String(n);
+
+  // 1. Preferred: read the RAW dynamic parent template directly from the
+  //    injected config so we can substitute ANY N (not just preset
+  //    replaceValues). Expanded entries lose the `${N}` placeholder, so
+  //    using them for arbitrary N would corrupt the prompt body.
+  const rawCfg = ((window as unknown as { __MARCO_CONFIG__?: { prompts?: { entries?: unknown[]; prompts?: unknown[] } } }).__MARCO_CONFIG__ || {}).prompts || {};
+  const rawEntries = (rawCfg.entries || rawCfg.prompts || []) as Array<{ slug?: string; text?: string; isDynamic?: boolean; replaceKey?: string }>;
+  for (const r of rawEntries) {
+    if ((r.slug || '').toLowerCase() === 'plan-steps' && typeof r.text === 'string' && r.text.length > 0) {
+      const key = r.replaceKey || 'N';
+      return r.text.split('${' + key + '}').join(want);
+    }
+  }
+
+  // 2. Fallback: matching expanded variant (only works for preset N values).
+  const entries = getPromptsConfig().entries || [];
   for (const e of entries) {
     if ((e.parentSlug || '').toLowerCase() === 'plan-steps' && e.variantValue === want) {
       return e.text || null;
-    }
-  }
-  for (const e of entries) {
-    const slug = (e.slug || '').toLowerCase();
-    if (slug === 'plan-steps' || slug.indexOf('plan-steps') !== -1) {
-      return (e.text || '').split('${N}').join(want);
     }
   }
   return null;
