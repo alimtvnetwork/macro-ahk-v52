@@ -15,7 +15,7 @@ vi.mock('../shared-state', () => ({
 
 const pasteToast = vi.fn();
 const pasteIntoEditor = vi.fn(async () => 'ok');
-const findPasteTarget = vi.fn(() => ({ tagName: 'TEXTAREA', value: '' }));
+const findPasteTarget = vi.fn(() => null);
 vi.mock('./prompt-utils', () => ({
   showPasteToast: (...a: unknown[]) => pasteToast(...a),
   pasteIntoEditor: (...a: unknown[]) => pasteIntoEditor(...a),
