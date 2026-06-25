@@ -346,7 +346,7 @@ export function startRepeatLoop(): void {
   repeatLoopState.cancelled = false;
   repeatLoopState.running = true;
   notify();
-  log('Repeat: starting ' + n + ' submissions of ' + text.length + ' chars', 'info');
+  log('RepeatLoop.start: source=repeat-strip N=' + n + ' chars=' + text.length, 'info');
   showPasteToast('🔁 Repeat: starting ' + n + ' submissions…', false);
   void runRepeatLoopAsync();
 }
