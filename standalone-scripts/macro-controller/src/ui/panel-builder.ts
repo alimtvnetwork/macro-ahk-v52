@@ -48,7 +48,7 @@ import {
   registerKeyboardHandlers,
 } from './panel-sections';
 import { startRedockObserver } from './redock-observer';
-import { buildRepeatPanelSection } from './repeat-loop-ui';
+import { buildRepeatPanelSection, mountRepeatInlineStrip } from './repeat-loop-ui';
 import { buildTaskSplitterPanelSection } from './task-splitter-ui';
 import { mountNextInlineStrip } from './next-inline-ui';
 import { mountTaskQueueReinjectionToast } from './task-queue-reinjection-toast';
@@ -246,8 +246,9 @@ export function createUI(deps: PanelBuilderDeps): void {
   // Record indicator (fixed position)
   document.body.appendChild(createRecordIndicator());
 
-  // Inline Next strip — Steps + Delay, drains splitter queue with fixed delay
+  // Inline strips above chat: Plan → Next → Repeat (the only executor with delay control)
   mountNextInlineStrip(taskNextDeps);
+  mountRepeatInlineStrip();
 
   // Keyboard handlers (with Task Next deps for Ctrl+Shift+1..9 shortcuts)
   const kbTaskNextDeps = deps.taskNextDeps;
