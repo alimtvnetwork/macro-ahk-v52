@@ -1,5 +1,20 @@
 # Changelog
 
+## [v4.5.0] — 2026-06-25 Plan prompt resolver hardening
+
+### Fixed
+- `resolvePlanPrompt` now searches `DEFAULT_PROMPTS`, `window.__MARCO_PROMPTS__`, `__MARCO_CONFIG__`, and slug variants (`plan-5`, `plan 5`) before failing, eliminating the "Plan ${N} prompt not found in library" toast for arbitrary N values.
+
+### Added
+- `getLastPlanPromptSource()` + console.info diagnostics tagging which source (`window-config` / `default-prompts` / `parent-slug-variant` / `not-found`) supplied the template; success toast appends `[src:...]`.
+
+### Internal
+- Version pins moved 4.4.0 → 4.5.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, and the prompts bundle metadata.
+
+---
+
+
+
 ## [v4.4.0] — 2026-06-24 Collapsible Plan / Next inline strips
 
 ### Changed
