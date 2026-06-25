@@ -40,7 +40,7 @@ export function buildPlanTaskPrompt(n: number): string {
     '',
     '## Single-task append rule',
     '',
-    'Picking "Plan ' + n + '" from the prompt dropdown only appends this body to the chat box. It does **not** submit and does **not** auto-repeat. Repetition belongs only to the separate Repeat `▶ Start` control.',
+    'Picking "Plan ' + n + '" from the prompt dropdown only appends this body to the chat box. It does **not** submit and does **not** auto-repeat. Repetition belongs only to the separate `🔁 Repeat` control.',
     '',
     '## Plan file shape',
     '',
