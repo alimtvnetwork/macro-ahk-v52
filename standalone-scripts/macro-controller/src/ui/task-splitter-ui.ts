@@ -611,6 +611,16 @@ export async function triggerSplitFromInline(stepCount: number): Promise<void> {
   }
 }
 
+export type PlanPromptSource = 'window-config' | 'default-prompts' | 'parent-slug-variant' | 'not-found';
+let lastPlanPromptSource: PlanPromptSource = 'not-found';
+export function getLastPlanPromptSource(): PlanPromptSource { return lastPlanPromptSource; }
+
+function logPlanSource(n: number, source: PlanPromptSource, detail: string): void {
+  lastPlanPromptSource = source;
+  // eslint-disable-next-line no-console
+  console.info('[TaskSplitter] resolvePlanPrompt n=' + n + ' source=' + source + ' (' + detail + ')');
+}
+
 function resolvePlanPrompt(n: number): string | null {
   const want = String(n);
 
@@ -621,6 +631,7 @@ function resolvePlanPrompt(n: number): string | null {
   for (const r of rawEntries) {
     if ((r.slug || '').toLowerCase() === 'plan-steps' && typeof r.text === 'string' && r.text.indexOf('${') >= 0) {
       const key = r.replaceKey || 'N';
+      logPlanSource(n, 'window-config', '__MARCO_CONFIG__.prompts entry, replaceKey=' + key);
       return r.text.split('${' + key + '}').join(want);
     }
   }
@@ -631,6 +642,7 @@ function resolvePlanPrompt(n: number): string | null {
   for (const e of entries) {
     if ((e.slug || '').toLowerCase() === 'plan-steps' && typeof e.text === 'string' && e.text.indexOf('${') >= 0) {
       const key = e.replaceKey || 'N';
+      logPlanSource(n, 'default-prompts', 'getPromptsConfig() raw template, replaceKey=' + key);
       return e.text.split('${' + key + '}').join(want);
     }
   }
@@ -638,9 +650,11 @@ function resolvePlanPrompt(n: number): string | null {
   // 3. Fallback: matching expanded variant (only works for preset N values).
   for (const e of entries) {
     if ((e.parentSlug || '').toLowerCase() === 'plan-steps' && e.variantValue === want) {
+      logPlanSource(n, 'parent-slug-variant', 'expanded variant match for N=' + want);
       return e.text || null;
     }
   }
+  logPlanSource(n, 'not-found', 'no plan-steps entry in window-config, default-prompts, or variants');
   return null;
 }
 
@@ -676,7 +690,7 @@ export async function triggerPlanPasteFromInline(stepCount: number): Promise<voi
       showPasteToast('❌ Plan: paste failed', true);
       return;
     }
-    showPasteToast('📋 Plan ' + n + ' appended — review and Send manually', false);
+    showPasteToast('📋 Plan ' + n + ' appended [src:' + getLastPlanPromptSource() + '] — review and Send manually', false);
   } catch (e) {
     logError('TaskSplitter', 'triggerPlanPasteFromInline threw', e);
     showPasteToast('❌ Plan: paste threw', true);
