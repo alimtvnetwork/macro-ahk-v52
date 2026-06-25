@@ -55,6 +55,8 @@ describe('inline strip decoupling (plan 09)', () => {
 
   it('stageNextPrompt pastes the prompt body and never submits', async () => {
     await stageNextPrompt(deps, 3);
+    console.log('toast calls:', JSON.stringify(mocks.pasteToast.mock.calls));
+    console.log('paste calls:', mocks.pasteIntoEditor.mock.calls.length);
     expect(mocks.pasteIntoEditor).toHaveBeenCalledTimes(1);
     const [text] = mocks.pasteIntoEditor.mock.calls[0];
     expect(String(text)).toContain('LEGACY-NEXT-BODY');
