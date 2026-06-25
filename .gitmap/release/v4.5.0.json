@@ -1,0 +1,17 @@
+{
+  "version": "4.5.0",
+  "branch": "release/v4.5.0",
+  "sourceBranch": "main",
+  "commit": "5139b04cdb50830397b672c33c0ae9a72b2c015a",
+  "tag": "v4.5.0",
+  "assets": [],
+  "changelog": [
+    "`resolvePlanPrompt` now searches `DEFAULT_PROMPTS`, `window.__MARCO_PROMPTS__`, `__MARCO_CONFIG__`, and slug variants (`plan-5`, `plan 5`) before failing, eliminating the \"Plan ${N} prompt not found in library\" toast for arbitrary N values.",
+    "`getLastPlanPromptSource()` + console.info diagnostics tagging which source (`window-config` / `default-prompts` / `parent-slug-variant` / `not-found`) supplied the template; success toast appends `[src:...]`.",
+    "Version pins moved 4.4.0 → 4.5.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, and the prompts bundle metadata."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-25T15:10:16Z",
+  "isLatest": false
+}
