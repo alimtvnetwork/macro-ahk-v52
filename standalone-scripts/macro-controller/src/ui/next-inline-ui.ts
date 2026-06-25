@@ -1,12 +1,15 @@
 /**
- * Next Inline Strip — sits above the Lovable chat textarea (next to the
- * Repeat strip). User picks Steps + Delay → clicks Start: the macro pastes
- * the next queued subtask (from Task Splitter) or the legacy "Next Tasks"
- * prompt, submits, waits the fixed delay, then submits the next one.
- * Lovable itself queues the rapid submissions; we do NOT wait for completion
- * between cycles (that's what the Repeat strip is for).
+ * Inline strips above the Lovable chat textarea — order top→bottom:
+ *   1) 📋 Plan  → click number → APPEND Plan-${N} prompt to chat (no submit)
+ *   2) ▶ Next  → click number → APPEND Next-${N}-steps prompt to chat (no submit)
+ *   3) 🔁 Repeat (mounted by repeat-loop-ui.ts) — the ONLY executor: submits + loops.
  *
- * Cancel via Stop button or Escape (shared taskNextState.cancelled flag).
+ * Plan and Next are paste-only stagers. They never call submit, never loop,
+ * never chain into Repeat. The user reviews/edits the staged text and presses
+ * Enter (or 🔁 Repeat) themselves.
+ *
+ * Decoupling invariant: INLINE_AUTOCHAIN_DISABLED must remain true. See plan
+ * `.lovable/plans/pending/09-three-strip-decoupled-plan-next-repeat.md`.
  */
 
 import { log } from '../logging';
@@ -14,18 +17,15 @@ import { logError } from '../error-utils';
 import { showPasteToast, pasteIntoEditor, findPasteTarget } from './prompt-utils';
 import { getPromptsConfig } from './prompt-manager';
 import { getByXPath } from '../xpath-utils';
-import {
-  taskNextState,
-  dequeueTaskNextPrompt,
-  dispatchTaskNextSubmit,
-  findNextTasksPrompt,
-  type TaskNextDeps,
-} from './task-next-ui';
+import { taskNextState, findNextTasksPrompt, type TaskNextDeps } from './task-next-ui';
 import { triggerPlanPasteFromInline, isSplitterRunning } from './task-splitter-ui';
 import { cPanelFg, cPrimaryLight, cSectionBg } from '../shared-state';
 
-const STEP_PRESETS = [1, 2, 3, 5, 8, 10, 15] as const;
-const STEP_PRESETS_HIGHLIGHT = new Set<number>([5, 10]);
+/** Hard guard: Plan/Next strips MUST NOT auto-trigger Repeat or each other. */
+export const INLINE_AUTOCHAIN_DISABLED = true;
+
+const NEXT_PRESETS = [1, 2, 3, 4, 5, 8] as const;
+const NEXT_PRESETS_HIGHLIGHT = new Set<number>([2, 5]);
 const PLAN_PRESETS = [
   5, 10, 12, 15, 18, 20, 22, 25, 28, 30, 32, 35, 38, 40, 42, 45, 48, 50,
   52, 55, 58, 60, 70, 80, 100, 125, 150, 200,
@@ -33,35 +33,23 @@ const PLAN_PRESETS = [
 const PLAN_PRESETS_HIGHLIGHT = new Set<number>([5, 10, 12, 15, 30]);
 const PLAN_MIN = 2;
 const PLAN_MAX = 200;
-const DELAY_PRESETS_SEC = [5, 10, 15, 30, 60] as const;
 const STORAGE_KEY = 'marco-next-inline-prefs';
 const CSS_HINT_LABEL = 'font-size:10px;opacity:0.8;';
 
-interface NextState {
-  steps: number;
-  delaySec: number;
-  completed: number;
-  phaseDeadlineAt: number;
+interface StripState {
   planCollapsed: boolean;
   nextCollapsed: boolean;
-  subscribers: Set<() => void>;
 }
 
-const state: NextState = {
-  steps: 10,
-  delaySec: 10,
-  completed: 0,
-  phaseDeadlineAt: 0,
+const state: StripState = {
   planCollapsed: false,
   nextCollapsed: false,
-  subscribers: new Set(),
 };
 
 function persist(): void {
   try {
     if (typeof localStorage === 'undefined') return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      steps: state.steps, delaySec: state.delaySec,
       planCollapsed: state.planCollapsed, nextCollapsed: state.nextCollapsed,
     }));
   } catch (e) { log('NextInline: persist failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
@@ -72,9 +60,7 @@ function hydrate(): void {
     if (typeof localStorage === 'undefined') return;
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
-    const o = JSON.parse(raw) as { steps?: number; delaySec?: number; planCollapsed?: boolean; nextCollapsed?: boolean };
-    if (typeof o.steps === 'number' && o.steps >= 1) state.steps = Math.min(200, Math.floor(o.steps));
-    if (typeof o.delaySec === 'number' && o.delaySec >= 1) state.delaySec = Math.min(3600, Math.floor(o.delaySec));
+    const o = JSON.parse(raw) as { planCollapsed?: boolean; nextCollapsed?: boolean };
     if (typeof o.planCollapsed === 'boolean') state.planCollapsed = o.planCollapsed;
     if (typeof o.nextCollapsed === 'boolean') state.nextCollapsed = o.nextCollapsed;
   } catch (e) { log('NextInline: hydrate failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
@@ -92,88 +78,61 @@ function makeChevron(getCollapsed: () => boolean, onToggle: () => void): HTMLBut
   return btn;
 }
 
+// ── Next stager (paste-only) ────────────────────────────────────────
 
-function notify(): void {
-  for (const s of state.subscribers) {
-    try { s(); } catch (e) { log('NextInline: subscriber failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
-  }
+function readEditorText(): string {
+  const target = findPasteTarget(getPromptsConfig(), (xp) => getByXPath(xp) as Element | null);
+  if (!target) return '';
+  if (target instanceof HTMLTextAreaElement || target instanceof HTMLInputElement) return target.value || '';
+  return (target as HTMLElement).innerText || (target as HTMLElement).textContent || '';
 }
 
-function sleep(ms: number): Promise<void> { return new Promise(r => setTimeout(r, ms)); }
-
-async function resolveText(deps: TaskNextDeps): Promise<string | null> {
-  const q = await dequeueTaskNextPrompt();
-  if (q.failed) return null;
-  if (q.selection) return q.selection.text;
+function resolveNextVariantText(deps: TaskNextDeps, n: number): string | null {
+  const promptsCfg = deps.getPromptsConfig();
+  const entries = promptsCfg.entries || [];
+  const slug = 'next-' + n + '-steps';
+  for (const e of entries) {
+    if ((e.slug || '').toLowerCase() === slug && e.text) return e.text;
+  }
+  // Fallback: legacy single static "Next Tasks" prompt
   const legacy = findNextTasksPrompt(deps);
-  if (legacy && legacy.text) return legacy.text;
-  return null;
+  return legacy && legacy.text ? legacy.text : null;
 }
 
-async function runOneCycle(deps: TaskNextDeps, k: number, n: number): Promise<boolean> {
-  const text = await resolveText(deps);
+/**
+ * Paste-only stager for the Next strip. Appends the Next-${N}-steps prompt
+ * body to whatever is already in the chat box. Never submits, never loops.
+ */
+export async function stageNextPrompt(deps: TaskNextDeps, n: number): Promise<void> {
+  if (taskNextState.running || isSplitterRunning()) {
+    showPasteToast('⏸ Another run is in progress', true);
+    return;
+  }
+  const text = resolveNextVariantText(deps, n);
   if (!text) {
-    showPasteToast('❌ Next: no queued task and no "Next Tasks" prompt', true);
-    return false;
+    showPasteToast('❌ Next ' + n + ': prompt not found in library', true);
+    logError('NextInline', 'next-' + n + '-steps prompt missing');
+    return;
   }
-  const outcome = pasteIntoEditor(text, deps.getPromptsConfig(), deps.getByXPath);
-  if (String(outcome) === 'failed') {
-    showPasteToast('❌ Next: paste failed at ' + (k + 1) + '/' + n, true);
-    return false;
-  }
-  if (!dispatchTaskNextSubmit()) {
-    showPasteToast('❌ Next: submit failed at ' + (k + 1) + '/' + n, true);
-    return false;
-  }
-  state.completed = k + 1;
-  showPasteToast('▶ Next ' + (k + 1) + '/' + n + ' submitted', false);
-  notify();
-  return true;
-}
-
-async function runNextQueue(deps: TaskNextDeps): Promise<void> {
-  if (taskNextState.running) { showPasteToast('⏸ Next is already running', true); return; }
-  const n = Math.max(1, Math.floor(state.steps) || 1);
-  taskNextState.running = true;
-  taskNextState.cancelled = false;
-  state.completed = 0;
-  notify();
+  const existing = readEditorText();
+  const combined = existing.trim().length > 0
+    ? existing.replace(/\s+$/, '') + '\n\n' + text
+    : text;
   try {
-    for (let k = 0; k < n; k++) {
-      if (taskNextState.cancelled) { showPasteToast('🛑 Next cancelled at ' + k + '/' + n, false); break; }
-      const ok = await runOneCycle(deps, k, n);
-      if (!ok) break;
-      if (k === n - 1) break;
-      const delayMs = state.delaySec * 1000;
-      state.phaseDeadlineAt = Date.now() + delayMs;
-      notify();
-      const until = Date.now() + delayMs;
-      while (Date.now() < until && !taskNextState.cancelled) {
-        await sleep(Math.min(250, until - Date.now()));
-        notify();
-      }
+    const outcome = await pasteIntoEditor(combined, getPromptsConfig(), (xp) => getByXPath(xp) as Element | null);
+    if (String(outcome) === 'failed') {
+      showPasteToast('❌ Next ' + n + ': paste failed', true);
+      return;
     }
-    if (!taskNextState.cancelled && state.completed >= n) {
-      showPasteToast('✅ Next: queued ' + n + ' submissions', false);
-    }
+    log('NextInline.stage: appended Next ' + n + ' (' + text.length + ' chars) — no submit', 'info');
+    showPasteToast('📝 Next ' + n + ' staged — press Enter to send', false);
   } catch (e) {
-    logError('NextInline', 'unexpected failure in next-queue runner', e);
-  } finally {
-    taskNextState.running = false;
-    taskNextState.cancelled = false;
-    state.phaseDeadlineAt = 0;
-    notify();
+    logError('NextInline', 'stageNextPrompt threw', e);
+    showPasteToast('❌ Next ' + n + ': paste threw', true);
   }
 }
 
-function stopNextQueue(): void {
-  if (!taskNextState.running) return;
-  taskNextState.cancelled = true;
-  notify();
-}
-
-// ── UI ──────────────────────────────────────────────────────────────
-
+// ── Plan strip (paste-only, unchanged behaviour) ─────────────────────
 
 function planClickHandler(n: number): void {
   if (taskNextState.running || isSplitterRunning()) {
@@ -184,11 +143,11 @@ function planClickHandler(n: number): void {
   void triggerPlanPasteFromInline(clamped);
 }
 
-function makePresetButton(n: number, highlighted: boolean): HTMLButtonElement {
+function makePlanPresetButton(n: number, highlighted: boolean): HTMLButtonElement {
   const b = document.createElement('button');
   b.type = 'button';
   b.textContent = String(n);
-  b.title = 'Append "Plan ' + n + '" to the chat box (click to add)';
+  b.title = 'Append "Plan ' + n + '" to the chat box (no submit)';
   const bg = highlighted ? 'rgba(245,158,11,0.55)' : 'rgba(245,158,11,0.12)';
   const border = highlighted ? '1px solid rgba(245,158,11,0.85)' : '1px solid rgba(245,158,11,0.3)';
   const weight = highlighted ? '700' : '500';
@@ -202,7 +161,7 @@ function buildPlanDropup(anchor: HTMLElement): HTMLElement {
   panel.style.cssText = 'position:absolute;bottom:calc(100% + 4px);right:0;display:none;grid-template-columns:repeat(6,auto);gap:4px;padding:8px;background:#1a1a2e;border:1px solid rgba(245,158,11,0.6);border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,0.5);z-index:2147483646;';
   panel.dataset.role = 'plan-dropup';
   for (const n of PLAN_PRESETS) {
-    const b = makePresetButton(n, PLAN_PRESETS_HIGHLIGHT.has(n));
+    const b = makePlanPresetButton(n, PLAN_PRESETS_HIGHLIGHT.has(n));
     b.addEventListener('click', function () { panel.style.display = 'none'; });
     panel.appendChild(b);
   }
@@ -230,13 +189,13 @@ function buildSplitStrip(): HTMLElement {
   body.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1;';
 
   const hint = document.createElement('span');
-  hint.textContent = 'click a number to add';
+  hint.textContent = 'click a number to add (no submit)';
   hint.style.cssText = CSS_HINT_LABEL;
   body.appendChild(hint);
 
   for (const n of PLAN_PRESETS) {
     if (!PLAN_PRESETS_HIGHLIGHT.has(n)) continue;
-    body.appendChild(makePresetButton(n, true));
+    body.appendChild(makePlanPresetButton(n, true));
   }
 
   const moreWrap = document.createElement('span');
@@ -270,98 +229,22 @@ function buildSplitStrip(): HTMLElement {
   return root;
 }
 
+// ── Next strip (preset-row stager, paste-only) ──────────────────────
 
-function buildStepsSection(root: HTMLElement): void {
-  const stepsLbl = document.createElement('span'); stepsLbl.textContent = 'steps'; stepsLbl.style.cssText = CSS_HINT_LABEL;
-  root.appendChild(stepsLbl);
-  const stepsInput = document.createElement('input');
-  stepsInput.type = 'number'; stepsInput.min = '1'; stepsInput.max = '100';
-  stepsInput.value = String(state.steps);
-  stepsInput.style.cssText = 'width:54px;padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';font-size:11px;';
-  stepsInput.dataset.role = 'steps-input';
-  stepsInput.oninput = function () {
-    const v = parseInt(stepsInput.value, 10);
-    if (v >= 1) { state.steps = Math.min(100, v); persist(); }
-  };
-  root.appendChild(stepsInput);
-  for (const n of STEP_PRESETS) {
-    const b = document.createElement('button');
-    b.type = 'button'; b.textContent = String(n); b.title = 'Set step count to ' + n;
-    const hi = STEP_PRESETS_HIGHLIGHT.has(n);
-    const bg = hi ? 'rgba(124,58,237,0.55)' : 'rgba(124,58,237,0.15)';
-    const bd = hi ? '1px solid rgba(124,58,237,0.85)' : '1px solid rgba(124,58,237,0.3)';
-    const fw = hi ? '700' : '500';
-    b.style.cssText = 'padding:2px 6px;background:' + bg + ';border:' + bd + ';border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:10px;font-weight:' + fw + ';';
-    b.onclick = function () { state.steps = n; stepsInput.value = String(n); persist(); notify(); };
-    root.appendChild(b);
-  }
+function makeNextPresetButton(deps: TaskNextDeps, n: number, highlighted: boolean): HTMLButtonElement {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.textContent = String(n);
+  b.title = 'Append "Next ' + n + ' steps" to the chat box (no submit)';
+  const bg = highlighted ? 'rgba(124,58,237,0.55)' : 'rgba(124,58,237,0.15)';
+  const border = highlighted ? '1px solid rgba(124,58,237,0.85)' : '1px solid rgba(124,58,237,0.3)';
+  const weight = highlighted ? '700' : '500';
+  b.style.cssText = 'padding:3px 8px;background:' + bg + ';border:' + border + ';border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:11px;font-weight:' + weight + ';';
+  b.onclick = function () { void stageNextPrompt(deps, n); };
+  return b;
 }
 
-function buildDelaySection(root: HTMLElement): void {
-  const delayLbl = document.createElement('span'); delayLbl.textContent = 'delay'; delayLbl.style.cssText = CSS_HINT_LABEL;
-  root.appendChild(delayLbl);
-  const delayInput = document.createElement('input');
-  delayInput.type = 'number'; delayInput.min = '1'; delayInput.max = '3600';
-  delayInput.value = String(state.delaySec);
-  delayInput.style.cssText = 'width:54px;padding:2px 4px;background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:4px;color:' + cPanelFg + ';font-size:11px;';
-  delayInput.dataset.role = 'delay-input';
-  delayInput.oninput = function () {
-    const v = parseInt(delayInput.value, 10);
-    if (v >= 1) { state.delaySec = Math.min(3600, v); persist(); }
-  };
-  root.appendChild(delayInput);
-  const sUnit = document.createElement('span'); sUnit.textContent = 's'; sUnit.style.cssText = 'font-size:10px;opacity:0.7;'; root.appendChild(sUnit);
-  for (const s of DELAY_PRESETS_SEC) {
-    const b = document.createElement('button');
-    b.type = 'button'; b.textContent = s + 's'; b.title = 'Set delay to ' + s + 's';
-    b.style.cssText = 'padding:1px 4px;background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.25);border-radius:3px;color:' + cPanelFg + ';cursor:pointer;font-size:9px;';
-    b.onclick = function () { state.delaySec = s; delayInput.value = String(s); persist(); notify(); };
-    root.appendChild(b);
-  }
-}
-
-function buildActionButton(deps: TaskNextDeps): HTMLButtonElement {
-  const action = document.createElement('button');
-  action.type = 'button';
-  action.style.marginLeft = 'auto';
-  const startGradient = 'linear-gradient(135deg,#7c3aed 0%,#4f46e5 50%,#2563eb 100%)';
-  action.style.cssText = 'padding:5px 14px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#fff;background:' + startGradient + ';box-shadow:0 2px 6px rgba(79,70,229,0.45), inset 0 1px 0 rgba(255,255,255,0.18);';
-  action.onclick = function () {
-    if (taskNextState.running) stopNextQueue();
-    else void runNextQueue(deps);
-  };
-  return action;
-}
-
-function wireRender(root: HTMLElement, action: HTMLButtonElement, progress: HTMLElement): void {
-  const startGradient = 'linear-gradient(135deg,#7c3aed 0%,#4f46e5 50%,#2563eb 100%)';
-  const stopGradient = 'linear-gradient(135deg,#dc2626 0%,#b91c1c 50%,#7f1d1d 100%)';
-  const stepsInput = root.querySelector('input[data-role="steps-input"]') as HTMLInputElement | null;
-  const delayInput = root.querySelector('input[data-role="delay-input"]') as HTMLInputElement | null;
-  const render = (): void => {
-    if (stepsInput) stepsInput.disabled = taskNextState.running;
-    if (delayInput) delayInput.disabled = taskNextState.running;
-    if (taskNextState.running) {
-      action.textContent = '⏹ Stop';
-      action.style.background = stopGradient;
-      const remain = Math.max(0, Math.ceil((state.phaseDeadlineAt - Date.now()) / 1000));
-      const timer = state.phaseDeadlineAt > 0 && remain > 0 ? ' • next in ' + remain + 's' : '';
-      progress.textContent = state.completed + '/' + state.steps + timer;
-    } else {
-      action.textContent = '🔁 Repeat';
-      action.style.background = startGradient;
-      progress.textContent = state.completed > 0 ? 'done ' + state.completed + '/' + state.steps : '';
-    }
-  };
-  render();
-  state.subscribers.add(render);
-  const tickId = setInterval(function () {
-    if (!document.body.contains(root)) { clearInterval(tickId); state.subscribers.delete(render); return; }
-    if (taskNextState.running) render();
-  }, 500);
-}
-
-function buildControl(deps: TaskNextDeps): HTMLElement {
+function buildNextStrip(deps: TaskNextDeps): HTMLElement {
   const root = document.createElement('div');
   root.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 6px;background:' + cSectionBg + ';border:1px solid rgba(124,58,237,0.25);border-radius:6px;font-family:system-ui,-apple-system,sans-serif;color:' + cPanelFg + ';font-size:11px;box-sizing:border-box;';
 
@@ -373,16 +256,16 @@ function buildControl(deps: TaskNextDeps): HTMLElement {
   const body = document.createElement('span');
   body.dataset.role = 'next-body';
   body.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1;';
-  buildStepsSection(body);
-  const sep = document.createElement('span');
-  sep.style.cssText = 'border-left:1px solid rgba(124,58,237,0.25);height:14px;margin:0 2px;';
-  body.appendChild(sep);
-  buildDelaySection(body);
-  const progress = document.createElement('span');
-  progress.style.cssText = 'font-size:10px;color:' + cPrimaryLight + ';margin-left:4px;min-width:42px;';
-  body.appendChild(progress);
-  const action = buildActionButton(deps);
-  body.appendChild(action);
+
+  const hint = document.createElement('span');
+  hint.textContent = 'click a number to add (no submit)';
+  hint.style.cssText = CSS_HINT_LABEL;
+  body.appendChild(hint);
+
+  for (const n of NEXT_PRESETS) {
+    body.appendChild(makeNextPresetButton(deps, n, NEXT_PRESETS_HIGHLIGHT.has(n)));
+  }
+
   root.appendChild(body);
 
   const applyCollapse = (): void => { body.style.display = state.nextCollapsed ? 'none' : 'flex'; };
@@ -395,10 +278,8 @@ function buildControl(deps: TaskNextDeps): HTMLElement {
   label.onclick = function () { chevron.click(); };
   applyCollapse();
 
-  wireRender(root, action, progress);
   return root;
 }
-
 
 // ── Mount above chat box ────────────────────────────────────────────
 
@@ -406,13 +287,17 @@ const INLINE_ID = 'marco-next-inline';
 const SPLIT_ID = 'marco-split-inline';
 
 function tryMountInline(deps: TaskNextDeps): boolean {
+  if (!INLINE_AUTOCHAIN_DISABLED) {
+    logError('NextInline', 'INLINE_AUTOCHAIN_DISABLED flipped — refusing to mount');
+    return true;
+  }
   if (document.getElementById(INLINE_ID) && document.getElementById(SPLIT_ID)) return true;
   const target = findPasteTarget(getPromptsConfig(), (xp) => getByXPath(xp) as Element | null);
   if (!target) return false;
   const host = (target.closest && target.closest('form')) || target.parentElement;
   if (!host || !host.parentElement) return false;
 
-  // Order top→bottom: Plan → Next → (Repeat strip mounts after, closest to chat)
+  // Order top→bottom: Plan → Next → (Repeat strip mounts after, closest to chat).
   if (!document.getElementById(SPLIT_ID)) {
     const splitStrip = buildSplitStrip();
     splitStrip.id = SPLIT_ID;
@@ -420,7 +305,7 @@ function tryMountInline(deps: TaskNextDeps): boolean {
     host.parentElement.insertBefore(splitStrip, host);
   }
   if (!document.getElementById(INLINE_ID)) {
-    const strip = buildControl(deps);
+    const strip = buildNextStrip(deps);
     strip.id = INLINE_ID;
     strip.style.margin = '0 0 2px';
     const splitStrip = document.getElementById(SPLIT_ID);
@@ -430,7 +315,7 @@ function tryMountInline(deps: TaskNextDeps): boolean {
       host.parentElement.insertBefore(strip, host);
     }
   }
-  log('NextInline: strips mounted (plan + next) above chat box', 'info');
+  log('NextInline: strips mounted (plan + next, paste-only) above chat box', 'info');
   return true;
 }
 
@@ -445,4 +330,3 @@ export function mountNextInlineStrip(deps: TaskNextDeps): void {
   });
   _observer.observe(document.body, { childList: true, subtree: true });
 }
-
