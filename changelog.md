@@ -1,5 +1,24 @@
 # Changelog
 
+## [v4.6.0] — 2026-06-25 Three-strip decoupling — Plan / Next / Repeat
+
+### Changed
+- Inline strips above the chat composer are now fully decoupled. Order top→bottom: **📋 Plan → ▶ Next → 🔁 Repeat**. Plan and Next are paste-only stagers; only Repeat submits or loops.
+- Renamed the loop button label `▶ Start` → `🔁 Repeat` across `next-inline-ui.ts`, `repeat-loop-ui.ts`, `task-next-ui.ts` (comment), and `plan-task-ui.ts` (tooltip).
+- **Next strip rewritten**: dropped the auto-submit loop runner (steps/delay/action button). It is now a preset row `{1, 2, 3, 4, 5, 8}` that resolves the `next-${N}-steps` prompt variant (fallback: legacy `next-tasks`) and appends to chat with toast `📝 Next N staged — press Enter to send`. Never submits, never loops.
+
+### Added
+- `stageNextPrompt(deps, n)` paste-only helper in `next-inline-ui.ts`.
+- `INLINE_AUTOCHAIN_DISABLED` module constant guarding the decoupling invariant; `tryMountInline` refuses to mount if flipped.
+- `RepeatLoop.start` log line at `repeat-loop-ui.ts:349` (`source=repeat-strip N=… chars=…`) proving Repeat is the sole executor.
+
+### Internal
+- Version pins moved 4.5.0 → 4.6.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, and the prompts bundle metadata.
+
+---
+
+
+
 ## [v4.5.0] — 2026-06-25 Plan prompt resolver hardening
 
 ### Fixed
