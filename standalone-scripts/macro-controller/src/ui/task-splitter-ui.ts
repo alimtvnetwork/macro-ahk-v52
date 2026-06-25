@@ -690,7 +690,7 @@ export async function triggerPlanPasteFromInline(stepCount: number): Promise<voi
       showPasteToast('❌ Plan: paste failed', true);
       return;
     }
-    showPasteToast('📋 Plan ' + n + ' appended — review and Send manually', false);
+    showPasteToast('📋 Plan ' + n + ' appended [src:' + getLastPlanPromptSource() + '] — review and Send manually', false);
   } catch (e) {
     logError('TaskSplitter', 'triggerPlanPasteFromInline threw', e);
     showPasteToast('❌ Plan: paste threw', true);
