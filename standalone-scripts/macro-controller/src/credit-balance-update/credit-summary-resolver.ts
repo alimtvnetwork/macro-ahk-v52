@@ -92,6 +92,9 @@ export function resolveCreditSummary(ws: WorkspaceCredit): CreditSummary {
         rollover: Math.max(0, Math.round(ws.rollover || 0)),
         rolloverLimit: Math.max(0, Math.round(ws.rolloverLimit || 0)),
         totalUsed: Math.max(0, Math.round(ws.totalCreditsUsed || 0)),
+        availableBalance: 0,
+        cloudRemaining: 0,
+        aiRemaining: 0,
         source: available === 0 && total === 0 ? 'Missing' : 'Inline',
         renderDash: false,
     };
