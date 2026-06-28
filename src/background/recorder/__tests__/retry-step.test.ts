@@ -64,18 +64,23 @@ describe("retryStep", () => {
     });
 
     it("returns a fresh failure report when the target is still missing", async () => {
-        document.body.innerHTML = `<div></div>`;
-        const step: ReplayStepInput = {
-            StepId: 8, Index: 3, Kind: "Click",
-            Selectors: cssSelector(8, "#missing"),
-        };
-        const outcome = await retryStep(step, { Doc: document, Now: FIXED_NOW });
+        const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+        try {
+            document.body.innerHTML = `<div></div>`;
+            const step: ReplayStepInput = {
+                StepId: 8, Index: 3, Kind: "Click",
+                Selectors: cssSelector(8, "#missing"),
+            };
+            const outcome = await retryStep(step, { Doc: document, Now: FIXED_NOW });
 
-        expect(outcome.Result.Ok).toBe(false);
-        expect(outcome.Result.FailureReport).toBeDefined();
-        expect(outcome.Result.FailureReport!.Phase).toBe("Replay");
-        expect(outcome.Result.FailureReport!.StepId).toBe(8);
-        expect(outcome.Result.Error).toContain("Element not found");
+            expect(outcome.Result.Ok).toBe(false);
+            expect(outcome.Result.FailureReport).toBeDefined();
+            expect(outcome.Result.FailureReport!.Phase).toBe("Replay");
+            expect(outcome.Result.FailureReport!.StepId).toBe(8);
+            expect(outcome.Result.Error).toContain("Element not found");
+        } finally {
+            errSpy.mockRestore();
+        }
     });
 
     it("persists the retry with a 'Retry of step #N' notes prefix", async () => {
