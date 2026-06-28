@@ -1,5 +1,16 @@
 # Changelog
 
+## [v4.8.0] — 2026-06-28 Next/Plan prompt cleanup
+
+### Changed
+- Removed `**` bold markers, `(v5)`/`(v6)` suffixes from Next and Plan prompts.
+- Moved `title`/`slug` front-matter to the bottom of all bundled prompt files; prompt body now starts at line 1.
+- Next prompt body uses `${N}` placeholders consistently so click-to-paste substitutes the chosen count (1, 2, 3, 4, 5, 8).
+
+### Fixed
+- Rebuilt `chrome-extension/prompts/macro-prompts.json` so the extension picks up the cleaned Next/Plan prompts on reload.
+
+
 ## [v4.7.0] — 2026-06-28 Repeat strip restored in mount sequence
 
 ### Fixed
