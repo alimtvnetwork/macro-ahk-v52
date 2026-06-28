@@ -1,0 +1,18 @@
+{
+  "version": "4.9.0",
+  "branch": "release/v4.9.0",
+  "sourceBranch": "main",
+  "commit": "5212afa7334e2021a27f902b08d4e4cdb7239b47",
+  "tag": "v4.9.0",
+  "assets": [],
+  "changelog": [
+    "`scripts/prompt-creator-cli/prompt_creator.py` — CLI that accepts a markdown file (`--file`) or stdin and scaffolds `standalone-scripts/prompts/NN-\u003cslug\u003e/{info.json,prompt.md}`, then runs `aggregate-prompts.mjs` so the extension bundle picks it up.",
+    "`.github/workflows/prompt-creator-cli.yml` — PyInstaller matrix build (Linux / macOS / Windows) on every `v*` tag; uploads `prompt-creator-{linux,macos,windows}-x64[.exe]` + `checksums-prompt-creator.txt` to the GitHub Release.",
+    "`scripts/prompt-creator-cli/install.sh` and `install.ps1` — one-liner installers that download the matching binary into `./bin/prompt-creator` (override via `PROMPT_CREATOR_VERSION` / `PROMPT_CREATOR_BIN_DIR`).",
+    "Version pins bumped 4.8.0 → 4.9.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, and root `readme.md`."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-28T17:38:47Z",
+  "isLatest": false
+}
