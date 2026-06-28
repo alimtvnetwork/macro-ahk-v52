@@ -31,6 +31,7 @@ vi.mock('../ui/task-next-ui', () => ({
 }));
 
 import { mountNextInlineStrip } from '../ui/next-inline-ui';
+import { setInlineStripGroupCollapsed } from '../ui/inline-strip-group-collapse';
 import type { TaskNextDeps } from '../ui/task-next-ui';
 
 const SPLIT_ID = 'marco-split-inline';
@@ -39,6 +40,8 @@ const INLINE_ID = 'marco-next-inline';
 describe('inline strip mount order (plan 09)', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
+    localStorage.clear();
+    setInlineStripGroupCollapsed(false);
     mocks.findPasteTarget.mockReset();
   });
 
@@ -82,5 +85,41 @@ describe('inline strip mount order (plan 09)', () => {
 
     expect(document.querySelectorAll('#' + SPLIT_ID).length).toBe(1);
     expect(document.querySelectorAll('#' + INLINE_ID).length).toBe(1);
+  });
+
+  it('uses one +/- button to hide and show Plan, Next, and Repeat inline controls', () => {
+    const wrap = document.createElement('div');
+    const form = document.createElement('form');
+    const ta = document.createElement('textarea');
+    form.appendChild(ta);
+    wrap.appendChild(form);
+    document.body.appendChild(wrap);
+    mocks.findPasteTarget.mockReturnValue(ta);
+
+    mountNextInlineStrip({ getPromptsConfig: () => ({ entries: [] }) } as unknown as TaskNextDeps);
+    const repeat = document.createElement('div');
+    repeat.id = 'marco-repeat-inline';
+    repeat.style.display = 'inline-flex';
+    wrap.insertBefore(repeat, form);
+
+    const split = document.getElementById(SPLIT_ID) as HTMLElement;
+    const next = document.getElementById(INLINE_ID) as HTMLElement;
+    const body = split.querySelector<HTMLElement>('[data-role="plan-body"]');
+    const toggle = split.querySelector<HTMLButtonElement>('[data-role="inline-group-toggle"]');
+
+    expect(toggle?.textContent).toBe('−');
+    toggle?.click();
+
+    expect(toggle?.textContent).toBe('+');
+    expect(body?.style.display).toBe('none');
+    expect(next.style.display).toBe('none');
+    expect(repeat.style.display).toBe('none');
+
+    toggle?.click();
+
+    expect(toggle?.textContent).toBe('−');
+    expect(body?.style.display).toBe('flex');
+    expect(next.style.display).toBe('flex');
+    expect(repeat.style.display).toBe('inline-flex');
   });
 });
