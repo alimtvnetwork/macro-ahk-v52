@@ -60,7 +60,12 @@ export function calculateProZeroCreditSummary(
         Source: MacroCreditSource.CREDIT_BALANCE,
         DailyRemaining: balance.daily_remaining,
         DailyLimit: balance.daily_limit,
-        BillingRemaining: sumGrantTypeRemaining(balance, CreditGrantType.BILLING),
+        // Wire API renamed monthly/billing-period grants from `billing` → `granted`
+        // (observed 2026-06: response includes grant_type='granted'). Sum both so
+        // BillingRemaining stays accurate regardless of which token the server emits.
+        BillingRemaining:
+            sumGrantTypeRemaining(balance, CreditGrantType.BILLING) +
+            sumGrantTypeRemaining(balance, CreditGrantType.GRANTED),
         TopupRemaining: sumGrantTypeRemaining(balance, CreditGrantType.TOPUP),
         BonusRemaining: sumGrantTypeRemaining(balance, CreditGrantType.BONUS),
         RolloverRemaining: sumGrantTypeRemaining(balance, CreditGrantType.ROLLOVER),
