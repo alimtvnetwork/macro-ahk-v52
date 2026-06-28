@@ -38,9 +38,20 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+def _find_root() -> Path:
+    """Locate repo root by walking up from CWD looking for standalone-scripts/prompts.
+    Falls back to CWD so PyInstaller binaries create prompts in the user's working folder."""
+    cwd = Path.cwd().resolve()
+    for candidate in [cwd, *cwd.parents]:
+        if (candidate / "standalone-scripts" / "prompts").is_dir():
+            return candidate
+    # Fallback: use CWD and create the prompts dir there.
+    return cwd
+
+ROOT = _find_root()
 PROMPTS_DIR = ROOT / "standalone-scripts" / "prompts"
 AGGREGATE_SCRIPT = ROOT / "scripts" / "aggregate-prompts.mjs"
+PROMPTS_DIR.mkdir(parents=True, exist_ok=True)
 
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
