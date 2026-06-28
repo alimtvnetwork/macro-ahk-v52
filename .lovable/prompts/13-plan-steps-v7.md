@@ -1,7 +1,3 @@
----
-title: Plan ${N}
----
-
 # ${N} steps Plan, Maximal Enforcement
 
 Parse the number ${N} in this prompt's header. That number is the EXACT count of steps in the plan you must write. Not ${N}-1. Not ${N}+1. If you cannot find it, STOP and ask.
@@ -124,4 +120,5 @@ Listen — past planning turns have been sloppy: wrong step count, plans dumped 
 
 ---
 
+title: Plan ${N}
 slug: plan-${N}

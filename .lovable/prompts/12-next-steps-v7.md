@@ -1,7 +1,3 @@
----
-title: Next ${N} steps
----
-
 # Next ${N} Steps or Tasks
 
 ## What I want
@@ -78,4 +74,5 @@ Rule: verify the file/folder exists first. If it does not, skip that guideline s
 
 ---
 
+title: Next ${N} steps
 slug: next-${N}-steps

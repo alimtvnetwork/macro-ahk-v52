@@ -1,8 +1,3 @@
----
-title: Proofread
-slug: proofread
----
-
 # Proofreading AI Instruction
 
 Proofreading AI instructions: Important Instruction
@@ -243,3 +238,8 @@ Must create the coding guidelines in the memory as per the instructions and not 
 If Steps are mentioned, write the steps with sequence in the proofread version for the AI.
 
 Do you understand? If yes, just say `Y`.
+
+---
+
+title: Proofread
+slug: proofread

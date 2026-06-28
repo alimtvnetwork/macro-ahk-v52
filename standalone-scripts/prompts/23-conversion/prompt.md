@@ -1,8 +1,3 @@
----
-title: Lowercase Readme And Sequence Slugs
-slug: lowercase-readme-and-sequence
----
-
 # Repo File Naming Convention
 
 Enforce these naming rules across the entire repository:
@@ -48,3 +43,8 @@ Enforce these naming rules across the entire repository:
 ---
 
 *This prompt is version 1.0.*
+
+---
+
+title: Lowercase Readme And Sequence Slugs
+slug: lowercase-readme-and-sequence
