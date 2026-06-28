@@ -20,7 +20,14 @@ export async function exportPromptsToJson(): Promise<void> {
       return;
     }
 
-    const data = JSON.stringify(record.entries, null, 2);
+    const exportable = record.entries.filter((e) => !e.excludeFromExport);
+    const skipped = record.entries.length - exportable.length;
+    if (exportable.length === 0) {
+      showToast('All prompts are flagged excludeFromExport — nothing to export', 'warn');
+      return;
+    }
+
+    const data = JSON.stringify(exportable, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
@@ -35,7 +42,8 @@ export async function exportPromptsToJson(): Promise<void> {
       URL.revokeObjectURL(url);
     }, 100);
 
-    showToast(`Exported ${record.entries.length} prompts`, 'success');
+    const suffix = skipped > 0 ? ` (${skipped} excluded)` : '';
+    showToast(`Exported ${exportable.length} prompts${suffix}`, 'success');
   } catch (err) {
     log('[PromptIO] Export failed: ' + String(err), 'error');
     showToast('Export failed', 'error');
