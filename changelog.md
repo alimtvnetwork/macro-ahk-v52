@@ -1,5 +1,15 @@
 # Changelog
 
+## [v4.7.0] — 2026-06-28 Repeat strip restored in mount sequence
+
+### Fixed
+- `panel-builder.ts` now invokes `mountRepeatInlineStrip` during UI initialization, restoring the 🔁 Repeat strip (delay input + presets) in the Plan → Next → Repeat sequence above the chat composer.
+
+### Changed
+- Version pins bumped 4.6.0 → 4.7.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, prompts bundle metadata, and root `readme.md`.
+
+
+
 ## [v4.6.0] — 2026-06-25 Three-strip decoupling — Plan / Next / Repeat
 
 ### Changed
