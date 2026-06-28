@@ -360,7 +360,7 @@ function _buildPromptModalFooter(
   saveBtn.onmouseover = function() { (this as HTMLElement).style.background = '#6d28d9'; };
   saveBtn.onmouseout = function() { (this as HTMLElement).style.background = '#7c3aed'; };
   saveBtn.onclick = function() {
-    const { titleInput, contentArea, catSelect, catCustomInput, tagsInput } = bodyResult;
+    const { titleInput, contentArea, catSelect, catCustomInput, tagsInput, excludeFromExportInput } = bodyResult;
     const name = titleInput.value.trim();
     const text = contentArea.value.trim();
     if (!name) { showPasteToast('❌ Title is required', true); titleInput.focus(); return; }
@@ -376,6 +376,8 @@ function _buildPromptModalFooter(
     if (category) promptPayload.category = category;
     if (tags.length > 0) promptPayload.tags = tags;
     if (isEdit && editPrompt!.id) promptPayload.id = editPrompt!.id;
+    // v4.12.0 (Issue 64): persist the export-exclusion flag round-trip.
+    promptPayload.excludeFromExport = !!excludeFromExportInput.checked;
 
     sendToExtension('SAVE_PROMPT', { prompt: promptPayload }).then(function(resp: Record<string, unknown>) {
       (saveBtn as HTMLButtonElement).disabled = false;
