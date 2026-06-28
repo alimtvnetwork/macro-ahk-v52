@@ -1,0 +1,14 @@
+{
+  "version": "4.7.0",
+  "branch": "release/v4.7.0",
+  "sourceBranch": "main",
+  "tag": "v4.7.0",
+  "assets": [],
+  "changelog": [
+    "Restored 🔁 Repeat inline strip by invoking mountRepeatInlineStrip in panel-builder.ts during UI initialization. Order above chat: Plan → Next → Repeat.",
+    "Version pins bumped 4.6.0 → 4.7.0 across version.json, manifest.json, src/shared/constants.ts, all standalone-scripts/**/instruction.ts, shared-state.ts, payment-banner-hider/src/index.ts, prompts bundle metadata, and root readme.md."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "isLatest": true
+}
