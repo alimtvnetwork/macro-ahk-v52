@@ -1,5 +1,14 @@
 # Macro Controller — Changelog
 
+## v4.11.0 (2026-06-28)
+
+### Fixed
+- Inline Plan, Next, and Repeat strips now share a single persisted +/- collapse control above the chat box.
+- Added regression coverage for the shared inline-strip group collapse behavior.
+
+### Changed
+- Version bump 4.9.1 → 4.11.0 across manifest, version.json, constants.ts, all instruction.ts files, SDK runtime/cache schema, payment-banner-hider, shared-state.ts, and root readme pins.
+
 ## v3.53.0 (2026-06-05)
 
 ### Changed

@@ -1,5 +1,14 @@
 # Changelog
 
+## [v4.11.0] — 2026-06-28 inline strip group collapse
+
+### Fixed
+- `standalone-scripts/macro-controller/src/ui/next-inline-ui.ts`, `repeat-loop-ui.ts`, and `inline-strip-group-collapse.ts` — replaced separate inline-strip collapse behavior with one persisted +/- control that hides or shows Plan, Next, and Repeat together above the chat box.
+- `standalone-scripts/macro-controller/src/__tests__/inline-strip-mount-order.test.ts` — added regression coverage proving the single +/- button hides and restores all three inline controls.
+
+### Changed
+- Version pins bumped 4.9.1 → 4.11.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, `marco-sdk` runtime/cache schema, and root `readme.md`.
+
 ## [v4.9.1] — 2026-06-28 test-noise cleanup
 
 ### Fixed
