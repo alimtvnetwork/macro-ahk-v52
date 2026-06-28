@@ -46,3 +46,35 @@ python scripts/prompt-creator-cli/prompt_creator.py --title "My Prompt"
 
 After that, reload the extension (and click "Reload prompts" in the UI) to
 pick up the new entry.
+
+## Prebuilt binaries
+
+CI builds standalone binaries (PyInstaller) for Linux, macOS, and Windows on
+every `v*` tag and uploads them as release assets:
+
+- `prompt-creator-linux-x64`
+- `prompt-creator-macos-x64`
+- `prompt-creator-windows-x64.exe`
+- `checksums-prompt-creator.txt`
+
+Workflow: `.github/workflows/prompt-creator-cli.yml`.
+
+### Install (macOS / Linux)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/aukgit/macro-ahk-v52/main/scripts/prompt-creator-cli/install.sh | bash
+export PATH="$PWD/bin:$PATH"
+prompt-creator --file my-prompt.md --title "My Prompt"
+```
+
+### Install (Windows PowerShell)
+
+```powershell
+iwr https://raw.githubusercontent.com/aukgit/macro-ahk-v52/main/scripts/prompt-creator-cli/install.ps1 | iex
+$env:PATH = "$PWD\bin;$env:PATH"
+prompt-creator --file my-prompt.md --title "My Prompt"
+```
+
+Pin a version with `PROMPT_CREATOR_VERSION=v4.8.0` (env var) or
+`-Version v4.8.0` (PowerShell). Override target dir with
+`PROMPT_CREATOR_BIN_DIR` / `-BinDir`.
