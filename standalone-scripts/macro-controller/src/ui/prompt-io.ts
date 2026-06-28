@@ -77,6 +77,7 @@ export function validatePromptEntry(entry: unknown): CachedPromptEntry | null {
     isDefault: !!e.isDefault,
     order: typeof e.order === 'number' ? e.order : undefined,
     version: typeof e.version === 'string' ? e.version : undefined,
+    excludeFromExport: typeof e.excludeFromExport === 'boolean' ? e.excludeFromExport : undefined,
   };
 }
 
