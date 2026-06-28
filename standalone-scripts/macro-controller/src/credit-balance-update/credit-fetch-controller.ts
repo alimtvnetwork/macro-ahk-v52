@@ -108,13 +108,15 @@ export function hasInlineCredits(ws: WorkspaceCredit): boolean {
 }
 
 function buildInlineBalance(ws: WorkspaceCredit): CreditBalance {
+    const totalRemaining = Math.max(0, Math.round(ws.available || 0));
+
     return {
-        totalRemaining: Math.max(0, Math.round(ws.available || 0)),
+        totalRemaining,
         totalGranted: Math.max(0, Math.round(ws.totalCredits || 0)),
         dailyRemaining: Math.max(0, Math.round(ws.dailyFree || 0)),
         dailyLimit: Math.max(0, Math.round(ws.dailyLimit || 0)),
         totalBillingPeriodUsed: Math.max(0, Math.round(ws.totalCreditsUsed || ws.used || 0)),
-        availableBalance: Math.max(0, Math.round(ws.available || 0)),
+        availableBalance: totalRemaining,
         cloudRemaining: 0,
         aiRemaining: 0,
         expiringGrants: [],

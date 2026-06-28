@@ -88,6 +88,9 @@ describe('credit-fetch-controller', () => {
         const result = await requestCredits(workspace);
 
         expect(result.outcome).toBe(CreditFetchOutcome.InlineHit);
+        expect(result.balance?.availableBalance).toBe(45);
+        expect(result.balance?.cloudRemaining).toBe(0);
+        expect(result.balance?.aiRemaining).toBe(0);
         expect(fetchWorkspaceCreditBalanceSpy).not.toHaveBeenCalled();
     });
 
