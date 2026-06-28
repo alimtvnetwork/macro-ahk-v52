@@ -20,6 +20,12 @@ import { getByXPath } from '../xpath-utils';
 import { taskNextState, findNextTasksPrompt, type TaskNextDeps } from './task-next-ui';
 import { triggerPlanPasteFromInline, isSplitterRunning } from './task-splitter-ui';
 import { cPanelFg, cPrimaryLight, cSectionBg } from '../shared-state';
+import {
+  applyInlineStripGroupCollapse,
+  getInlineStripGroupCollapsed,
+  subscribeInlineStripGroupCollapse,
+  toggleInlineStripGroupCollapsed,
+} from './inline-strip-group-collapse';
 
 /** Hard guard: Plan/Next strips MUST NOT auto-trigger Repeat or each other. */
 export const INLINE_AUTOCHAIN_DISABLED = true;
@@ -33,7 +39,6 @@ const PLAN_PRESETS = [
 const PLAN_PRESETS_HIGHLIGHT = new Set<number>([5, 10, 12, 15, 30]);
 const PLAN_MIN = 2;
 const PLAN_MAX = 200;
-const STORAGE_KEY = 'marco-next-inline-prefs';
 const CSS_HINT_LABEL = 'font-size:10px;opacity:0.8;';
 
 interface NextPromptEntry {
@@ -43,45 +48,24 @@ interface NextPromptEntry {
   replaceKey?: string;
 }
 
-interface StripState {
-  planCollapsed: boolean;
-  nextCollapsed: boolean;
-}
-
-const state: StripState = {
-  planCollapsed: false,
-  nextCollapsed: false,
-};
-
-function persist(): void {
-  try {
-    if (typeof localStorage === 'undefined') return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      planCollapsed: state.planCollapsed, nextCollapsed: state.nextCollapsed,
-    }));
-  } catch (e) { log('NextInline: persist failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
-}
-
-function hydrate(): void {
-  try {
-    if (typeof localStorage === 'undefined') return;
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const o = JSON.parse(raw) as { planCollapsed?: boolean; nextCollapsed?: boolean };
-    if (typeof o.planCollapsed === 'boolean') state.planCollapsed = o.planCollapsed;
-    if (typeof o.nextCollapsed === 'boolean') state.nextCollapsed = o.nextCollapsed;
-  } catch (e) { log('NextInline: hydrate failed — ' + (e instanceof Error ? e.message : String(e)), 'warn'); }
-}
-hydrate();
-
-function makeChevron(getCollapsed: () => boolean, onToggle: () => void): HTMLButtonElement {
+function buildGroupToggleButton(): HTMLButtonElement {
   const btn = document.createElement('button');
   btn.type = 'button';
-  btn.title = 'Collapse / expand';
-  btn.style.cssText = 'background:transparent;border:none;color:' + cPanelFg + ';cursor:pointer;font-size:11px;padding:0 4px;opacity:0.75;';
-  const render = (): void => { btn.textContent = getCollapsed() ? '▸' : '▾'; };
+  btn.title = 'Hide / show Plan, Next, and Repeat controls';
+  btn.dataset.role = 'inline-group-toggle';
+  btn.style.cssText = 'margin-left:4px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.18);border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:15px;font-weight:700;line-height:1;';
+  const render = (): void => {
+    const collapsed = getInlineStripGroupCollapsed();
+    btn.textContent = collapsed ? '+' : '−';
+    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  };
   render();
-  btn.onclick = function (ev) { ev.stopPropagation(); onToggle(); render(); };
+  subscribeInlineStripGroupCollapse(render);
+  btn.onclick = function (ev) {
+    ev.stopPropagation();
+    toggleInlineStripGroupCollapsed();
+    applyInlineStripGroupCollapse();
+  };
   return btn;
 }
 
@@ -209,7 +193,7 @@ function buildSplitStrip(): HTMLElement {
   root.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 6px;background:' + cSectionBg + ';border:1px solid rgba(245,158,11,0.35);border-radius:6px;font-family:system-ui,-apple-system,sans-serif;color:' + cPanelFg + ';font-size:11px;box-sizing:border-box;';
 
   const label = document.createElement('span');
-  label.textContent = '📋 Plan';
+  label.textContent = '📋 Plan · ▶ Next · 🔁 Repeat';
   label.style.cssText = 'font-weight:600;color:#fbbf24;cursor:pointer;';
   root.appendChild(label);
 
@@ -245,15 +229,11 @@ function buildSplitStrip(): HTMLElement {
 
   root.appendChild(body);
 
-  const applyCollapse = (): void => { body.style.display = state.planCollapsed ? 'none' : 'flex'; };
-  const chevron = makeChevron(() => state.planCollapsed, () => {
-    state.planCollapsed = !state.planCollapsed;
-    persist();
-    applyCollapse();
-  });
-  root.appendChild(chevron);
-  label.onclick = function () { chevron.click(); };
-  applyCollapse();
+  const toggle = buildGroupToggleButton();
+  root.appendChild(toggle);
+  label.onclick = function () { toggle.click(); };
+  subscribeInlineStripGroupCollapse(function () { applyInlineStripGroupCollapse(); });
+  applyInlineStripGroupCollapse();
 
   return root;
 }
@@ -297,16 +277,6 @@ function buildNextStrip(deps: TaskNextDeps): HTMLElement {
 
   root.appendChild(body);
 
-  const applyCollapse = (): void => { body.style.display = state.nextCollapsed ? 'none' : 'flex'; };
-  const chevron = makeChevron(() => state.nextCollapsed, () => {
-    state.nextCollapsed = !state.nextCollapsed;
-    persist();
-    applyCollapse();
-  });
-  root.appendChild(chevron);
-  label.onclick = function () { chevron.click(); };
-  applyCollapse();
-
   return root;
 }
 
@@ -344,6 +314,7 @@ function tryMountInline(deps: TaskNextDeps): boolean {
       host.parentElement.insertBefore(strip, host);
     }
   }
+  applyInlineStripGroupCollapse();
   log('NextInline: strips mounted (plan + next, paste-only) above chat box', 'info');
   return true;
 }
