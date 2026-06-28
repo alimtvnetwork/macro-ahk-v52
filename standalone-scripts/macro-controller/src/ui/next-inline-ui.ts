@@ -15,7 +15,7 @@
 import { log } from '../logging';
 import { logError } from '../error-utils';
 import { showPasteToast, pasteIntoEditor, findPasteTarget } from './prompt-utils';
-import { getPromptsConfig } from './prompt-manager';
+import { DEFAULT_PROMPTS, getPromptsConfig } from './prompt-manager';
 import { getByXPath } from '../xpath-utils';
 import { taskNextState, findNextTasksPrompt, type TaskNextDeps } from './task-next-ui';
 import { triggerPlanPasteFromInline, isSplitterRunning } from './task-splitter-ui';
@@ -35,6 +35,13 @@ const PLAN_MIN = 2;
 const PLAN_MAX = 200;
 const STORAGE_KEY = 'marco-next-inline-prefs';
 const CSS_HINT_LABEL = 'font-size:10px;opacity:0.8;';
+
+interface NextPromptEntry {
+  name?: string;
+  slug?: string;
+  text?: string;
+  replaceKey?: string;
+}
 
 interface StripState {
   planCollapsed: boolean;
@@ -87,13 +94,35 @@ function readEditorText(): string {
   return (target as HTMLElement).innerText || (target as HTMLElement).textContent || '';
 }
 
-function resolveNextVariantText(deps: TaskNextDeps, n: number): string | null {
-  const promptsCfg = deps.getPromptsConfig();
-  const entries = promptsCfg.entries || [];
+function substituteNextValue(text: string, key: string, n: number): string {
+  return text.split('${' + key + '}').join(String(n));
+}
+
+function findNextVariant(entries: NextPromptEntry[], n: number): string | null {
   const slug = 'next-' + n + '-steps';
   for (const e of entries) {
     if ((e.slug || '').toLowerCase() === slug && e.text) return e.text;
   }
+  return null;
+}
+
+function findNextTemplate(entries: NextPromptEntry[], n: number, source: string): string | null {
+  for (const e of entries) {
+    if ((e.slug || '').toLowerCase() !== 'next-steps' || !e.text) continue;
+    const key = e.replaceKey || 'N';
+    log('NextInline.resolve: using raw next template from ' + source + ' for N=' + n, 'info');
+    return substituteNextValue(e.text, key, n);
+  }
+  return null;
+}
+
+function resolveNextVariantText(deps: TaskNextDeps, n: number): string | null {
+  const entries = (deps.getPromptsConfig().entries || []) as NextPromptEntry[];
+  const variant = findNextVariant(entries, n);
+  if (variant) return variant;
+  const template = findNextTemplate(entries, n, 'loaded prompts') || findNextTemplate(DEFAULT_PROMPTS, n, 'DEFAULT_PROMPTS');
+  if (template) return template;
+
   // Fallback: legacy single static "Next Tasks" prompt
   const legacy = findNextTasksPrompt(deps);
   return legacy && legacy.text ? legacy.text : null;

@@ -23,7 +23,10 @@ vi.mock('../ui/prompt-utils', () => ({
   pasteIntoEditor: mocks.pasteIntoEditor,
   findPasteTarget: mocks.findPasteTarget,
 }));
-vi.mock('../ui/prompt-manager', () => ({ getPromptsConfig: () => ({ entries: [] }) }));
+vi.mock('../ui/prompt-manager', () => ({
+  DEFAULT_PROMPTS: [{ slug: 'next-steps', text: 'DEFAULT NEXT ${N} BODY', replaceKey: 'N' }],
+  getPromptsConfig: () => ({ entries: [] }),
+}));
 vi.mock('../ui/task-splitter-ui', () => ({
   triggerPlanPasteFromInline: vi.fn(),
   isSplitterRunning: () => false,
@@ -57,7 +60,7 @@ describe('inline strip decoupling (plan 09)', () => {
     await stageNextPrompt(deps, 3);
     expect(mocks.pasteIntoEditor).toHaveBeenCalledTimes(1);
     const [text] = mocks.pasteIntoEditor.mock.calls[0];
-    expect(String(text)).toContain('LEGACY-NEXT-BODY');
+    expect(String(text)).toContain('DEFAULT NEXT 3 BODY');
     expect(mocks.pasteToast).toHaveBeenCalledWith(
       expect.stringContaining('staged'),
       false,
