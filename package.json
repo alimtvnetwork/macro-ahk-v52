@@ -158,7 +158,7 @@
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.31",
     "@monaco-editor/react": "^4.7.0",
-    "@playwright/test": "1.49.0",
+    "@playwright/test": "^1.61.1",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
@@ -197,7 +197,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
-    "eslint-plugin-sonarjs": "^3.0.2",
+    "eslint-plugin-sonarjs": "^4.1.0",
     "fake-indexeddb": "^6.2.5",
     "idb": "^8.0.3",
     "input-otp": "^1.4.2",
@@ -218,7 +218,7 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.9",
-    "vite-plugin-static-copy": "^3.4.0",
+    "vite-plugin-static-copy": "^4.1.1",
     "zod": "^3.25.76"
   },
   "devDependencies": {
