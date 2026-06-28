@@ -1,5 +1,15 @@
 # Changelog
 
+## [v4.9.0] — 2026-06-28 prompt-creator-cli + cross-platform binaries
+
+### Added
+- `scripts/prompt-creator-cli/prompt_creator.py` — CLI that accepts a markdown file (`--file`) or stdin and scaffolds `standalone-scripts/prompts/NN-<slug>/{info.json,prompt.md}`, then runs `aggregate-prompts.mjs` so the extension bundle picks it up.
+- `.github/workflows/prompt-creator-cli.yml` — PyInstaller matrix build (Linux / macOS / Windows) on every `v*` tag; uploads `prompt-creator-{linux,macos,windows}-x64[.exe]` + `checksums-prompt-creator.txt` to the GitHub Release.
+- `scripts/prompt-creator-cli/install.sh` and `install.ps1` — one-liner installers that download the matching binary into `./bin/prompt-creator` (override via `PROMPT_CREATOR_VERSION` / `PROMPT_CREATOR_BIN_DIR`).
+
+### Changed
+- Version pins bumped 4.8.0 → 4.9.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, and root `readme.md`.
+
 ## [v4.8.0] — 2026-06-28 Next/Plan prompt cleanup
 
 ### Changed
