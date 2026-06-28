@@ -44,6 +44,12 @@ export interface CreditBalance {
     readonly dailyRemaining: number;
     readonly dailyLimit: number;
     readonly totalBillingPeriodUsed: number;
+    /** Wire field `available_balance` (added 2026-06). 0 when absent. */
+    readonly availableBalance: number;
+    /** Wire field `cloud_remaining` (added 2026-06). 0 when absent. */
+    readonly cloudRemaining: number;
+    /** Wire field `ai_remaining` (added 2026-06). 0 when absent. */
+    readonly aiRemaining: number;
     readonly expiringGrants: ReadonlyArray<ExpiringGrant>;
     readonly grantTypeBalances: ReadonlyArray<GrantTypeBalance>;
 }

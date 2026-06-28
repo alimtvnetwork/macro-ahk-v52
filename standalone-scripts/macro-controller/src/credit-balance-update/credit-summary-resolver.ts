@@ -18,6 +18,12 @@ export interface CreditSummary {
     readonly rollover: number;
     readonly rolloverLimit: number;
     readonly totalUsed: number;
+    /** Wire `available_balance`. 0 when unavailable. */
+    readonly availableBalance: number;
+    /** Wire `cloud_remaining`. 0 when unavailable. */
+    readonly cloudRemaining: number;
+    /** Wire `ai_remaining`. 0 when unavailable. */
+    readonly aiRemaining: number;
     readonly source: CreditSummarySource;
     readonly renderDash: boolean;
 }
@@ -45,6 +51,9 @@ function buildCachedSummary(ws: WorkspaceCredit, balance: NonNullable<ReturnType
         rollover: Math.max(0, Math.round(ws.rollover || 0)),
         rolloverLimit: Math.max(0, Math.round(ws.rolloverLimit || 0)),
         totalUsed: Math.max(0, Math.round(b.totalBillingPeriodUsed)),
+        availableBalance: Math.max(0, Math.round(b.availableBalance)),
+        cloudRemaining: Math.max(0, Math.round(b.cloudRemaining)),
+        aiRemaining: Math.max(0, Math.round(b.aiRemaining)),
         source: 'Cache',
         renderDash: false,
     };
@@ -54,7 +63,9 @@ function zeroSummary(source: CreditSummary['source'], renderDash: boolean): Cred
     return {
         available: 0, total: 0, daily: 0, dailyLimit: 0,
         billingAvailable: 0, billingLimit: 0, rollover: 0, rolloverLimit: 0,
-        totalUsed: 0, source, renderDash,
+        totalUsed: 0,
+        availableBalance: 0, cloudRemaining: 0, aiRemaining: 0,
+        source, renderDash,
     };
 }
 
@@ -81,6 +92,9 @@ export function resolveCreditSummary(ws: WorkspaceCredit): CreditSummary {
         rollover: Math.max(0, Math.round(ws.rollover || 0)),
         rolloverLimit: Math.max(0, Math.round(ws.rolloverLimit || 0)),
         totalUsed: Math.max(0, Math.round(ws.totalCreditsUsed || 0)),
+        availableBalance: 0,
+        cloudRemaining: 0,
+        aiRemaining: 0,
         source: available === 0 && total === 0 ? 'Missing' : 'Inline',
         renderDash: false,
     };
