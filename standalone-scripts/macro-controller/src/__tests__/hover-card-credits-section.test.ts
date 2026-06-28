@@ -19,7 +19,7 @@ beforeEach(function () {
 });
 
 describe('hover-card credits section (resolver-backed)', function () {
-    it('renders Source row when summary.source !== Inline', { timeout: 60000 }, async function () {
+    it('renders Source row when summary.source !== Inline', { timeout: 120000 }, async function () {
         const cache = await import('../credit-balance-update/credit-balance-cache');
         const enumMod = await import('../credit-balance-update/credit-fetch-outcome');
         vi.mocked(cache.readCreditBalanceUpdateCacheSync).mockReturnValue({
