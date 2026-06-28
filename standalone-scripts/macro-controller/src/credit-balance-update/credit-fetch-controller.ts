@@ -114,6 +114,9 @@ function buildInlineBalance(ws: WorkspaceCredit): CreditBalance {
         dailyRemaining: Math.max(0, Math.round(ws.dailyFree || 0)),
         dailyLimit: Math.max(0, Math.round(ws.dailyLimit || 0)),
         totalBillingPeriodUsed: Math.max(0, Math.round(ws.totalCreditsUsed || ws.used || 0)),
+        availableBalance: Math.max(0, Math.round(ws.available || 0)),
+        cloudRemaining: 0,
+        aiRemaining: 0,
         expiringGrants: [],
         grantTypeBalances: [],
     };
