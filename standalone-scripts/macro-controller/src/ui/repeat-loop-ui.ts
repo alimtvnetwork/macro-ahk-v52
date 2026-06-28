@@ -3,8 +3,9 @@
  *
  * Ambiguity 126 — RESOLVED 2026-06-19. Repeats whatever text is currently
  * in the Lovable chat box: paste → submit → wait for completion → repeat N times.
- * Two synchronized mount points (floating macro panel section + inline strip
- * above the chat textarea) share the same state. Manual Stop only.
+ * Two mount points (floating macro panel section + inline strip above the chat
+ * textarea) share count/wait/run state. The inline strip is hidden by the
+ * shared Plan/Next/Repeat +/- group toggle; the panel keeps its local collapse.
  */
 
 import { log } from '../logging';
