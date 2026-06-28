@@ -462,9 +462,6 @@ function _buildFloatingGroup(
   return group;
 }
 
-  const categories = collectUniqueCategories(entries);
-  renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
-}
 
 /** Append filtered prompt items or empty-category message. */
 function _appendFilteredItems(
