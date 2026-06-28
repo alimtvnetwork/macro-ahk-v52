@@ -1,5 +1,13 @@
 # Changelog
 
+## [v4.9.1] — 2026-06-28 test-noise cleanup
+
+### Fixed
+- `src/background/recorder/__tests__/retry-step.test.ts` — wrapped expected `console.error` ("Element not found for selector '#missing'") in `vi.spyOn` mock so the negative-path retry test no longer pollutes stderr / CI logs.
+
+### Changed
+- Version pins bumped 4.9.0 → 4.9.1 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, and root `readme.md`.
+
 ## [v4.9.0] — 2026-06-28 prompt-creator-cli + cross-platform binaries
 
 ### Added
