@@ -20,7 +20,7 @@ const instruction: ProjectInstruction<EmptySettings> = {
     SchemaVersion: "1.0",
     Name: "lovable-dashboard",
     DisplayName: "Lovable Dashboard",
-    Version: "4.7.0",
+    Version: "4.8.0",
     Description: "Lovable.dev dashboard home-screen enhancements: search, nav controls, credit panel, workspace tools. Auto-injects only on the exact /dashboard URL.",
     World: InjectionWorld.Main,
     IsGlobal: false,
