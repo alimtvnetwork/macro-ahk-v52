@@ -1,21 +1,20 @@
 ---
 title: Next ${N} steps
-slug: next-steps
 ---
 
-# Next ${N} Steps or Tasks (v5)
+# Next ${N} Steps or Tasks
 
 ## What I want
 
-1. Give me the **NEXT N STEPS — exactly N** — and for each one:
+1. Give me the NEXT ${N} STEPS — exactly ${N} — and for each one:
 
-   1a) **Reasoning** — why this step, why now, what breaks if it's skipped.
+   1a) Reasoning — why this step, why now, what breaks if it's skipped.
 
-   1b) **Time estimate** — realistic, not optimistic.
+   1b) Time estimate — realistic, not optimistic.
 
-   1c) **What it unblocks** — the next thing that becomes possible.
+   1c) What it unblocks — the next thing that becomes possible.
 
-2. Then list **every remaining item** after those 3 so I can see the full picture. At the end of the task always bump the minor version, add changes log and update release notes and if possible pin that version in the root readme file. And also save this prompt in the .lovable folder in the prompts folder for known as 'xx-next-task.md' and update it as 'next task with number'
+2. Then list every remaining item after those ${N} so I can see the full picture. At the end of the task always bump the minor version, add changes log and update release notes and if possible pin that version in the root readme file. And also save this prompt in the .lovable folder in the prompts folder for known as 'xx-next-task.md' and update it as 'next task with number'.
 
 ## Definition of done (non-negotiable)
 
@@ -23,25 +22,25 @@ You are NOT done until all of these are true:
 
 - [ ] You have actually read the relevant files AND the project memories — and you can name the exact files/functions/lines involved.
 
-- [ ] The **root cause** is written in ONE sentence, before any fix.
+- [ ] The root cause is written in ONE sentence, before any fix.
 
-- [ ] The fix is the **minimum correct change** tied to that root cause — not a symptom patch.
+- [ ] The fix is the minimum correct change tied to that root cause — not a symptom patch.
 
-- [ ] You **verified** it: build output, error logs, and/or preview — and you show the before/after signal (failing → passing).
+- [ ] You verified it: build output, error logs, and/or preview — and you show the before/after signal (failing → passing).
 
 - [ ] You reported what changed and why.
 
 ## Hard rules
 
-- **STOP and read first.** No skimming, no guessing from filenames. If you can't name the exact lines, you haven't read enough — go back.
+- STOP and read first. No skimming, no guessing from filenames. If you can't name the exact lines, you haven't read enough — go back.
 
-- **Root cause before fix.** Trace the bug end-to-end. No assumptions. No "this should work."
+- Root cause before fix. Trace the bug end-to-end. No assumptions. No "this should work."
 
-- **No symptom-patching.** If your "fix" is a try/catch, a fallback value, or a re-render hack used to hide the problem, you've failed — start over.
+- No symptom-patching. If your "fix" is a try/catch, a fallback value, or a re-render hack used to hide the problem, you've failed — start over.
 
-- **If you're unsure, SAY SO.** Do not fabricate. A wrong-but-confident answer is worse than "I don't know yet."
+- If you're unsure, SAY SO. Do not fabricate. A wrong-but-confident answer is worse than "I don't know yet."
 
-- **Go slow. Go critical. Go deep.** Depth is not optional polish — it IS the entire job. Fast + wrong = useless and wastes another full loop.
+- Go slow. Go critical. Go deep. Depth is not optional polish — it IS the entire job. Fast + wrong = useless and wastes another full loop.
 
 ## Error logs & error management (ALWAYS focus on this)
 
@@ -63,7 +62,7 @@ You have been as stupid as the bad work you've done in the past — fast, shallo
 
 Before executing, check the task type and follow the relevant guidelines if they exist (skip silently if the file is missing):
 
-1. **Coding tasks** (especially Golang, Python, PHP, or other backend):
+1. Coding tasks (especially Golang, Python, PHP, or other backend):
 
    - Check for `.lovable/coding-guidelines.md`. If present, follow it.
 
@@ -71,8 +70,12 @@ Before executing, check the task type and follow the relevant guidelines if they
 
    - If this is a coding task and neither location has guidelines, ask me to provide one.
 
-2. **SEO tasks** (website/SEO-related):
+2. SEO tasks (website/SEO-related):
 
    - Check for `.lovable/seo-guidelines.md`. If present, follow it.
 
 Rule: verify the file/folder exists first. If it does not, skip that guideline silently. If multiple guidelines apply, follow all of them; if they conflict, prefer the folder-level spec and call out the conflict.
+
+---
+
+slug: next-${N}-steps
