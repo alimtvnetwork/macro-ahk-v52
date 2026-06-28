@@ -321,7 +321,29 @@ function tryMountInline(deps: TaskNextDeps): boolean {
 
 let _observer: MutationObserver | null = null;
 
+/**
+ * v4.11+: Plan and Next inline strips above the chat textarea are HIDDEN by
+ * default. They have been folded into the prompts dropdown header. Set
+ * `window.__MARCO_SHOW_LEGACY_INLINE_STRIPS__ = true` before mount to restore.
+ * Tracking: .lovable/question-and-ambiguity/64-compact-plan-next-into-prompts-dropdown.md
+ */
+export const SHOW_LEGACY_INLINE_STRIPS = false;
+
+function isLegacyStripsEnabled(): boolean {
+  if (SHOW_LEGACY_INLINE_STRIPS) return true;
+  const w = (typeof window !== 'undefined' ? window : {}) as Record<string, unknown>;
+  return w['__MARCO_SHOW_LEGACY_INLINE_STRIPS__'] === true;
+}
+
 export function mountNextInlineStrip(deps: TaskNextDeps): void {
+  if (!isLegacyStripsEnabled()) {
+    // Strips suppressed — remove any pre-existing mounts so the UI is clean.
+    const a = document.getElementById(INLINE_ID);
+    if (a && a.parentElement) a.parentElement.removeChild(a);
+    const b = document.getElementById(SPLIT_ID);
+    if (b && b.parentElement) b.parentElement.removeChild(b);
+    return;
+  }
   if (tryMountInline(deps)) return;
   if (_observer) return;
   _observer = new MutationObserver(function () {
