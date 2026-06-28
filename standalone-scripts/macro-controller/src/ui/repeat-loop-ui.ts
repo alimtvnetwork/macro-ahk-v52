@@ -543,7 +543,7 @@ function buildCollapseButton(): HTMLButtonElement {
   return btn;
 }
 
-function buildControl(opts: { compact: boolean }): HTMLElement {
+function buildControl(opts: { compact: boolean; useLocalCollapse: boolean }): HTMLElement {
   // Outer host wraps both the collapsed pill and the expanded controls so
   // a single mounted node can flip between the two without re-mounting.
   const host = document.createElement('div');
@@ -571,7 +571,7 @@ function buildControl(opts: { compact: boolean }): HTMLElement {
 
   const action = buildActionButton();
   root.appendChild(action);
-  root.appendChild(buildCollapseButton());
+  if (opts.useLocalCollapse) root.appendChild(buildCollapseButton());
 
   // Collapsed pill — tiny "🔁 N/M ▸" button that expands on click.
   const pill = document.createElement('button');
@@ -586,7 +586,7 @@ function buildControl(opts: { compact: boolean }): HTMLElement {
   const refs: ControlRefs = { input, modeSel: wait.modeSel, delayInput: wait.delayInput, action, progress };
   const render = (): void => {
     renderControl(refs);
-    const collapsed = repeatLoopState.collapsed;
+    const collapsed = opts.useLocalCollapse && repeatLoopState.collapsed;
     root.style.display = collapsed ? 'none' : 'flex';
     pill.style.display = collapsed ? 'inline-flex' : 'none';
     if (collapsed) {
@@ -609,7 +609,7 @@ function buildControl(opts: { compact: boolean }): HTMLElement {
 
 /** Macro-panel section (compact, sits in the panel body). */
 export function buildRepeatPanelSection(): HTMLElement {
-  return buildControl({ compact: true });
+  return buildControl({ compact: true, useLocalCollapse: true });
 }
 
 // ─────────────────────────────────────────────
@@ -625,10 +625,11 @@ function tryMountInline(): boolean {
   // Mount above the closest form, falling back to the editor's parent.
   const host = (target.closest && target.closest('form')) || target.parentElement;
   if (!host || !host.parentElement) return false;
-  const strip = buildControl({ compact: true });
+  const strip = buildControl({ compact: true, useLocalCollapse: false });
   strip.id = INLINE_ID;
   strip.style.margin = '4px 0';
   host.parentElement.insertBefore(strip, host);
+  applyInlineStripGroupCollapse();
   log('Repeat: inline strip mounted above chat box', 'info');
   return true;
 }
