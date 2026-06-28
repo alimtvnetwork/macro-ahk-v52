@@ -198,11 +198,33 @@ export function renderPromptsDropdown(ctx: PromptContext, taskNextDeps: TaskNext
 // Dropdown header with Load button
 // ============================================
 
-/** Build the dropdown header row: Tasks toggle (left) + IO + Load buttons (right). */
+/**
+ * Slug fragments hidden from the prompts dropdown.
+ * v4.12.0 (Issue 64): The legacy "cut*" prompts are deprecated; hide from
+ * the picker without deleting on disk. Flip this list to re-enable.
+ */
+const HIDDEN_SLUG_FRAGMENTS: string[] = ['cut'];
+
+/** True when the prompt's slug or name matches any HIDDEN_SLUG_FRAGMENTS token. */
+function isHiddenBySlug(entry: { slug?: string; name?: string }): boolean {
+  if (HIDDEN_SLUG_FRAGMENTS.length === 0) return false;
+  const slug = (entry.slug || '').toLowerCase();
+  const name = (entry.name || '').toLowerCase();
+  for (const frag of HIDDEN_SLUG_FRAGMENTS) {
+    if (slug.includes(frag) || name.includes(frag)) return true;
+  }
+  return false;
+}
+
+/** Build the dropdown header row: Plan ▾ + Next ▾ (left) + IO + Load buttons (right). */
 function buildDropdownHeader(ctx: PromptContext, taskNextDeps: TaskNextDeps): HTMLElement {
   const header = document.createElement('div');
   header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 8px;border-bottom:1px solid #7c3aed;';
-  header.appendChild(buildTasksToggleButton());
+  const left = document.createElement('div');
+  left.style.cssText = 'display:flex;align-items:center;gap:4px;';
+  left.appendChild(buildGroupToggleButton('plan', '📋 Plan'));
+  left.appendChild(buildGroupToggleButton('next', '⏭ Next'));
+  header.appendChild(left);
   const right = document.createElement('div');
   right.style.cssText = 'display:flex;align-items:center;gap:6px;';
   right.appendChild(buildIOButton());
@@ -226,34 +248,40 @@ function buildIOButton(): HTMLElement {
   return btn;
 }
 
-/** Build the "🎯 Tasks ▾" toggle that shows/hides the Plan Task + Task Next submenus group. */
-function buildTasksToggleButton(): HTMLElement {
+/**
+ * Build a compact header toggle button for either the Plan or the Next floating
+ * popover (Issue 64 — v4.12.0). The legacy 🎯 Tasks combo button was replaced
+ * by two side-by-side popover triggers so each section can be opened on its own.
+ */
+function buildGroupToggleButton(kind: 'plan' | 'next', label: string): HTMLElement {
   const btn = document.createElement('span');
-  btn.setAttribute('data-tasks-toggle', '1');
-  btn.textContent = '🎯 Tasks ▸';
-  btn.title = 'Plan Task + Task Next controls — hover or click to open';
-  btn.style.cssText = 'cursor:pointer;padding:5px 10px;border-radius:5px;font-size:11px;font-weight:700;color:' + cPrimaryLight + ';background:rgba(124,58,237,0.22);border:1px solid rgba(124,58,237,0.5);user-select:none;letter-spacing:0.3px;';
+  const groupAttr = kind === 'plan' ? 'data-plan-group' : 'data-next-group';
+  btn.setAttribute('data-' + kind + '-toggle', '1');
+  const closedLabel = label + ' ▸';
+  const openLabel = label + ' ▾';
+  btn.textContent = closedLabel;
+  btn.title = (kind === 'plan' ? 'Plan Task controls' : 'Task Next controls') + ' — hover or click to open';
+  btn.style.cssText = 'cursor:pointer;padding:4px 8px;border-radius:5px;font-size:11px;font-weight:700;color:' + cPrimaryLight + ';background:rgba(124,58,237,0.22);border:1px solid rgba(124,58,237,0.5);user-select:none;letter-spacing:0.3px;';
 
   function findGroup(): HTMLElement | null {
     const dropdown = btn.closest('[data-prompts-dropdown]') as HTMLElement | null
-      ?? (btn.parentElement?.parentElement as HTMLElement | null);
-    return dropdown?.querySelector('[data-tasks-group]') as HTMLElement | null;
+      ?? (btn.parentElement?.parentElement?.parentElement as HTMLElement | null);
+    return dropdown?.querySelector('[' + groupAttr + ']') as HTMLElement | null;
   }
   function openGroup(): void {
     const group = findGroup();
     if (!group) return;
     group.style.display = 'block';
-    btn.textContent = '🎯 Tasks ▾';
+    btn.textContent = openLabel;
     btn.style.background = 'rgba(124,58,237,0.4)';
   }
   function closeGroup(): void {
     const group = findGroup();
     if (!group) return;
     group.style.display = 'none';
-    btn.textContent = '🎯 Tasks ▸';
+    btn.textContent = closedLabel;
     btn.style.background = 'rgba(124,58,237,0.22)';
   }
-  // Hover-open with small grace period so users can move into the panel.
   let closeTimer: ReturnType<typeof setTimeout> | null = null;
   function cancelClose(): void { if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; } }
   function scheduleClose(): void {
@@ -265,7 +293,6 @@ function buildTasksToggleButton(): HTMLElement {
       closeGroup();
     }, 180);
   }
-
   btn.onmouseenter = function() { cancelClose(); openGroup(); };
   btn.onmouseleave = scheduleClose;
   btn.onclick = function(e: Event) {
@@ -274,9 +301,6 @@ function buildTasksToggleButton(): HTMLElement {
     const open = group ? group.style.display !== 'none' : false;
     if (open) closeGroup(); else openGroup();
   };
-  // Group teardown wiring runs once it exists — handled at render time via
-  // the data-tasks-group attribute below in _appendHeaderAndSubmenu.
-  btn.setAttribute('data-tasks-hover-bound', '1');
   return btn;
 }
 
@@ -382,13 +406,28 @@ function _appendHeaderAndSubmenu(
   if (!container.style.position) container.style.position = 'relative';
   container.appendChild(buildDropdownHeader(ctx, taskNextDeps));
 
-  // Step 4 (20-step plan): Tasks (Task Next + Plan Task) live in a right-anchored
-  // floating panel attached to the prompts dropdown's right edge — keeps the prompts
-  // list itself focused and uncluttered. Hidden by default; toggled by 🎯 Tasks button.
-  const tasksGroup = document.createElement('div');
-  tasksGroup.setAttribute('data-tasks-group', '1');
-  tasksGroup.setAttribute('data-tasks-anchor', 'right');
-  tasksGroup.style.cssText = [
+  // v4.12.0 (Issue 64): Plan + Next live in two side-by-side floating popovers
+  // attached to the prompts dropdown's right edge. Each popover is triggered
+  // by its own compact header button (📋 Plan ▾ / ⏭ Next ▾) — replaces the
+  // previous combined 🎯 Tasks panel and the inline Plan row.
+  const planGroup = _buildFloatingGroup('plan', ctx, taskNextDeps);
+  const nextGroup = _buildFloatingGroup('next', ctx, taskNextDeps);
+  container.appendChild(planGroup);
+  container.appendChild(nextGroup);
+
+  const categories = collectUniqueCategories(entries);
+  renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
+}
+
+/** Build a floating popover for either the Plan or Next submenu. */
+function _buildFloatingGroup(
+  kind: 'plan' | 'next',
+  ctx: PromptContext,
+  taskNextDeps: TaskNextDeps,
+): HTMLElement {
+  const group = document.createElement('div');
+  group.setAttribute(kind === 'plan' ? 'data-plan-group' : 'data-next-group', '1');
+  group.style.cssText = [
     'display:none',
     'position:absolute',
     'top:0',
@@ -403,35 +442,26 @@ function _appendHeaderAndSubmenu(
     'background:rgba(20,16,32,0.96)',
     'box-shadow:0 8px 24px rgba(0,0,0,0.45)',
   ].join(';') + ';';
-  renderTaskNextSubmenu(tasksGroup, ctx, taskNextDeps);
-  renderPlanTaskSubmenu(tasksGroup, ctx);
-  // Auto-close the floating Tasks panel when the pointer leaves it, so the
-  // hover-open UX behaves like a real menu (no need to click outside).
-  tasksGroup.onmouseleave = function() {
+  if (kind === 'plan') {
+    renderPlanTaskSubmenu(group, ctx);
+  } else {
+    renderTaskNextSubmenu(group, ctx, taskNextDeps);
+  }
+  group.onmouseleave = function() {
     setTimeout(function() {
-      const toggle = container.querySelector('[data-tasks-toggle]') as HTMLElement | null;
+      const toggle = document.querySelector('[data-' + kind + '-toggle]') as HTMLElement | null;
       if (toggle && toggle.matches(':hover')) return;
-      if (tasksGroup.matches(':hover')) return;
-      tasksGroup.style.display = 'none';
+      if (group.matches(':hover')) return;
+      group.style.display = 'none';
       if (toggle) {
-        toggle.textContent = '🎯 Tasks ▸';
         toggle.style.background = 'rgba(124,58,237,0.22)';
+        toggle.textContent = (kind === 'plan' ? '📋 Plan' : '⏭ Next') + ' ▸';
       }
     }, 180);
   };
-  container.appendChild(tasksGroup);
-
-  // Issue 127 Task 3 — Re-add the Plan Task row inline in the prompts dropdown
-  // body so users can reach it without first opening the 🎯 Tasks floating
-  // panel. The Tasks panel still hosts a copy for backward-compatibility.
-  const inlinePlanRow = document.createElement('div');
-  inlinePlanRow.setAttribute('data-inline-plan-row', '1');
-  renderPlanTaskSubmenu(inlinePlanRow, ctx);
-  container.appendChild(inlinePlanRow);
-
-  const categories = collectUniqueCategories(entries);
-  renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
+  return group;
 }
+
 
 /** Append filtered prompt items or empty-category message. */
 function _appendFilteredItems(
@@ -441,6 +471,9 @@ function _appendFilteredItems(
   ctx: PromptContext,
   taskNextDeps: TaskNextDeps,
 ): void {
+  // v4.12.0 (Issue 64): drop deprecated "cut*" slug prompts up front so
+  // suggestions / favorites / folder lists all skip them in one place.
+  entries = entries.filter(e => !isHiddenBySlug(e));
   // 0. Render Suggestions (if no search and not in a specific category)
   if (!getPromptCategoryFilter() && !_currentSearchQuery) {
     const suggestions = getSuggestedPrompts(entries);
@@ -623,35 +656,19 @@ function _rebindDropdownListeners(
  * re-render via `renderPlanTaskSubmenu` so all listeners are fresh.
  */
 function _rebindPlanTaskSubmenus(container: HTMLElement, ctx: PromptContext): void {
-  // Inline Plan Task row directly under the dropdown.
-  const inlineRow = container.querySelector('[data-inline-plan-row]') as HTMLElement | null;
-  if (inlineRow) {
-    inlineRow.textContent = '';
-    renderPlanTaskSubmenu(inlineRow, ctx);
-  }
-
-  // Copy inside the 🎯 Tasks floating panel — the `[data-plan-task-sub]`
-  // element is the inner sub; its grandparent is the row container appended
-  // by `renderPlanTaskSubmenu` (item → row, sub). Walk to the wrapper that
-  // sits directly inside `[data-tasks-group]` and replace it.
-  const tasksGroup = container.querySelector('[data-tasks-group]') as HTMLElement | null;
-  if (tasksGroup) {
-    const planSubs = tasksGroup.querySelectorAll('[data-plan-task-sub]');
-    planSubs.forEach(function(subEl) {
-      const item = subEl.parentElement;
-      if (!item || item.parentElement !== tasksGroup) return;
-      item.remove();
-      renderPlanTaskSubmenu(tasksGroup, ctx);
-    });
+  // v4.12.0: Plan now lives in a single floating popover keyed by
+  // [data-plan-group]. Rebuild its contents in-place so listeners are fresh.
+  const planGroup = container.querySelector('[data-plan-group]') as HTMLElement | null;
+  if (planGroup) {
+    planGroup.textContent = '';
+    renderPlanTaskSubmenu(planGroup, ctx);
   }
 }
 
 /** Re-attach the Load button handler in the dropdown header. */
 function _rebindHeader(container: HTMLElement, ctx: PromptContext, taskNextDeps: TaskNextDeps): void {
-  // Header is the first child — find Load button inside it
   const header = container.firstElementChild as HTMLElement;
   if (!header) return;
-  // Replace the old Load button with a fresh one
   const oldLoadBtn = header.querySelector('span[title="Reload prompts from database"]') as HTMLElement;
   if (oldLoadBtn) {
     const newLoadBtn = buildLoadButton(ctx, taskNextDeps);
@@ -659,29 +676,12 @@ function _rebindHeader(container: HTMLElement, ctx: PromptContext, taskNextDeps:
   }
 }
 
-/** Rebuild the Task Next submenu after snapshot restore. */
+/** Rebuild the Next floating popover after snapshot restore. */
 function _rebindTaskNextSubmenu(container: HTMLElement, ctx: PromptContext, taskNextDeps: TaskNextDeps): void {
-  // Find the Task Next item in the dropdown (second child after header)
-  for (const child of Array.from(container.children)) {
-    const el = child as HTMLElement;
-    if (el.textContent?.includes('Task Next')) {
-      // Remove old static item and re-render the submenu in its place
-      const parent = el.parentElement;
-      if (parent) {
-        const idx = Array.from(parent.children).indexOf(el);
-        el.remove();
-        // Build fresh Task Next submenu
-        const tempContainer = document.createElement('div');
-        renderTaskNextSubmenu(tempContainer, ctx, taskNextDeps);
-        const newItem = tempContainer.firstElementChild;
-        if (newItem && parent.children[idx]) {
-          parent.insertBefore(newItem, parent.children[idx]);
-        } else if (newItem) {
-          parent.appendChild(newItem);
-        }
-      }
-      break;
-    }
+  const nextGroup = container.querySelector('[data-next-group]') as HTMLElement | null;
+  if (nextGroup) {
+    nextGroup.textContent = '';
+    renderTaskNextSubmenu(nextGroup, ctx, taskNextDeps);
   }
 }
 
@@ -790,7 +790,7 @@ function _rebindActionIcons(
       el.onclick = function(e: Event) {
         e.stopPropagation();
         promptsDropdown.style.display = 'none';
-        openPromptCreationModal(ctx, taskNextDeps, { id: p.id, name: p.name, text: p.text, category: p.category, isDefault: p.isDefault });
+        openPromptCreationModal(ctx, taskNextDeps, { id: p.id, name: p.name, text: p.text, category: p.category, isDefault: p.isDefault, excludeFromExport: (p as { excludeFromExport?: boolean }).excludeFromExport });
       };
     } else if (el.title === 'Delete prompt') {
       el.onclick = function(e: Event) {
@@ -846,8 +846,9 @@ function _computeFilterKey(): string {
   return legacy + '|' + multi + '|' + _currentSearchQuery;
 }
 
-function filterByCategory<T extends { name: string; text: string; category?: string; tags?: string[] }>(entries: T[]): T[] {
-  let filtered = entries;
+function filterByCategory<T extends { name: string; text: string; slug?: string; category?: string; tags?: string[] }>(entries: T[]): T[] {
+  // v4.12.0 (Issue 64): drop deprecated "cut*" slug prompts up front.
+  let filtered = entries.filter(e => !isHiddenBySlug(e));
   const set = getPromptCategoryFilterSet();
   
   if (set.size > 0) {
@@ -1207,7 +1208,7 @@ function _buildEditIcon(p: PromptEntry, dropdown: HTMLElement, ctx: PromptContex
   icon.onclick = function(e: Event) {
     e.stopPropagation();
     dropdown.style.display = 'none';
-    openPromptCreationModal(ctx, taskNextDeps, { id: p.id, name: p.name, text: p.text, category: p.category, isDefault: p.isDefault });
+    openPromptCreationModal(ctx, taskNextDeps, { id: p.id, name: p.name, text: p.text, category: p.category, isDefault: p.isDefault, excludeFromExport: (p as { excludeFromExport?: boolean }).excludeFromExport });
   };
   return icon;
 }

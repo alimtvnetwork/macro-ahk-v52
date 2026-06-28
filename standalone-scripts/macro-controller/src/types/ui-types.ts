@@ -53,6 +53,8 @@ export interface PromptEntry {
   isFavorite?: boolean;
   isDefault?: boolean;
   tags?: string[];
+  /** v4.12.0 (Issue 64): when true, prompt is skipped by `exportPromptsToJson`. */
+  excludeFromExport?: boolean;
   // Dynamic prompt expansion (e.g. `Next ${N} steps`, `Plan ${N}`).
   // When isDynamic is true, normalizePromptEntries() emits one flat
   // PromptEntry per replaceValue with ${replaceKey} substituted into

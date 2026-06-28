@@ -1,5 +1,21 @@
 # Changelog
 
+## [v4.12.0] — 2026-06-28 compact Plan/Next popovers + cut-slug filter + export flag
+
+### Added
+- `standalone-scripts/macro-controller/src/ui/prompt-dropdown.ts` — replaced the combined `🎯 Tasks ▾` toggle and the inline Plan row with two compact `📋 Plan ▾` / `⏭ Next ▾` popover buttons in the dropdown header, each driving its own right-anchored floating panel (`[data-plan-group]` / `[data-next-group]`).
+- `standalone-scripts/macro-controller/src/ui/prompt-injection.ts` — added an "Exclude from JSON export" checkbox in the prompt editor modal that round-trips through `SAVE_PROMPT` as `excludeFromExport`.
+- `standalone-scripts/macro-controller/src/types/ui-types.ts` — declared `PromptEntry.excludeFromExport?: boolean` so the field is type-safe end to end.
+
+### Changed
+- `standalone-scripts/macro-controller/src/ui/prompt-dropdown.ts` — added `HIDDEN_SLUG_FRAGMENTS = ['cut']` gated constant; `filterByCategory` and `_appendFilteredItems` now drop deprecated cut-slug prompts before suggestions/favorites/folders render.
+- `_rebindPlanTaskSubmenus` / `_rebindTaskNextSubmenu` rewritten to rebuild the new single-purpose `[data-plan-group]` / `[data-next-group]` popovers after a snapshot restore.
+
+### Versioning
+- Version pins bumped 4.11.0 → 4.12.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, `marco-sdk` runtime/cache schema, and root `readme.md`.
+
+
+
 ## [v4.11.0] — 2026-06-28 inline strip group collapse
 
 ### Fixed
