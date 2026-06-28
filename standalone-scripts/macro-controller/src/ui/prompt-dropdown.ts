@@ -198,11 +198,33 @@ export function renderPromptsDropdown(ctx: PromptContext, taskNextDeps: TaskNext
 // Dropdown header with Load button
 // ============================================
 
-/** Build the dropdown header row: Tasks toggle (left) + IO + Load buttons (right). */
+/**
+ * Slug fragments hidden from the prompts dropdown.
+ * v4.12.0 (Issue 64): The legacy "cut*" prompts are deprecated; hide from
+ * the picker without deleting on disk. Flip this list to re-enable.
+ */
+const HIDDEN_SLUG_FRAGMENTS: string[] = ['cut'];
+
+/** True when the prompt's slug or name matches any HIDDEN_SLUG_FRAGMENTS token. */
+function isHiddenBySlug(entry: { slug?: string; name?: string }): boolean {
+  if (HIDDEN_SLUG_FRAGMENTS.length === 0) return false;
+  const slug = (entry.slug || '').toLowerCase();
+  const name = (entry.name || '').toLowerCase();
+  for (const frag of HIDDEN_SLUG_FRAGMENTS) {
+    if (slug.includes(frag) || name.includes(frag)) return true;
+  }
+  return false;
+}
+
+/** Build the dropdown header row: Plan ▾ + Next ▾ (left) + IO + Load buttons (right). */
 function buildDropdownHeader(ctx: PromptContext, taskNextDeps: TaskNextDeps): HTMLElement {
   const header = document.createElement('div');
   header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 8px;border-bottom:1px solid #7c3aed;';
-  header.appendChild(buildTasksToggleButton());
+  const left = document.createElement('div');
+  left.style.cssText = 'display:flex;align-items:center;gap:4px;';
+  left.appendChild(buildGroupToggleButton('plan', '📋 Plan'));
+  left.appendChild(buildGroupToggleButton('next', '⏭ Next'));
+  header.appendChild(left);
   const right = document.createElement('div');
   right.style.cssText = 'display:flex;align-items:center;gap:6px;';
   right.appendChild(buildIOButton());
@@ -226,34 +248,40 @@ function buildIOButton(): HTMLElement {
   return btn;
 }
 
-/** Build the "🎯 Tasks ▾" toggle that shows/hides the Plan Task + Task Next submenus group. */
-function buildTasksToggleButton(): HTMLElement {
+/**
+ * Build a compact header toggle button for either the Plan or the Next floating
+ * popover (Issue 64 — v4.12.0). The legacy 🎯 Tasks combo button was replaced
+ * by two side-by-side popover triggers so each section can be opened on its own.
+ */
+function buildGroupToggleButton(kind: 'plan' | 'next', label: string): HTMLElement {
   const btn = document.createElement('span');
-  btn.setAttribute('data-tasks-toggle', '1');
-  btn.textContent = '🎯 Tasks ▸';
-  btn.title = 'Plan Task + Task Next controls — hover or click to open';
-  btn.style.cssText = 'cursor:pointer;padding:5px 10px;border-radius:5px;font-size:11px;font-weight:700;color:' + cPrimaryLight + ';background:rgba(124,58,237,0.22);border:1px solid rgba(124,58,237,0.5);user-select:none;letter-spacing:0.3px;';
+  const groupAttr = kind === 'plan' ? 'data-plan-group' : 'data-next-group';
+  btn.setAttribute('data-' + kind + '-toggle', '1');
+  const closedLabel = label + ' ▸';
+  const openLabel = label + ' ▾';
+  btn.textContent = closedLabel;
+  btn.title = (kind === 'plan' ? 'Plan Task controls' : 'Task Next controls') + ' — hover or click to open';
+  btn.style.cssText = 'cursor:pointer;padding:4px 8px;border-radius:5px;font-size:11px;font-weight:700;color:' + cPrimaryLight + ';background:rgba(124,58,237,0.22);border:1px solid rgba(124,58,237,0.5);user-select:none;letter-spacing:0.3px;';
 
   function findGroup(): HTMLElement | null {
     const dropdown = btn.closest('[data-prompts-dropdown]') as HTMLElement | null
-      ?? (btn.parentElement?.parentElement as HTMLElement | null);
-    return dropdown?.querySelector('[data-tasks-group]') as HTMLElement | null;
+      ?? (btn.parentElement?.parentElement?.parentElement as HTMLElement | null);
+    return dropdown?.querySelector('[' + groupAttr + ']') as HTMLElement | null;
   }
   function openGroup(): void {
     const group = findGroup();
     if (!group) return;
     group.style.display = 'block';
-    btn.textContent = '🎯 Tasks ▾';
+    btn.textContent = openLabel;
     btn.style.background = 'rgba(124,58,237,0.4)';
   }
   function closeGroup(): void {
     const group = findGroup();
     if (!group) return;
     group.style.display = 'none';
-    btn.textContent = '🎯 Tasks ▸';
+    btn.textContent = closedLabel;
     btn.style.background = 'rgba(124,58,237,0.22)';
   }
-  // Hover-open with small grace period so users can move into the panel.
   let closeTimer: ReturnType<typeof setTimeout> | null = null;
   function cancelClose(): void { if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; } }
   function scheduleClose(): void {
@@ -265,7 +293,6 @@ function buildTasksToggleButton(): HTMLElement {
       closeGroup();
     }, 180);
   }
-
   btn.onmouseenter = function() { cancelClose(); openGroup(); };
   btn.onmouseleave = scheduleClose;
   btn.onclick = function(e: Event) {
@@ -274,9 +301,6 @@ function buildTasksToggleButton(): HTMLElement {
     const open = group ? group.style.display !== 'none' : false;
     if (open) closeGroup(); else openGroup();
   };
-  // Group teardown wiring runs once it exists — handled at render time via
-  // the data-tasks-group attribute below in _appendHeaderAndSubmenu.
-  btn.setAttribute('data-tasks-hover-bound', '1');
   return btn;
 }
 
