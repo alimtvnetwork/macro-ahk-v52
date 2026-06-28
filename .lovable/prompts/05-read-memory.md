@@ -1,8 +1,3 @@
----
-title: Read Memory
-slug: read-memory
----
-
 # Read Memory
 
 > **Purpose:** This document is a mandatory onboarding sequence for any AI assistant joining this project. It ensures you internalize all specifications, rules, and conventions before writing a single line of code.
@@ -230,3 +225,8 @@ Any change to code base always bump the minor version.
 ---
 
 *This prompt is version 1.0. Update it in sync with spec version changes.*
+
+---
+
+title: Read Memory
+slug: read-memory

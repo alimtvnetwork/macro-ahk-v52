@@ -1,8 +1,3 @@
----
-title: Write Memory
-slug: write-memory
----
-
 # Write Memory (a.k.a. "End Memory")
 
 > **Purpose:** Persist everything the AI learned, did, decided, and left undone in this session — so the next AI session (which has full amnesia) can resume with zero context loss.
@@ -360,3 +355,8 @@ If yes:
 ## Changelog
 
 - `v1` — initial enhanced version derived from the user's original "Write Memory" prompt.
+
+---
+
+title: Write Memory
+slug: write-memory

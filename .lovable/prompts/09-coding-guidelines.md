@@ -1,8 +1,3 @@
----
-title: Coding Guidelines
-slug: coding-guidelines
----
-
 # Coding Guidelines
 
 Include Short Coding Guidelines (and also ask AI to read coding guidelines, Boolean, language-specific guidelines, Enum, error manage):
@@ -24,3 +19,8 @@ Include Short Coding Guidelines (and also ask AI to read coding guidelines, Bool
 15. If any designs or assets given, put those to /assets/xx-folder-name/xx-file-name.jpg or png or mp3 or anything else, keep the xx for sequence
 
 Write these coding guidelines in the lovable memory (.lovable/coding-guidelines.md or update if exist properly for AI blind follow). If it does not exist, create it; if it exists, enhance it; and also mention the files to read explicitly from paths and the spec folder.
+
+---
+
+title: Coding Guidelines
+slug: coding-guidelines
