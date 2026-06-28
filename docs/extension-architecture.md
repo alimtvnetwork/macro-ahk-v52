@@ -255,15 +255,15 @@ Before changing **any** of the following, re-read this doc and update it:
 
 ## 11. Companion repositories
 
-### macro-ahk-v51 — AutoHotkey sidecar
+### macro-ahk-v52 — AutoHotkey sidecar
 
 Marco ships alongside an AutoHotkey v2 sidecar that drives keyboard/mouse automation on Windows. The extension communicates with AHK scripts via `window.postMessage` bridges for native OS automation that Chrome extensions cannot perform directly.
 
-**Repository:** `https://github.com/aukgit/macro-ahk-v51`  
+**Repository:** `https://github.com/aukgit/macro-ahk-v52`  
 **Clone command:**
 
 ```bash
-git clone --depth=1 --single-branch --filter=blob:none --no-tags https://github.com/aukgit/macro-ahk-v51.git "macro-ahk"
+git clone --depth=1 --single-branch --filter=blob:none --no-tags https://github.com/aukgit/macro-ahk-v52.git "macro-ahk"
 ```
 
 Or via package.json script:
@@ -275,7 +275,7 @@ pnpm clone:ahk
 On Windows, if GitHub resets the git transport during source checkout, use the guarded helper that falls back to the branch source ZIP:
 
 ```powershell
-irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/clone-repo.ps1 | iex
+irm https://raw.githubusercontent.com/aukgit/macro-ahk-v52/main/scripts/clone-repo.ps1 | iex
 ```
 
 **Required folder layout:**
@@ -311,7 +311,7 @@ The `macro-looping.js` controller (via `standalone-scripts/macro-controller`) de
 
 **Version coupling:**
 
-- Extension v2.170.0+ requires AHK sidecar v23.x (macro-ahk-v51 branch)
+- Extension v2.170.0+ requires AHK sidecar v23.x (macro-ahk-v52 branch)
 - Mismatched versions log a warning but do not block core browser automation
 
 See also: `readme.md` §"Companion Repositories" for contributor setup instructions.

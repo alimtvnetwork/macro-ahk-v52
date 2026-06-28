@@ -26,8 +26,8 @@ SIBLING_DISCOVERY_ENABLED="${SIBLING_DISCOVERY_ENABLED:-0}"
 
 # Pattern for sibling repo names. The {N} placeholder is the version
 # number (2, 3, 4, …); {base} is the current repo's bare name (the part
-# after owner/). For this repo (macro-ahk-v51), siblings would be
-# macro-ahk-v51, macro-ahk-v51, … so the pattern is:
+# after owner/). For this repo (macro-ahk-v52), siblings would be
+# macro-ahk-v52, macro-ahk-v52, … so the pattern is:
 #
 # NOTE: bash's ${VAR:=default} parameter-expansion form treats the FIRST `}`
 # it sees as the closer of the expansion, so a literal `macro-ahk-v{N}` would

@@ -3,7 +3,7 @@
 # Regenerate: node scripts/generate-installer-constants.mjs
 # Schema: 1.0.0
 
-$script:MarcoDefaultRepo         = 'aukgit/macro-ahk-v51'
+$script:MarcoDefaultRepo         = 'aukgit/macro-ahk-v52'
 $script:MarcoVersionRegex        = '^v\d+\.\d+\.\d+(-[A-Za-z0-9.-]+)?$'
 $script:MarcoMainBranchSentinel  = '__MAIN_BRANCH__'
 

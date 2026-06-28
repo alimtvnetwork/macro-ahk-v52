@@ -297,8 +297,8 @@ test("AHK sidecar clone is shallow and canonical-owner guarded", () => {
     const script = readFileSync(CLONE_AHK_SCRIPT, "utf8");
 
     assert.equal(pkg.scripts["clone:ahk"], "node scripts/clone-ahk.mjs", "clone:ahk must use the guarded helper, not raw git clone");
-    assert.match(script, /const CANONICAL_REPO = "aukgit\/macro-ahk-v51"/, "clone helper must use the canonical repo owner");
-    assert.match(script, /const STALE_REPO = "alimtvnetwork\/macro-ahk-v51"/, "clone helper must recognize the stale repo owner");
+    assert.match(script, /const CANONICAL_REPO = "aukgit\/macro-ahk-v52"/, "clone helper must use the canonical repo owner");
+    assert.match(script, /const STALE_REPO = "alimtvnetwork\/macro-ahk-v52"/, "clone helper must recognize the stale repo owner");
     assert.match(script, /"--depth=1"/, "clone helper must use a shallow clone to avoid large transfers");
     assert.match(script, /"--filter=blob:none"/, "clone helper must use partial clone filtering to reduce GitHub transfer size");
     assert.match(script, /"--no-tags"/, "clone helper must avoid fetching tags for the sidecar clone");
@@ -313,11 +313,11 @@ test("Repository checkout docs avoid full-history clones and expose fallback hel
 
     assert.doesNotMatch(
         contributing,
-        /git clone https:\/\/github\.com\/aukgit\/macro-ahk-v51\.git/,
+        /git clone https:\/\/github\.com\/aukgit\/macro-ahk-v52\.git/,
         "contributing.md must not recommend a full-history repository clone",
     );
     assert.match(contributing, /--depth=1 --single-branch --filter=blob:none --no-tags/, "repository setup docs must use a shallow filtered clone");
-    assert.match(helper, /alimtvnetwork\/macro-ahk-v51/, "clone-repo.ps1 must rewrite the stale repository owner");
+    assert.match(helper, /alimtvnetwork\/macro-ahk-v52/, "clone-repo.ps1 must rewrite the stale repository owner");
     assert.match(helper, /--depth=1 --single-branch --filter=blob:none --no-tags/, "clone-repo.ps1 must avoid full-history git transfers");
     assert.match(helper, /archive\/refs\/heads\/\$BranchValue\.zip/, "clone-repo.ps1 must fall back to GitHub source ZIP downloads");
 });

@@ -8,7 +8,7 @@
 
 ## 0. Repo facts (current as of 2026-06-21)
 
-- **GitHub repo:** `aukgit/macro-ahk-v51` (renamed from `alimtvnetwork/macro-ahk-v51` — see issue #12).
+- **GitHub repo:** `aukgit/macro-ahk-v52` (renamed from `alimtvnetwork/macro-ahk-v52` — see issue #12).
 - **Default branch:** `main`.
 - **Workflows live in:** `.github/workflows/`.
 - **Canary workflow:** `ping.yml` — minimal, runs on every push. Use it to decide workflow-side vs repo-side.
@@ -32,7 +32,7 @@ The most common past mistake (this session, 2026-06-21) was scope-creeping into 
 
 ## 2. Repo-side causes (cannot fix from code — tell the user)
 
-In priority order, ask the user to check on `github.com/aukgit/macro-ahk-v51`:
+In priority order, ask the user to check on `github.com/aukgit/macro-ahk-v52`:
 
 1. **Settings → Actions → General → Actions permissions**
    Must be **"Allow all actions and reusable workflows"**. After a repo rename/transfer this often resets to *Disabled*. **Most common cause.**
@@ -89,7 +89,7 @@ ls -la .github/workflows/
 ## 6. What this session (2026-06-21) actually was
 
 - **User report:** "CI/CD not running in latest report."
-- **Real cause:** Repo-side. `aukgit/macro-ahk-v51` Settings → Actions likely disabled or pending approval after rename from `alimtvnetwork`.
+- **Real cause:** Repo-side. `aukgit/macro-ahk-v52` Settings → Actions likely disabled or pending approval after rename from `alimtvnetwork`.
 - **Workflow-side state:** Correct. `ci.yml` and `ping.yml` both have unfiltered `on: push:`. No code edit was warranted.
 - **Mistake to avoid:** Last turn ran a repo-owner string sweep (filed as issue #12). Useful cleanup but did NOT address the CI-not-firing complaint. Next time: confirm §2 with user **before** editing.
 

@@ -16,8 +16,8 @@ development workflow, coding standards, and pull-request requirements.
 ### Setup
 
 ```bash
-git clone --depth=1 --single-branch --filter=blob:none --no-tags https://github.com/aukgit/macro-ahk-v51.git
-cd macro-ahk-v51
+git clone --depth=1 --single-branch --filter=blob:none --no-tags https://github.com/aukgit/macro-ahk-v52.git
+cd macro-ahk-v52
 pnpm install
 cd chrome-extension && pnpm install && cd ..
 ```
@@ -25,7 +25,7 @@ cd chrome-extension && pnpm install && cd ..
 If GitHub resets the git transfer on a slow connection, use the PowerShell helper instead:
 
 ```powershell
-irm https://raw.githubusercontent.com/aukgit/macro-ahk-v51/main/scripts/clone-repo.ps1 | iex
+irm https://raw.githubusercontent.com/aukgit/macro-ahk-v52/main/scripts/clone-repo.ps1 | iex
 ```
 
 ### First Build

@@ -50,8 +50,8 @@ upstream API ignores.
   "config": {
     "provider_type": "github",
     "connection_id": "13c494e6-c141-4f99-9938-9f733f2d2857",
-    "repo_name": "macro-ahk-v51",
-    "repo_url": "https://github.com/aukgit/macro-ahk-v51",
+    "repo_name": "macro-ahk-v52",
+    "repo_url": "https://github.com/aukgit/macro-ahk-v52",
     "owner_name": "aukgit"
   }
 }

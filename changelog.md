@@ -133,7 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.1
 ### Fixed
 
 - **Release download helper asset.** `download-extension.ps1` is now copied into GitHub Release assets, required by release verification, and audited by the release watcher/auditor. README and generated release notes now use `/releases/latest/download/download-extension.ps1` or pinned `/releases/download/{VER}/download-extension.ps1` URLs instead of raw `main`, so the quick PowerShell download path does not depend on source cloning or raw branch fetches.
-- **AHK sidecar clone hardening.** `pnpm clone:ahk` now runs `scripts/clone-ahk.mjs`, which rewrites stale `alimtvnetwork/macro-ahk-v51` input to `aukgit/macro-ahk-v51` and uses `--depth=1 --single-branch --filter=blob:none --no-tags` so the sidecar clone avoids the 37k-object full-history transfer that caused GitHub `RPC failed; curl 18` / `early EOF` failures.
+- **AHK sidecar clone hardening.** `pnpm clone:ahk` now runs `scripts/clone-ahk.mjs`, which rewrites stale `alimtvnetwork/macro-ahk-v52` input to `aukgit/macro-ahk-v52` and uses `--depth=1 --single-branch --filter=blob:none --no-tags` so the sidecar clone avoids the 37k-object full-history transfer that caused GitHub `RPC failed; curl 18` / `early EOF` failures.
 - **Source checkout helper.** Added `scripts/clone-repo.ps1` for Windows users hitting GitHub `curl 56 Recv failure` / `early EOF` during raw repository clones. The helper shallow-clones with `--depth=1 --single-branch --filter=blob:none --no-tags`, rewrites the stale owner, and falls back to the branch source ZIP if the git transport is reset.
 
 ### Changed

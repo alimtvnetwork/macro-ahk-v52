@@ -4,8 +4,8 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { basename, resolve } from "node:path";
 
-const CANONICAL_REPO = "aukgit/macro-ahk-v51";
-const STALE_REPO = "alimtvnetwork/macro-ahk-v51";
+const CANONICAL_REPO = "aukgit/macro-ahk-v52";
+const STALE_REPO = "alimtvnetwork/macro-ahk-v52";
 const DEFAULT_TARGET = "macro-ahk";
 const DEFAULT_BRANCH = "main";
 
