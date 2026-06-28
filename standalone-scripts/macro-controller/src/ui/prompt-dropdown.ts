@@ -656,35 +656,19 @@ function _rebindDropdownListeners(
  * re-render via `renderPlanTaskSubmenu` so all listeners are fresh.
  */
 function _rebindPlanTaskSubmenus(container: HTMLElement, ctx: PromptContext): void {
-  // Inline Plan Task row directly under the dropdown.
-  const inlineRow = container.querySelector('[data-inline-plan-row]') as HTMLElement | null;
-  if (inlineRow) {
-    inlineRow.textContent = '';
-    renderPlanTaskSubmenu(inlineRow, ctx);
-  }
-
-  // Copy inside the 🎯 Tasks floating panel — the `[data-plan-task-sub]`
-  // element is the inner sub; its grandparent is the row container appended
-  // by `renderPlanTaskSubmenu` (item → row, sub). Walk to the wrapper that
-  // sits directly inside `[data-tasks-group]` and replace it.
-  const tasksGroup = container.querySelector('[data-tasks-group]') as HTMLElement | null;
-  if (tasksGroup) {
-    const planSubs = tasksGroup.querySelectorAll('[data-plan-task-sub]');
-    planSubs.forEach(function(subEl) {
-      const item = subEl.parentElement;
-      if (!item || item.parentElement !== tasksGroup) return;
-      item.remove();
-      renderPlanTaskSubmenu(tasksGroup, ctx);
-    });
+  // v4.12.0: Plan now lives in a single floating popover keyed by
+  // [data-plan-group]. Rebuild its contents in-place so listeners are fresh.
+  const planGroup = container.querySelector('[data-plan-group]') as HTMLElement | null;
+  if (planGroup) {
+    planGroup.textContent = '';
+    renderPlanTaskSubmenu(planGroup, ctx);
   }
 }
 
 /** Re-attach the Load button handler in the dropdown header. */
 function _rebindHeader(container: HTMLElement, ctx: PromptContext, taskNextDeps: TaskNextDeps): void {
-  // Header is the first child — find Load button inside it
   const header = container.firstElementChild as HTMLElement;
   if (!header) return;
-  // Replace the old Load button with a fresh one
   const oldLoadBtn = header.querySelector('span[title="Reload prompts from database"]') as HTMLElement;
   if (oldLoadBtn) {
     const newLoadBtn = buildLoadButton(ctx, taskNextDeps);
@@ -692,29 +676,12 @@ function _rebindHeader(container: HTMLElement, ctx: PromptContext, taskNextDeps:
   }
 }
 
-/** Rebuild the Task Next submenu after snapshot restore. */
+/** Rebuild the Next floating popover after snapshot restore. */
 function _rebindTaskNextSubmenu(container: HTMLElement, ctx: PromptContext, taskNextDeps: TaskNextDeps): void {
-  // Find the Task Next item in the dropdown (second child after header)
-  for (const child of Array.from(container.children)) {
-    const el = child as HTMLElement;
-    if (el.textContent?.includes('Task Next')) {
-      // Remove old static item and re-render the submenu in its place
-      const parent = el.parentElement;
-      if (parent) {
-        const idx = Array.from(parent.children).indexOf(el);
-        el.remove();
-        // Build fresh Task Next submenu
-        const tempContainer = document.createElement('div');
-        renderTaskNextSubmenu(tempContainer, ctx, taskNextDeps);
-        const newItem = tempContainer.firstElementChild;
-        if (newItem && parent.children[idx]) {
-          parent.insertBefore(newItem, parent.children[idx]);
-        } else if (newItem) {
-          parent.appendChild(newItem);
-        }
-      }
-      break;
-    }
+  const nextGroup = container.querySelector('[data-next-group]') as HTMLElement | null;
+  if (nextGroup) {
+    nextGroup.textContent = '';
+    renderTaskNextSubmenu(nextGroup, ctx, taskNextDeps);
   }
 }
 
