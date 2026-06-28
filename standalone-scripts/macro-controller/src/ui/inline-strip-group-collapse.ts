@@ -85,23 +85,23 @@ export function subscribeInlineStripGroupCollapse(subscriber: () => void): () =>
   return function unsubscribe(): void { state.subscribers.delete(subscriber); };
 }
 
+function applyPlanCollapse(plan: HTMLElement, collapsed: boolean): void {
+  plan.dataset.groupCollapsed = collapsed ? '1' : '0';
+  plan.style.display = 'flex';
+  const body = plan.querySelector<HTMLElement>(SEL_PLAN_BODY);
+  if (body) body.style.display = collapsed ? 'none' : 'flex';
+  if (!collapsed) return;
+  const dropup = plan.querySelector<HTMLElement>(SEL_PLAN_DROPUP);
+  if (dropup) dropup.style.display = 'none';
+}
+
 export function applyInlineStripGroupCollapse(doc: Document = document): void {
   const collapsed = state.collapsed;
   const plan = doc.getElementById(PLAN_ID);
   const next = doc.getElementById(NEXT_ID);
   const repeat = doc.getElementById(REPEAT_ID);
 
-  if (plan instanceof HTMLElement) {
-    plan.dataset.groupCollapsed = collapsed ? '1' : '0';
-    plan.style.display = 'flex';
-    const body = plan.querySelector<HTMLElement>(SEL_PLAN_BODY);
-    if (body) body.style.display = collapsed ? 'none' : 'flex';
-    if (collapsed) {
-      const dropup = plan.querySelector<HTMLElement>(SEL_PLAN_DROPUP);
-      if (dropup) dropup.style.display = 'none';
-    }
-  }
-
+  if (plan instanceof HTMLElement) applyPlanCollapse(plan, collapsed);
   if (next instanceof HTMLElement) next.style.display = collapsed ? 'none' : 'flex';
   if (repeat instanceof HTMLElement) repeat.style.display = collapsed ? 'none' : 'inline-flex';
 }
