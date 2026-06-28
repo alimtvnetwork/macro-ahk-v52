@@ -25,6 +25,8 @@ export interface CachedPromptEntry {
   isFavorite?: boolean;
   order?: number;
   version?: string;
+  /** When true, the prompt is omitted from JSON export downloads (v4.11+). */
+  excludeFromExport?: boolean;
 }
 
 /** Record shape for JSON copy in IndexedDB. */
