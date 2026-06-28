@@ -7,8 +7,18 @@
  *
  * Spec: spec/21-app/01-chrome-extension/credit-balance-update/07-ui-display.md.
  */
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { WorkspaceCredit } from '../types';
+
+// Stub side-effectful modules so resolver import is fast and deterministic
+// (prevents the 15-60s timeout observed in CI when settings-store/fetcher
+// pull in their full dependency graphs).
+vi.mock('../settings-store', () => ({ onSettingsChange: () => () => undefined }));
+vi.mock('../error-utils', () => ({ logError: vi.fn() }));
+vi.mock('../credit-balance-update/credit-balance-fetcher', () => ({
+    fetchWorkspaceCreditBalance: vi.fn().mockResolvedValue(null),
+}));
+
 import { resolveCreditSummary } from '../credit-balance-update/credit-summary-resolver';
 import {
     __writeCreditBalanceUpdateMemoryCacheForTests,
@@ -71,6 +81,9 @@ describe('hover-card credits section (resolver-backed)', function () {
                 dailyRemaining: 5,
                 dailyLimit: 10,
                 totalBillingPeriodUsed: 58,
+                availableBalance: 42,
+                cloudRemaining: 20,
+                aiRemaining: 22,
                 expiringGrants: [],
                 grantTypeBalances: [],
             },
