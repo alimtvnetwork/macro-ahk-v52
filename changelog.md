@@ -1,5 +1,15 @@
 # Changelog
 
+## [v4.13.0] — 2026-06-28 inline-strip group collapse complexity refactor
+
+### Fixed
+- `standalone-scripts/macro-controller/src/ui/inline-strip-group-collapse.ts` — extracted the plan-branch into a private `applyPlanCollapse` helper to drop `applyInlineStripGroupCollapse` cognitive complexity from 19 to under 15, clearing the `sonarjs/cognitive-complexity` ESLint warning that was failing `npx eslint standalone-scripts --max-warnings=0`.
+
+### Versioning
+- Version pins bumped 4.12.0 → 4.13.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, `marco-sdk` runtime/cache schema, and root `readme.md`.
+
+
+
 ## [v4.12.0] — 2026-06-28 compact Plan/Next popovers + cut-slug filter + export flag
 
 ### Added
