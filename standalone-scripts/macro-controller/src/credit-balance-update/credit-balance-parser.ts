@@ -83,6 +83,11 @@ function parseExpiringGrants(raw: CreditBalanceWire): ReadonlyArray<ExpiringGran
     return grants;
 }
 
+function readNumberOptional(raw: CreditBalanceWire, key: string): number {
+    const value = raw[key];
+    return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+}
+
 export function parseCreditBalance(raw: CreditBalanceWire): CreditBalance {
     if (!isRecord(raw)) {
         throw new CreditBalanceParseError('Expected credit-balance response object');
@@ -94,6 +99,9 @@ export function parseCreditBalance(raw: CreditBalanceWire): CreditBalance {
         dailyRemaining: readNumber(raw, 'daily_remaining'),
         dailyLimit: readNumber(raw, 'daily_limit'),
         totalBillingPeriodUsed: readNumber(raw, 'total_billing_period_used'),
+        availableBalance: readNumberOptional(raw, 'available_balance'),
+        cloudRemaining: readNumberOptional(raw, 'cloud_remaining'),
+        aiRemaining: readNumberOptional(raw, 'ai_remaining'),
         expiringGrants: parseExpiringGrants(raw),
         grantTypeBalances: parseGrantTypeBalances(raw),
     };
