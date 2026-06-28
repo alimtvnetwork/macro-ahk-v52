@@ -14,6 +14,9 @@ export interface CreditBalanceResponseTyped {
     daily_remaining: number;
     daily_limit: number;
     total_billing_period_used: number;
+    available_balance: number;
+    cloud_remaining: number;
+    ai_remaining: number;
     expiring_grants: ExpiringGrant[];
     grant_type_balances: GrantTypeBalanceTyped[];
 }
