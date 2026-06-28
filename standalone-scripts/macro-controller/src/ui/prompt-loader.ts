@@ -505,15 +505,17 @@ export function loadPromptsFromJson(): Promise<PromptEntry[] | null> {
         return prompts;
       }
       log('[PromptLoad] ⚠️ SDK returned empty — falling back to defaults (' + elapsed + 'ms)', 'warn');
-      promptLoaderState.loadedJsonPrompts = DEFAULT_PROMPTS;
-      promptLoaderState.flushPendingCallbacks(DEFAULT_PROMPTS);
-      return DEFAULT_PROMPTS;
+      const defaults = normalizePromptEntries(DEFAULT_PROMPTS);
+      promptLoaderState.loadedJsonPrompts = defaults;
+      promptLoaderState.flushPendingCallbacks(defaults);
+      return defaults;
     }).catch(function(e: unknown) {
       const elapsed = Date.now() - loadStartMs;
       log('[PromptLoad] ❌ SDK prompts.getAll() failed (' + elapsed + 'ms): ' + (e instanceof Error ? e.message : String(e)) + ' — using defaults', 'warn');
-      promptLoaderState.loadedJsonPrompts = DEFAULT_PROMPTS;
-      promptLoaderState.flushPendingCallbacks(DEFAULT_PROMPTS);
-      return DEFAULT_PROMPTS;
+      const defaults = normalizePromptEntries(DEFAULT_PROMPTS);
+      promptLoaderState.loadedJsonPrompts = defaults;
+      promptLoaderState.flushPendingCallbacks(defaults);
+      return defaults;
     });
   }
 
@@ -581,7 +583,7 @@ function loadFromPreambleOrDefaults(): PromptEntry[] | null {
 
   log('No prompts from bridge or preamble — using hardcoded defaults', 'warn');
 
-  return finishLegacyLoad(DEFAULT_PROMPTS, 'hardcoded DEFAULT_PROMPTS');
+  return finishLegacyLoad(normalizePromptEntries(DEFAULT_PROMPTS), 'hardcoded DEFAULT_PROMPTS');
 }
 
 // ============================================
@@ -613,7 +615,7 @@ function handleForceLoadResult(prompts: PromptEntry[] | null): PromptEntry[] | n
 
   log('[PromptLoad] Manual load returned empty — using defaults', 'warn');
 
-  return finishLegacyLoad(DEFAULT_PROMPTS, 'defaults (manual load empty)');
+  return finishLegacyLoad(normalizePromptEntries(DEFAULT_PROMPTS), 'defaults (manual load empty)');
 }
 
 // ============================================
