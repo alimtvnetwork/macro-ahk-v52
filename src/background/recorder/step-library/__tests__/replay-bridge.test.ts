@@ -16,7 +16,7 @@
  *     unsupported here).
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
 import {
     createLiveReplayExecutor,
@@ -173,26 +173,36 @@ describe("createLiveReplayExecutor", () => {
     });
 
     it("returns a FailureReport when the selector matches nothing", async () => {
-        document.body.innerHTML = `<div></div>`;
-        const exec = createLiveReplayExecutor({ Doc: document });
-        const failure = await exec(makeStep({
-            StepKindId: StepKindId.Click,
-            PayloadJson: JSON.stringify({ Selector: "#missing" }),
-        }), ctx);
+        const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+        try {
+            document.body.innerHTML = `<div></div>`;
+            const exec = createLiveReplayExecutor({ Doc: document });
+            const failure = await exec(makeStep({
+                StepKindId: StepKindId.Click,
+                PayloadJson: JSON.stringify({ Selector: "#missing" }),
+            }), ctx);
 
-        expect(failure).not.toBeNull();
-        expect(failure?.Phase).toBe("Replay");
+            expect(failure).not.toBeNull();
+            expect(failure?.Phase).toBe("Replay");
+        } finally {
+            errSpy.mockRestore();
+        }
     });
 
     it("returns a FailureReport (not a throw) when PayloadJson is malformed", async () => {
-        const exec = createLiveReplayExecutor({ Doc: document });
-        const failure = await exec(makeStep({
-            StepKindId: StepKindId.Click,
-            PayloadJson: "{nope",
-        }), ctx);
+        const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+        try {
+            const exec = createLiveReplayExecutor({ Doc: document });
+            const failure = await exec(makeStep({
+                StepKindId: StepKindId.Click,
+                PayloadJson: "{nope",
+            }), ctx);
 
-        expect(failure).not.toBeNull();
-        expect(failure?.ReasonDetail).toMatch(/could not be translated/);
+            expect(failure).not.toBeNull();
+            expect(failure?.ReasonDetail).toMatch(/could not be translated/);
+        } finally {
+            errSpy.mockRestore();
+        }
     });
 
     it("honours the injected sleep for Wait steps", async () => {
