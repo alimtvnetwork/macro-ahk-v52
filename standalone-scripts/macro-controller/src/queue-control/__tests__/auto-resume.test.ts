@@ -96,12 +96,18 @@ describe('autoResumeQueueIfNeeded — safety guards', () => {
 
 
     it('never throws — wraps unexpected errors and returns reason=threw', () => {
-        const result = autoResumeQueueIfNeeded({
-            isLoopRunning: () => {
-                throw new Error('boom');
-            },
-        });
-        expect(result).toEqual({ acted: false, reason: 'threw' });
+        const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        try {
+            const result = autoResumeQueueIfNeeded({
+                isLoopRunning: () => {
+                    throw new Error('boom');
+                },
+            });
+            expect(result).toEqual({ acted: false, reason: 'threw' });
+            expect(errSpy).toHaveBeenCalledWith('[AutoResume] Unexpected failure', expect.any(Error));
+        } finally {
+            errSpy.mockRestore();
+        }
     });
 
     it('issues only one click per tick (no-retry policy)', () => {
