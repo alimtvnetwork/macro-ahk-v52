@@ -133,6 +133,12 @@ function buildCreditsSection(ws: WorkspaceCredit): string {
   }
   out.push(rowHtml('Billing',
     summary.billingAvailable + ' / ' + summary.billingLimit));
+  // Wire fields added 2026-06: shown when /credit-balance supplied them.
+  if (summary.availableBalance > 0 || summary.cloudRemaining > 0 || summary.aiRemaining > 0) {
+    out.push(rowHtml('Available balance', String(summary.availableBalance), '#86efac'));
+    out.push(rowHtml('Cloud remaining', String(summary.cloudRemaining), '#7dd3fc'));
+    out.push(rowHtml('AI remaining', String(summary.aiRemaining), '#c4b5fd'));
+  }
   if (summary.source !== 'Inline') {
     out.push(rowHtml('Source', summary.source));
   }
