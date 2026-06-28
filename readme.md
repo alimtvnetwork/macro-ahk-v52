@@ -299,7 +299,7 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v52/main/sc
   | bash -s -- --dry-run
 
 # Pin a specific version into a custom directory:
-./install.sh --version v4.9.1 --dir ~/marco-extension/v4.9.1
+./install.sh --version v4.11.0 --dir ~/marco-extension/v4.11.0
 
 # Force-enable sibling-repo discovery for this one run:
 ./install.sh --enable-sibling-discovery
@@ -312,7 +312,7 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/macro-ahk-v52/main/sc
 
 1. Download `marco-extension-v{VERSION}.zip` from [Releases](https://github.com/alimtvnetwork/macro-ahk-v52/releases)
 
-2. Extract to a folder (e.g., `D:\marco-extension\v4.9.1`)
+2. Extract to a folder (e.g., `D:\marco-extension\v4.11.0`)
 3. Open `chrome://extensions` (or `edge://extensions`)
 4. Enable **Developer mode** (toggle in top-right)
 5. Click **Load unpacked** and select the extracted folder
@@ -696,7 +696,7 @@ await RiseupAsiaMacroExt.require("Project.Script");
 
  ## CI/CD Release Pipeline
 
-Creating or pushing a `release/*` branch (e.g., `release/v4.9.1`) or creating a
+Creating or pushing a `release/*` branch (e.g., `release/v4.11.0`) or creating a
 `v*` tag automatically enters release mode and:
 
 1. Installs dependencies with pnpm; if `pnpm-lock.yaml` is absent it falls back to `pnpm install --no-frozen-lockfile --lockfile=false`
