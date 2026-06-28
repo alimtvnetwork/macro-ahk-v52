@@ -406,13 +406,28 @@ function _appendHeaderAndSubmenu(
   if (!container.style.position) container.style.position = 'relative';
   container.appendChild(buildDropdownHeader(ctx, taskNextDeps));
 
-  // Step 4 (20-step plan): Tasks (Task Next + Plan Task) live in a right-anchored
-  // floating panel attached to the prompts dropdown's right edge — keeps the prompts
-  // list itself focused and uncluttered. Hidden by default; toggled by 🎯 Tasks button.
-  const tasksGroup = document.createElement('div');
-  tasksGroup.setAttribute('data-tasks-group', '1');
-  tasksGroup.setAttribute('data-tasks-anchor', 'right');
-  tasksGroup.style.cssText = [
+  // v4.12.0 (Issue 64): Plan + Next live in two side-by-side floating popovers
+  // attached to the prompts dropdown's right edge. Each popover is triggered
+  // by its own compact header button (📋 Plan ▾ / ⏭ Next ▾) — replaces the
+  // previous combined 🎯 Tasks panel and the inline Plan row.
+  const planGroup = _buildFloatingGroup('plan', ctx, taskNextDeps);
+  const nextGroup = _buildFloatingGroup('next', ctx, taskNextDeps);
+  container.appendChild(planGroup);
+  container.appendChild(nextGroup);
+
+  const categories = collectUniqueCategories(entries);
+  renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
+}
+
+/** Build a floating popover for either the Plan or Next submenu. */
+function _buildFloatingGroup(
+  kind: 'plan' | 'next',
+  ctx: PromptContext,
+  taskNextDeps: TaskNextDeps,
+): HTMLElement {
+  const group = document.createElement('div');
+  group.setAttribute(kind === 'plan' ? 'data-plan-group' : 'data-next-group', '1');
+  group.style.cssText = [
     'display:none',
     'position:absolute',
     'top:0',
@@ -427,31 +442,25 @@ function _appendHeaderAndSubmenu(
     'background:rgba(20,16,32,0.96)',
     'box-shadow:0 8px 24px rgba(0,0,0,0.45)',
   ].join(';') + ';';
-  renderTaskNextSubmenu(tasksGroup, ctx, taskNextDeps);
-  renderPlanTaskSubmenu(tasksGroup, ctx);
-  // Auto-close the floating Tasks panel when the pointer leaves it, so the
-  // hover-open UX behaves like a real menu (no need to click outside).
-  tasksGroup.onmouseleave = function() {
+  if (kind === 'plan') {
+    renderPlanTaskSubmenu(group, ctx);
+  } else {
+    renderTaskNextSubmenu(group, ctx, taskNextDeps);
+  }
+  group.onmouseleave = function() {
     setTimeout(function() {
-      const toggle = container.querySelector('[data-tasks-toggle]') as HTMLElement | null;
+      const toggle = document.querySelector('[data-' + kind + '-toggle]') as HTMLElement | null;
       if (toggle && toggle.matches(':hover')) return;
-      if (tasksGroup.matches(':hover')) return;
-      tasksGroup.style.display = 'none';
+      if (group.matches(':hover')) return;
+      group.style.display = 'none';
       if (toggle) {
-        toggle.textContent = '🎯 Tasks ▸';
         toggle.style.background = 'rgba(124,58,237,0.22)';
+        toggle.textContent = (kind === 'plan' ? '📋 Plan' : '⏭ Next') + ' ▸';
       }
     }, 180);
   };
-  container.appendChild(tasksGroup);
-
-  // Issue 127 Task 3 — Re-add the Plan Task row inline in the prompts dropdown
-  // body so users can reach it without first opening the 🎯 Tasks floating
-  // panel. The Tasks panel still hosts a copy for backward-compatibility.
-  const inlinePlanRow = document.createElement('div');
-  inlinePlanRow.setAttribute('data-inline-plan-row', '1');
-  renderPlanTaskSubmenu(inlinePlanRow, ctx);
-  container.appendChild(inlinePlanRow);
+  return group;
+}
 
   const categories = collectUniqueCategories(entries);
   renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
