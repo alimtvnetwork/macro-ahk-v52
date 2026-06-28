@@ -793,7 +793,7 @@ function _rebindActionIcons(
       el.onclick = function(e: Event) {
         e.stopPropagation();
         promptsDropdown.style.display = 'none';
-        openPromptCreationModal(ctx, taskNextDeps, { id: p.id, name: p.name, text: p.text, category: p.category, isDefault: p.isDefault });
+        openPromptCreationModal(ctx, taskNextDeps, { id: p.id, name: p.name, text: p.text, category: p.category, isDefault: p.isDefault, excludeFromExport: (p as { excludeFromExport?: boolean }).excludeFromExport });
       };
     } else if (el.title === 'Delete prompt') {
       el.onclick = function(e: Event) {
@@ -1211,7 +1211,7 @@ function _buildEditIcon(p: PromptEntry, dropdown: HTMLElement, ctx: PromptContex
   icon.onclick = function(e: Event) {
     e.stopPropagation();
     dropdown.style.display = 'none';
-    openPromptCreationModal(ctx, taskNextDeps, { id: p.id, name: p.name, text: p.text, category: p.category, isDefault: p.isDefault });
+    openPromptCreationModal(ctx, taskNextDeps, { id: p.id, name: p.name, text: p.text, category: p.category, isDefault: p.isDefault, excludeFromExport: (p as { excludeFromExport?: boolean }).excludeFromExport });
   };
   return icon;
 }
