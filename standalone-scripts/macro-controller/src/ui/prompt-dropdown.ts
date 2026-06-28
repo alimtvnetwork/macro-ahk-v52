@@ -846,8 +846,9 @@ function _computeFilterKey(): string {
   return legacy + '|' + multi + '|' + _currentSearchQuery;
 }
 
-function filterByCategory<T extends { name: string; text: string; category?: string; tags?: string[] }>(entries: T[]): T[] {
-  let filtered = entries;
+function filterByCategory<T extends { name: string; text: string; slug?: string; category?: string; tags?: string[] }>(entries: T[]): T[] {
+  // v4.12.0 (Issue 64): drop deprecated "cut*" slug prompts up front.
+  let filtered = entries.filter(e => !isHiddenBySlug(e));
   const set = getPromptCategoryFilterSet();
   
   if (set.size > 0) {
