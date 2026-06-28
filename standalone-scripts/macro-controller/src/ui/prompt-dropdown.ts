@@ -474,6 +474,9 @@ function _appendFilteredItems(
   ctx: PromptContext,
   taskNextDeps: TaskNextDeps,
 ): void {
+  // v4.12.0 (Issue 64): drop deprecated "cut*" slug prompts up front so
+  // suggestions / favorites / folder lists all skip them in one place.
+  entries = entries.filter(e => !isHiddenBySlug(e));
   // 0. Render Suggestions (if no search and not in a specific category)
   if (!getPromptCategoryFilter() && !_currentSearchQuery) {
     const suggestions = getSuggestedPrompts(entries);
