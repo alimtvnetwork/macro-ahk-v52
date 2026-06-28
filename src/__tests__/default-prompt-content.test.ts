@@ -19,15 +19,15 @@ describe('default prompt content', () => {
     expect(releasePrompts).toContain('root readme');
   });
 
-  it('next prompt (v5) requires N steps with reasoning and remaining items', () => {
+  it('next prompt requires N steps with reasoning and remaining items', () => {
     const prompt = readPrompt('standalone-scripts/prompts/13-next-tasks/prompt.md');
 
-    expect(prompt).toContain('NEXT N STEPS');
+    expect(prompt).toContain('NEXT ${N} STEPS');
     expect(prompt).toContain('Reasoning');
     expect(prompt).toContain('every remaining item');
   });
 
-  it('next prompt (v5) enforces root-cause-before-fix discipline', () => {
+  it('next prompt enforces root-cause-before-fix discipline', () => {
     const prompt = readPrompt('standalone-scripts/prompts/13-next-tasks/prompt.md');
 
     expect(prompt).toContain('STOP and read first');
