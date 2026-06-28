@@ -7,23 +7,61 @@
  *
  * Spec: spec/21-app/01-chrome-extension/credit-balance-update/07-ui-display.md.
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
+import type { WorkspaceCredit } from '../types';
+import { resolveCreditSummary } from '../credit-balance-update/credit-summary-resolver';
+import {
+    __writeCreditBalanceUpdateMemoryCacheForTests,
+    clearCreditBalanceUpdateMemoryCache,
+} from '../credit-balance-update/credit-balance-cache';
+import { CreditFetchOutcome } from '../credit-balance-update/credit-fetch-outcome';
 
-// Allow the resolver to pull a fake cached balance.
-vi.mock('../credit-balance-update/credit-balance-cache', () => ({
-    readCreditBalanceUpdateCacheSync: vi.fn(),
-}));
+function workspaceCredit(id: string): WorkspaceCredit {
+    return {
+        id,
+        name: 'workspace',
+        fullName: 'workspace',
+        dailyFree: 0,
+        dailyUsed: 0,
+        dailyLimit: 0,
+        rolloverUsed: 0,
+        rolloverLimit: 0,
+        freeGranted: 0,
+        freeRemaining: 0,
+        used: 0,
+        limit: 0,
+        topupLimit: 0,
+        totalCredits: 0,
+        available: 0,
+        rollover: 0,
+        billingAvailable: 0,
+        hasFree: false,
+        totalCreditsUsed: 0,
+        subscriptionStatus: 'active',
+        subscriptionStatusChangedAt: '',
+        plan: 'ktlo',
+        role: 'owner',
+        tier: 'LITE',
+        raw: {},
+        rawApi: {},
+        numProjects: 0,
+        gitSyncEnabled: false,
+        nextRefillAt: '',
+        billingPeriodEndAt: '',
+        createdAt: '',
+        membershipRole: 'owner',
+        planType: 'monthly',
+    };
+}
 
 beforeEach(function () {
-    vi.resetModules();
+    clearCreditBalanceUpdateMemoryCache();
 });
 
 describe('hover-card credits section (resolver-backed)', function () {
-    it('renders Source row when summary.source !== Inline', { timeout: 120000 }, async function () {
-        const cache = await import('../credit-balance-update/credit-balance-cache');
-        const enumMod = await import('../credit-balance-update/credit-fetch-outcome');
-        vi.mocked(cache.readCreditBalanceUpdateCacheSync).mockReturnValue({
-            outcome: enumMod.CreditFetchOutcome.ApiHit,
+    it('renders Source row when summary.source !== Inline', function () {
+        __writeCreditBalanceUpdateMemoryCacheForTests('ws_1', {
+            outcome: CreditFetchOutcome.ApiHit,
             fetchedAt: Date.now(),
             sourceUrl: 'test',
             errorDetail: null,
@@ -37,27 +75,21 @@ describe('hover-card credits section (resolver-backed)', function () {
                 grantTypeBalances: [],
             },
         });
-        const { resolveCreditSummary } = await import('../credit-balance-update/credit-summary-resolver');
-        const ws = { id: 'ws_1', plan: 'ktlo' } as unknown as Parameters<typeof resolveCreditSummary>[0];
-        const summary = resolveCreditSummary(ws);
+        const summary = resolveCreditSummary(workspaceCredit('ws_1'));
         expect(summary.source).toBe('Cache');
         expect(summary.available).toBe(42);
         expect(summary.total).toBe(100);
     });
 
-    it('emits Timeout source with renderDash when cache outcome is Timeout', { timeout: 15000 }, async function () {
-        const cache = await import('../credit-balance-update/credit-balance-cache');
-        const enumMod = await import('../credit-balance-update/credit-fetch-outcome');
-        vi.mocked(cache.readCreditBalanceUpdateCacheSync).mockReturnValue({
-            outcome: enumMod.CreditFetchOutcome.Timeout,
+    it('emits Timeout source with renderDash when cache outcome is Timeout', function () {
+        __writeCreditBalanceUpdateMemoryCacheForTests('ws_2', {
+            outcome: CreditFetchOutcome.Timeout,
             fetchedAt: Date.now(),
             sourceUrl: 'test',
             errorDetail: 'timeout',
             balance: null,
         });
-        const { resolveCreditSummary } = await import('../credit-balance-update/credit-summary-resolver');
-        const ws = { id: 'ws_2', plan: 'ktlo' } as unknown as Parameters<typeof resolveCreditSummary>[0];
-        const summary = resolveCreditSummary(ws);
+        const summary = resolveCreditSummary(workspaceCredit('ws_2'));
         expect(summary.source).toBe('Timeout');
         expect(summary.renderDash).toBe(true);
     });
