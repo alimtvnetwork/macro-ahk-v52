@@ -654,7 +654,7 @@ export function getPromptsConfig(): ResolvedPromptsConfig {
   }
 
   if (entries.length === 0) {
-    entries = DEFAULT_PROMPTS;
+    entries = normalizePromptEntries(DEFAULT_PROMPTS);
   }
 
   return {
