@@ -1,0 +1,16 @@
+{
+  "version": "4.13.0",
+  "branch": "release/v4.13.0",
+  "sourceBranch": "main",
+  "commit": "c6dbd7659d31dd64359a218d7f2a6a747847b241",
+  "tag": "v4.13.0",
+  "assets": [],
+  "changelog": [
+    "`standalone-scripts/macro-controller/src/ui/inline-strip-group-collapse.ts` — extracted the plan-branch into a private `applyPlanCollapse` helper to drop `applyInlineStripGroupCollapse` cognitive complexity from 19 to under 15, clearing the `sonarjs/cognitive-complexity` ESLint warning that was failing `npx eslint standalone-scripts --max-warnings=0`.",
+    "Version pins bumped 4.12.0 → 4.13.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, `marco-sdk` runtime/cache schema, and root `readme.md`."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-06-28T21:49:20Z",
+  "isLatest": false
+}
