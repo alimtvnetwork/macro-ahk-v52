@@ -38,15 +38,26 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+def _base_dir() -> Path:
+    """Anchor for searches.
+    - Frozen (PyInstaller .exe): directory containing the executable.
+    - Source run: CWD.
+    Using the EXE directory (not CWD) keeps behaviour predictable when users
+    launch the binary from arbitrary PowerShell sessions."""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path.cwd().resolve()
+
+
 def _find_root() -> Path:
-    """Locate repo root by walking up from CWD looking for standalone-scripts/prompts.
-    Falls back to CWD so PyInstaller binaries create prompts in the user's working folder."""
-    cwd = Path.cwd().resolve()
-    for candidate in [cwd, *cwd.parents]:
+    """Walk up from the base dir looking for standalone-scripts/prompts.
+    Fallback: the base dir itself (prompts dir will be created there)."""
+    base = _base_dir()
+    for candidate in [base, *base.parents]:
         if (candidate / "standalone-scripts" / "prompts").is_dir():
             return candidate
-    # Fallback: use CWD and create the prompts dir there.
-    return cwd
+    return base
+
 
 ROOT = _find_root()
 PROMPTS_DIR = ROOT / "standalone-scripts" / "prompts"
