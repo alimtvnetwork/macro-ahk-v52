@@ -18,7 +18,7 @@ vi.mock('../shared-state', () => ({
 vi.mock('../xpath-utils', () => ({ getByXPath: () => null }));
 vi.mock('./prompt-utils', () => ({ pasteIntoEditor: vi.fn(), showPasteToast: vi.fn() }));
 vi.mock('../task-queue', () => ({ addTaskToQueue: vi.fn() }));
-vi.mock('./plan-task-ui', () => ({ renderPlanTaskSubmenu: (el: HTMLElement) => { el.textContent = 'PLAN'; } }));
+vi.mock('./plan-task-ui', () => ({ renderPlanTaskSubmenu: (host: HTMLElement) => { host.textContent = 'PLAN'; } }));
 vi.mock('./prompt-filter-menu', () => ({ renderFilterMenu: vi.fn() }));
 vi.mock('./prompt-injection', () => ({ openPromptCreationModal: vi.fn() }));
 vi.mock('./task-next-ui', () => ({
