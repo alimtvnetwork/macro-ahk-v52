@@ -219,7 +219,7 @@ function isHiddenBySlug(entry: { slug?: string; name?: string }): boolean {
 /** Build the dropdown header row: Plan ▾ + Next ▾ (left) + IO + Load buttons (right). */
 function buildDropdownHeader(ctx: PromptContext, taskNextDeps: TaskNextDeps): HTMLElement {
   const header = document.createElement('div');
-  header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 8px;border-bottom:1px solid #7c3aed;';
+  header.style.cssText = 'position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 8px;border-bottom:1px solid #7c3aed;background:#1a0b2e;';
   const left = document.createElement('div');
   left.style.cssText = 'display:flex;align-items:center;gap:4px;';
   left.appendChild(buildGroupToggleButton('plan', '📋 Plan'));
