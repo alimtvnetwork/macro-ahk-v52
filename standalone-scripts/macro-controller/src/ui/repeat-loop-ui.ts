@@ -623,17 +623,46 @@ export function buildRepeatPanelSection(): HTMLElement {
 
 const INLINE_ID = 'marco-repeat-inline';
 
+const INLINE_WRAP_ID = 'marco-repeat-inline-wrap';
+
+function buildInlineGroupToggle(): HTMLButtonElement {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.title = 'Hide / show Plan, Next, and Repeat controls';
+  btn.dataset.role = 'inline-group-toggle';
+  btn.style.cssText = 'flex:0 0 auto;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.18);border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:15px;font-weight:700;line-height:1;';
+  const render = (): void => {
+    const collapsed = getInlineStripGroupCollapsed();
+    btn.textContent = collapsed ? '+' : '−';
+    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    btn.title = collapsed ? 'Show Repeat controls' : 'Hide Repeat controls';
+  };
+  render();
+  subscribeInlineStripGroupCollapse(render);
+  btn.onclick = function (ev) {
+    ev.stopPropagation();
+    toggleInlineStripGroupCollapsed();
+    applyInlineStripGroupCollapse();
+  };
+  return btn;
+}
+
 function tryMountInline(): boolean {
-  if (document.getElementById(INLINE_ID)) return true;
+  if (document.getElementById(INLINE_WRAP_ID)) return true;
   const target = findPasteTarget(getPromptsConfig(), (xp) => getByXPath(xp) as Element | null);
   if (!target) return false;
   // Mount above the closest form, falling back to the editor's parent.
   const host = (target.closest && target.closest('form')) || target.parentElement;
   if (!host || !host.parentElement) return false;
+  const wrap = document.createElement('div');
+  wrap.id = INLINE_WRAP_ID;
+  wrap.style.cssText = 'display:flex;align-items:center;gap:6px;margin:4px 0;';
   const strip = buildControl({ compact: true, useLocalCollapse: false });
   strip.id = INLINE_ID;
-  strip.style.margin = '4px 0';
-  host.parentElement.insertBefore(strip, host);
+  strip.style.margin = '0';
+  wrap.appendChild(strip);
+  wrap.appendChild(buildInlineGroupToggle());
+  host.parentElement.insertBefore(wrap, host);
   applyInlineStripGroupCollapse();
   log('Repeat: inline strip mounted above chat box', 'info');
   return true;
@@ -646,7 +675,7 @@ export function mountRepeatInlineStrip(): void {
   if (_inlineObserver) return;
   _inlineObserver = new MutationObserver(function () {
     if (typeof document === 'undefined' || !document.body) return;
-    if (!document.getElementById(INLINE_ID) && tryMountInline()) {
+    if (!document.getElementById(INLINE_WRAP_ID) && tryMountInline()) {
       // Keep observing — Lovable re-renders the chat shell on route changes
       // and we want to remount when it disappears.
     }
