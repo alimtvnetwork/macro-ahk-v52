@@ -240,7 +240,7 @@ function buildDropdownHeader(ctx: PromptContext, taskNextDeps: TaskNextDeps): HT
  */
 function buildTabButton(kind: 'plan' | 'next', label: string, activeByDefault: boolean): HTMLElement {
   const btn = document.createElement('span');
-  const groupAttr = kind === 'plan' ? 'data-plan-group' : 'data-next-group';
+  
   btn.setAttribute('data-' + kind + '-toggle', '1');
   btn.setAttribute('data-tab-kind', kind);
   btn.textContent = label;
