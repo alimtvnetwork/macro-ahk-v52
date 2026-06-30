@@ -216,14 +216,14 @@ function isHiddenBySlug(entry: { slug?: string; name?: string }): boolean {
   return false;
 }
 
-/** Build the dropdown header row: Plan ▾ + Next ▾ (left) + IO + Load buttons (right). */
+/** Build the dropdown header row: Plan | Next inline tabs (left) + IO + Load (right). */
 function buildDropdownHeader(ctx: PromptContext, taskNextDeps: TaskNextDeps): HTMLElement {
   const header = document.createElement('div');
   header.style.cssText = 'position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 8px;border-bottom:1px solid #7c3aed;background:#1a0b2e;';
   const left = document.createElement('div');
-  left.style.cssText = 'display:flex;align-items:center;gap:4px;';
-  left.appendChild(buildGroupToggleButton('plan', '📋 Plan'));
-  left.appendChild(buildGroupToggleButton('next', '⏭ Next'));
+  left.style.cssText = 'display:flex;align-items:center;gap:2px;';
+  left.appendChild(buildTabButton('plan', '📋 Plan', true));
+  left.appendChild(buildTabButton('next', '⏭ Next', false));
   header.appendChild(left);
   const right = document.createElement('div');
   right.style.cssText = 'display:flex;align-items:center;gap:6px;';
@@ -233,74 +233,45 @@ function buildDropdownHeader(ctx: PromptContext, taskNextDeps: TaskNextDeps): HT
   return header;
 }
 
-/** Build the "📥 IO" button that opens the Prompts Import/Export dialog. */
-function buildIOButton(): HTMLElement {
-  const btn = document.createElement('span');
-  btn.textContent = '📥 IO';
-  btn.title = 'Import / Export prompts as JSON';
-  btn.style.cssText = 'cursor:pointer;padding:3px 8px;border-radius:4px;font-size:9px;font-weight:600;color:#fff;background:rgba(124,58,237,0.55);border:1px solid rgba(255,255,255,0.1);';
-  btn.onmouseover = function() { btn.style.background = 'rgba(124,58,237,0.85)'; };
-  btn.onmouseout = function() { btn.style.background = 'rgba(124,58,237,0.55)'; };
-  btn.onclick = function(e: Event) {
-    e.stopPropagation();
-    void import('./prompt-io-dialog').then(function(mod) { (mod as { renderPromptIODialog: () => void }).renderPromptIODialog(); });
-  };
-  return btn;
-}
-
 /**
- * Build a compact header toggle button for either the Plan or the Next floating
- * popover (Issue 64 — v4.12.0). The legacy 🎯 Tasks combo button was replaced
- * by two side-by-side popover triggers so each section can be opened on its own.
+ * Always-visible inline tab button for Plan / Next (v4.15.0).
+ * Replaces the prior hover-popover toggle: tabs are never hidden, and clicking
+ * one activates that tab's inline panel while deactivating the sibling.
  */
-function buildGroupToggleButton(kind: 'plan' | 'next', label: string): HTMLElement {
+function buildTabButton(kind: 'plan' | 'next', label: string, activeByDefault: boolean): HTMLElement {
   const btn = document.createElement('span');
   const groupAttr = kind === 'plan' ? 'data-plan-group' : 'data-next-group';
   btn.setAttribute('data-' + kind + '-toggle', '1');
-  const closedLabel = label + ' ▸';
-  const openLabel = label + ' ▾';
-  btn.textContent = closedLabel;
-  btn.title = (kind === 'plan' ? 'Plan Task controls' : 'Task Next controls') + ' — hover or click to open';
-  btn.style.cssText = 'cursor:pointer;padding:4px 8px;border-radius:5px;font-size:11px;font-weight:700;color:' + cPrimaryLight + ';background:rgba(124,58,237,0.22);border:1px solid rgba(124,58,237,0.5);user-select:none;letter-spacing:0.3px;';
-
-  function findGroup(): HTMLElement | null {
-    const dropdown = btn.closest('[data-prompts-dropdown]') as HTMLElement | null
-      ?? (btn.parentElement?.parentElement?.parentElement as HTMLElement | null);
-    return dropdown?.querySelector('[' + groupAttr + ']') as HTMLElement | null;
+  btn.setAttribute('data-tab-kind', kind);
+  btn.textContent = label;
+  btn.title = (kind === 'plan' ? 'Plan Task controls' : 'Task Next controls');
+  const baseCss = 'cursor:pointer;padding:5px 10px;border-radius:5px 5px 0 0;font-size:11px;font-weight:700;color:' + cPrimaryLight + ';border:1px solid rgba(124,58,237,0.5);border-bottom:none;user-select:none;letter-spacing:0.3px;margin-bottom:-1px;';
+  function paint(active: boolean): void {
+    btn.style.cssText = baseCss + (active
+      ? 'background:rgba(124,58,237,0.55);color:#fff;'
+      : 'background:rgba(124,58,237,0.18);');
+    btn.setAttribute('data-tab-active', active ? '1' : '0');
   }
-  function openGroup(): void {
-    const group = findGroup();
-    if (!group) return;
-    group.style.display = 'block';
-    btn.textContent = openLabel;
-    btn.style.background = 'rgba(124,58,237,0.4)';
+  function findRoot(): HTMLElement | null {
+    return btn.closest('[data-prompts-dropdown]') as HTMLElement | null;
   }
-  function closeGroup(): void {
-    const group = findGroup();
-    if (!group) return;
-    group.style.display = 'none';
-    btn.textContent = closedLabel;
-    btn.style.background = 'rgba(124,58,237,0.22)';
+  function activate(): void {
+    const root = findRoot();
+    if (!root) return;
+    root.querySelectorAll('[data-tab-kind]').forEach(function(el) {
+      const k = (el as HTMLElement).getAttribute('data-tab-kind');
+      const isMe = k === kind;
+      const groupSel = k === 'plan' ? '[data-plan-group]' : '[data-next-group]';
+      const grp = root.querySelector(groupSel) as HTMLElement | null;
+      if (grp) grp.style.display = isMe ? 'block' : 'none';
+      (el as HTMLElement).style.cssText = baseCss + (isMe
+        ? 'background:rgba(124,58,237,0.55);color:#fff;'
+        : 'background:rgba(124,58,237,0.18);');
+      (el as HTMLElement).setAttribute('data-tab-active', isMe ? '1' : '0');
+    });
   }
-  let closeTimer: ReturnType<typeof setTimeout> | null = null;
-  function cancelClose(): void { if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; } }
-  function scheduleClose(): void {
-    cancelClose();
-    closeTimer = setTimeout(function() {
-      const group = findGroup();
-      if (group && group.matches(':hover')) return;
-      if (btn.matches(':hover')) return;
-      closeGroup();
-    }, 180);
-  }
-  btn.onmouseenter = function() { cancelClose(); openGroup(); };
-  btn.onmouseleave = scheduleClose;
-  btn.onclick = function(e: Event) {
-    e.stopPropagation();
-    const group = findGroup();
-    const open = group ? group.style.display !== 'none' : false;
-    if (open) closeGroup(); else openGroup();
-  };
+  paint(activeByDefault);
+  btn.onclick = function(e: Event) { e.stopPropagation(); activate(); };
   return btn;
 }
 
@@ -419,7 +390,10 @@ function _appendHeaderAndSubmenu(
   renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
 }
 
-/** Build a floating popover for either the Plan or Next submenu. */
+/**
+ * Build an always-rendered inline panel for Plan or Next (v4.15.0).
+ * Visibility is toggled by the header tab buttons; default shows Plan.
+ */
 function _buildFloatingGroup(
   kind: 'plan' | 'next',
   ctx: PromptContext,
@@ -428,37 +402,20 @@ function _buildFloatingGroup(
   const group = document.createElement('div');
   group.setAttribute(kind === 'plan' ? 'data-plan-group' : 'data-next-group', '1');
   group.style.cssText = [
-    'display:none',
-    'position:absolute',
-    'top:0',
-    'left:100%',
-    'margin-left:6px',
-    'width:260px',
-    'max-height:80vh',
+    'display:' + (kind === 'plan' ? 'block' : 'none'),
+    'max-height:60vh',
     'overflow-y:auto',
-    'z-index:10001',
     'border:1px solid rgba(124,58,237,0.5)',
-    'border-radius:' + lDropdownRadius,
+    'border-top:none',
+    'border-radius:0 0 ' + lDropdownRadius + ' ' + lDropdownRadius,
     'background:rgba(20,16,32,0.96)',
-    'box-shadow:0 8px 24px rgba(0,0,0,0.45)',
+    'margin:0 6px 6px 6px',
   ].join(';') + ';';
   if (kind === 'plan') {
     renderPlanTaskSubmenu(group, ctx);
   } else {
     renderTaskNextSubmenu(group, ctx, taskNextDeps);
   }
-  group.onmouseleave = function() {
-    setTimeout(function() {
-      const toggle = document.querySelector('[data-' + kind + '-toggle]') as HTMLElement | null;
-      if (toggle && toggle.matches(':hover')) return;
-      if (group.matches(':hover')) return;
-      group.style.display = 'none';
-      if (toggle) {
-        toggle.style.background = 'rgba(124,58,237,0.22)';
-        toggle.textContent = (kind === 'plan' ? '📋 Plan' : '⏭ Next') + ' ▸';
-      }
-    }, 180);
-  };
   return group;
 }
 
