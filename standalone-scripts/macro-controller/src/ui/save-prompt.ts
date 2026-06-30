@@ -17,6 +17,8 @@ import type { TaskNextDeps } from './task-next-ui';
 import type { ResolvedPromptsConfig } from '../types';
 import { htmlToMarkdown } from './save-prompt-html-converter';
 import { createPromptsDropdown, positionDropdownAboveButton, renderChatboxPromptsDropdown } from './save-prompt-dropdown';
+import { renderPromptsDropdown } from './prompt-dropdown';
+import { loadPromptsFromJson } from './prompt-manager';
 import { logError } from '../error-utils';
 import { showToast } from '../toast';
 
@@ -280,13 +282,29 @@ function buildPromptsButton(deps: SavePromptDeps): HTMLElement {
       return;
     }
 
-    renderChatboxPromptsDropdown(dropdown, deps);
+    renderToolbarPromptsDropdown(dropdown, deps);
     positionDropdownAboveButton(dropdown, button);
   };
 
   addHoverEffect(button);
   wrapper.appendChild(button);
   return wrapper;
+}
+
+function renderToolbarPromptsDropdown(dropdown: HTMLElement, deps: SavePromptDeps): void {
+  const taskNextDeps = deps.taskNextDeps;
+  if (!taskNextDeps) {
+    renderChatboxPromptsDropdown(dropdown, deps);
+    return;
+  }
+
+  dropdown.innerHTML = '<div style="padding:10px 14px;color:#9ca3af;font-size:12px;text-align:center;">⏳ Loading prompts…</div>';
+  loadPromptsFromJson().then(function () {
+    renderPromptsDropdown({ promptsDropdown: dropdown }, taskNextDeps);
+  }).catch(function (caught: unknown) {
+    logError('savePrompt', 'Toolbar prompts dropdown failed to load unified Plan/Next renderer', caught);
+    renderChatboxPromptsDropdown(dropdown, deps);
+  });
 }
 
 function buildSaveButton(deps: SavePromptDeps): HTMLElement {
