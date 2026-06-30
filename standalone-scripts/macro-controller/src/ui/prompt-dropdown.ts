@@ -390,7 +390,10 @@ function _appendHeaderAndSubmenu(
   renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
 }
 
-/** Build a floating popover for either the Plan or Next submenu. */
+/**
+ * Build an always-rendered inline panel for Plan or Next (v4.15.0).
+ * Visibility is toggled by the header tab buttons; default shows Plan.
+ */
 function _buildFloatingGroup(
   kind: 'plan' | 'next',
   ctx: PromptContext,
@@ -399,37 +402,20 @@ function _buildFloatingGroup(
   const group = document.createElement('div');
   group.setAttribute(kind === 'plan' ? 'data-plan-group' : 'data-next-group', '1');
   group.style.cssText = [
-    'display:none',
-    'position:absolute',
-    'top:0',
-    'left:100%',
-    'margin-left:6px',
-    'width:260px',
-    'max-height:80vh',
+    'display:' + (kind === 'plan' ? 'block' : 'none'),
+    'max-height:60vh',
     'overflow-y:auto',
-    'z-index:10001',
     'border:1px solid rgba(124,58,237,0.5)',
-    'border-radius:' + lDropdownRadius,
+    'border-top:none',
+    'border-radius:0 0 ' + lDropdownRadius + ' ' + lDropdownRadius,
     'background:rgba(20,16,32,0.96)',
-    'box-shadow:0 8px 24px rgba(0,0,0,0.45)',
+    'margin:0 6px 6px 6px',
   ].join(';') + ';';
   if (kind === 'plan') {
     renderPlanTaskSubmenu(group, ctx);
   } else {
     renderTaskNextSubmenu(group, ctx, taskNextDeps);
   }
-  group.onmouseleave = function() {
-    setTimeout(function() {
-      const toggle = document.querySelector('[data-' + kind + '-toggle]') as HTMLElement | null;
-      if (toggle && toggle.matches(':hover')) return;
-      if (group.matches(':hover')) return;
-      group.style.display = 'none';
-      if (toggle) {
-        toggle.style.background = 'rgba(124,58,237,0.22)';
-        toggle.textContent = (kind === 'plan' ? '📋 Plan' : '⏭ Next') + ' ▸';
-      }
-    }, 180);
-  };
   return group;
 }
 
