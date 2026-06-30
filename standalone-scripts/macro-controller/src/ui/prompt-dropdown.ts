@@ -275,6 +275,21 @@ function buildTabButton(kind: 'plan' | 'next', label: string, activeByDefault: b
   return btn;
 }
 
+/** Build the "📥 IO" button that opens the Prompts Import/Export dialog. */
+function buildIOButton(): HTMLElement {
+  const btn = document.createElement('span');
+  btn.textContent = '📥 IO';
+  btn.title = 'Import / Export prompts as JSON';
+  btn.style.cssText = 'cursor:pointer;padding:3px 8px;border-radius:4px;font-size:9px;font-weight:600;color:#fff;background:rgba(124,58,237,0.55);border:1px solid rgba(255,255,255,0.1);';
+  btn.onmouseover = function() { btn.style.background = 'rgba(124,58,237,0.85)'; };
+  btn.onmouseout = function() { btn.style.background = 'rgba(124,58,237,0.55)'; };
+  btn.onclick = function(e: Event) {
+    e.stopPropagation();
+    void import('./prompt-io-dialog').then(function(mod) { (mod as { renderPromptIODialog: () => void }).renderPromptIODialog(); });
+  };
+  return btn;
+}
+
 
 /** Build the manual "Load" button for refreshing prompts from DB. */
 function buildLoadButton(ctx: PromptContext, taskNextDeps: TaskNextDeps): HTMLElement {
