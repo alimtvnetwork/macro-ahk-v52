@@ -327,7 +327,9 @@ let _observer: MutationObserver | null = null;
  * `window.__MARCO_SHOW_LEGACY_INLINE_STRIPS__ = true` before mount to restore.
  * Tracking: .lovable/question-and-ambiguity/64-compact-plan-next-into-prompts-dropdown.md
  */
-export const SHOW_LEGACY_INLINE_STRIPS = false;
+// v4.14.1: restored — user relies on inline Plan/Next strips above the chat.
+// The dropdown tabs are an additional surface, not a replacement.
+export const SHOW_LEGACY_INLINE_STRIPS = true;
 
 function isLegacyStripsEnabled(): boolean {
   if (SHOW_LEGACY_INLINE_STRIPS) return true;
