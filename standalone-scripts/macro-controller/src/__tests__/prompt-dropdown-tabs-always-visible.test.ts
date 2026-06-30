@@ -18,7 +18,7 @@ vi.mock('../shared-state', () => ({
 vi.mock('../xpath-utils', () => ({ getByXPath: () => null }));
 vi.mock('./prompt-utils', () => ({ pasteIntoEditor: vi.fn(), showPasteToast: vi.fn() }));
 vi.mock('../task-queue', () => ({ addTaskToQueue: vi.fn() }));
-vi.mock('./plan-task-ui', () => ({ renderPlanTaskSubmenu: (el: HTMLElement) => { el.textContent = 'PLAN'; } }));
+vi.mock('./plan-task-ui', () => ({ renderPlanTaskSubmenu: (host: HTMLElement) => { host.textContent = 'PLAN'; } }));
 vi.mock('./prompt-filter-menu', () => ({ renderFilterMenu: vi.fn() }));
 vi.mock('./prompt-injection', () => ({ openPromptCreationModal: vi.fn() }));
 vi.mock('./task-next-ui', () => ({
@@ -53,8 +53,8 @@ describe('Plan/Next tabs always visible in prompts dropdown', () => {
   beforeEach(() => { document.body.innerHTML = ''; });
 
   it('renders both tab buttons on initial open', () => {
-    const ctx = makeCtx();
-    renderPromptsDropdown(ctx, {} as never);
+    const dropdownCtx = makeCtx();
+    renderPromptsDropdown(dropdownCtx, {} as never);
     const plan = document.querySelector('[data-plan-toggle]');
     const next = document.querySelector('[data-next-toggle]');
     expect(plan).toBeTruthy();
@@ -64,24 +64,24 @@ describe('Plan/Next tabs always visible in prompts dropdown', () => {
   });
 
   it('Plan tab is active by default, Next is inactive', () => {
-    const ctx = makeCtx();
-    renderPromptsDropdown(ctx, {} as never);
+    const dropdownCtx = makeCtx();
+    renderPromptsDropdown(dropdownCtx, {} as never);
     expect(document.querySelector('[data-plan-toggle]')?.getAttribute('data-tab-active')).toBe('1');
     expect(document.querySelector('[data-next-toggle]')?.getAttribute('data-tab-active')).toBe('0');
   });
 
   it('header is sticky so tabs remain visible while scrolling', () => {
-    const ctx = makeCtx();
-    renderPromptsDropdown(ctx, {} as never);
+    const dropdownCtx = makeCtx();
+    renderPromptsDropdown(dropdownCtx, {} as never);
     const header = document.querySelector('[data-plan-toggle]')?.parentElement?.parentElement as HTMLElement;
     expect(header.style.position).toBe('sticky');
     expect(header.style.top).toBe('0px');
   });
 
   it('tabs re-render on subsequent open (no stale paint hides them)', () => {
-    const ctx = makeCtx();
-    renderPromptsDropdown(ctx, {} as never);
-    renderPromptsDropdown(ctx, {} as never);
+    const dropdownCtx = makeCtx();
+    renderPromptsDropdown(dropdownCtx, {} as never);
+    renderPromptsDropdown(dropdownCtx, {} as never);
     expect(document.querySelectorAll('[data-plan-toggle]').length).toBe(1);
     expect(document.querySelectorAll('[data-next-toggle]').length).toBe(1);
   });
