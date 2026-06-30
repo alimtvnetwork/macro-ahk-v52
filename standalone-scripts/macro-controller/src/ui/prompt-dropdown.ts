@@ -396,9 +396,7 @@ function _appendHeaderAndSubmenu(
   // by its own compact header button (📋 Plan ▾ / ⏭ Next ▾) — replaces the
   // previous combined 🎯 Tasks panel and the inline Plan row.
   const planGroup = _buildFloatingGroup('plan', ctx, taskNextDeps);
-  const nextGroup = _buildFloatingGroup('next', ctx, taskNextDeps);
   container.appendChild(planGroup);
-  container.appendChild(nextGroup);
 
   const categories = collectUniqueCategories(entries);
   renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
