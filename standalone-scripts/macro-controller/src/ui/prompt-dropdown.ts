@@ -223,7 +223,6 @@ function buildDropdownHeader(ctx: PromptContext, taskNextDeps: TaskNextDeps): HT
   const left = document.createElement('div');
   left.style.cssText = 'display:flex;align-items:center;gap:2px;';
   left.appendChild(buildTabButton('plan', '📋 Plan', true));
-  left.appendChild(buildTabButton('next', '⏭ Next', false));
   header.appendChild(left);
   const right = document.createElement('div');
   right.style.cssText = 'display:flex;align-items:center;gap:6px;';
