@@ -223,7 +223,6 @@ function buildDropdownHeader(ctx: PromptContext, taskNextDeps: TaskNextDeps): HT
   const left = document.createElement('div');
   left.style.cssText = 'display:flex;align-items:center;gap:2px;';
   left.appendChild(buildTabButton('plan', '📋 Plan', true));
-  left.appendChild(buildTabButton('next', '⏭ Next', false));
   header.appendChild(left);
   const right = document.createElement('div');
   right.style.cssText = 'display:flex;align-items:center;gap:6px;';
@@ -397,9 +396,7 @@ function _appendHeaderAndSubmenu(
   // by its own compact header button (📋 Plan ▾ / ⏭ Next ▾) — replaces the
   // previous combined 🎯 Tasks panel and the inline Plan row.
   const planGroup = _buildFloatingGroup('plan', ctx, taskNextDeps);
-  const nextGroup = _buildFloatingGroup('next', ctx, taskNextDeps);
   container.appendChild(planGroup);
-  container.appendChild(nextGroup);
 
   const categories = collectUniqueCategories(entries);
   renderFilterMenu(container, categories, ctx, taskNextDeps, renderPromptsDropdown);
