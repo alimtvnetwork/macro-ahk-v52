@@ -1,5 +1,15 @@
 # Changelog
 
+## [v4.14.0] — 2026-06-30 sticky Plan/Next header in prompts dropdown
+
+### Fixed
+- `standalone-scripts/macro-controller/src/ui/prompt-dropdown.ts` — Plan ▾ / Next ▾ header row is now `position: sticky; top: 0` with a solid background so the buttons remain visible when the dropdown opens upward and the prompt list scrolls past them.
+
+### Versioning
+- Version pins bumped 4.13.0 → 4.14.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, `marco-sdk` runtime/cache schema, and root `readme.md`.
+
+
+
 ## [v4.13.0] — 2026-06-28 inline-strip group collapse complexity refactor
 
 ### Fixed
