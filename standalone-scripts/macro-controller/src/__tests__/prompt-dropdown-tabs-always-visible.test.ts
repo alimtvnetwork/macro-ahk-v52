@@ -49,28 +49,25 @@ function makeCtx() {
   return { promptsDropdown: dropdown } as never;
 }
 
-describe('Plan/Next tabs always visible in prompts dropdown', () => {
+describe('Plan tab always visible in prompts dropdown', () => {
   beforeEach(() => { document.body.innerHTML = ''; });
 
-  it('renders both tab buttons on initial open', () => {
+  it('renders Plan tab button on initial open (Next removed — handled by inline strip)', () => {
     const dropdownCtx = makeCtx();
     renderPromptsDropdown(dropdownCtx, {} as never);
     const plan = document.querySelector('[data-plan-toggle]');
-    const next = document.querySelector('[data-next-toggle]');
     expect(plan).toBeTruthy();
-    expect(next).toBeTruthy();
     expect(plan?.textContent).toContain('Plan');
-    expect(next?.textContent).toContain('Next');
+    expect(document.querySelector('[data-next-toggle]')).toBeNull();
   });
 
-  it('Plan tab is active by default, Next is inactive', () => {
+  it('Plan tab is active by default', () => {
     const dropdownCtx = makeCtx();
     renderPromptsDropdown(dropdownCtx, {} as never);
     expect(document.querySelector('[data-plan-toggle]')?.getAttribute('data-tab-active')).toBe('1');
-    expect(document.querySelector('[data-next-toggle]')?.getAttribute('data-tab-active')).toBe('0');
   });
 
-  it('header is sticky so tabs remain visible while scrolling', () => {
+  it('header is sticky so Plan tab remains visible while scrolling', () => {
     const dropdownCtx = makeCtx();
     renderPromptsDropdown(dropdownCtx, {} as never);
     const header = document.querySelector('[data-plan-toggle]')?.parentElement?.parentElement as HTMLElement;
@@ -78,11 +75,10 @@ describe('Plan/Next tabs always visible in prompts dropdown', () => {
     expect(header.style.top).toBe('0px');
   });
 
-  it('tabs re-render on subsequent open (no stale paint hides them)', () => {
+  it('Plan tab re-renders on subsequent open (no stale paint hides it)', () => {
     const dropdownCtx = makeCtx();
     renderPromptsDropdown(dropdownCtx, {} as never);
     renderPromptsDropdown(dropdownCtx, {} as never);
     expect(document.querySelectorAll('[data-plan-toggle]').length).toBe(1);
-    expect(document.querySelectorAll('[data-next-toggle]').length).toBe(1);
   });
 });
