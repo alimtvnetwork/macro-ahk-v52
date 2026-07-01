@@ -190,7 +190,7 @@ function buildPlanDropup(anchor: HTMLElement): HTMLElement {
 
 function buildSplitStrip(): HTMLElement {
   const root = document.createElement('div');
-  root.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 6px;background:' + cSectionBg + ';border:1px solid rgba(245,158,11,0.35);border-radius:6px;font-family:system-ui,-apple-system,sans-serif;color:' + cPanelFg + ';font-size:11px;box-sizing:border-box;';
+  root.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 6px;background:' + cSectionBg + ';border:1px solid rgba(124,58,237,0.25);border-radius:6px;font-family:system-ui,-apple-system,sans-serif;color:' + cPanelFg + ';font-size:11px;box-sizing:border-box;';
 
   const label = document.createElement('span');
   label.textContent = '📋 Plan';
@@ -276,6 +276,8 @@ function buildNextStrip(deps: TaskNextDeps): HTMLElement {
   }
 
   root.appendChild(body);
+
+  subscribeInlineStripGroupCollapse(function () { applyInlineStripGroupCollapse(); });
 
   return root;
 }
