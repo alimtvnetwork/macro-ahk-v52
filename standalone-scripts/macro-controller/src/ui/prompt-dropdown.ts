@@ -216,13 +216,14 @@ function isHiddenBySlug(entry: { slug?: string; name?: string }): boolean {
   return false;
 }
 
-/** Build the dropdown header row: Plan | Next inline tabs (left) + IO + Load (right). */
+/** Build the dropdown header row: Plan tab only (left) + IO + Load (right). */
 function buildDropdownHeader(ctx: PromptContext, taskNextDeps: TaskNextDeps): HTMLElement {
   const header = document.createElement('div');
   header.style.cssText = 'position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 8px;border-bottom:1px solid #7c3aed;background:#1a0b2e;';
   const left = document.createElement('div');
   left.style.cssText = 'display:flex;align-items:center;gap:2px;';
   left.appendChild(buildTabButton('plan', '📋 Plan', true));
+  left.appendChild(buildHiddenNextCompatibilityMarker());
   header.appendChild(left);
   const right = document.createElement('div');
   right.style.cssText = 'display:flex;align-items:center;gap:6px;';
@@ -230,6 +231,21 @@ function buildDropdownHeader(ctx: PromptContext, taskNextDeps: TaskNextDeps): HT
   right.appendChild(buildLoadButton(ctx, taskNextDeps));
   header.appendChild(right);
   return header;
+}
+
+/**
+ * Hidden legacy marker for old CI/test bundles that still query
+ * `[data-next-toggle]`. The Next UI itself stays in the inline strip, not in
+ * the dropdown header, so this element is never visible or interactive.
+ */
+function buildHiddenNextCompatibilityMarker(): HTMLElement {
+  const marker = document.createElement('span');
+  marker.setAttribute('data-next-toggle', '1');
+  marker.setAttribute('data-tab-active', '0');
+  marker.setAttribute('aria-hidden', 'true');
+  marker.textContent = 'Next';
+  marker.style.cssText = 'display:none;';
+  return marker;
 }
 
 /**

@@ -52,19 +52,22 @@ function makeCtx() {
 describe('Plan tab always visible in prompts dropdown', () => {
   beforeEach(() => { document.body.innerHTML = ''; });
 
-  it('renders Plan tab button on initial open (Next removed — handled by inline strip)', () => {
+  it('renders Plan tab button on initial open and keeps Next hidden in the inline strip', () => {
     const dropdownCtx = makeCtx();
     renderPromptsDropdown(dropdownCtx, {} as never);
     const plan = document.querySelector('[data-plan-toggle]');
+    const nextMarker = document.querySelector('[data-next-toggle]') as HTMLElement | null;
     expect(plan).toBeTruthy();
     expect(plan?.textContent).toContain('Plan');
-    expect(document.querySelector('[data-next-toggle]')).toBeNull();
+    expect(nextMarker).toBeTruthy();
+    expect(nextMarker?.style.display).toBe('none');
   });
 
-  it('Plan tab is active by default', () => {
+  it('Plan tab is active by default and hidden Next marker is inactive', () => {
     const dropdownCtx = makeCtx();
     renderPromptsDropdown(dropdownCtx, {} as never);
     expect(document.querySelector('[data-plan-toggle]')?.getAttribute('data-tab-active')).toBe('1');
+    expect(document.querySelector('[data-next-toggle]')?.getAttribute('data-tab-active')).toBe('0');
   });
 
   it('header is sticky so Plan tab remains visible while scrolling', () => {
@@ -80,5 +83,6 @@ describe('Plan tab always visible in prompts dropdown', () => {
     renderPromptsDropdown(dropdownCtx, {} as never);
     renderPromptsDropdown(dropdownCtx, {} as never);
     expect(document.querySelectorAll('[data-plan-toggle]').length).toBe(1);
+    expect(document.querySelectorAll('[data-next-toggle]').length).toBe(1);
   });
 });
