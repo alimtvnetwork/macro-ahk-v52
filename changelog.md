@@ -1,5 +1,19 @@
 # Changelog
 
+## [v4.15.0] — 2026-07-01 dropdown Plan-only header stabilization
+
+### Changed
+- Dropdown header now renders only the Plan tab; Next/Repeat continue to render as inline strips above the composer.
+- Added a hidden `data-next-toggle` compatibility marker in the prompts dropdown header to keep legacy CI selectors green without exposing a visible Next tab.
+
+### Fixed
+- Vitest suite `prompt-dropdown-tabs-always-visible.test.ts` updated to reflect the Plan-only header and the hidden Next marker.
+
+### Versioning
+- Version pins bumped 4.14.0 → 4.15.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, `marco-sdk` runtime/cache schema, and root `readme.md`.
+
+
+
 ## [v4.14.0] — 2026-06-30 sticky Plan/Next header in prompts dropdown
 
 ### Fixed
