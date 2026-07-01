@@ -625,28 +625,6 @@ const INLINE_ID = 'marco-repeat-inline';
 
 const INLINE_WRAP_ID = 'marco-repeat-inline-wrap';
 
-function buildInlineGroupToggle(): HTMLButtonElement {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.title = 'Hide / show Plan, Next, and Repeat controls';
-  btn.dataset.role = 'inline-group-toggle';
-  btn.style.cssText = 'flex:0 0 auto;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.18);border-radius:4px;color:' + cPanelFg + ';cursor:pointer;font-size:15px;font-weight:700;line-height:1;';
-  const render = (): void => {
-    const collapsed = getInlineStripGroupCollapsed();
-    btn.textContent = collapsed ? '+' : '−';
-    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-    btn.title = collapsed ? 'Show Repeat controls' : 'Hide Repeat controls';
-  };
-  render();
-  subscribeInlineStripGroupCollapse(render);
-  btn.onclick = function (ev) {
-    ev.stopPropagation();
-    toggleInlineStripGroupCollapsed();
-    applyInlineStripGroupCollapse();
-  };
-  return btn;
-}
-
 function tryMountInline(): boolean {
   if (document.getElementById(INLINE_WRAP_ID)) return true;
   const target = findPasteTarget(getPromptsConfig(), (xp) => getByXPath(xp) as Element | null);
@@ -661,9 +639,13 @@ function tryMountInline(): boolean {
   strip.id = INLINE_ID;
   strip.style.margin = '0';
   wrap.appendChild(strip);
-  wrap.appendChild(buildInlineGroupToggle());
+  // Group toggle lives ONLY on the Plan strip so Plan/Next/Repeat share a
+  // single +/- control (avoids the double-toggle inconsistency).
   host.parentElement.insertBefore(wrap, host);
   applyInlineStripGroupCollapse();
+  // Ensure collapse state applies again after any subsequent group-toggle
+  // click, since Repeat used to have its own toggle.
+  subscribeInlineStripGroupCollapse(function () { applyInlineStripGroupCollapse(); });
   log('Repeat: inline strip mounted above chat box', 'info');
   return true;
 }
