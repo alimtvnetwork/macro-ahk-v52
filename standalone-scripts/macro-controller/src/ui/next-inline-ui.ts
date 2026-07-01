@@ -277,6 +277,8 @@ function buildNextStrip(deps: TaskNextDeps): HTMLElement {
 
   root.appendChild(body);
 
+  subscribeInlineStripGroupCollapse(function () { applyInlineStripGroupCollapse(); });
+
   return root;
 }
 
