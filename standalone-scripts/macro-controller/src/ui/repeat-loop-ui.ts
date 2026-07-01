@@ -16,10 +16,9 @@ import { findAddToTasksButton } from './task-next-ui';
 import { cPanelFg, cPrimaryLight, cSectionBg } from '../shared-state';
 import {
   applyInlineStripGroupCollapse,
-  getInlineStripGroupCollapsed,
   subscribeInlineStripGroupCollapse,
-  toggleInlineStripGroupCollapsed,
 } from './inline-strip-group-collapse';
+
 
 const PRESETS = [1, 5, 10, 25, 50, 100] as const;
 const DELAY_PRESETS_SEC = [5, 8, 12, 15, 20, 30, 60] as const;
