@@ -1,0 +1,18 @@
+{
+  "version": "4.15.0",
+  "branch": "release/v4.15.0",
+  "sourceBranch": "main",
+  "commit": "3b40f32e130151b7c1a0cad4ad43cc9d9a55cf6a",
+  "tag": "v4.15.0",
+  "assets": [],
+  "changelog": [
+    "Dropdown header now renders only the Plan tab; Next/Repeat continue to render as inline strips above the composer.",
+    "Added a hidden `data-next-toggle` compatibility marker in the prompts dropdown header to keep legacy CI selectors green without exposing a visible Next tab.",
+    "Vitest suite `prompt-dropdown-tabs-always-visible.test.ts` updated to reflect the Plan-only header and the hidden Next marker.",
+    "Version pins bumped 4.14.0 → 4.15.0 across `version.json`, `manifest.json`, `src/shared/constants.ts`, all `standalone-scripts/**/instruction.ts`, `shared-state.ts`, `payment-banner-hider/src/index.ts`, `marco-sdk` runtime/cache schema, and root `readme.md`."
+  ],
+  "isDraft": false,
+  "isPreRelease": false,
+  "createdAt": "2026-07-01T08:48:28Z",
+  "isLatest": false
+}
