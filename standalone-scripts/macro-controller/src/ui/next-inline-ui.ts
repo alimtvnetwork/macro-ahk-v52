@@ -193,7 +193,7 @@ function buildSplitStrip(): HTMLElement {
   root.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 6px;background:' + cSectionBg + ';border:1px solid rgba(245,158,11,0.35);border-radius:6px;font-family:system-ui,-apple-system,sans-serif;color:' + cPanelFg + ';font-size:11px;box-sizing:border-box;';
 
   const label = document.createElement('span');
-  label.textContent = '📋 Plan · ▶ Next · 🔁 Repeat';
+  label.textContent = '📋 Plan';
   label.style.cssText = 'font-weight:600;color:#fbbf24;cursor:pointer;';
   root.appendChild(label);
 
