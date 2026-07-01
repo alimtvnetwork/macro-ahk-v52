@@ -236,16 +236,44 @@ function GroupDetailPanel({ group, onBack, onRefresh }: GroupDetailPanelProps) {
     };
   }, [loadMembers]);
 
-  // Load full project roster from chrome.storage.local for the picker dropdown.
+  // Load full project roster for the drag-source rail. On cold extension start
+  // the SW may not yet answer GET_ALL_PROJECTS, so fall back to reading
+  // chrome.storage.local directly, then poll a few times with a fixed 500ms
+  // interval until projects appear (bounded, no exponential backoff).
   useEffect(() => {
-    (async () => {
+    let cancelled = false;
+    const readDirect = async (): Promise<StoredProject[]> => {
+      const storage = (typeof chrome !== "undefined" ? chrome.storage?.local : undefined) as
+        | { get: (key: string) => Promise<Record<string, unknown>> } | undefined;
+      if (!storage) return [];
+      try {
+        const out = await storage.get("marco_projects");
+        const raw = (out as { marco_projects?: unknown }).marco_projects;
+        return Array.isArray(raw) ? (raw as StoredProject[]) : [];
+      } catch { return []; }
+    };
+    const tryLoad = async (): Promise<StoredProject[]> => {
       try {
         const res = await sendMessage<{ projects: StoredProject[] }>({ type: "GET_ALL_PROJECTS" as never } as never);
-        setAllProjects(res.projects ?? []);
+        if (res?.projects?.length) return res.projects;
       } catch (err) {
         logError("ProjectGroupPanel.loadProjects", "Failed to fetch project list for picker", err);
       }
+      return await readDirect();
+    };
+    (async () => {
+      const MAX_ATTEMPTS = 30; // 30 * 500ms = 15s bound
+      for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        if (cancelled) return;
+        const projects = await tryLoad();
+        if (projects.length > 0) {
+          setAllProjects(projects);
+          return;
+        }
+        await new Promise(r => setTimeout(r, 500));
+      }
     })();
+    return () => { cancelled = true; };
   }, []);
 
   const memberIdSet = useMemo(() => new Set(members.map(m => m.ProjectIdUuid)), [members]);
